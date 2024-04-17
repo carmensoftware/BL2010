@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="03/18/2019 16:32:59" ReportInfo.CreatorVersion="2013.4.11.0">
+  <ScriptText>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Data;
+using FastReport;
+using FastReport.Data;
+using FastReport.Dialog;
+using FastReport.Barcode;
+using FastReport.Table;
+using FastReport.Utils;
+
+namespace FastReport
+{
+  public class ReportScript
+  {
+
+    private void _StartReport(object sender, EventArgs e)
+    {
+      // Initial values (For WebReport must set at here)
+      
+    }
+
+    private void btnOk_Click(object sender, EventArgs e)
+    {
+      // Sample for assign parameter
+      // Report.SetParameterValue(&quot;p_FDate&quot;, DateTimePicker1.Value);
+      // Report.SetParameterValue(&quot;p_TDate&quot;, DateTimePicker2.Value);
+      Report.SetParameterValue(&quot;p_ProductCode&quot;, cb_Product.Text.Split(':')[0].Trim()); 
+      
+      
+    }
+
+  }
+}
+</ScriptText>
+  <Dictionary>
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqCvlJxRoS3oNe5N3zvkC4LlmkTOi213q2PMFzU8HZZ4DU/VEubjZ3KctLTpD4nAN3Xp6w1h2vALk0BHFFlC/ye3xLHqvHDKBm/MLdf3aUCi8=">
+      <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;">
+        <Column Name="BuCode" DataType="System.String"/>
+        <Column Name="Name" DataType="System.String"/>
+        <Column Name="NameBilling" DataType="System.String"/>
+        <Column Name="Address" DataType="System.String"/>
+        <Column Name="PostCode" DataType="System.String"/>
+        <Column Name="City" DataType="System.String"/>
+        <Column Name="Country" DataType="System.String"/>
+        <Column Name="Phone" DataType="System.String"/>
+        <Column Name="Fax" DataType="System.String"/>
+        <Column Name="Email" DataType="System.String"/>
+        <Column Name="DeliveryTerm" DataType="System.String"/>
+        <Column Name="POS" DataType="System.String"/>
+        <Column Name="POSModel" DataType="System.String"/>
+        <Column Name="BackOffice" DataType="System.String"/>
+        <Column Name="BackOfficeModel" DataType="System.String"/>
+        <Column Name="BuLogo" DataType="System.Byte[]" BindableControl="Picture"/>
+      </TableDataSource>
+      <TableDataSource Name="Table" Alias="Product" DataType="System.Int32" Enabled="true" SelectCommand="SELECT ProductCode + ': ' +  ISNULL(ProductDesc1, '') + ' | ' + ISNULL(ProductDesc2,'') as Product&#13;&#10;FROM [IN].Product&#13;&#10;WHERE IsActive = 1&#13;&#10;ORDER BY ProductCode">
+        <Column Name="Product" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table1" Alias="Report" DataType="System.Int32" Enabled="true" SelectCommand="EXEC RPT.rptInventoryByExpiryDate @ProductCode">
+        <Column Name="ProductCode" DataType="System.String"/>
+        <Column Name="HdrNo" DataType="System.String"/>
+        <Column Name="ExpiryDate" DataType="System.DateTime"/>
+        <Column Name="Qty" DataType="System.Decimal"/>
+        <Column Name="ProductDesc1" DataType="System.String"/>
+        <Column Name="ProductDesc2" DataType="System.String"/>
+        <CommandParameter Name="ProductCode" DataType="12" Expression="[p_ProductCode]"/>
+      </TableDataSource>
+    </MsSqlDataConnection>
+    <Parameter Name="p_FDate" DataType="System.DateTime"/>
+    <Parameter Name="p_TDate" DataType="System.DateTime"/>
+    <Parameter Name="p_ProductCode" DataType="System.String"/>
+    <Total Name="TotalQty" Expression="[Report.Qty]" Evaluator="Data1" ResetOnReprint="true"/>
+  </Dictionary>
+  <ReportPage Name="Page1" RawPaperSize="9" FirstPageSource="15" OtherPagesSource="15">
+    <PageHeaderBand Name="PageHeader1" Width="718.2" Height="107.73">
+      <PictureObject Name="Picture1" Width="132.3" Height="94.5" DataColumn="ADMIN_Bu.BuLogo"/>
+      <TextObject Name="Text3" Left="184.28" Top="20.79" Width="349.65" Height="37.8" Text="Inventory by Expiry Date" HorzAlign="Center" Font="Tahoma, 14pt"/>
+    </PageHeaderBand>
+    <ColumnHeaderBand Name="ColumnHeader1" Top="111.73" Width="718.2" Height="39.69" Border.Lines="Bottom" CanGrow="true">
+      <TextObject Name="Text4" Top="1.89" Width="132.3" Height="18.9" Text="Product: [Report.ProductCode]" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text10" Left="141.75" Top="1.89" Width="557.55" Height="37.8" CanGrow="true" Text="[Report.ProductDesc1]&#13;&#10;[Report.ProductDesc2]" Font="Tahoma, 8pt"/>
+      <ChildBand Name="Child1" Top="155.42" Width="718.2" Height="20.79" Border.Lines="Bottom">
+        <TextObject Name="Text11" Top="1.89" Width="132.3" Height="18.9" Text="Receiving No." VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text12" Left="141.75" Top="1.89" Width="94.5" Height="18.9" Text="Expiry Date" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text13" Left="274.05" Top="1.89" Width="113.4" Height="18.9" Text="Qty." HorzAlign="Right" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      </ChildBand>
+    </ColumnHeaderBand>
+    <DataBand Name="Data1" Top="180.21" Width="718.2" Height="18.9" CanGrow="true" BeforePrintEvent="Data1_BeforePrint" DataSource="Table1">
+      <TextObject Name="Text5" Width="132.3" Height="18.9" Text="[Report.HdrNo]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text6" Left="141.75" Width="94.5" Height="18.9" Text="[Report.ExpiryDate]" Format="Date" Format.Format="d" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text8" Left="274.05" Width="113.4" Height="18.9" Text="[Report.Qty]" Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
+    </DataBand>
+    <ReportSummaryBand Name="ReportSummary1" Top="203.11" Width="718.2" Height="20.79">
+      <TextObject Name="Text14" Left="274.05" Top="1.89" Width="113.4" Height="18.9" Border.Lines="Bottom" Border.Style="Double" Text="[TotalQty]" Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
+      <LineObject Name="Line1" Left="274.05" Width="113.4" Border.Style="Double"/>
+    </ReportSummaryBand>
+    <PageFooterBand Name="PageFooter1" Top="227.9" Width="718.2" Height="37.8">
+      <TextObject Name="Text1" Top="9.45" Width="132.3" Height="18.9" Text="[Date]" Font="Tahoma, 8pt, style=Italic"/>
+      <TextObject Name="Text2" Left="604.8" Top="9.45" Width="113.4" Height="18.9" Text="[Page#]/[TotalPages#]" HorzAlign="Right" Font="Tahoma, 8pt"/>
+    </PageFooterBand>
+  </ReportPage>
+  <DialogPage Name="ReportDialog" Width="398" Height="358" AcceptButton="btnOk" CancelButton="btnCancel" LoadEvent="">
+    <ButtonControl Name="btnOk" Left="226" Top="298" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="0" Text="OK" ClickEvent="btnOk_Click" DialogResult="OK"/>
+    <ButtonControl Name="btnCancel" Left="309" Top="298" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="1" Text="Cancel" DialogResult="Cancel"/>
+    <LabelControl Name="Label1" Left="16" Top="32" Width="44" Height="13" Font="Tahoma, 8pt" TabIndex="2" Text="Product"/>
+    <ComboBoxControl Name="cb_Product" Left="68" Top="28" Width="309" Font="Tahoma, 8pt" TabIndex="3" DataColumn="Product.Product" DropDownWidth="309" ItemHeight="13"/>
+  </DialogPage>
+</Report>

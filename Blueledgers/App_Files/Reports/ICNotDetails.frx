@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" ReportInfo.Created="02/25/2014 14:24:04" ReportInfo.Modified="03/03/2014 16:34:04" ReportInfo.CreatorVersion="2013.4.11.0">
+  <ScriptText>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Data;
+using FastReport;
+using FastReport.Data;
+using FastReport.Dialog;
+using FastReport.Barcode;
+using FastReport.Table;
+using FastReport.Utils;
+
+namespace FastReport
+{
+  public class ReportScript
+  {
+
+
+  }
+}
+</ScriptText>
+  <Dictionary>
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqCvlJxRoS3oNe5N3zvkC4LjrxjHZTpppHQL/5v2oYTuL247rftz65jLG54j8JZqsti+OX7YEfGtes4tIO8xGpOUtkbrHM3/kGQBUFmwg9thg=">
+      <TableDataSource Name="IN_vRptStoReqInv" DataType="System.Int32" Enabled="true" TableName="IN.&quot;vRptStoReqInv&quot;" SelectCommand="EXEC [RPT].StoreRequistionInv @FLOCATION=@p_Flocation,@TLOCATION=@p_Tlocation,&#13;&#10;@FDATE =@p_FDate,@TDATE=@p_TDate">
+        <Column Name="RefId" DataType="System.String"/>
+        <Column Name="Type" DataType="System.String"/>
+        <Column Name="CreateDate" DataType="System.DateTime"/>
+        <Column Name="FromStoreId" DataType="System.String"/>
+        <Column Name="DeliveryDate" DataType="System.DateTime"/>
+        <Column Name="LocationCodeF" DataType="System.String"/>
+        <Column Name="ApprStatus" DataType="System.String"/>
+        <Column Name="WFStep" DataType="System.Int32"/>
+        <Column Name="AdjName" DataType="System.String"/>
+        <Column Name="ProjectRef" DataType="System.String"/>
+        <Column Name="jobName" DataType="System.String"/>
+        <Column Name="Description" DataType="System.String"/>
+        <Column Name="ProductCode" DataType="System.String"/>
+        <Column Name="RequestQty" DataType="System.Decimal"/>
+        <Column Name="ApprQty" DataType="System.Decimal"/>
+        <Column Name="IssueQty" DataType="System.Decimal"/>
+        <Column Name="RequestUnit" DataType="System.String"/>
+        <Column Name="ItemStatus" DataType="System.String"/>
+        <Column Name="ToStoreId" DataType="System.String"/>
+        <Column Name="LocationCodeT" DataType="System.String"/>
+        <Column Name="LocationNameFrom" DataType="System.String"/>
+        <Column Name="LocationNameTo" DataType="System.String"/>
+        <Column Name="ProductDesc1" DataType="System.String"/>
+        <Column Name="InventoryUnit" DataType="System.String"/>
+        <Column Name="CategoryName" DataType="System.String"/>
+        <Column Name="CategoryCode" DataType="System.String"/>
+        <Column Name="IN" DataType="System.Decimal"/>
+        <Column Name="OUT" DataType="System.Decimal"/>
+        <Column Name="FIFOAudit" DataType="System.Decimal"/>
+        <Column Name="FIFOAmount" DataType="System.Decimal"/>
+        <Column Name="PAvgAudit" DataType="System.Decimal"/>
+        <Column Name="AvgAmount" DataType="System.Decimal"/>
+        <Column Name="status" DataType="System.String"/>
+        <CommandParameter Name="p_FDate" DataType="4" DefaultValue="10/10/13"/>
+        <CommandParameter Name="p_TDate" DataType="4" DefaultValue="10/10/13"/>
+        <CommandParameter Name="p_FLocation" DataType="22"/>
+        <CommandParameter Name="p_Tlocation" DataType="22"/>
+      </TableDataSource>
+      <TableDataSource Name="Table" Alias="Flocation" DataType="System.Int32" Enabled="true" SelectCommand="exec rpt.listlocationbytype 0">
+        <Column Name="Item" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table1" Alias="Tlocation" DataType="System.Int32" Enabled="true" SelectCommand="exec rpt.listlocationbytype 0">
+        <Column Name="Item" DataType="System.String"/>
+      </TableDataSource>
+    </MsSqlDataConnection>
+    <Total Name="TotalIssueQty" Expression="[IN_vRptStoReqInv.IssueQty]" Evaluator="Data1" PrintOn="GroupFooter3" ResetOnReprint="true"/>
+    <Total Name="TotalIssueQtyLocation" Expression="[IN_vRptStoReqInv.IssueQty]" Evaluator="Data1" PrintOn="GroupFooter2" ResetOnReprint="true"/>
+    <Total Name="TotalIssueAmount" Expression="[IN_vRptStoReqInv.FIFOAmount]" Evaluator="Data1" PrintOn="GroupFooter3"/>
+    <Total Name="TotalIssueAmountLocation" Expression="[IN_vRptStoReqInv.FIFOAmount]" Evaluator="Data1" PrintOn="GroupFooter2"/>
+  </Dictionary>
+  <ReportPage Name="Page1" Guides="26.46,120.96,415.8,602.91,699.3,302.4,510.3,3.78">
+    <ReportTitleBand Name="ReportTitle1" Width="718.2" Height="37.8"/>
+    <PageHeaderBand Name="PageHeader1" Top="41.8" Width="718.2" Height="35.91"/>
+    <GroupHeaderBand Name="GroupHeader1" Top="81.71" Width="718.2" Height="81.27" StartNewPage="true" RepeatOnEveryPage="true" Condition="[IN_vRptStoReqInv.FromStoreId]">
+      <TextObject Name="Text3" Left="3.78" Width="565.11" Height="18.9" Text="[IN_vRptStoReqInv.LocationCodeF]:[IN_vRptStoReqInv.LocationNameFrom]" Font="Arial, 10pt, style=Bold"/>
+      <GroupHeaderBand Name="GroupHeader2" Top="166.98" Width="718.2" Height="37.8" Guides="0" RepeatOnEveryPage="true" Condition="[IN_vRptStoReqInv.ToStoreId]">
+        <TextObject Name="Text1" Left="26.46" Width="576.45" Height="18.9" Text="[[IN_vRptStoReqInv.ToStoreId]]:[[IN_vRptStoReqInv.LocationNameTo]]" Font="Arial, 10pt, style=Bold"/>
+        <ChildBand Name="Child1" Top="208.78" Width="718.2" Height="22.68">
+          <TextObject Name="Text12" Left="415.8" Width="187.11" Height="18.9" Text="Issue Qty" HorzAlign="Right" Font="Arial, 9pt, style=Bold"/>
+          <TextObject Name="Text13" Left="602.91" Width="96.39" Height="18.9" Text="Issue Amount" HorzAlign="Right" Font="Arial, 9pt, style=Bold"/>
+        </ChildBand>
+        <GroupHeaderBand Name="GroupHeader3" Top="235.46" Width="718.2" Height="47.25" RepeatOnEveryPage="true" Condition="[IN_vRptStoReqInv.ProductCode]">
+          <DataBand Name="Data1" Top="286.71" Width="718.2" DataSource="IN_vRptStoReqInv" Filter="[IN_vRptStoReqInv.IssueQty] != 0">
+            <Sort>
+              <Sort Expression="[IN_vRptStoReqInv.ProductCode]"/>
+            </Sort>
+          </DataBand>
+          <GroupFooterBand Name="GroupFooter3" Top="290.71" Width="718.2" Height="24.57" CanGrow="true" CanBreak="true">
+            <TextObject Name="Text5" Left="510.3" Width="92.61" Height="18.9" Text="[TotalIssueQty]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="4" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right"/>
+            <TextObject Name="Text9" Left="602.91" Width="96.39" Height="18.9" Text="[TotalIssueAmount]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right"/>
+            <TextObject Name="Text2" Left="26.46" Width="94.5" Height="18.9" Text="[[IN_vRptStoReqInv.ProductCode]]"/>
+            <TextObject Name="Text4" Left="120.96" Width="289.17" Height="18.9" CanGrow="true" Text="[IN_vRptStoReqInv.ProductDesc1]"/>
+            <TextObject Name="Text7" Left="415.8" Width="94.5" Height="18.9" Text="[IN_vRptStoReqInv.InventoryUnit]"/>
+          </GroupFooterBand>
+        </GroupHeaderBand>
+        <GroupFooterBand Name="GroupFooter2" Top="319.28" Width="718.2" Height="24.57" CanGrow="true" Guides="0,5.67">
+          <TextObject Name="Text6" Left="415.8" Top="5.67" Width="187.11" Height="18.9" Text="[TotalIssueQtyLocation]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="4" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Arial, 11pt, style=Bold"/>
+          <LineObject Name="Line1" Left="415.8" Width="283.5" Diagonal="true"/>
+          <TextObject Name="Text10" Left="602.91" Top="5.67" Width="96.39" Height="18.9" Text="[TotalIssueAmountLocation]" Format="Number" Format.UseLocale="true" HorzAlign="Right" Font="Arial, 11pt, style=Bold"/>
+          <TextObject Name="Text8" Left="26.46" Top="5.67" Width="389.34" Height="18.9" CanGrow="true" Text="Total Issue of Location : [IN_vRptStoReqInv.LocationNameTo]" Font="Arial, 11pt, style=Bold"/>
+        </GroupFooterBand>
+      </GroupHeaderBand>
+      <GroupFooterBand Name="GroupFooter1" Top="347.85" Width="718.2" Height="52.92"/>
+    </GroupHeaderBand>
+    <PageFooterBand Name="PageFooter1" Top="404.77" Width="718.2" Height="18.9"/>
+  </ReportPage>
+  <DialogPage Name="Form1" Width="470" Height="270" AcceptButton="btnOk" CancelButton="btnCancel" LoadEvent="Form1_Load">
+    <ButtonControl Name="btnOk" Left="290" Top="211" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="0" Text="OK" ClickEvent="btnOk_Click" DialogResult="OK"/>
+    <ButtonControl Name="btnCancel" Left="373" Top="211" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="1" Text="Cancel" DialogResult="Cancel"/>
+  </DialogPage>
+</Report>

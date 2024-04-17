@@ -1,0 +1,255 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Active" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="FName" xml:space="preserve">
+    <value>First Name</value>
+  </data>
+  <data name="JobTitle" xml:space="preserve">
+    <value>Job Title</value>
+  </data>
+  <data name="LastLogin" xml:space="preserve">
+    <value>Last Login</value>
+  </data>
+  <data name="LName" xml:space="preserve">
+    <value>Last Name</value>
+  </data>
+  <data name="LoginName" xml:space="preserve">
+    <value>Login Name</value>
+  </data>
+  <data name="btn_Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="btn_No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="btn_Ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="btn_ViewCreate" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="btn_ViewGo" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="btn_ViewModify" xml:space="preserve">
+    <value>Modify</value>
+  </data>
+  <data name="btn_Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="lbl_ConfPass_Nm" xml:space="preserve">
+    <value>Confirm Password :</value>
+  </data>
+  <data name="lbl_DepartmentCode_Nm" xml:space="preserve">
+    <value>Department:</value>
+  </data>
+  <data name="lbl_DivisionCode_Nm" xml:space="preserve">
+    <value>Division:</value>
+  </data>
+  <data name="lbl_FName_Nm" xml:space="preserve">
+    <value>First Name:</value>
+  </data>
+  <data name="lbl_IsActive_Nm" xml:space="preserve">
+    <value>Status:</value>
+  </data>
+  <data name="lbl_JobTitle_Nm" xml:space="preserve">
+    <value>Job Title:</value>
+  </data>
+  <data name="lbl_LastLogin_Nm" xml:space="preserve">
+    <value>Last Login:</value>
+  </data>
+  <data name="lbl_LName_Nm" xml:space="preserve">
+    <value>Last Name:</value>
+  </data>
+  <data name="lbl_LoginName_Nm" xml:space="preserve">
+    <value>Login Name:</value>
+  </data>
+  <data name="lbl_Mail_Nm" xml:space="preserve">
+    <value>Email:</value>
+  </data>
+  <data name="lbl_Message" xml:space="preserve">
+    <value>The password was not correctly confirmed. &lt;br&gt; Please ensure that thepassword and confirmation &lt;br&gt; match exactly.</value>
+  </data>
+  <data name="lbl_MName_Nm" xml:space="preserve">
+    <value>Mid Name:</value>
+  </data>
+  <data name="lbl_NewPass_Nm" xml:space="preserve">
+    <value>New Password :</value>
+  </data>
+  <data name="lbl_SectionCode_Nm" xml:space="preserve">
+    <value>Section:</value>
+  </data>
+  <data name="lbl_Title" xml:space="preserve">
+    <value>User</value>
+  </data>
+  <data name="lbl_View" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="Msg" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="Msg2" xml:space="preserve">
+    <value>Information</value>
+  </data>
+  <data name="Msg3" xml:space="preserve">
+    <value>Reset Password</value>
+  </data>
+  <data name="Msg4" xml:space="preserve">
+    <value>Password Confirm</value>
+  </data>
+  <data name="Msg5" xml:space="preserve">
+    <value>New User's Password</value>
+  </data>
+  <data name="MsgWarning" xml:space="preserve">
+    <value>Confrim delete selected rows?</value>
+  </data>
+  <data name="MsgWarning2" xml:space="preserve">
+    <value>Can't create new user, the number of user is reach the maximum.</value>
+  </data>
+  <data name="MsgWarning3" xml:space="preserve">
+    <value>Confrim delete?</value>
+  </data>
+  <data name="MsgWarning4" xml:space="preserve">
+    <value>Confirm Reset Password?</value>
+  </data>
+  <data name="MsgWarning5" xml:space="preserve">
+    <value>New password has been updated.</value>
+  </data>
+  <data name="MsgWarning6" xml:space="preserve">
+    <value>User's Role Updated Successfully</value>
+  </data>
+  <data name="MsgWarning7" xml:space="preserve">
+    <value>User's Store Updated Successfully</value>
+  </data>
+  <data name="lbl_ConfirmPass" xml:space="preserve">
+    <value>Confirm Password</value>
+  </data>
+  <data name="lbl_Password_Nm" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="DepartmentCode" xml:space="preserve">
+    <value>Department</value>
+  </data>
+</root>

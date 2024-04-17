@@ -1,0 +1,468 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="btn_AutoAllocateVd" xml:space="preserve">
+    <value>Auto Allocate</value>
+  </data>
+  <data name="btn_CancelAddVendor" xml:space="preserve">
+    <value>ไม่ใช่</value>
+  </data>
+  <data name="btn_CancelAutoAlloVd" xml:space="preserve">
+    <value>ไม่ใช่</value>
+  </data>
+  <data name="btn_CancelChangeDeliDate" xml:space="preserve">
+    <value>ไม่ใช่</value>
+  </data>
+  <data name="btn_CancelDelete" xml:space="preserve">
+    <value>ไม่ใช่</value>
+  </data>
+  <data name="btn_CancelSaveAddVendor" xml:space="preserve">
+    <value>ไม่ใช่</value>
+  </data>
+  <data name="btn_ConfirmAutoAlloVd" xml:space="preserve">
+    <value>ใช่</value>
+  </data>
+  <data name="btn_ConfirmChangeDeliDate" xml:space="preserve">
+    <value>ใช่</value>
+  </data>
+  <data name="btn_ConfirmDelete" xml:space="preserve">
+    <value>ใช่</value>
+  </data>
+  <data name="btn_ConfirmSaveAddVendor" xml:space="preserve">
+    <value>ใช่</value>
+  </data>
+  <data name="btn_OK" xml:space="preserve">
+    <value>ตกลง</value>
+  </data>
+  <data name="btn_OkAddVendor" xml:space="preserve">
+    <value>ใช่</value>
+  </data>
+  <data name="btn_OK_ApprQty" xml:space="preserve">
+    <value>ตกลง</value>
+  </data>
+  <data name="btn_OK_PopAutoAlloVd" xml:space="preserve">
+    <value>ตกลง</value>
+  </data>
+  <data name="btn_OK_Save" xml:space="preserve">
+    <value>ตกลง</value>
+  </data>
+  <data name="btn_PriceList" xml:space="preserve">
+    <value>รายการราคาสินค้า</value>
+  </data>
+  <data name="btn_Price_OK" xml:space="preserve">
+    <value>ตกลง</value>
+  </data>
+  <data name="btn_Save" xml:space="preserve">
+    <value>บันทึก</value>
+  </data>
+  <data name="lbl_AddVendor_POP" xml:space="preserve">
+    <value>คุณต้องการเพิ่มผู้ขายใช่หรือไม่</value>
+  </data>
+  <data name="lbl_Amount_HDG_av" xml:space="preserve">
+    <value>จำนวนเงิน</value>
+  </data>
+  <data name="lbl_ApprQty_POP" xml:space="preserve">
+    <value>จำนวนที่ต้องการอนุมัติต้องมากว่า 0</value>
+  </data>
+  <data name="lbl_BuCode_HD" xml:space="preserve">
+    <value>หน่วยธุรกิจ</value>
+  </data>
+  <data name="lbl_Buyer_Nm" xml:space="preserve">
+    <value>ผู้ซื้อ:</value>
+  </data>
+  <data name="lbl_BU_Compare_Nm" xml:space="preserve">
+    <value>หน่วยธุรกิจ</value>
+  </data>
+  <data name="lbl_Bu_GrdCom_Nm" xml:space="preserve">
+    <value>หน่วยธุรกิจ</value>
+  </data>
+  <data name="lbl_BU_HD_av" xml:space="preserve">
+    <value>หน่วยธุรกิจ</value>
+  </data>
+  <data name="lbl_ChangeAllDeliDate_POP" xml:space="preserve">
+    <value>ยืนยันการเปลี่ยนแปลงวันส่งสินค้าทั้งหมด</value>
+  </data>
+  <data name="lbl_ChangeDeliDate_Nm" xml:space="preserve">
+    <value>เปลี่ยนวันส่งสินค้า</value>
+  </data>
+  <data name="lbl_Comment_Detail_Nm" xml:space="preserve">
+    <value>หมายเหตุ</value>
+  </data>
+  <data name="lbl_Comment_HDG_av" xml:space="preserve">
+    <value>หมายเหตุ</value>
+  </data>
+  <data name="lbl_Comment_HDG_Nm" xml:space="preserve">
+    <value>หมายเหตุ</value>
+  </data>
+  <data name="lbl_ConfirmAlloVendor_POP" xml:space="preserve">
+    <value>ยืนยันการเลือกผู้ขายแบบอัตโนมัติ</value>
+  </data>
+  <data name="lbl_ConfirmDelete_POP" xml:space="preserve">
+    <value>ยืนยันการลบรายการ</value>
+  </data>
+  <data name="lbl_ConfirmSaveVendor_POP" xml:space="preserve">
+    <value>ยืนยันการเพิ่มผู้ขาย</value>
+  </data>
+  <data name="lbl_Date" xml:space="preserve">
+    <value>วันที่:</value>
+  </data>
+  <data name="lbl_DeliDate_HDG_av" xml:space="preserve">
+    <value>วันส่งสินค้า</value>
+  </data>
+  <data name="lbl_DeliDate_HDG_Nm" xml:space="preserve">
+    <value>วันส่งสินค้า</value>
+  </data>
+  <data name="lbl_DeliDate_N" xml:space="preserve">
+    <value>วันส่งสินค้า:</value>
+  </data>
+  <data name="lbl_DeliPoint_HDG_Nm" xml:space="preserve">
+    <value>จุดรับส่งสินค้า</value>
+  </data>
+  <data name="lbl_DeliPoint_Nm" xml:space="preserve">
+    <value>จุดรับส่งสินค้า:</value>
+  </data>
+  <data name="lbl_DeliPotin_HDG_av" xml:space="preserve">
+    <value>จุดรับส่งสินค้า</value>
+  </data>
+  <data name="lbl_DescEn_HDG_av" xml:space="preserve">
+    <value>รายละเอียด (อังกฤษ)</value>
+  </data>
+  <data name="lbl_DescEn_HDG_Nm" xml:space="preserve">
+    <value>รายละเอียด (อังกฤษ)</value>
+  </data>
+  <data name="lbl_Descll_HDG_av" xml:space="preserve">
+    <value>รายละเอียด</value>
+  </data>
+  <data name="lbl_Descll_HDG_Nm" xml:space="preserve">
+    <value>รายละเอียด</value>
+  </data>
+  <data name="lbl_Desc_Nm" xml:space="preserve">
+    <value>รายละเอียด:</value>
+  </data>
+  <data name="lbl_DiscAmt_Compare_Nm" xml:space="preserve">
+    <value>ส่วนลด </value>
+  </data>
+  <data name="lbl_DiscAmt_GrdCom_Nm" xml:space="preserve">
+    <value>ส่วนลด</value>
+  </data>
+  <data name="lbl_DiscAmt_HDG_av" xml:space="preserve">
+    <value>ส่วนลด</value>
+  </data>
+  <data name="lbl_DiscAmt_Nm" xml:space="preserve">
+    <value>ส่วนลด:</value>
+  </data>
+  <data name="lbl_DiscPercent_Compare_Nm" xml:space="preserve">
+    <value>ส่วนลด%</value>
+  </data>
+  <data name="lbl_DiscPercent_HDG_av" xml:space="preserve">
+    <value>ส่วนลด %</value>
+  </data>
+  <data name="lbl_DiscPercent_Nm" xml:space="preserve">
+    <value>ส่วนลด%:</value>
+  </data>
+  <data name="lbl_DiscPer_GrdCom_Nm" xml:space="preserve">
+    <value>ส่วนลด%</value>
+  </data>
+  <data name="lbl_Foc_Compare_Nm" xml:space="preserve">
+    <value>แถม</value>
+  </data>
+  <data name="lbl_Foc_GrdCom_Nm" xml:space="preserve">
+    <value>แถม</value>
+  </data>
+  <data name="lbl_FOC_HDG_av" xml:space="preserve">
+    <value>แถม</value>
+  </data>
+  <data name="lbl_ItemType_HDG_av" xml:space="preserve">
+    <value>ประเภท</value>
+  </data>
+  <data name="lbl_ItemType_HDG_Nm" xml:space="preserve">
+    <value>ประเภท</value>
+  </data>
+  <data name="lbl_Max_Compare_Nm" xml:space="preserve">
+    <value>สูงสุด</value>
+  </data>
+  <data name="lbl_Max_GrdCom_Nm" xml:space="preserve">
+    <value>สูงสุด</value>
+  </data>
+  <data name="lbl_Min_Compare_Nm" xml:space="preserve">
+    <value>ต่ำสุด</value>
+  </data>
+  <data name="lbl_Min_GrdCom_Nm" xml:space="preserve">
+    <value>ต่ำสุด</value>
+  </data>
+  <data name="lbl_Name_Compare_Nm" xml:space="preserve">
+    <value>ชื่ออังกฤษ</value>
+  </data>
+  <data name="lbl_Name_GrdCom_Nm" xml:space="preserve">
+    <value>ชื่ออังกฤษ</value>
+  </data>
+  <data name="lbl_NetAC_Nm" xml:space="preserve">
+    <value>รหัสบัญชี</value>
+  </data>
+  <data name="lbl_NetAmt_Nm" xml:space="preserve">
+    <value>จำนวนเงินสุทธิ</value>
+  </data>
+  <data name="lbl_Net_HDG_av" xml:space="preserve">
+    <value>ราคาสุทธิ</value>
+  </data>
+  <data name="lbl_Order_Nm" xml:space="preserve">
+    <value>จำนวนสั่งซื้อ:</value>
+  </data>
+  <data name="lbl_Po_Nm" xml:space="preserve">
+    <value>เลขที่ใบสั่งซื้อ:</value>
+  </data>
+  <data name="lbl_PriceCompare_Nm" xml:space="preserve">
+    <value>ราคาเปรียบเทียบ</value>
+  </data>
+  <data name="lbl_PriceGreaterThan_POP" xml:space="preserve">
+    <value>ราคาต้องมีค่ามากกว่า 0</value>
+  </data>
+  <data name="lbl_Price_Compare_Nm" xml:space="preserve">
+    <value>ราคา</value>
+  </data>
+  <data name="lbl_Price_GrdCom_Nm" xml:space="preserve">
+    <value>ราคา</value>
+  </data>
+  <data name="lbl_Price_HDG_av" xml:space="preserve">
+    <value>ราคา</value>
+  </data>
+  <data name="lbl_Price_Nm" xml:space="preserve">
+    <value>ราคา:</value>
+  </data>
+  <data name="lbl_Process_Nm0" xml:space="preserve">
+    <value>ขั้นตอน:</value>
+  </data>
+  <data name="lbl_PurchaseItemSum_Nm" xml:space="preserve">
+    <value>สรุปรายการซื้อสินค้า</value>
+  </data>
+  <data name="lbl_QtyApp_Nm" xml:space="preserve">
+    <value>จำนวนอนุมัติ:</value>
+  </data>
+  <data name="lbl_QtyReq_HDG_av" xml:space="preserve">
+    <value>จำนวนที่ขอ</value>
+  </data>
+  <data name="lbl_QtyReq_HDG_Nm" xml:space="preserve">
+    <value>จำนวนที่ขอ</value>
+  </data>
+  <data name="lbl_Rank_Compare_Nm" xml:space="preserve">
+    <value>จัดลำดับ</value>
+  </data>
+  <data name="lbl_Rank_GrdCom_Nm" xml:space="preserve">
+    <value>จัดลำดับ</value>
+  </data>
+  <data name="lbl_Receive_Nm" xml:space="preserve">
+    <value>รับแล้ว:</value>
+  </data>
+  <data name="lbl_RecordNotSave_POP" xml:space="preserve">
+    <value>กรุณาป้อนข้อมูล</value>
+  </data>
+  <data name="lbl_Ref_GrdCom_Nm" xml:space="preserve">
+    <value>เลขที่อ้างอิง</value>
+  </data>
+  <data name="lbl_Ref_Nm" xml:space="preserve">
+    <value>เลขที่อ้างอิง:</value>
+  </data>
+  <data name="lbl_Ref_Nm0" xml:space="preserve">
+    <value>เลขที่อ้างอิง:</value>
+  </data>
+  <data name="lbl_SKU_HDG_av" xml:space="preserve">
+    <value>รหัสสินค้า</value>
+  </data>
+  <data name="lbl_SKU_HDG_Nm" xml:space="preserve">
+    <value>รหัสสินค้า</value>
+  </data>
+  <data name="lbl_Status_Nm" xml:space="preserve">
+    <value>สถานะ:</value>
+  </data>
+  <data name="lbl_Store_HDG_av" xml:space="preserve">
+    <value>สโตร์</value>
+  </data>
+  <data name="lbl_Store_HDG_Nm" xml:space="preserve">
+    <value>สโตร์</value>
+  </data>
+  <data name="lbl_TaxAC_Nm" xml:space="preserve">
+    <value>รหัสบัญชี:</value>
+  </data>
+  <data name="lbl_TaxAdj_HDG_av" xml:space="preserve">
+    <value>เปลี่ยน</value>
+  </data>
+  <data name="lbl_TaxAmt_Nm" xml:space="preserve">
+    <value>จำนวนเงินภาษี:</value>
+  </data>
+  <data name="lbl_TaxRate_HDG_av" xml:space="preserve">
+    <value>อัตราภาษี</value>
+  </data>
+  <data name="lbl_TaxRate_Nm" xml:space="preserve">
+    <value>อัตราภาษี:</value>
+  </data>
+  <data name="lbl_TaxRate_POP" xml:space="preserve">
+    <value>อัตราภาษีต้องมีค่ามากกว่า 0.</value>
+  </data>
+  <data name="lbl_TaxType_Nm" xml:space="preserve">
+    <value>ประเภทภาษี:</value>
+  </data>
+  <data name="lbl_Tax_HDG_av" xml:space="preserve">
+    <value>ภาษี</value>
+  </data>
+  <data name="lbl_Title_Nm" xml:space="preserve">
+    <value>ขอซื้อ -</value>
+  </data>
+  <data name="lbl_TotalAmt_Nm" xml:space="preserve">
+    <value>จำนวนเงินรวม:</value>
+  </data>
+  <data name="lbl_TransectionDetail_HDG_Nm" xml:space="preserve">
+    <value>รายละเอียดรายการ</value>
+  </data>
+  <data name="lbl_Type_HDG_av" xml:space="preserve">
+    <value>ประเภท</value>
+  </data>
+  <data name="lbl_Unit_HDG_av" xml:space="preserve">
+    <value>หน่วย</value>
+  </data>
+  <data name="lbl_Unit_HDG_Nm" xml:space="preserve">
+    <value>หน่วย</value>
+  </data>
+  <data name="lbl_Vendor_GrdCom_Nm" xml:space="preserve">
+    <value>ผู้ขาย</value>
+  </data>
+  <data name="lbl_Vendor_HDG_av" xml:space="preserve">
+    <value>ผู้ขาย</value>
+  </data>
+  <data name="lbl_PRType_Nm" xml:space="preserve">
+    <value>ประเภท:</value>
+  </data>
+  <data name="lbl_Requestor_Nm" xml:space="preserve">
+    <value>ผู้ขอ:</value>
+  </data>
+  <data name="btn_WarningProdCateType_OK" xml:space="preserve">
+    <value>ตกลง</value>
+  </data>
+  <data name="btn_Warning_OK" xml:space="preserve">
+    <value>ตกลง</value>
+  </data>
+  <data name="lbl_WarningProductCateType_POP" xml:space="preserve">
+    <value>กรุณาเลือกประเภท</value>
+  </data>
+  <data name="lbl_WarningProduct_POP" xml:space="preserve">
+    <value>ไม่สามารถสร้างไอเทมใหม่ได้ เพราะประเภทของไอเทมต่างกัน</value>
+  </data>
+  <data name="lbl_JobCode_Nm" xml:space="preserve">
+    <value>JobCode:</value>
+  </data>
+</root>

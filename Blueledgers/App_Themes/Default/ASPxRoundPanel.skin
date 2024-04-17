@@ -1,0 +1,127 @@
+﻿<%--
+Default skin template. The following skins are provided as examples only.
+
+1. Named control skin. The SkinId should be uniquely defined because
+   duplicate SkinId's per control type are not allowed in the same theme.
+
+<asp:GridView runat="server" SkinId="gridviewSkin" BackColor="White" >
+   <AlternatingRowStyle BackColor="Blue" />
+</asp:GridView>
+
+2. Default skin. The SkinId is not defined. Only one default 
+   control skin per control type is allowed in the same theme.
+
+<asp:Image runat="server" ImageUrl="~/images/image1.jpg" />
+--%>
+<%@ Register Assembly="DevExpress.Web.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a"
+    Namespace="DevExpress.Web.ASPxRoundPanel" TagPrefix="dx" %>
+
+<%-- Default --%>
+<dx:ASPxRoundPanel SkinID="DEFAULT" runat="server" BackColor="White">
+    <HeaderStyle HorizontalAlign="Left" />
+    <ContentPaddings Padding="0px" />
+    <BottomRightCorner Height="5px" Url="~/App_Themes/Default/Images/ASPxRoundPanel/Default/BottomRightCorner.png" Width="5px">
+    </BottomRightCorner>
+    <NoHeaderTopRightCorner Height="5px" Url="~/App_Themes/Default/Images/ASPxRoundPanel/Default/NoHeaderTopRightCorner.png" Width="5px">
+    </NoHeaderTopRightCorner>
+    <HeaderRightEdge>
+        <BackgroundImage HorizontalPosition="right" ImageUrl="~/App_Themes/Default/Images/ASPxRoundPanel/Default/HeaderRightEdge.png"
+            Repeat="NoRepeat" VerticalPosition="bottom" />
+    </HeaderRightEdge>
+    <Border BorderColor="#BBBBBB" BorderStyle="Solid" BorderWidth="1px" />
+    <HeaderLeftEdge>
+        <BackgroundImage HorizontalPosition="left" ImageUrl="~/App_Themes/Default/Images/ASPxRoundPanel/Default/HeaderLeftEdge.png"
+            Repeat="NoRepeat" VerticalPosition="bottom" />
+    </HeaderLeftEdge>
+    <HeaderStyle BackColor="#EEEEEE">
+        <BorderLeft BorderStyle="None" />
+        <BorderRight BorderStyle="None" />
+        <BorderBottom BorderStyle="None" />
+    </HeaderStyle>
+    <TopRightCorner Height="5px" Url="~/App_Themes/Default/Images/ASPxRoundPanel/Default/TopRightCorner.png" Width="5px">
+    </TopRightCorner>
+    <HeaderContent>
+        <BackgroundImage HorizontalPosition="left" ImageUrl="~/App_Themes/Default/Images/ASPxRoundPanel/Default/HeaderContent.png"
+            Repeat="RepeatX" VerticalPosition="bottom" />
+    </HeaderContent>
+    <NoHeaderTopLeftCorner Height="5px" Url="~/App_Themes/Default/Images/ASPxRoundPanel/Default/NoHeaderTopLeftCorner.png" Width="5px">
+    </NoHeaderTopLeftCorner>
+    <TopLeftCorner Height="5px" Url="~/App_Themes/Default/Images/ASPxRoundPanel/Default/TopLeftCorner.png" Width="5px">
+    </TopLeftCorner>
+    <BottomLeftCorner Height="5px" Url="~/App_Themes/Default/Images/ASPxRoundPanel/Default/BottomLeftCorner.png" Width="5px">
+    </BottomLeftCorner>
+</dx:ASPxRoundPanel>
+
+<%-- Menu --%>
+<dx:ASPxRoundPanel SkinID="MENU" runat="server" BackColor="#187EB8"
+    ShowHeader="False" ContentHeight="40px">
+    <BottomRightCorner Height="5px" Url="~/App_Themes/Default/Images/ASPxRoundPanel/Menu/BottomRightCorner.png" Width="5px">
+    </BottomRightCorner>
+    <NoHeaderTopRightCorner Height="5px" Url="~/App_Themes/Default/Images/ASPxRoundPanel/Menu/NoHeaderTopRightCorner.png" Width="5px">
+    </NoHeaderTopRightCorner>
+    <HeaderRightEdge>
+        <BackgroundImage HorizontalPosition="right" ImageUrl="~/App_Themes/Default/Images/ASPxRoundPanel/Menu/HeaderRightEdge.png"
+            Repeat="NoRepeat" VerticalPosition="bottom" />
+    </HeaderRightEdge>
+    <Border BorderColor="#9FDDF4" BorderStyle="Solid" BorderWidth="1px" />
+    <HeaderLeftEdge>
+        <BackgroundImage HorizontalPosition="left" ImageUrl="~/App_Themes/Default/Images/ASPxRoundPanel/Menu/HeaderLeftEdge.png"
+            Repeat="NoRepeat" VerticalPosition="bottom" />
+    </HeaderLeftEdge>
+    <HeaderStyle BackColor="#DEDEDE">
+        <BorderLeft BorderStyle="None" />
+        <BorderRight BorderStyle="None" />
+        <BorderBottom BorderStyle="None" />
+    </HeaderStyle>
+    <TopRightCorner Height="5px" Url="~/App_Themes/Default/Images/ASPxRoundPanel/Menu/TopRightCorner.png" Width="5px">
+    </TopRightCorner>
+    <HeaderContent>
+        <BackgroundImage HorizontalPosition="left" ImageUrl="~/App_Themes/Default/Images/ASPxRoundPanel/Menu/HeaderContent.png"
+            Repeat="RepeatX" VerticalPosition="bottom" />
+    </HeaderContent>
+    <NoHeaderTopLeftCorner Height="5px" Url="~/App_Themes/Default/Images/ASPxRoundPanel/Menu/NoHeaderTopLeftCorner.png" Width="5px">
+    </NoHeaderTopLeftCorner>    
+    <TopLeftCorner Height="5px" Url="~/App_Themes/Default/Images/ASPxRoundPanel/Menu/TopLeftCorner.png" Width="5px">
+    </TopLeftCorner>
+    <BottomLeftCorner Height="5px" Url="~/App_Themes/Default/Images/ASPxRoundPanel/Menu/BottomLeftCorner.png" Width="5px">
+    </BottomLeftCorner>
+</dx:ASPxRoundPanel>
+
+<%-- Command Bar --%>
+<dx:ASPxRoundPanel SkinID="COMMANDBAR" runat="server" BackColor="#EEEEEE" ShowHeader="False">
+    <ContentPaddings Padding="0px" />
+    <BottomRightCorner Height="5px" Url="~/App_Themes/Default/Images/ASPxRoundPanel/CommandBar/BottomRightCorner.png" Width="5px">
+    </BottomRightCorner>
+    <NoHeaderTopRightCorner Height="5px" Url="~/App_Themes/Default/Images/ASPxRoundPanel/CommandBar/NoHeaderTopRightCorner.png" Width="5px">
+    </NoHeaderTopRightCorner>
+    <HeaderRightEdge>
+        <BackgroundImage HorizontalPosition="right" ImageUrl="~/App_Themes/Default/Images/ASPxRoundPanel/CommandBar/HeaderRightEdge.png"
+            Repeat="NoRepeat" VerticalPosition="bottom" />
+    </HeaderRightEdge>
+    <Border BorderColor="#EEEEEE" BorderStyle="Solid" BorderWidth="1px" />
+    <HeaderLeftEdge>
+        <BackgroundImage HorizontalPosition="left" ImageUrl="~/App_Themes/Default/Images/ASPxRoundPanel/CommandBar/HeaderLeftEdge.png"
+            Repeat="NoRepeat" VerticalPosition="bottom" />
+    </HeaderLeftEdge>
+    <HeaderStyle BackColor="#DEDEDE">
+        <BorderLeft BorderStyle="None" />
+        <BorderRight BorderStyle="None" />
+        <BorderBottom BorderStyle="None" />
+    </HeaderStyle>
+    <TopRightCorner Height="5px" Url="~/App_Themes/Default/Images/ASPxRoundPanel/CommandBar/TopRightCorner.png"
+        Width="5px">
+    </TopRightCorner>
+    <HeaderContent>
+        <BackgroundImage HorizontalPosition="left" ImageUrl="~/App_Themes/Default/Images/ASPxRoundPanel/CommandBar/HeaderContent.png"
+            Repeat="RepeatX" VerticalPosition="bottom" />
+    </HeaderContent>
+    <NoHeaderTopLeftCorner Height="5px" Url="~/App_Themes/Default/Images/ASPxRoundPanel/CommandBar/NoHeaderTopLeftCorner.png"
+        Width="5px">
+    </NoHeaderTopLeftCorner>    
+    <TopLeftCorner Height="5px" Url="~/App_Themes/Default/Images/ASPxRoundPanel/CommandBar/TopLeftCorner.png"
+        Width="5px">
+    </TopLeftCorner>
+    <BottomLeftCorner Height="5px" Url="~/App_Themes/Default/Images/ASPxRoundPanel/CommandBar/BottomLeftCorner.png"
+        Width="5px">
+    </BottomLeftCorner>
+</dx:ASPxRoundPanel>

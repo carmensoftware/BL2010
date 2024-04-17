@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="12/17/2013 14:16:35" ReportInfo.CreatorVersion="2013.4.11.0">
+  <ScriptText>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Data;
+using FastReport;
+using FastReport.Data;
+using FastReport.Dialog;
+using FastReport.Barcode;
+using FastReport.Table;
+using FastReport.Utils;
+
+namespace FastReport
+{
+  public class ReportScript
+  {
+
+    private void _StartReport(object sender, EventArgs e)
+    {
+      // Initial values (For WebReport must set at here)
+      
+    }
+
+    private void btnOk_Click(object sender, EventArgs e)
+    {
+      // Sample for assign parameter
+      // Report.SetParameterValue(&quot;p_FDate&quot;, DateTimePicker1.Value);
+      // Report.SetParameterValue(&quot;p_TDate&quot;, DateTimePicker2.Value);
+      
+      
+    }
+
+  }
+}
+</ScriptText>
+  <Dictionary>
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqOYTMYw5/jEQg4pS6MrJhvatnARRNJIvQXR66ij+Xw84bFI4f6+nbsFQvqdZgAgaJTS+orIPz5r6lYgzNU4ThccX2kEOcRndAzoh68P2ms2U=">
+      <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;">
+        <Column Name="BuCode" DataType="System.String"/>
+        <Column Name="Name" DataType="System.String"/>
+        <Column Name="NameBilling" DataType="System.String"/>
+        <Column Name="Address" DataType="System.String"/>
+        <Column Name="PostCode" DataType="System.String"/>
+        <Column Name="City" DataType="System.String"/>
+        <Column Name="Country" DataType="System.String"/>
+        <Column Name="Phone" DataType="System.String"/>
+        <Column Name="Fax" DataType="System.String"/>
+        <Column Name="Email" DataType="System.String"/>
+        <Column Name="DeliveryTerm" DataType="System.String"/>
+        <Column Name="POS" DataType="System.String"/>
+        <Column Name="POSModel" DataType="System.String"/>
+        <Column Name="BackOffice" DataType="System.String"/>
+        <Column Name="BackOfficeModel" DataType="System.String"/>
+        <Column Name="BuLogo" DataType="System.Byte[]" BindableControl="Picture"/>
+      </TableDataSource>
+    </MsSqlDataConnection>
+    <Parameter Name="p_FDate" DataType="System.DateTime"/>
+    <Parameter Name="p_TDate" DataType="System.DateTime"/>
+  </Dictionary>
+  <ReportPage Name="Page1" RawPaperSize="9" FirstPageSource="15" OtherPagesSource="15">
+    <PageHeaderBand Name="PageHeader1" Width="718.2" Height="98.28">
+      <PictureObject Name="Picture1" Width="132.3" Height="94.5" DataColumn="ADMIN_Bu.BuLogo"/>
+      <TextObject Name="Text3" Left="184.28" Top="20.79" Width="349.65" Height="18.9" Text="Report Name" HorzAlign="Center" Font="Tahoma, 14pt"/>
+    </PageHeaderBand>
+    <ColumnHeaderBand Name="ColumnHeader1" Top="102.28" Width="718.2" Height="37.8"/>
+    <DataBand Name="Data1" Top="144.08" Width="718.2" Height="69.93" CanGrow="true" BeforePrintEvent="Data1_BeforePrint"/>
+    <PageFooterBand Name="PageFooter1" Top="218.01" Width="718.2" Height="37.8">
+      <TextObject Name="Text1" Top="9.45" Width="132.3" Height="18.9" Text="[Date]" Font="Arial, 8pt, style=Italic"/>
+      <TextObject Name="Text2" Left="604.8" Top="9.45" Width="113.4" Height="18.9" Text="[Page#]/[TotalPages#]" HorzAlign="Right" Font="Arial, 8pt"/>
+    </PageFooterBand>
+  </ReportPage>
+  <DialogPage Name="ReportDialog" Width="398" Height="358" AcceptButton="btnOk" CancelButton="btnCancel" LoadEvent="">
+    <ButtonControl Name="btnOk" Left="226" Top="298" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="0" Text="OK" ClickEvent="btnOk_Click" DialogResult="OK"/>
+    <ButtonControl Name="btnCancel" Left="309" Top="298" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="1" Text="Cancel" DialogResult="Cancel"/>
+  </DialogPage>
+</Report>

@@ -1,0 +1,4 @@
+C:\Projects\Blueledgers3\blueledgers.com\BL_DbTrans\bin\Debug\BL_DbTrans.dll
+C:\Projects\Blueledgers3\blueledgers.com\BL_DbTrans\bin\Debug\BL_DbTrans.pdb
+C:\Projects\Blueledgers3\blueledgers.com\BL_DbTrans\obj\Debug\BL_DbTrans.dll
+C:\Projects\Blueledgers3\blueledgers.com\BL_DbTrans\obj\Debug\BL_DbTrans.pdb

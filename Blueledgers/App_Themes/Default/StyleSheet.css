@@ -1,0 +1,1520 @@
+﻿/*  Version 2.0
+    Date:2016-06-24 */
+
+:root
+{
+    --main-font-family: Arial, Helvetica, Tahoma;
+}
+
+
+/* ---- Command Bar ------------ */
+.CMD_BAR
+{
+    font-family: var(--main-font-family);
+    height: 22px;
+    width: 100%;
+    background-color: #4d4d4d;
+    color: #FFFFFF;
+    font-size: 9pt;
+    font-weight: bold;
+    margin: auto;
+}
+
+.CMD_BAR_LEFT
+{
+    float: left;
+    padding-left: 10px;
+}
+.CMD_BAR_LEFT img
+{
+}
+
+.CMD_BAR_LEFT span
+{
+}
+
+.CMD_BAR_RIGHT
+{
+    float: right;
+    padding-right: 10px;
+}
+
+
+/* ------------------------------------------------------------------------------- */
+
+/* Dialog */
+
+.ShowDialog
+{
+    background-color: White;
+    border-width: 1px;
+    border-radius: 10px;
+    padding-top: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-bottom: 15px;
+    width: 890px;
+    height: 540px;
+    display: inline-block;
+}
+
+.ShowDialog_Background
+{
+    background-color: Black;
+    filter: alpha(opacity=90);
+    opacity: 0.8;
+}
+.ShowDialog_Title
+{
+    font-size: 18px;
+    font-style: italic;
+    font-weight: bold;
+    color: Blue;
+}
+
+/* ------------------------------------------------------------------------------- */
+
+.LoginControl
+{
+    background-color: #F7F7DE;
+    border-color: #CCCC99;
+    border-style: solid;
+    border-width: 1px;
+    font-family: Arial, Tahoma, MS Sans serif;
+    font-size: 9pt;
+}
+
+body
+{
+    margin: 0px 0px 0px 0px; /*background-color: #D7E8EF;*/
+    background-color: #ffffff;
+    font-family: 'Arial' , 'Verdana' , 'Segoe UI' , 'Helvetica' , 'Tahoma';
+    font-size: 8pt;
+}
+
+tr.TABLE_HD_GRD
+{
+    background-color: #11A6DE;
+    font-family: Arial, Tahoma, MS Sans serif;
+    font-size: 12px;
+    font-weight: bold;
+    color: #FFFFFF;
+    text-align: left;
+    height: 17px;
+}
+
+.TD_LINE_GRD
+{
+    background-color: Transparent;
+    border-bottom-color: #DADADA;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+}
+/*-------------------------------------------------*/
+
+/*------Table------*/
+.TABLE_HD
+{
+    border: 0;
+    border-spacing: 0px;
+    padding: 1px;
+    background-color: Transparent;
+}
+
+.TABLE_HD tr
+{
+    height: 17px;
+}
+
+.TD_LINE_GRD2
+{
+    background-color: #EDEDED;
+    font-family: Arial, Tahoma, MS Sans serif;
+    font-size: 11px;
+    color: #010101;
+    height: 17px;
+    font-weight: normal;
+}
+
+.TD_LINE_GRD1
+{
+    background-color: #E3F3FF;
+    font-family: Arial, Tahoma, MS Sans serif;
+    font-size: 11px;
+    color: #010101;
+    height: 17px;
+    font-weight: normal;
+}
+.TD_Footer
+{
+    background-color: #4D4D4D;
+    font-weight: bold;
+    color: #FFFFFF;
+}
+
+/*------Grid ------*/
+.empty .empty td
+{
+    /*background: none;*/ /*padding: 0;*/
+    margin: 0;
+}
+.grdHeaderRow_V1
+{
+    background-color: #2196f3; /*#11A6DE;*/
+    color: White;
+    font-family: Arial, Tahoma, MS Sans serif; /*font-size: 12px;*/
+    font-size: 0.75rem;
+    font-weight: bold; /*color: #FFFFFF;*/ /*text-align: left;*/
+}
+.grdHeaderRow_V1 th
+{
+    padding-top: 7px;
+    padding-bottom: 5px;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+.grdDataRow_V1
+{
+    height: 1rem;
+    font-size: 0.75rem; /*background-color:#F3F8FC;*/ /*background-color: #E3F3FF;*/ /*font-family: Arial, Tahoma, MS Sans serif;*/ /*font-size: 11px;*/ /*color: #010101;*/ /*height: 1.5rem;*/
+}
+.grdDataRow_V1 td
+{
+    padding-top: 5px;
+    padding-bottom: 3px;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+.grdAlternatingRow_V1
+{
+    /*background-color: #F9F1CF;*/ /*background-color: #EDEDED;*/
+    background-color: #f2f2f2; /*font-family: Arial, Tahoma, MS Sans serif;*/ /*font-size: 11px;*/
+    font-size: 0.75rem; /*color: #010101;*/
+}
+.grdAlternatingRow_V1 td
+{
+    padding-top: 5px;
+    padding-bottom: 3px;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+.grdFooterRow_V1
+{
+    /*background-color: #B3B2B2;*/
+    background-color: #11A6DE;
+    font-weight: bold;
+    color: #FFFFFF;
+    height: 17px;
+}
+.grdPager_V1
+{
+    background-color: #4D4D4D;
+    height: 24px;
+}
+.grdPager_V1 span
+{
+    border: 1px solid white;
+    color: White;
+    font-family: Arial;
+    font-weight: bold;
+    font-size: 9pt;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 3px;
+    padding-right: 3px;
+    text-decoration: none;
+}
+.grdPager_V1 a
+{
+    color: White;
+    font-family: Arial;
+    font-weight: bold;
+    font-size: 9pt;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 3px;
+    padding-right: 3px;
+    text-decoration: none;
+}
+.grdPager_V1 a:link
+{
+    color: White;
+    font-family: Arial;
+    font-weight: bold;
+    font-size: 9pt;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 3px;
+    padding-right: 3px;
+    text-decoration: none;
+}
+.grdPager_V1 a:visited
+{
+    color: White;
+    font-family: Arial;
+    font-weight: bold;
+    font-size: 9pt;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 3px;
+    padding-right: 3px;
+    text-decoration: none;
+}
+.grdPager_V1 a:hover
+{
+    background-color: White;
+    color: #4D4D4D;
+    font-family: Arial;
+    font-weight: bold;
+    font-size: 9pt;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 3px;
+    padding-right: 3px;
+    text-decoration: none;
+}
+.grdPager_V1 a:active
+{
+    border: 1px solid white;
+    color: White;
+    font-family: Arial;
+    font-weight: bold;
+    font-size: 9pt;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 3px;
+    padding-right: 3px;
+    text-decoration: none;
+}
+
+/*------ Label ------*/
+.lbl_TITLE
+{
+    font-family: Arial, Tahoma, MS Sans serif;
+    font-size: 18pt;
+    color: #4D4D4D;
+    font-weight: bold;
+}
+.lbl_HD_White
+{
+    font-family: Arial, Tahoma, MS Sans serif;
+    font-size: 9pt;
+    color: #FFFFFF;
+    font-weight: bold;
+}
+.lbl_HD
+{
+    font-family: Arial, Tahoma, MS Sans serif;
+    font-size: 8pt;
+    color: #4D4D4D;
+    font-weight: bold;
+}
+
+.lbl_HD_GRD
+{
+    font-family: Arial, Tahoma, MS Sans serif;
+    font-size: 8t;
+    color: #706F6F;
+    font-weight: bold;
+}
+
+.lbl_NR
+{
+    font-family: Arial, Tahoma, MS Sans serif;
+    font-size: 8pt;
+    color: #000000;
+}
+
+.lbl_NR_NUM
+{
+    font-family: Arial, Tahoma, MS Sans serif;
+    font-size: 8pt;
+    color: #000000;
+    text-align: right;
+}
+
+.lbl_NR_BI
+{
+    font-family: Arial, Tahoma, MS Sans serif;
+    font-size: 7pt;
+    color: #000000;
+    font-weight: bold;
+    font-style: italic;
+}
+
+.lbl_NR_Italic
+{
+    font-family: Arial, Tahoma, MS Sans serif;
+    font-size: 7pt;
+    color: #000000;
+    font-weight: normal;
+    font-style: italic;
+}
+
+.lbl_NR_BLUE
+{
+    font-family: Arial, Tahoma, MS Sans serif;
+    font-size: 8pt;
+    color: #17A6DF;
+    font-weight: normal;
+}
+
+.lbl_NR_BLUE_NUM
+{
+    font-family: Arial, Tahoma, MS Sans serif;
+    font-size: 8pt;
+    color: #17A6DF;
+    font-weight: normal;
+    text-align: right;
+}
+
+.lbl_NR_RED
+{
+    font-family: Arial, Tahoma, MS Sans serif;
+    font-size: 8pt;
+    color: red;
+}
+
+/*------ Button ------*/
+.BTN_V1
+{
+    background-color: #ECEDEF;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #7f7f7f;
+    font-family: Arial, Tahoma, MS Sans serif;
+    font-size: 8pt;
+    color: #000000;
+    cursor: hand; /*cursor: hand; 	font-weight: bold; 	border-style: solid; 	border-width: 1px; 	*/
+}
+
+.BTNView_V1
+{
+    background-color: transparent;
+    border-style: none;
+    border-color: #7f7f7f;
+    font-family: Arial, Tahoma, MS Sans serif;
+    font-size: 8pt;
+    direction: ltr;
+    color: #000000;
+    cursor: hand;
+}
+
+/*------ Dropdown List ------*/
+.DDL_V1
+{
+    font-family: Arial, Tahoma, MS Sans serif;
+    font-size: 8pt;
+    border: 1px, none, transparent;
+}
+
+/*------ Text box ------*/
+.TXT_V1
+{
+    font-size: 8pt;
+    font-family: Arial, Tahoma, MS Sans serif;
+}
+
+/*------ Check box ------*/
+.CHK_V1
+{
+    font-size: 8pt;
+    font-family: Arial, Tahoma, MS Sans serif;
+}
+
+/*------ List box ------*/
+.LST_V1
+{
+    font-size: 10pt;
+    font-family: Arial, Tahoma, MS Sans serif;
+}
+
+/*----- Link Button ----*/
+.LNK_V1
+{
+    font-family: Arial, Tahoma, MS Sans serif;
+    font-size: 8pt;
+    font-weight: bold;
+}
+
+/*----- Hyper Link -----*/
+.HYPL_V1
+{
+    font-family: Arial, Tahoma, MS Sans serif;
+    font-size: 8pt;
+}
+.gvHeaderRow_Aqua
+{
+    background-image: url(/blueledgers/App_Themes/Default/Images/gvHeaderRow.jpg);
+    border: solid 1px #A3C0E8;
+    font-weight: bold;
+}
+.gvDataRow_Aqua
+{
+    border: solid 1px #A3C0E8;
+    font-weight: normal;
+    height: 21px;
+}
+.gvFooterRow_Aqua
+{
+    background-image: url(/blueledgers/App_Themes/Default/Images/gvHeaderRow.jpg);
+    border: solid 1px #A3C0E8;
+    font-weight: normal;
+}
+.gvPager_Aqua
+{
+    border: solid 1px #A3C0E8;
+    font-weight: normal;
+}
+.gvHeaderRow_Blue
+{
+    height: 30px;
+}
+
+
+/*- GENERAL ----------------------------------------------------------------------------*/
+.GENERAL_BG1
+{
+    background-color: #161617;
+}
+.GENERAL_BG2
+{
+    background-color: #3C3C3D;
+}
+.GENERAL_BGLOGIN
+{
+    background-color: #7bafc9;
+}
+.GENERAL_BGLOGIN2
+{
+    background-color: #CFD9ED;
+}
+.POPUP_DISABLED
+{
+    background-color: #000000;
+    filter: alpha(opacity=70);
+    opacity: 0.7;
+}
+.HOME_TITLE_BG
+{
+    background-color: #eeeeee;
+    border-bottom-style: solid;
+    border-bottom-width: 2px;
+    border-bottom-color: #2e7590;
+}
+.AP_TITLE_BG
+{
+    background-color: #eeeeee;
+    border-bottom-style: solid;
+    border-bottom-width: 2px;
+    border-bottom-color: #c4f262;
+}
+.GL_TITLE_BG
+{
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-bottom-color: #eeeeee;
+}
+.RPT_TITLE_BG
+{
+    background-color: #eeeeee;
+    border-bottom-style: solid;
+    border-bottom-width: 2px;
+    border-bottom-color: #a10e5e;
+}
+
+/*--------------------------------------------------------------------------------------*/
+
+/*- CONSOLIDATE ------------------------------------------------------------------------*/
+.CONSO_LOCATION
+{
+    background-color: #AEB0B3;
+}
+.CONSO_HEADER
+{
+    background-color: #DAE434;
+}
+.CONSO_SUBHEADER
+{
+    background-color: #FFFFFF;
+}
+.CONSO_CONTENT
+{
+    background-color: #FFFA99;
+}
+.CONSO_GRD_HEADER
+{
+    background-color: #DAE434;
+    text-align: left;
+}
+.CONSO_GRD_ROW
+{
+    background-color: #FFFFFF;
+}
+.CONSO_GRD_AROW
+{
+    background-color: #FFFA99;
+}
+.CONSO_GRD_FOOTER
+{
+    background-color: #DAE434;
+}
+/*-------------------------------------------------------------------------------------*/
+
+/*- GL --------------------------------------------------------------------------------*/
+.GL_LOCATION
+{
+    background-color: #AEB0B3;
+}
+.GL_HEADER
+{
+    background-color: #7DA7D9;
+}
+.GL_SUBHEADER
+{
+    background-color: #FFFFFF;
+}
+.GL_CONTENT
+{
+    background-color: #BED3EC;
+}
+.GL_GRD_COMMAND
+{
+    color: #363636;
+    text-align: center;
+    font-family: Tahoma;
+    font-size: 8pt;
+    width: 100px;
+}
+.GL_GRD_HEADER
+{
+    background-image: url(/BlueLedger/App_Themes/Default/pics/GL01/gridview_headbar1.jpg);
+    background-repeat: no-repeat;
+    background-position: left;
+}
+.GL_GRD_HEADER_RIGHT
+{
+    background-image: url(/BlueLedger/App_Themes/Default/pics/GL01/gridview_headbar3.jpg);
+    background-repeat: no-repeat;
+    background-position: right;
+}
+.GL_GRD_HEADER_ROW
+{
+    background-color: #e0e0e0;
+    height: 23px;
+    font-family: Tahoma;
+    font-size: 8pt;
+    color: #363636;
+    font-weight: bold;
+}
+.GL_GRD_ROW
+{
+    height: 22px;
+    font-family: Tahoma;
+    font-size: 8pt;
+    color: #363636;
+    border-bottom: 1px solid #e8e8e8;
+}
+.GL_GRD_AROW
+{
+    height: 20px;
+}
+.GL_GRD_FOOTER
+{
+    height: 25px;
+}
+.GL_GRD_HCOL
+{
+    border-bottom: 1px solid #aaaaaa;
+}
+.GL_GRD_COL
+{
+    border-bottom: 1px solid #d4e3f3;
+}
+/*-------------------------------------------------------------------------------------*/
+
+/*- REPORT ----------------------------------------------------------------------------*/
+.RPT_LOCATION
+{
+    background-color: #AEB0B3;
+}
+.RPT_HEADER
+{
+    background-color: #9CD671;
+}
+.RPT_SUBHEADER
+{
+    background-color: #FFFFFF;
+}
+.RPT_CONTENT
+{
+    background-color: #AFE1B6;
+}
+.RPT_GRD_HEADER
+{
+    text-align: left;
+    height: 25px;
+}
+.RPT_GRD_ROW
+{
+    height: 20px;
+}
+.RPT_GRD_AROW
+{
+    height: 20px;
+}
+.RPT_GRD_FOOTER
+{
+    height: 25px;
+}
+.RPT_GRD_HCOL
+{
+    border-bottom: 1px solid #aaaaaa;
+}
+.RPT_GRD_COL
+{
+    border-bottom: 1px solid #ebcadd;
+}
+/*-------------------------------------------------------------------------------------*/
+
+/*- Setup------------------------------------------------------------------------------*/
+.SETUP_LOCATION
+{
+    background-color: #AEB0B3;
+}
+.SETUP_HEADER
+{
+    background-color: #C2C2C2;
+}
+.SETUP_SUBHEADER
+{
+    background-color: #FFFFFF;
+}
+.SETUP_CONTENT
+{
+    background-color: #D6D6D6;
+}
+.SETUP_GRD_HEADER
+{
+    text-align: left;
+    height: 25px;
+}
+.SETUP_GRD_ROW
+{
+    height: 20px;
+}
+.SETUP_GRD_AROW
+{
+    height: 20px;
+}
+.SETUP_GRD_FOOTER
+{
+    height: 25px;
+}
+.SETUP_GRD_HCOL
+{
+    border-bottom: 1px solid #EEEEEE;
+}
+.SETUP_GRD_COL
+{
+    border-bottom: 1px solid #F5F5F5;
+}
+/*-------------------------------------------------------------------------------------*/
+
+/*- Lookup ----------------------------------------------------------------------------*/
+.LOOKUP_LOCATION
+{
+    background-color: #AEB0B3;
+}
+.LOOKUP_HEADER
+{
+    background-color: #C2C2C2;
+}
+.LOOKUP_SUBHEADER
+{
+    background-color: #FFFFFF;
+}
+.LOOKUP_CONTENT
+{
+    background-color: #D6D6D6;
+}
+.LOOKUP_GRD_HEADER
+{
+    background-color: #CCCCCC;
+    text-align: left;
+}
+.LOOKUP_GRD_ROW
+{
+    background-color: #FFFFFF;
+}
+.LOOKUP_GRD_AROW
+{
+    background-color: #D6D6D6;
+}
+.LOOKUP_GRD_FOOTER
+{
+    background-color: #CCCCCC;
+}
+/*-------------------------------------------------------------------------------------*/
+
+/*- Budget ----------------------------------------------------------------------------*/
+.BUDGET_LOCATION
+{
+    background-color: #AEB0B3;
+}
+.BUDGET_HEADER
+{
+    background-color: #FAB25F;
+}
+.BUDGET_SUBHEADER
+{
+    background-color: #FFFFFF;
+}
+.BUDGET_CONTENT
+{
+    background-color: #FCDAB1;
+}
+.BUDGET_GRD_HEADER
+{
+    background-color: #FBCD6B;
+    text-align: left;
+}
+.BUDGET_GRD_ROW
+{
+    background-color: #FFFFFF;
+}
+.BUDGET_GRD_AROW
+{
+    background-color: #FCDAB1;
+}
+.BUDGET_GRD_FOOTER
+{
+    background-color: #FBCD6B;
+}
+/*-------------------------------------------------------------------------------------*/
+
+/*- AP --------------------------------------------------------------------------------*/
+.AP_LOCATION
+{
+    background-color: #AEB0B3;
+}
+.AP_HEADER
+{
+    background-color: #CBAAE0;
+}
+.AP_SUBHEADER
+{
+    background-color: #FFFFFF;
+}
+.AP_CONTENT
+{
+    background-color: #ECCDEE;
+}
+.AP_GRD_HEADER
+{
+    /*background-color: #FFFFFF;*/
+    height: 25px;
+}
+.AP_GRD_ROW
+{
+    /*background-color: #FFFFFF;*/
+    height: 25px;
+}
+.AP_GRD_AROW
+{
+    /*background-color: #FFFFFF;*/
+    height: 25px;
+}
+.AP_GRD_FOOTER
+{
+    /*background-color: #FFFFFF;*/
+    height: 25px;
+}
+.AP_GRD_HCOL
+{
+    border-bottom: 1px solid #aaaaaa;
+}
+.AP_GRD_COL
+{
+    border-bottom: 1px solid #e0f2ba;
+}
+/*-------------------------------------------------------------------------------------*/
+
+.GRD_COL
+{
+    border-bottom-color: #DDDDDD;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+}
+.BTN_NORMAL
+{
+    background-color: #9c9c9c;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #b7b7b7 #797979 #797979 #b7b7b7;
+    font-family: Arail, Tahoma, MS Sans Serif;
+    font-size: 8pt;
+    font-weight: bold;
+    color: #FFFFFF;
+    cursor: hand;
+}
+.BTN_RED
+{
+    background-color: #c46d6c;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #d39090 #a84343 #a84343 #d39090;
+    font-family: Arail, Tahoma, MS Sans Serif;
+    font-size: 8pt;
+    font-weight: bold;
+    color: #FFFFFF;
+    cursor: hand;
+}
+.BTN_GREEN
+{
+    background-color: #7CC576;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #A2D39C #3BB878 #3BB878 #A2D39C;
+    font-family: Arail, Tahoma, MS Sans Serif;
+    font-size: 8pt;
+    font-weight: bold;
+    color: #FFFFFF;
+    cursor: hand;
+}
+.BTN_ORANGE
+{
+    background-color: #FF9933;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #FFB164 #EC7400 #EC7400 #FFB164;
+    font-family: Arail, Tahoma, MS Sans Serif;
+    font-size: 8pt;
+    font-weight: bold;
+    color: #FFFFFF;
+    cursor: hand;
+}
+.BTN_MAROON
+{
+    background-color: #c46d6c;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #d39090 #a84343 #a84343 #d39090;
+    font-family: Arail, Tahoma, MS Sans Serif;
+    font-size: 8pt;
+    font-weight: bold;
+    color: #FFFFFF;
+    cursor: hand;
+}
+.BTN_BLACK
+{
+    font-family: Arial;
+    font-size: 8pt;
+    color: #ffffff;
+    height: 20px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 4px;
+    padding-right: 4px;
+    font-weight: bold;
+    background-color: #585858;
+    border: 1px solid #a1a1a1;
+}
+.BTN_IM
+{
+    height: 18px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-right: 4px;
+    padding-left: 8px;
+    border: 1px solid #FFF;
+}
+.BTN_IM_Click
+{
+    height: 18px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-right: 4px;
+    padding-left: 8px;
+    background-color: #ddecfe;
+    border: 1px solid #83aada;
+}
+.BTN_IM:hover, .BTN_IM_Click:hover
+{
+    height: 18px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-right: 4px;
+    padding-left: 8px;
+    background-color: #f3f7fd;
+    border: 1px solid #bbd8fb;
+}
+.BTN_SHORTCUT
+{
+    font-family: Arial;
+    font-size: 8pt;
+    color: #434343;
+    font-weight: bold;
+    height: 27px;
+    background-color: #e6e6e6;
+}
+.TD_CONTENT
+{
+    border-bottom-color: #E0E0E0;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+}
+.AP_TD_CONTENT
+{
+    border-bottom-color: #e0f2ba;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+}
+.GL_TD_CONTENT
+{
+    border-bottom-color: #d4e3f3;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+}
+.ajax__calendar_container
+{
+    border: 1px solid #646464;
+    background-color: white;
+    color: #000000;
+}
+
+/* ****************** RatingStar ****************** */
+.ratingStar
+{
+    height: 14px;
+}
+.ratingStar .ratingItem
+{
+    font-size: 0pt;
+    width: 13px;
+    height: 12px;
+    margin: 0px;
+    padding: 0px;
+    display: block;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+.ratingStar .Filled
+{
+    background-image: url(~/App_Themes/Default/pics/FilledStar.png);
+}
+.ratingStar .Empty
+{
+    background-image: url(~/App_Themes/Default/pics/UnfillStar.png);
+}
+.ratingStar .Saved
+{
+    background-image: url(~/App_Themes/Default/pics/ratingStarSaved.png);
+}
+
+/* ****************** End RatingStar ****************** */
+
+/* ****************** ModalPoup *************************  */
+
+.modalpopup
+{
+    position: absolute;
+    background-color: #FFFFFF;
+    border: solid 1px green;
+    width: 300px;
+    height: 200px;
+    margin: 0;
+    padding: 0;
+    cursor: move;
+}
+
+.ModalPopupBG
+{
+    background-color: #666699;
+    filter: alpha(opacity=50);
+    opacity: 0.7;
+}
+
+.popup_Container
+{
+    background-color: #fffeb2;
+    border: 2px solid #000000;
+    padding: 0px 0px 0px 0px;
+    width: 300px;
+    height: 200px;
+}
+
+.popupConfirmation
+{
+    width: 300px;
+    height: 200px;
+}
+
+.popup_Titlebar
+{
+    background: url(/blueledger/App_Themes/Default/pics/titlebar_bg.jpg);
+    height: 29px;
+}
+
+.popup_Body
+{
+    padding: 15px 15px 15px 15px;
+    font-family: Arial;
+    font-weight: bold;
+    font-size: 12px;
+    color: #000000;
+    line-height: 15pt;
+    clear: both;
+    padding: 20px;
+    text-align: center;
+}
+
+.TitlebarLeft
+{
+    float: left;
+    padding-left: 5px;
+    padding-top: 5px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    font-size: 12px;
+    color: #FFFFFF;
+}
+.TitlebarRight
+{
+    background: url(/blueledger/App_Themes/Default/pics/cross_icon_normal.png);
+    background-position: right;
+    background-repeat: no-repeat;
+    height: 15px;
+    width: 16px;
+    float: right;
+    cursor: pointer;
+    margin-right: 5px;
+    margin-top: 5px;
+}
+
+.popup_Buttons
+{
+    margin: 10px;
+}
+
+/* ******************End ModalPoup ***********************************  */
+
+
+/*** MENU ************************************************************/
+.MENU_LEFT_PADDING
+{
+    padding-bottom: 9px;
+    padding-left: 11px;
+    padding-right: 11px;
+}
+.SUBMENU_AP
+{
+    background-color: #e3f7b9;
+    border-width: 1px;
+    border-color: #c7f466;
+    border-style: solid;
+}
+.SUBMENU_AR
+{
+    background-color: #cdf0e5;
+    border-width: 1px;
+    border-color: #92efd2;
+    border-style: solid;
+}
+.SUBMENU_GL
+{
+    background-color: #d4e3f3;
+    border-width: 1px;
+    border-color: #b7d4f4;
+    border-style: solid;
+}
+.SUBMENU_CON
+{
+    background-color: #eef0b3;
+    border-width: 1px;
+    border-color: #dbe060;
+    border-style: solid;
+}
+.SUBMENU_FC
+{
+    background-color: #fadfbc;
+    border-width: 1px;
+    border-color: #f8ca8e;
+    border-style: solid;
+}
+.SUBMENU_INC
+{
+    background-color: #fbf7c6;
+    border-width: 1px;
+    border-color: #fef79c;
+    border-style: solid;
+}
+.SUBMENU_RPT
+{
+}
+.SUBMENU_FAV
+{
+    background-color: #EFEFEF;
+    border-width: 1px;
+    border-color: #FFFFFF;
+    border-style: solid;
+}
+.ROOTMENU
+{
+    font-family: Tahoma;
+    font-size: 9pt;
+    color: #505050;
+}
+.SUBMENU
+{
+    background-repeat: no-repeat;
+    background-position: left top;
+    font-family: Tahoma;
+    font-size: 9pt;
+    color: #ffffff;
+    height: 45px;
+}
+.SUBMENU_SELECTED
+{
+    background-image: url(/BlueLedger/App_Themes/Default/pics/BG_MENU_SUB2.jpg);
+    background-repeat: no-repeat;
+    background-position: left top;
+    font-family: Tahoma;
+    font-size: 9pt;
+    color: #ffffff;
+    height: 45px;
+}
+/*********************************************************************/
+
+.MaskedEditFocus
+{
+    background-color: #ffffcc;
+    color: #000000;
+}
+
+.MaskedEditError
+{
+    background-color: #ffcccc;
+}
+/*********************************************************************/
+.ListSearchPromptText
+{
+    display: none;
+}
+
+/*Gridview*/
+.pager span
+{
+    color: blue;
+    font-weight: bold;
+}
+
+
+/******Extender Callout**********************************************************/
+
+.customCalloutStyle div, .customCalloutStyle td
+{
+    border: solid 1px Black;
+    background-color: Yellow;
+}
+.customCalloutStyle .ajax__validatorcallout_popup_table
+{
+    display: none;
+    border: none;
+    background-color: transparent;
+    padding: 0px;
+}
+.customCalloutStyle .ajax__validatorcallout_popup_table_row
+{
+    vertical-align: top;
+    height: 100%;
+    background-color: transparent;
+    padding: 0px;
+}
+.customCalloutStyle .ajax__validatorcallout_callout_cell
+{
+    width: 20px;
+    height: 100%;
+    text-align: right;
+    vertical-align: top;
+    border: none;
+    background-color: transparent;
+    padding: 0px;
+}
+.customCalloutStyle .ajax__validatorcallout_callout_table
+{
+    height: 100%;
+    border: none;
+    background-color: transparent;
+    padding: 0px;
+}
+.customCalloutStyle .ajax__validatorcallout_callout_table_row
+{
+    background-color: transparent;
+    padding: 0px;
+}
+.customCalloutStyle .ajax__validatorcallout_callout_arrow_cell
+{
+    padding: 8px 0px 0px 0px;
+    text-align: right;
+    vertical-align: top;
+    font-size: 1px;
+    border: none;
+    background-color: transparent;
+}
+.customCalloutStyle .ajax__validatorcallout_callout_arrow_cell .ajax__validatorcallout_innerdiv
+{
+    font-size: 1px;
+    position: relative;
+    left: 1px;
+    border-bottom: none;
+    border-right: none;
+    border-left: none;
+    width: 15px;
+    background-color: transparent;
+    padding: 0px;
+}
+.customCalloutStyle .ajax__validatorcallout_callout_arrow_cell .ajax__validatorcallout_innerdiv div
+{
+    height: 1px;
+    overflow: hidden;
+    border-top: none;
+    border-bottom: none;
+    border-right: none;
+    padding: 0px;
+    margin-left: auto;
+}
+.customCalloutStyle .ajax__validatorcallout_error_message_cell
+{
+    font-family: Verdana;
+    font-size: 10px;
+    padding: 5px;
+    border-right: none;
+    border-left: none;
+    width: 100%;
+}
+.customCalloutStyle .ajax__validatorcallout_icon_cell
+{
+    width: 20px;
+    padding: 5px;
+    border-right: none;
+}
+.customCalloutStyle .ajax__validatorcallout_close_button_cell
+{
+    vertical-align: top;
+    padding: 0px;
+    text-align: right;
+    border-left: none;
+}
+.customCalloutStyle .ajax__validatorcallout_close_button_cell .ajax__validatorcallout_innerdiv
+{
+    border: none;
+    text-align: center;
+    width: 10px;
+    padding: 2px;
+    cursor: pointer;
+}
+
+
+
+/*****************************************************************************/
+.ac_results
+{
+    padding: 0px;
+    border: 1px solid WindowFrame;
+    background-color: Window;
+    overflow: hidden;
+}
+
+.ac_results ul
+{
+    width: 100%;
+    list-style-position: outside;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.ac_results iframe
+{
+    display: none; /*sorry for IE5*/
+    display: /**/ block; /*sorry for IE5*/
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    filter: mask();
+    width: 3000px;
+    height: 3000px;
+}
+
+.ac_results li
+{
+    margin: 0px;
+    padding: 2px 5px;
+    cursor: pointer;
+    display: block;
+    width: 100%;
+    font: menu;
+    font-size: 12px;
+    overflow: hidden;
+}
+
+.ac_results li span
+{
+    float: right;
+    color: #999;
+    margin-right: 10px;
+}
+
+.ac_loading
+{
+    background: Window url( './indicator.gif' ) right center no-repeat;
+}
+
+.ac_over
+{
+    background-color: Highlight;
+    color: HighlightText;
+}
+
+/* ****************** RatingStar ****************** */
+.ratingStar
+{
+    height: 14px;
+}
+.ratingStar .ratingItem
+{
+    font-size: 0pt;
+    width: 13px;
+    height: 12px;
+    margin: 0px;
+    padding: 0px;
+    display: block;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+.ratingStar .Filled
+{
+    background-image: url(/blueledger/App_Themes/Default/pics/FilledStar.png);
+}
+.ratingStar .Empty
+{
+    background-image: url(/blueledger/App_Themes/Default/pics/UnfillStar.png);
+}
+.ratingStar .Saved
+{
+    background-image: url(/blueledger/App_Themes/Default/pics/ratingStarSaved.png);
+}
+
+.LBL_NORMAL
+{
+    font-family: Arial;
+    font-size: 9pt;
+    color: #4D4D4D;
+}
+.LBL_TABLE_HEADER
+{
+    font-family: Arial;
+    font-size: 9pt;
+    font-weight: bold;
+    color: #FFFFFF;
+}
+.GRD_ITEM_STYLE
+{
+    padding-top: 3px;
+    vertical-align: top;
+}
+.POPUP_BG
+{
+    background-color: #000000;
+    filter: alpha(opacity=50);
+    opacity: 0.5;
+}
+
+.WATERMAKR
+{
+    color: #c1c2c2;
+    font-style: italic;
+    text-align: center;
+}
+/*------------- LinkButton -------------*/
+.lnkb_HD_White
+{
+    font-family: Arial, Tahoma, MS Sans serif;
+    font-size: 9pt;
+    color: #FFFFFF;
+    font-weight: bold;
+    text-decoration: none;
+}
+.lnkb_NM_White
+{
+    font-family: Arial, Tahoma, MS Sans serif;
+    font-size: 9pt;
+    color: #FFFFFF;
+    text-decoration: none;
+}
+.lnkb_NM
+{
+    font-family: Arial, Tahoma, MS Sans serif;
+    font-size: 9pt;
+    color: #000000;
+    text-decoration: none;
+}
+
+
+
+.LNKB_NORMAL
+{
+    -webkit-border-radius: 5;
+    -moz-border-radius: 5;
+    border-radius: 0px;
+    font-family: Arial;
+    color: #3498db;
+    font-size: 11px;
+    padding: 3px 10px 3px 10px;
+    border: solid #3cb0fd 1px;
+    text-decoration: none;
+}
+
+.LNKB_NORMAL:hover
+{
+    background: #3cb0fd;
+    text-decoration: none;
+}
+/*------------- LinkButton -------------*/
+
+
+
+/* ----------------------------------- */
+/* -----------TEXT-------------------- */
+/* ----------------------------------- */
+.text-nowrap-ellipsis
+{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ----------------------------------- */
+
+
+
+.card
+{
+    /* Add shadows to create the "card" effect */
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+}
+
+/* On mouse-over, add a deeper shadow */
+.card:hover
+{
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+
+/* Add some padding inside the card container */
+.container
+{
+    padding: 2px 16px;
+}

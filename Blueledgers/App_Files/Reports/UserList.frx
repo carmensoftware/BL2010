@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="03/14/2022 15:23:29" ReportInfo.CreatorVersion="2013.4.11.0">
+  <ScriptText>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Data;
+using FastReport;
+using FastReport.Data;
+using FastReport.Dialog;
+using FastReport.Barcode;
+using FastReport.Table;
+using FastReport.Utils;
+
+namespace FastReport
+{
+  public class ReportScript
+  {
+
+    private void _StartReport(object sender, EventArgs e)
+    {
+      // Initial values (For WebReport must set at here)
+      
+    }
+
+    private void btnOk_Click(object sender, EventArgs e)
+    {
+      // Sample for assign parameter
+      // Report.SetParameterValue(&quot;p_FDate&quot;, DateTimePicker1.Value);
+      // Report.SetParameterValue(&quot;p_TDate&quot;, DateTimePicker2.Value);
+      
+      
+    }
+
+  }
+}
+</ScriptText>
+  <Dictionary>
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqOYTMYw5/jEQg4pS6MrJhva06IOMZwV+8/AoHaAndohEyqoWOaLDOwfCF9u2oov4T6BNOrop2HAQ3qlPM4y4vdEkq4IOPV255tx5Vr0aNNZE=">
+      <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;">
+        <Column Name="BuCode" DataType="System.String"/>
+        <Column Name="Name" DataType="System.String"/>
+        <Column Name="NameBilling" DataType="System.String"/>
+        <Column Name="Address" DataType="System.String"/>
+        <Column Name="PostCode" DataType="System.String"/>
+        <Column Name="City" DataType="System.String"/>
+        <Column Name="Country" DataType="System.String"/>
+        <Column Name="Phone" DataType="System.String"/>
+        <Column Name="Fax" DataType="System.String"/>
+        <Column Name="Email" DataType="System.String"/>
+        <Column Name="DeliveryTerm" DataType="System.String"/>
+        <Column Name="POS" DataType="System.String"/>
+        <Column Name="POSModel" DataType="System.String"/>
+        <Column Name="BackOffice" DataType="System.String"/>
+        <Column Name="BackOfficeModel" DataType="System.String"/>
+        <Column Name="BuLogo" DataType="System.Byte[]" BindableControl="Picture"/>
+      </TableDataSource>
+      <TableDataSource Name="Table" Alias="Data" DataType="System.Int32" Enabled="true" SelectCommand="SELECT * FROM [Admin].vUser &#13;&#10;WHERE IsActived = &#13;&#10;CASE @Status &#13;&#10;  WHEN 'Inactive' THEN 0&#13;&#10;  WHEN 'Active' THEN 1&#13;&#10;  ELSE IsActived&#13;&#10;END&#13;&#10;   &#13;&#10;">
+        <Column Name="LoginName" DataType="System.String"/>
+        <Column Name="FName" DataType="System.String"/>
+        <Column Name="MName" DataType="System.String"/>
+        <Column Name="LName" DataType="System.String"/>
+        <Column Name="Email" DataType="System.String"/>
+        <Column Name="DepartmentCode" DataType="System.String"/>
+        <Column Name="LastLogin" DataType="System.DateTime"/>
+        <Column Name="IsActived" DataType="System.Boolean" BindableControl="CheckBox"/>
+        <Column Name="HomePage" DataType="System.String"/>
+        <Column Name="JobTitle" DataType="System.String"/>
+        <Column Name="Signature" DataType="System.Byte[]" BindableControl="Picture"/>
+        <Column Name="Password" DataType="System.String"/>
+        <CommandParameter Name="@Status" DataType="12" DefaultValue="All"/>
+      </TableDataSource>
+    </MsSqlDataConnection>
+    <Parameter Name="p_Status" DataType="System.String"/>
+    <Total Name="Total_UsersByStatus" TotalType="Count" Evaluator="Data1" PrintOn="GroupFooter1" ResetOnReprint="true"/>
+    <Total Name="Total_Users" TotalType="Count" Evaluator="Data1"/>
+  </Dictionary>
+  <ReportPage Name="Page1" RawPaperSize="9" FirstPageSource="15" OtherPagesSource="15">
+    <PageHeaderBand Name="PageHeader1" Width="718.2" Height="98.28" Border.Lines="Bottom" Border.Width="0.25">
+      <PictureObject Name="Picture1" Width="132.3" Height="94.5" DataColumn="ADMIN_Bu.BuLogo"/>
+      <TextObject Name="Text3" Left="184.28" Top="20.79" Width="349.65" Height="28.35" Text="User List" HorzAlign="Center" Font="Tahoma, 14pt"/>
+      <TextObject Name="Text14" Left="189" Top="75.6" Width="529.2" Height="18.9" Text="[ADMIN_Bu.BuCode] [ADMIN_Bu.Name]" HorzAlign="Right" Font="Tahoma, 10pt, style=Bold"/>
+      <ChildBand Name="Child2" Top="102.28" Width="718.2" Height="9.45"/>
+    </PageHeaderBand>
+    <GroupHeaderBand Name="GroupHeader1" Top="115.73" Width="718.2" Height="30.24" Fill.Color="WhiteSmoke" Condition="[Data.IsActived]" SortOrder="Descending">
+      <TextObject Name="Text15" Top="5.67" Width="330.75" Height="18.9" Text="[IIf([Data.IsActived]==true,&quot;Active&quot;,&quot;Inactive&quot;)]" Font="Tahoma, 8pt, style=Bold"/>
+      <ChildBand Name="Child1" Top="149.97" Width="718.2" Height="23.63" Border.Lines="Top, Bottom">
+        <TextObject Name="Text12" Top="4.73" Width="141.75" Height="18.9" Text="User name" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text13" Left="141.75" Top="4.73" Width="217.35" Height="18.9" Text="Name" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text17" Left="359.1" Top="4.73" Width="132.3" Height="18.9" Text="Title" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text8" Left="491.4" Top="4.73" Width="75.6" Height="18.9" Text="Department" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text10" Left="567" Top="4.73" Width="151.2" Height="18.9" Text="Last Login" Font="Tahoma, 8pt, style=Bold"/>
+      </ChildBand>
+      <DataBand Name="Data1" Top="177.6" Width="718.2" Height="47.25" Border.Lines="Bottom" Border.Style="Dot" CanGrow="true" BeforePrintEvent="Data1_BeforePrint" DataSource="Table">
+        <TextObject Name="Text6" Left="359.1" Top="4" Width="132.3" Height="18.9" CanGrow="true" Text="[Data.JobTitle]" WordWrap="false" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text7" Left="491.4" Top="4" Width="75.6" Height="18.9" Text="[Data.DepartmentCode]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text9" Left="567" Top="4" Width="151.2" Height="18.9" Text="[FormatDateTime([Data.LastLogin])]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text4" Top="4" Width="141.75" Height="18.9" CanGrow="true" Text="[Data.LoginName]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text5" Left="141.75" Top="4" Width="217.35" Height="18.9" CanGrow="true" Text="[Data.FName] [Data.MName] [Data.LName]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text16" Left="141.75" Top="28.35" Width="217.35" Height="18.9" CanGrow="true" Text="[Data.Email]" Font="Tahoma, 8pt, style=Italic"/>
+      </DataBand>
+      <GroupFooterBand Name="GroupFooter1" Top="228.85" Width="718.2" Height="37.8">
+        <TextObject Name="Text18" Top="9.45" Width="359.1" Height="18.9" Text="Total [IIf([Data.IsActived]==true,&quot;Active&quot;,&quot;Inactive&quot;)]  [Total_UsersByStatus] user(s) " Font="Tahoma, 8pt, style=Bold"/>
+      </GroupFooterBand>
+    </GroupHeaderBand>
+    <ReportSummaryBand Name="ReportSummary1" Top="270.65" Width="718.2" Height="37.8" Border.Lines="All" Fill.Color="WhiteSmoke">
+      <TextObject Name="Text11" Top="9.45" Width="359.1" Height="18.9" Text="Total  [Total_Users] user(s)" Font="Tahoma, 8pt, style=Bold"/>
+    </ReportSummaryBand>
+    <PageFooterBand Name="PageFooter1" Top="312.45" Width="718.2" Height="37.8">
+      <TextObject Name="Text1" Top="9.45" Width="132.3" Height="18.9" Text="[Date]" Font="Arial, 8pt, style=Italic"/>
+      <TextObject Name="Text2" Left="604.8" Top="9.45" Width="113.4" Height="18.9" Text="[Page#]/[TotalPages#]" HorzAlign="Right" Font="Arial, 8pt"/>
+    </PageFooterBand>
+  </ReportPage>
+</Report>

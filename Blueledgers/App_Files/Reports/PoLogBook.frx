@@ -1,0 +1,263 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="04/07/2017 14:59:01" ReportInfo.CreatorVersion="2013.4.11.0">
+  <ScriptText>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Data;
+using FastReport;
+using FastReport.Data;
+using FastReport.Dialog;
+using FastReport.Barcode;
+using FastReport.Table;
+using FastReport.Utils;
+
+namespace FastReport
+{
+  public class ReportScript
+  {
+
+    private void _StartReport(object sender, EventArgs e)
+    {
+      DateTime startOfMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+      TextDate1.Text = startOfMonth.ToShortDateString();
+      TextDate2.Text = DateTime.Today.ToShortDateString();
+      
+    }
+
+    private void btnOk_Click(object sender, EventArgs e)
+    {
+      Report.SetParameterValue(&quot;p_FDate&quot;, Convert.ToDateTime(TextDate1.Text));
+      Report.SetParameterValue(&quot;p_TDate&quot;, Convert.ToDateTime(TextDate2.Text));     
+      Report.SetParameterValue(&quot;p_Flocation&quot;, ComboBox5.Text.Split(' ')[0].ToString());
+      Report.SetParameterValue(&quot;p_Tlocation&quot;, ComboBox6.Text.Split(' ')[0].ToString());
+     
+      
+    }
+
+  }
+}
+</ScriptText>
+  <Dictionary>
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqCvlJxRoS3oNe5N3zvkC4LjSlfOYzn/L53kbXlHU5L9ZvnzIiJSuQt+QzgeHSZj/xj0TWKUs7kDd2q1qe895anQ==">
+      <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;">
+        <Column Name="BuCode" DataType="System.String"/>
+        <Column Name="Name" DataType="System.String"/>
+        <Column Name="NameBilling" DataType="System.String"/>
+        <Column Name="Address" DataType="System.String"/>
+        <Column Name="PostCode" DataType="System.String"/>
+        <Column Name="City" DataType="System.String"/>
+        <Column Name="Country" DataType="System.String"/>
+        <Column Name="Phone" DataType="System.String"/>
+        <Column Name="Fax" DataType="System.String"/>
+        <Column Name="Email" DataType="System.String"/>
+        <Column Name="DeliveryTerm" DataType="System.String"/>
+        <Column Name="POS" DataType="System.String"/>
+        <Column Name="POSModel" DataType="System.String"/>
+        <Column Name="BackOffice" DataType="System.String"/>
+        <Column Name="BackOfficeModel" DataType="System.String"/>
+        <Column Name="BuLogo" DataType="System.Byte[]" BindableControl="Picture"/>
+      </TableDataSource>
+      <TableDataSource Name="Table" Alias="pop" DataType="System.Int32" Enabled="true" SelectCommand="IF 1=0&#13;&#10;SET FMTONLY OFF&#13;&#10;&#13;&#10;EXEC	[RPT].[rptPoLogBook]&#13;&#10;		@FDATE =@p_FDate,&#13;&#10;		@TDATE =@p_TDate,&#13;&#10;		@FLOCATION =@p_Flocation,&#13;&#10;		@TLOCATION =@p_Tlocation&#13;&#10;&#13;&#10;">
+        <Column Name="PoNo" DataType="System.String"/>
+        <Column Name="PoDt" DataType="System.Int32"/>
+        <Column Name="PoDate" DataType="System.DateTime"/>
+        <Column Name="CreditTerm" DataType="System.String"/>
+        <Column Name="PRNo" DataType="System.String"/>
+        <Column Name="PRDesc" DataType="System.String"/>
+        <Column Name="IsVoid" DataType="System.Boolean" BindableControl="CheckBox"/>
+        <Column Name="ApprStatus" DataType="System.String"/>
+        <Column Name="DocStatus" DataType="System.String"/>
+        <Column Name="Description" DataType="System.String"/>
+        <Column Name="ExchageRate" DataType="System.Decimal"/>
+        <Column Name="LocationName" DataType="System.String"/>
+        <Column Name="ProductNameEng" DataType="System.String"/>
+        <Column Name="ProductNameThai" DataType="System.String"/>
+        <Column Name="Unit" DataType="System.String"/>
+        <Column Name="DeliveryPointNm" DataType="System.String"/>
+        <Column Name="DeliDate" DataType="System.DateTime"/>
+        <Column Name="VendorCode" DataType="System.String"/>
+        <Column Name="VendorName" DataType="System.String"/>
+        <Column Name="VendorAddress" DataType="System.String"/>
+        <Column Name="ContactPerson" DataType="System.String"/>
+        <Column Name="Location" DataType="System.String"/>
+        <Column Name="Product" DataType="System.String"/>
+        <Column Name="OrdQty" DataType="System.Decimal"/>
+        <Column Name="FOCQty" DataType="System.Decimal"/>
+        <Column Name="RcvQty" DataType="System.Decimal"/>
+        <Column Name="CancelQty" DataType="System.Decimal"/>
+        <Column Name="DiscPercent" DataType="System.Decimal"/>
+        <Column Name="DisCountAmt" DataType="System.Decimal"/>
+        <Column Name="QuantityDeviation" DataType="System.Decimal"/>
+        <Column Name="PriceDeviation" DataType="System.Decimal"/>
+        <Column Name="Price" DataType="System.Decimal"/>
+        <Column Name="NetAmt" DataType="System.Decimal"/>
+        <Column Name="TaxRate" DataType="System.Decimal"/>
+        <Column Name="TaxAmt" DataType="System.Decimal"/>
+        <Column Name="TotalAmt" DataType="System.Decimal"/>
+        <Column Name="PRComment" DataType="System.String"/>
+        <Column Name="ApprName1" DataType="System.String"/>
+        <Column Name="ApprName2" DataType="System.String"/>
+        <Column Name="ApprDate1" DataType="System.Char"/>
+        <Column Name="ApprDate2" DataType="System.Char"/>
+        <Column Name="ApprPos1" DataType="System.String"/>
+        <Column Name="ApprPos2" DataType="System.String"/>
+        <Column Name="DepName" DataType="System.String"/>
+        <Column Name="PrType" DataType="System.String"/>
+        <Column Name="CreatedBy" DataType="System.String"/>
+        <Column Name="LocationCode" DataType="System.String"/>
+        <Column Name="TaxType" DataType="System.String"/>
+        <CommandParameter Name="p_Flocation" DataType="22" Expression="[p_Flocation]"/>
+        <CommandParameter Name="p_Tlocation" DataType="22" Expression="[p_Tlocation]"/>
+        <CommandParameter Name="p_FDate" DataType="4" Expression="[p_FDate]" DefaultValue="10/10/2013"/>
+        <CommandParameter Name="p_TDate" DataType="4" Expression="[p_TDate]" DefaultValue="10/10/2013"/>
+        <CommandParameter Name="FDATE" DataType="4" Expression="[p_FDate]" DefaultValue="10/10/13"/>
+        <CommandParameter Name="TDATE" DataType="4" Expression="[p_TDate]" DefaultValue="10/10/13"/>
+        <CommandParameter Name="FLOCATION" DataType="22" Expression="[p_Flocation]"/>
+        <CommandParameter Name="TLOCATION" DataType="22" Expression="[p_Tlocation]"/>
+      </TableDataSource>
+      <TableDataSource Name="Table1" Alias="Flocation" DataType="System.Int32" Enabled="true" SelectCommand="exec rpt.listlocationbytype 0">
+        <Column Name="Item" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table2" Alias="Tlocation" DataType="System.Int32" Enabled="true" SelectCommand="exec rpt.listlocationbytype 0">
+        <Column Name="Item" DataType="System.String"/>
+      </TableDataSource>
+    </MsSqlDataConnection>
+    <Parameter Name="p_FDate" DataType="System.DateTime"/>
+    <Parameter Name="p_TDate" DataType="System.DateTime"/>
+    <Parameter Name="p_Flocation" DataType="System.String"/>
+    <Parameter Name="p_Tlocation" DataType="System.String"/>
+  </Dictionary>
+  <ReportPage Name="Page1" PaperWidth="1100" PaperHeight="300" TopMargin="0" BottomMargin="0" FirstPageSource="15" OtherPagesSource="15">
+    <ReportTitleBand Name="ReportTitle1" Width="4082.4" Height="106.32">
+      <TextObject Name="Text3" Top="20.09" Width="340.2" Height="18.9" Text="PO Log Book Report" VertAlign="Center" Font="Tahoma, 14pt, style=Bold"/>
+      <TextObject Name="Text1" Top="44.9" Width="340.2" Height="18.9" Text="Date From [TextDate1.Text] To [TextDate2.Text]" Format="Date" Format.Format="f" Font="Arial, 8pt"/>
+      <TextObject Name="Text113" Top="67.33" Width="340.2" Height="18.9" Text="Location From [p_Flocation] To [p_Tlocation]" Format="Date" Format.Format="f" Font="Arial, 8pt"/>
+      <ChildBand Name="Child1" Top="109.52" Width="4082.4" Height="18.9">
+        <TextObject Name="Text5" Width="75.6" Height="18.9" Text="BuCode&#13;&#10;" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text6" Left="75.6" Width="189" Height="18.9" Text="BuName&#13;&#10;" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text8" Left="264.6" Width="75.6" Height="18.9" Text="PoNo&#13;&#10;" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text10" Left="340.2" Width="47.25" Height="18.9" Text="PoDt" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text12" Left="387.45" Width="75.6" Height="18.9" Text="PoDate" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text14" Left="463.05" Width="94.5" Height="18.9" Text="CreditTerm" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text16" Left="557.55" Width="85.05" Height="18.9" Text="CreatedBy" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text18" Left="642.6" Width="85.05" Height="18.9" Text="DepName" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text26" Left="727.65" Width="66.15" Height="18.9" CanGrow="true" CanBreak="false" Text="PRNo&#13;&#10;" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text28" Left="793.8" Width="75.6" Height="18.9" Text="PrType" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text30" Left="869.4" Width="66.15" Height="18.9" Text="PRDesc" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text32" Left="935.55" Width="56.7" Height="18.9" Text="IsVoid" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text34" Left="992.25" Width="85.05" Height="18.9" Text="ApprStatus" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text36" Left="1077.3" Width="75.6" Height="18.9" Text="DocStatus" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text38" Left="1152.9" Width="85.05" Height="18.9" Text="Description" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text40" Left="1237.95" Width="85.05" Height="18.9" CanGrow="true" CanBreak="false" Text="ExchageRate" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text41" Left="1323" Width="85.05" Height="18.9" CanGrow="true" CanBreak="false" Text="ProductCode" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text44" Left="1408.05" Width="66.15" Height="18.9" CanGrow="true" CanBreak="false" Text="Descen" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text46" Left="1474.2" Width="66.15" Height="18.9" CanGrow="true" CanBreak="false" Text="Descll" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text48" Left="1540.35" Width="47.25" Height="18.9" CanGrow="true" CanBreak="false" Text="Unit" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text50" Left="1587.6" Width="85.05" Height="18.9" CanGrow="true" CanBreak="false" Text="LocationCode" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text52" Left="1672.65" Width="103.95" Height="18.9" CanGrow="true" CanBreak="false" Text="LocationName" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text54" Left="1776.6" Width="113.4" Height="18.9" CanGrow="true" CanBreak="false" Text="DeliveryPointNm" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text56" Left="1890" Width="66.15" Height="18.9" CanGrow="true" CanBreak="false" Text="DeliDate" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text58" Left="1956.15" Width="85.05" Height="18.9" CanGrow="true" CanBreak="false" Text="VendorCode" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text60" Left="2041.2" Width="94.5" Height="18.9" CanGrow="true" CanBreak="false" Text="VendorName" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text62" Left="2135.7" Width="113.4" Height="18.9" CanGrow="true" CanBreak="false" Text="VendorAddress&#13;&#10;" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text64" Left="2249.1" Width="113.4" Height="18.9" CanGrow="true" CanBreak="false" Text="ContactPerson&#13;&#10;" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text66" Left="2362.5" Width="66.15" Height="18.9" CanGrow="true" CanBreak="false" Text="Location&#13;&#10;" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text68" Left="2428.65" Width="75.6" Height="18.9" CanGrow="true" CanBreak="false" Text="Product&#13;&#10;" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text70" Left="2504.25" Width="66.15" Height="18.9" CanGrow="true" CanBreak="false" Text="OrdQty&#13;&#10;" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text72" Left="2570.4" Width="66.15" Height="18.9" CanGrow="true" CanBreak="false" Text="FOCQty" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text74" Left="2636.55" Width="66.15" Height="18.9" CanGrow="true" CanBreak="false" Text="RcvQty " HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text76" Left="2702.7" Width="75.6" Height="18.9" CanGrow="true" CanBreak="false" Text="CancelQty" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text78" Left="2778.3" Width="75.6" Height="18.9" CanGrow="true" CanBreak="false" Text="DiscPercent" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text80" Left="2853.9" Width="85.05" Height="18.9" CanGrow="true" CanBreak="false" Text="DisCountAmt" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text82" Left="2938.95" Width="113.4" Height="18.9" CanGrow="true" CanBreak="false" Text="QuantityDeviation &#13;&#10;" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text84" Left="3052.35" Width="94.5" Height="18.9" CanGrow="true" CanBreak="false" Text="PriceDeviation" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text86" Left="3146.85" Width="56.7" Height="18.9" CanGrow="true" CanBreak="false" Text="Price" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text88" Left="3203.55" Width="56.7" Height="18.9" CanGrow="true" CanBreak="false" Text="NetAmt" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text90" Left="3260.25" Width="56.7" Height="18.9" CanGrow="true" CanBreak="false" Text="TaxRate" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text92" Left="3316.95" Width="56.7" Height="18.9" CanGrow="true" CanBreak="false" Text="TaxType" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text94" Left="3373.65" Width="56.7" Height="18.9" CanGrow="true" CanBreak="false" Text="TaxAmt" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text96" Left="3430.35" Width="75.6" Height="18.9" CanGrow="true" CanBreak="false" Text="TotalAmt" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text98" Left="3505.95" Width="103.95" Height="18.9" CanGrow="true" CanBreak="false" Text="PRComment" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text100" Left="3609.9" Width="85.05" Height="18.9" CanGrow="true" CanBreak="false" Text="ApprName1" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text103" Left="3694.95" Width="85.05" Height="18.9" CanGrow="true" CanBreak="false" Text="ApprName2" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text104" Left="3780" Width="75.6" Height="18.9" CanGrow="true" CanBreak="false" Text="ApprDate1" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text105" Left="3855.6" Width="75.6" Height="18.9" CanGrow="true" CanBreak="false" Text="ApprDate2" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text108" Left="3931.2" Width="75.6" Height="18.9" CanGrow="true" CanBreak="false" Text="ApprPos1" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text110" Left="4006.8" Width="75.6" Height="18.9" CanGrow="true" CanBreak="false" Text="ApprPos2" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+      </ChildBand>
+    </ReportTitleBand>
+    <ColumnHeaderBand Name="ColumnHeader1" Top="131.62" Width="4082.4" Height="9.45"/>
+    <DataBand Name="Data1" Top="144.27" Width="4082.4" Height="18.9" CanGrow="true" BeforePrintEvent="Data1_BeforePrint" DataSource="Table">
+      <TextObject Name="Text4" Width="75.6" Height="18.9" CanGrow="true" CanBreak="false" Text="[ADMIN_Bu.BuCode]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text7" Left="75.6" Width="189" Height="18.9" CanBreak="false" Text="[ADMIN_Bu.Name]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text9" Left="264.6" Width="75.6" Height="18.9" Text="[pop.PoNo]" VertAlign="Center" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text11" Left="340.2" Width="47.25" Height="18.9" Text="[pop.PoDt]" VertAlign="Center" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text13" Left="387.45" Width="75.6" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.PoDate]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text15" Left="463.05" Width="94.5" Height="18.9" CanBreak="false" Text="[pop.CreditTerm]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text17" Left="557.55" Width="85.05" Height="18.9" CanBreak="false" Text="[pop.CreatedBy]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text19" Left="642.6" Width="85.05" Height="18.9" Text="[pop.DepName]" VertAlign="Center" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text29" Left="793.8" Width="75.6" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.PrType]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text31" Left="869.4" Width="66.15" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.PRDesc]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text33" Left="935.55" Width="56.7" Height="18.9" CanGrow="true" CanBreak="false" Text="[IIf([pop.IsVoid]==false,'0','1')]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text35" Left="992.25" Width="85.05" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.ApprStatus]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text37" Left="1077.3" Width="75.6" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.DocStatus]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text39" Left="1152.9" Width="85.05" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.Description]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text42" Left="1237.95" Width="85.05" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.ExchageRate]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text43" Left="1323" Width="85.05" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.Product]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text45" Left="1408.05" Width="66.15" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.ProductNameEng]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text47" Left="1474.2" Width="66.15" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.ProductNameThai]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text49" Left="1540.35" Width="47.25" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.Unit]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text51" Left="1587.6" Width="85.05" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.LocationCode]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text53" Left="1672.65" Width="103.95" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.LocationName]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text55" Left="1776.6" Width="113.4" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.DeliveryPointNm]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text57" Left="1890" Width="66.15" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.DeliDate]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text59" Left="1956.15" Width="85.05" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.VendorCode]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text61" Left="2041.2" Width="94.5" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.VendorName]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text63" Left="2135.7" Width="113.4" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.VendorAddress]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text65" Left="2249.1" Width="113.4" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.ContactPerson]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text67" Left="2362.5" Width="66.15" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.Location]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text69" Left="2428.65" Width="75.6" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.Product]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text71" Left="2504.25" Width="66.15" Height="18.9" CanGrow="true" CanBreak="false" Text="[IIf([pop.OrdQty]==0,'-',[pop.OrdQty])]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text73" Left="2570.4" Width="66.15" Height="18.9" CanGrow="true" CanBreak="false" Text="[IIf([pop.FOCQty]==0,'-',[pop.FOCQty])]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text75" Left="2636.55" Width="66.15" Height="18.9" CanGrow="true" CanBreak="false" Text="[IIf([pop.RcvQty]==0,'-',[pop.RcvQty])] " Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text77" Left="2702.7" Width="75.6" Height="18.9" CanGrow="true" CanBreak="false" Text="[IIf([pop.CancelQty]==0,'-',[pop.CancelQty])]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text79" Left="2778.3" Width="75.6" Height="18.9" CanGrow="true" CanBreak="false" Text="[IIf([pop.DiscPercent]==0,'-',[pop.DiscPercent])]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text81" Left="2853.9" Width="85.05" Height="18.9" CanGrow="true" CanBreak="false" Text="[IIf([pop.DisCountAmt]==0,'-',[pop.DisCountAmt])]&#13;&#10;" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text83" Left="2938.95" Width="113.4" Height="18.9" CanGrow="true" CanBreak="false" Text="[IIf([pop.QuantityDeviation]==0,'-',[pop.QuantityDeviation])]&#13;&#10;&#13;&#10;" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text85" Left="3052.35" Width="94.5" Height="18.9" CanGrow="true" CanBreak="false" Text="[IIf([pop.PriceDeviation]==0,'-',[pop.PriceDeviation])]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text87" Left="3146.85" Width="56.7" Height="18.9" CanGrow="true" CanBreak="false" Text="[IIf([pop.Price]==0,'-',[pop.Price])]&#13;&#10;" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text89" Left="3203.55" Width="56.7" Height="18.9" CanGrow="true" CanBreak="false" Text="[IIf([pop.NetAmt]==0,'-',[pop.NetAmt])]&#13;&#10;" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text91" Left="3260.25" Width="56.7" Height="18.9" CanGrow="true" CanBreak="false" Text="[IIf([pop.TaxRate]==0,'-',[pop.TaxRate])]&#13;&#10;" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text93" Left="3316.95" Width="56.7" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.TaxType]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text95" Left="3373.65" Width="56.7" Height="18.9" CanGrow="true" CanBreak="false" Text="[IIf([pop.TaxAmt]==0,'-',[pop.TaxAmt])]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text97" Left="3430.35" Width="75.6" Height="18.9" CanGrow="true" CanBreak="false" Text="[IIf([pop.TotalAmt]==0,'-',[pop.TotalAmt])]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text99" Left="3505.95" Width="103.95" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.PRComment]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text101" Left="3609.9" Width="85.05" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.ApprName1]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text102" Left="3694.95" Width="85.05" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.ApprName2]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text106" Left="3780" Width="75.6" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.ApprDate1]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text107" Left="3855.6" Width="75.6" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.ApprDate2]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text27" Left="727.65" Width="66.15" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.PRNo]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text109" Left="3931.2" Width="75.6" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.ApprPos1]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text112" Left="4006.8" Width="75.6" Height="18.9" CanGrow="true" CanBreak="false" Text="[pop.ApprPos2]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+      <Sort>
+        <Sort Expression="[pop.PoNo]"/>
+        <Sort Expression="[pop.PoDt]"/>
+      </Sort>
+    </DataBand>
+  </ReportPage>
+  <DialogPage Name="ReportDialog" Width="434" Height="270" AcceptButton="btnOk" CancelButton="btnCancel" LoadEvent="">
+    <ButtonControl Name="btnOk" Left="250" Top="210" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="0" Text="OK" ClickEvent="btnOk_Click" DialogResult="OK"/>
+    <ButtonControl Name="btnCancel" Left="333" Top="210" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="1" Text="Cancel" DialogResult="Cancel"/>
+    <TextBoxControl Name="TextDate1" Left="112" Top="28" Width="300" Font="Tahoma, 8pt" TabIndex="2"/>
+    <TextBoxControl Name="TextDate2" Left="112" Top="60" Width="300" Font="Tahoma, 8pt" TabIndex="3"/>
+    <LabelControl Name="Label1" Left="8" Top="28" Width="57" Height="13" Font="Tahoma, 8pt" TabIndex="4" Text="From Date"/>
+    <LabelControl Name="Label2" Left="8" Top="60" Width="45" Height="13" Font="Tahoma, 8pt" TabIndex="4" Text="To Date"/>
+    <ComboBoxControl Name="ComboBox5" Left="112" Top="104" Width="300" Font="Tahoma, 8pt" TabIndex="4" DataColumn="Flocation.Item" DropDownWidth="300" ItemHeight="13"/>
+    <ComboBoxControl Name="ComboBox6" Left="112" Top="136" Width="300" Font="Tahoma, 8pt" TabIndex="5" DataColumn="Tlocation.Item" DropDownWidth="300" ItemHeight="13"/>
+    <LabelControl Name="Label7" Left="8" Top="104" Width="74" Height="13" Font="Tahoma, 8pt" TabIndex="4" Text="Location From"/>
+    <LabelControl Name="Label8" Left="8" Top="140" Width="62" Height="13" Font="Tahoma, 8pt" TabIndex="4" Text="Location To"/>
+  </DialogPage>
+</Report>

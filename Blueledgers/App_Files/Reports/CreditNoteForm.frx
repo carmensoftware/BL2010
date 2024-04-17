@@ -1,0 +1,183 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="03/20/2019 17:49:13" ReportInfo.CreatorVersion="2013.4.11.0">
+  <ScriptText>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Data;
+using FastReport;
+using FastReport.Data;
+using FastReport.Dialog;
+using FastReport.Barcode;
+using FastReport.Table;
+using FastReport.Utils;
+
+namespace FastReport
+{
+  public class ReportScript
+  {
+
+    private void _StartReport(object sender, EventArgs e)
+    {
+      // Initial values (For WebReport must set at here)
+      
+    }
+
+  }
+}
+</ScriptText>
+  <Dictionary>
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqCvlJxRoS3oNe5N3zvkC4LlmkTOi213q2PMFzU8HZZ4DU/VEubjZ3KctLTpD4nAN3Xp6w1h2vALk0BHFFlC/ye5crhtUVaCDIgu90pz8Gj5Q=">
+      <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;">
+        <Column Name="BuCode" DataType="System.String"/>
+        <Column Name="Name" DataType="System.String"/>
+        <Column Name="NameBilling" DataType="System.String"/>
+        <Column Name="Address" DataType="System.String"/>
+        <Column Name="PostCode" DataType="System.String"/>
+        <Column Name="City" DataType="System.String"/>
+        <Column Name="Country" DataType="System.String"/>
+        <Column Name="Phone" DataType="System.String"/>
+        <Column Name="Fax" DataType="System.String"/>
+        <Column Name="Email" DataType="System.String"/>
+        <Column Name="DeliveryTerm" DataType="System.String"/>
+        <Column Name="POS" DataType="System.String"/>
+        <Column Name="POSModel" DataType="System.String"/>
+        <Column Name="BackOffice" DataType="System.String"/>
+        <Column Name="BackOfficeModel" DataType="System.String"/>
+        <Column Name="BuLogo" DataType="System.Byte[]" BindableControl="Picture"/>
+      </TableDataSource>
+      <TableDataSource Name="Table" Alias="Cn" DataType="System.Int32" Enabled="true" SelectCommand="SELECT cn.*, v.Name as VendorName&#13;&#10;FROM PC.Cn as cn&#13;&#10;LEFT JOIN AP.Vendor v ON v.VendorCode = cn.VendorCode&#13;&#10;WHERE CnNo = @CnNo">
+        <Column Name="CnNo" DataType="System.String"/>
+        <Column Name="CnDate" DataType="System.DateTime"/>
+        <Column Name="DocNo" DataType="System.String"/>
+        <Column Name="DocDate" DataType="System.DateTime"/>
+        <Column Name="RefNo" DataType="System.String"/>
+        <Column Name="VendorCode" DataType="System.String"/>
+        <Column Name="CurrencyCode" DataType="System.String"/>
+        <Column Name="ExRateAudit" DataType="System.Decimal"/>
+        <Column Name="ExRateMng" DataType="System.Decimal"/>
+        <Column Name="ExRateBank" DataType="System.Decimal"/>
+        <Column Name="Description" DataType="System.String"/>
+        <Column Name="DocStatus" DataType="System.String"/>
+        <Column Name="CreatedDate" DataType="System.DateTime"/>
+        <Column Name="CreatedBy" DataType="System.String"/>
+        <Column Name="UpdatedDate" DataType="System.DateTime"/>
+        <Column Name="UpdatedBy" DataType="System.String"/>
+        <Column Name="AddField1" DataType="System.String"/>
+        <Column Name="AddField2" DataType="System.String"/>
+        <Column Name="AddField3" DataType="System.String"/>
+        <Column Name="AddField4" DataType="System.String"/>
+        <Column Name="AddField5" DataType="System.String"/>
+        <Column Name="AddField6" DataType="System.String"/>
+        <Column Name="AddField7" DataType="System.String"/>
+        <Column Name="AddField8" DataType="System.String"/>
+        <Column Name="AddField9" DataType="System.String"/>
+        <Column Name="AddField10" DataType="System.String"/>
+        <Column Name="ExportStatus" DataType="System.Boolean" BindableControl="CheckBox"/>
+        <Column Name="VendorName" DataType="System.String"/>
+        <CommandParameter Name="CnNo" DataType="12" Expression="[ID]" DefaultValue="H1234CN19020001"/>
+      </TableDataSource>
+      <TableDataSource Name="Table1" Alias="CnDt" DataType="System.Int32" Enabled="true" SelectCommand="SELECT cndt.*, l.LocationName, p.ProductDesc1, p.ProductDesc2&#13;&#10;FROM PC.CnDt as cndt&#13;&#10;LEFT JOIN [IN].StoreLocation l ON l.LocationCode = cndt.Location&#13;&#10;LEFT JOIN [IN].Product p ON p.ProductCode = cndt.ProductCode&#13;&#10;WHERE CnNo = @CnNo">
+        <Column Name="CnNo" DataType="System.String"/>
+        <Column Name="CnDtNo" DataType="System.Int32"/>
+        <Column Name="Location" DataType="System.String"/>
+        <Column Name="ProductCode" DataType="System.String"/>
+        <Column Name="UnitCode" DataType="System.String"/>
+        <Column Name="RecQty" DataType="System.Decimal"/>
+        <Column Name="FOCQty" DataType="System.Decimal"/>
+        <Column Name="Price" DataType="System.Decimal"/>
+        <Column Name="TaxType" DataType="System.String"/>
+        <Column Name="TaxRate" DataType="System.Decimal"/>
+        <Column Name="TaxAdj" DataType="System.Boolean" BindableControl="CheckBox"/>
+        <Column Name="NetAmt" DataType="System.Decimal"/>
+        <Column Name="TaxAmt" DataType="System.Decimal"/>
+        <Column Name="TotalAmt" DataType="System.Decimal"/>
+        <Column Name="PoNo" DataType="System.String"/>
+        <Column Name="PoDtNo" DataType="System.Int32"/>
+        <Column Name="NetCrAcc" DataType="System.String"/>
+        <Column Name="TaxCrAcc" DataType="System.String"/>
+        <Column Name="AddField1" DataType="System.String"/>
+        <Column Name="AddField2" DataType="System.String"/>
+        <Column Name="AddField3" DataType="System.String"/>
+        <Column Name="AddField4" DataType="System.String"/>
+        <Column Name="Descen" DataType="System.String"/>
+        <Column Name="Descll" DataType="System.String"/>
+        <Column Name="DiscPercent" DataType="System.Decimal"/>
+        <Column Name="DiscAmt" DataType="System.Decimal"/>
+        <Column Name="Comment" DataType="System.String"/>
+        <Column Name="DiscAdj" DataType="System.Boolean" BindableControl="CheckBox"/>
+        <Column Name="RecNo" DataType="System.String"/>
+        <Column Name="CnType" DataType="System.String"/>
+        <Column Name="LocationName" DataType="System.String"/>
+        <Column Name="ProductDesc1" DataType="System.String"/>
+        <Column Name="ProductDesc2" DataType="System.String"/>
+        <CommandParameter Name="CnNo" DataType="12" Expression="[ID]" DefaultValue="H1234CN19020001"/>
+      </TableDataSource>
+    </MsSqlDataConnection>
+    <Parameter Name="ID" DataType="System.String"/>
+    <Total Name="Sum_Amount" Expression="[CnDt.NetAmt]" Evaluator="Data1"/>
+    <Total Name="Sum_TaxAmt" Expression="[CnDt.TaxAmt]" Evaluator="Data1"/>
+    <Total Name="Sum_TotalAmt" Expression="[CnDt.TotalAmt]" Evaluator="Data1"/>
+  </Dictionary>
+  <ReportPage Name="Page1" RawPaperSize="9" FirstPageSource="15" OtherPagesSource="15">
+    <PageHeaderBand Name="PageHeader1" Width="718.2" Height="98.28">
+      <PictureObject Name="Picture1" Width="132.3" Height="94.5" DataColumn="ADMIN_Bu.BuLogo"/>
+      <TextObject Name="Text3" Left="184.28" Top="20.79" Width="349.65" Height="18.9" Text="Credit Note" HorzAlign="Center" Font="Tahoma, 14pt"/>
+      <TextObject Name="Text25" Left="538.65" Width="179.55" Height="94.5" CanGrow="true" Text="[ADMIN_Bu.Name]&#13;&#10;[ADMIN_Bu.Address]&#13;&#10;TEL: [ADMIN_Bu.Phone] FAX: [ADMIN_Bu.Fax]" Font="Tahoma, 8pt"/>
+      <ChildBand Name="Child1" Top="102.28" Width="718.2" Height="85.05" Border.Lines="Top, Bottom" CanGrow="true">
+        <TextObject Name="Text4" Top="9.45" Width="83.16" Height="18.9" Text="Ref.#" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text5" Top="28.35" Width="83.16" Height="18.9" Text="Vendor" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text6" Top="47.25" Width="83.16" Height="18.9" Text="Description" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text7" Left="207.9" Top="9.45" Width="56.7" Height="18.9" Text="Date" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text8" Left="359.1" Top="9.45" Width="75.6" Height="18.9" Text="Doc.#" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text9" Left="548.1" Top="9.45" Width="75.6" Height="18.9" Text="Doc. Date" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text10" Left="359.1" Top="28.35" Width="75.6" Height="18.9" Text="Currency" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text11" Left="548.1" Top="28.35" Width="75.6" Height="18.9" Text="Status" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text12" Left="85.05" Top="9.45" Width="113.4" Height="18.9" Text="[Cn.CnNo]" WordWrap="false" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text13" Left="264.6" Top="9.45" Width="94.5" Height="18.9" Text="[Cn.CnDate]" Format="Date" Format.Format="d" WordWrap="false" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text14" Left="434.7" Top="9.45" Width="113.4" Height="18.9" Text="[Cn.DocNo]" WordWrap="false" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text15" Left="623.7" Top="9.45" Width="94.5" Height="18.9" Text="[Cn.DocDate]" Format="Date" Format.Format="d" WordWrap="false" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text16" Left="623.7" Top="28.35" Width="94.5" Height="18.9" Text="[Cn.DocStatus]" WordWrap="false" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text17" Left="434.7" Top="28.35" Width="113.4" Height="18.9" Text="[Cn.CurrencyCode] @[Cn.ExRateAudit]" WordWrap="false" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text18" Left="85.05" Top="28.35" Width="274.05" Height="18.9" CanGrow="true" Text="[Cn.VendorCode] : [Cn.VendorName]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text19" Left="85.05" Top="47.25" Width="633.15" Height="18.9" CanGrow="true" Text="[Cn.Description]" Font="Tahoma, 8pt"/>
+      </ChildBand>
+    </PageHeaderBand>
+    <ColumnHeaderBand Name="ColumnHeader1" Top="191.33" Width="718.2" Height="19.84" Border.Lines="Bottom" Fill.Color="LightBlue">
+      <TextObject Name="Text21" Top="0.94" Width="105.84" Height="18.9" Text="Receiving No." VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text22" Left="105.84" Top="0.94" Width="132.3" Height="18.9" Text="Store/Location" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text34" Left="238.14" Top="0.94" Width="151.2" Height="18.9" Text="Product" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text35" Left="389.34" Top="0.94" Width="37.8" Height="18.9" Text="Type&#13;&#10;" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text36" Left="427.14" Top="0.94" Width="37.8" Height="18.9" Text="Qty." Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold" Trimming="EllipsisCharacter"/>
+      <TextObject Name="Text37" Left="466.94" Top="0.94" Width="37.8" Height="18.9" Text="Unit" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text38" Left="504.74" Top="0.94" Width="68.04" Height="18.9" Text="Amount" Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold" Trimming="EllipsisCharacter"/>
+      <TextObject Name="Text39" Left="572.78" Top="0.94" Width="68.04" Height="18.9" Text="Tax" Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold" Trimming="EllipsisCharacter"/>
+      <TextObject Name="Text40" Left="642.6" Top="0.94" Width="75.6" Height="18.9" Text="Total" Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold" Trimming="EllipsisCharacter"/>
+    </ColumnHeaderBand>
+    <DataBand Name="Data1" Top="215.17" Width="718.2" Height="19.84" CanGrow="true" BeforePrintEvent="Data1_BeforePrint" DataSource="Table1">
+      <TextObject Name="Text20" Top="0.94" Width="105.84" Height="18.9" Text="[CnDt.RecNo]" VertAlign="Center" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text23" Left="105.84" Top="0.94" Width="132.3" Height="18.9" CanGrow="true" Text="[CnDt.Location] : [CnDt.LocationName]" VertAlign="Center" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text24" Left="238.14" Top="0.94" Width="151.2" Height="18.9" CanGrow="true" Text="[CnDt.ProductCode] : [CnDt.ProductDesc1]" VertAlign="Center" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text26" Left="389.34" Top="0.94" Width="37.8" Height="18.9" Text="[IIf([CnDt.CnType]==&quot;A&quot;, &quot;Amt&quot;, &quot;Qty&quot;)]&#13;&#10;" VertAlign="Center" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text28" Left="427.14" Top="0.94" Width="37.8" Height="18.9" Text="[CnDt.RecQty]" Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
+      <TextObject Name="Text29" Left="466.94" Top="0.94" Width="37.8" Height="18.9" Text="[CnDt.UnitCode]" VertAlign="Center" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text31" Left="504.74" Top="0.94" Width="68.04" Height="18.9" Text="[CnDt.NetAmt]" Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
+      <TextObject Name="Text32" Left="572.78" Top="0.94" Width="68.04" Height="18.9" Text="[CnDt.TaxAmt]" Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
+      <TextObject Name="Text33" Left="642.6" Top="0.94" Width="75.6" Height="18.9" Text="[CnDt.TotalAmt]" Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
+    </DataBand>
+    <ReportSummaryBand Name="ReportSummary1" Top="239.01" Width="718.2" Height="56.7" Border.Lines="Top, Bottom">
+      <TextObject Name="Text41" Left="572.78" Width="141.75" Height="18.9" Text="[Sum_Amount]" Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text42" Left="572.78" Top="18.9" Width="141.75" Height="18.9" Text="[Sum_TaxAmt]" Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text43" Left="572.78" Top="37.8" Width="141.75" Height="18.9" Text="[Sum_TotalAmt]" Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text45" Left="466.94" Top="18.9" Width="94.5" Height="18.9" Text="Total Tax" Format="Number" Format.UseLocale="true" VertAlign="Center" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text46" Left="466.94" Top="37.8" Width="94.5" Height="18.9" Text="Grand Total" Format="Number" Format.UseLocale="true" VertAlign="Center" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text44" Left="466.94" Width="94.5" Height="18.9" Text="Total Amount" Format="Number" Format.UseLocale="true" VertAlign="Center" Font="Tahoma, 8pt"/>
+    </ReportSummaryBand>
+    <PageFooterBand Name="PageFooter1" Top="299.71" Width="718.2" Height="37.8">
+      <TextObject Name="Text1" Top="9.45" Width="132.3" Height="18.9" Text="[Date]" Font="Tahoma, 8pt, style=Italic"/>
+      <TextObject Name="Text2" Left="538.65" Top="9.45" Width="179.55" Height="18.9" Text="[Page#]/[TotalPages#]" HorzAlign="Right" Font="Tahoma, 8pt"/>
+    </PageFooterBand>
+  </ReportPage>
+</Report>

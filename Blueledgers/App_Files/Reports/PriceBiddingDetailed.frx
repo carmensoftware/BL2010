@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="01/27/2014 10:53:24" ReportInfo.CreatorVersion="2013.4.11.0">
+  <ScriptText>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Data;
+using FastReport;
+using FastReport.Data;
+using FastReport.Dialog;
+using FastReport.Barcode;
+using FastReport.Table;
+using FastReport.Utils;
+
+namespace FastReport
+{
+  public class ReportScript
+  {
+
+    private void _StartReport(object sender, EventArgs e)
+    {
+      // Initial values (For WebReport must set at here)
+      
+    }
+
+    private void btnOk_Click(object sender, EventArgs e)
+    {
+      // Sample for assign parameter
+      // Report.SetParameterValue(&quot;p_FDate&quot;, DateTimePicker1.Value);
+      // Report.SetParameterValue(&quot;p_TDate&quot;, DateTimePicker2.Value);
+      
+      
+    }
+
+  }
+}
+</ScriptText>
+  <Dictionary>
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqCvlJxRoS3oNe5N3zvkC4LjrxjHZTpppHQL/5v2oYTuL247rftz65jLG54j8JZqsti+OX7YEfGtes4tIO8xGpOd0T+QdFqvZaZD/QY67Zdw4=">
+      <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;">
+        <Column Name="BuCode" DataType="System.String"/>
+        <Column Name="Name" DataType="System.String"/>
+        <Column Name="NameBilling" DataType="System.String"/>
+        <Column Name="Address" DataType="System.String"/>
+        <Column Name="PostCode" DataType="System.String"/>
+        <Column Name="City" DataType="System.String"/>
+        <Column Name="Country" DataType="System.String"/>
+        <Column Name="Phone" DataType="System.String"/>
+        <Column Name="Fax" DataType="System.String"/>
+        <Column Name="Email" DataType="System.String"/>
+        <Column Name="DeliveryTerm" DataType="System.String"/>
+        <Column Name="POS" DataType="System.String"/>
+        <Column Name="POSModel" DataType="System.String"/>
+        <Column Name="BackOffice" DataType="System.String"/>
+        <Column Name="BackOfficeModel" DataType="System.String"/>
+        <Column Name="BuLogo" DataType="System.Byte[]" BindableControl="Picture"/>
+      </TableDataSource>
+    </MsSqlDataConnection>
+    <Parameter Name="p_FDate" DataType="System.DateTime"/>
+    <Parameter Name="p_TDate" DataType="System.DateTime"/>
+  </Dictionary>
+  <ReportPage Name="Page1" RawPaperSize="9" FirstPageSource="15" OtherPagesSource="15">
+    <PageHeaderBand Name="PageHeader1" Width="718.2" Height="126.63">
+      <PictureObject Name="Picture1" Width="132.3" Height="94.5" DataColumn="ADMIN_Bu.BuLogo"/>
+      <TextObject Name="Text3" Left="259.88" Top="20.79" Width="226.8" Height="37.8" Text="Price Bidding (Detailed)" Font="Tahoma, 14pt"/>
+      <TextObject Name="Text4" Top="94.5" Width="236.25" Height="18.9" Text="[ADMIN_Bu.Name]" Font="Tahoma, 8pt"/>
+    </PageHeaderBand>
+    <ColumnHeaderBand Name="ColumnHeader1" Top="129.83" Width="718.2" Height="37.8" Border.Lines="Top, Bottom" Fill.Color="Gainsboro">
+      <TextObject Name="Text5" Top="9.45" Width="37.8" Height="18.9" Fill.Color="Gainsboro" Text=" SKU" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text6" Left="94.5" Top="9.45" Width="94.5" Height="18.9" Fill.Color="Gainsboro" Text=" Description" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text7" Left="283.5" Top="9.45" Width="37.8" Height="18.9" Fill.Color="Gainsboro" Text="Unit" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text8" Left="349.65" Top="9.45" Width="94.5" Height="18.9" Fill.Color="Gainsboro" Text="Vendor Name" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text9" Left="614.25" Top="9.45" Width="94.5" Height="18.9" Fill.Color="Gainsboro" Text="Best Price" Font="Tahoma, 8pt, style=Bold"/>
+      <ChildBand Name="Child1" Top="170.83" Width="718.2" Height="37.8">
+        <TextObject Name="Text10" Top="9.45" Width="189" Height="18.9" Border.Lines="All" Border.Style="Dot" Text="Quotation (First Choice)" VertAlign="Center" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text11" Left="236.25" Top="9.45" Width="217.35" Height="18.9" Border.Lines="All" Border.Style="Dot" Text="Quotation (Second Choice)" VertAlign="Center" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text12" Left="500.85" Top="9.45" Width="207.9" Height="18.9" Border.Lines="All" Border.Style="Dot" Text="Quotation (Third Choice)" VertAlign="Center" Font="Tahoma, 8pt"/>
+      </ChildBand>
+    </ColumnHeaderBand>
+    <DataBand Name="Data1" Top="211.83" Width="718.2" Height="41.58" CanGrow="true" BeforePrintEvent="Data1_BeforePrint">
+      <TextObject Name="Text13" Top="9.45" Width="189" Height="18.9" Border.Lines="All" Border.Style="Dot" VertAlign="Center" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text14" Left="236.25" Top="9.45" Width="217.35" Height="18.9" Border.Lines="All" Border.Style="Dot" VertAlign="Center" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text15" Left="500.85" Top="9.45" Width="207.9" Height="18.9" Border.Lines="All" Border.Style="Dot" VertAlign="Center" Font="Tahoma, 8pt"/>
+    </DataBand>
+    <PageFooterBand Name="PageFooter1" Top="256.61" Width="718.2" Height="37.8">
+      <TextObject Name="Text1" Top="9.45" Width="160.65" Height="28.35" Text="Report Detailed&#13;&#10;Print on [Date]" Font="Arial, 8pt"/>
+      <TextObject Name="Text2" Left="472.5" Top="9.45" Width="245.7" Height="28.35" Text="Page [Page#] Of [TotalPages#]" HorzAlign="Right" Font="Arial, 8pt"/>
+    </PageFooterBand>
+  </ReportPage>
+  <DialogPage Name="ReportDialog" Width="398" Height="358" AcceptButton="btnOk" CancelButton="btnCancel" LoadEvent="">
+    <ButtonControl Name="btnOk" Left="226" Top="298" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="0" Text="OK" ClickEvent="btnOk_Click" DialogResult="OK"/>
+    <ButtonControl Name="btnCancel" Left="309" Top="298" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="1" Text="Cancel" DialogResult="Cancel"/>
+  </DialogPage>
+</Report>

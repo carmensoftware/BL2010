@@ -1,0 +1,4 @@
+C:\Projects\Blueledgers3\blueledgers.com\BL_DbSys\bin\Debug\BL_DbSys.dll
+C:\Projects\Blueledgers3\blueledgers.com\BL_DbSys\bin\Debug\BL_DbSys.pdb
+C:\Projects\Blueledgers3\blueledgers.com\BL_DbSys\obj\Debug\BL_DbSys.dll
+C:\Projects\Blueledgers3\blueledgers.com\BL_DbSys\obj\Debug\BL_DbSys.pdb

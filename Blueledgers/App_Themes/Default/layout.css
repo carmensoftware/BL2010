@@ -1,0 +1,170 @@
+﻿/* layout v.1.0 (2017-08-01) */
+.container
+{
+    display: block;
+    width: 100%;
+    padding-top: 5px;
+    padding-left: 5px;
+    padding-bottom: 5px;
+    padding-right: 5px;
+}
+
+.row
+{
+    display: block;
+    clear: both;
+    width: 100%;
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-bottom: 10px;
+    padding-right: 10px;
+}
+
+.col-1
+{
+    display: block;
+    float: left;
+    width: 8.33%;
+}
+
+.col-2
+{
+    display: block;
+    float: left;
+    width: 16.66%;
+}
+
+.col-3
+{
+    display: block;
+    float: left;
+    width: 8.33%;
+}
+
+.col-4
+{
+    display: block;
+    float: left;
+    width: 33.32%;
+}
+
+.col-5
+{
+    display: block;
+    float: left;
+    width: 41.65%;
+}
+
+.col-6
+{
+    display: block;
+    float: left;
+    width: 49.98%;
+}
+
+.col-7
+{
+    display: block;
+    float: left;
+    width: 58.31%;
+}
+.col-8
+{
+    display: block;
+    float: left;
+    width: 66.64%;
+}
+.col-9
+{
+    display: block;
+    float: left;
+    width: 74.97%;
+}
+.col-10
+{
+    display: block;
+    float: left;
+    width: 83.33%;
+}
+.col-11
+{
+    display: block;
+    float: left;
+    width: 91.63%;
+}
+.col-12
+{
+    display: block;
+    float: left;
+    width: 99.96%;
+}
+
+.w-100
+{
+    width: 100%;
+}
+
+.w-50
+{
+    width: 50%;
+}
+
+.w-10
+{
+    width: 10%;
+}
+
+.w-20
+{
+    width: 20%;
+}
+
+.w-25
+{
+    width: 25%;
+}
+
+.w-auto
+{
+    width: auto;
+}
+
+
+.full-width
+{
+    width: 100%;
+}
+
+.half-width
+{
+    width: 50%;
+}
+
+.left
+{
+    position: absolute;
+    left: 0px;
+}
+.right
+{
+    position: absolute;
+    right: 0px;
+}
+
+.display-inline-block
+{
+    display: inline-block;
+}
+
+.bg-black
+{
+    background-color: black;
+}
+
+.title-bar
+{
+    display: block;
+    width: 100%;
+    height: 24px;
+    background-color: #4d4d4d;
+}

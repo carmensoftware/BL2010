@@ -1,0 +1,303 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="08/08/2018 10:05:16" ReportInfo.CreatorVersion="2013.4.11.0">
+  <ScriptText>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Data;
+using FastReport;
+using FastReport.Data;
+using FastReport.Dialog;
+using FastReport.Barcode;
+using FastReport.Table;
+using FastReport.Utils;
+
+namespace FastReport
+{
+  public class ReportScript
+  {
+
+    private void _StartReport(object sender, EventArgs e)
+    {
+      // Initial values (For WebReport must set at here)
+      DateTime startOfMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+      TextDate1.Text = startOfMonth.ToShortDateString();
+      TextDate2.Text = DateTime.Today.ToShortDateString();
+      
+    }
+
+    private void btnOk_Click(object sender, EventArgs e)
+    {
+      // Sample for assign parameter
+      // Report.SetParameterValue(&quot;p_FDate&quot;, DateTimePicker1.Value);
+      // Report.SetParameterValue(&quot;p_TDate&quot;, DateTimePicker2.Value);
+      Report.SetParameterValue(&quot;p_FDate&quot;, Convert.ToDateTime(TextDate1.Text));
+      Report.SetParameterValue(&quot;p_TDate&quot;, Convert.ToDateTime(TextDate2.Text));
+      
+      Report.SetParameterValue(&quot;p_Fcat&quot;, ComboBox1.Text.Split(' ')[0].ToString());
+      Report.SetParameterValue(&quot;p_Tcat&quot;, ComboBox2.Text.Split(' ')[0].ToString());
+
+      Report.SetParameterValue(&quot;p_Fproductcode&quot;, ComboBox3.Text.Split(' ')[0].ToString());
+      Report.SetParameterValue(&quot;p_Tproductcode&quot;, ComboBox4.Text.Split(' ')[0].ToString());
+      
+    }
+
+  }
+}
+</ScriptText>
+  <Dictionary>
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqCvlJxRoS3oNe5N3zvkC4LlmkTOi213q2PMFzU8HZZ4AhPg4pM82wbBECzXbZ3GOOtSWKFx0an2rGh8fMTfds5ji8yEjqI0A/G1BQAejRGTM=">
+      <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;">
+        <Column Name="BuCode" DataType="System.String"/>
+        <Column Name="Name" DataType="System.String"/>
+        <Column Name="NameBilling" DataType="System.String"/>
+        <Column Name="Address" DataType="System.String"/>
+        <Column Name="PostCode" DataType="System.String"/>
+        <Column Name="City" DataType="System.String"/>
+        <Column Name="Country" DataType="System.String"/>
+        <Column Name="Phone" DataType="System.String"/>
+        <Column Name="Fax" DataType="System.String"/>
+        <Column Name="Email" DataType="System.String"/>
+        <Column Name="DeliveryTerm" DataType="System.String"/>
+        <Column Name="POS" DataType="System.String"/>
+        <Column Name="POSModel" DataType="System.String"/>
+        <Column Name="BackOffice" DataType="System.String"/>
+        <Column Name="BackOfficeModel" DataType="System.String"/>
+        <Column Name="BuLogo" DataType="System.Byte[]" BindableControl="Picture"/>
+      </TableDataSource>
+      <TableDataSource Name="Table" Alias="plc" DataType="System.Int32" Enabled="true" SelectCommand="IF 1=0 BEGIN&#13;&#10;SET FMTONLY OFF&#13;&#10;END&#13;&#10;&#13;&#10;EXEC [RPT].rptPricelistComparisonbyVendor &#13;&#10;@FDATE=@p_FDate,&#13;&#10;@TDATE=@p_TDate,&#13;&#10;@FCAT=@p_Fcat,&#13;&#10;@TCAT=@p_Tcat,&#13;&#10;@FPRODUCTCODE=@p_Fproductcode,&#13;&#10;@TPRODUCTCODE=@p_Tproductcode">
+        <Column Name="ProductCode" DataType="System.String"/>
+        <Column Name="OrderUnit" DataType="System.String"/>
+        <Column Name="BestVendor" DataType="System.String"/>
+        <Column Name="BestVendorName" DataType="System.String"/>
+        <Column Name="BestPrice" DataType="System.Decimal"/>
+        <Column Name="LastPrice" DataType="System.Decimal"/>
+        <Column Name="Vendor1" DataType="System.String"/>
+        <Column Name="Vendor1Name" DataType="System.String"/>
+        <Column Name="Vendor1Rank" DataType="System.Int32"/>
+        <Column Name="Vendor1Price" DataType="System.Decimal"/>
+        <Column Name="Vendor2" DataType="System.String"/>
+        <Column Name="Vendor2Name" DataType="System.String"/>
+        <Column Name="Vendor2Rank" DataType="System.Int32"/>
+        <Column Name="Vendor2Price" DataType="System.Decimal"/>
+        <Column Name="Vendor3" DataType="System.String"/>
+        <Column Name="Vendor3Name" DataType="System.String"/>
+        <Column Name="Vendor3Rank" DataType="System.Int32"/>
+        <Column Name="Vendor3Price" DataType="System.Decimal"/>
+        <Column Name="Vendor4" DataType="System.String"/>
+        <Column Name="Vendor4Name" DataType="System.String"/>
+        <Column Name="Vendor4Rank" DataType="System.Int32"/>
+        <Column Name="Vendor4Price" DataType="System.Decimal"/>
+        <Column Name="Vendor5" DataType="System.String"/>
+        <Column Name="Vendor5Name" DataType="System.String"/>
+        <Column Name="Vendor5Rank" DataType="System.Int32"/>
+        <Column Name="Vendor5Price" DataType="System.Decimal"/>
+        <Column Name="ProductDesc1" DataType="System.String"/>
+        <Column Name="ProductDesc2" DataType="System.String"/>
+        <CommandParameter Name="p_FDate" DataType="4" Expression="[p_FDate]" DefaultValue="1/1/2018"/>
+        <CommandParameter Name="p_TDate" DataType="4" Expression="[p_TDate]" DefaultValue="1/1/2018"/>
+        <CommandParameter Name="p_Fcat" DataType="22" Expression="[p_Fcat]"/>
+        <CommandParameter Name="p_Tcat" DataType="22" Expression="[p_Tcat]"/>
+        <CommandParameter Name="p_Fproductcode" DataType="22" Expression="[p_Fproductcode]"/>
+        <CommandParameter Name="p_Tproductcode" DataType="22" Expression="[p_Tproductcode]"/>
+      </TableDataSource>
+      <TableDataSource Name="Table3" Alias="Fcatcode" DataType="System.Int32" Enabled="true" SelectCommand="select CategoryCode+' '+CategoryName&#13;&#10;from [IN].ProductCategory&#13;&#10;where ParentNo='0'&#13;&#10;">
+        <Column Name="Column1" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table4" Alias="Tcatcode" DataType="System.Int32" Enabled="true" SelectCommand="select CategoryCode+' '+CategoryName&#13;&#10;from [IN].ProductCategory&#13;&#10;where ParentNo='0'&#13;&#10;">
+        <Column Name="Column1" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table5" Alias="Fproduct" DataType="System.Int32" Enabled="true" SelectCommand="select ProductCode+' '+ProductDesc1&#13;&#10;from [IN].Product&#13;&#10;">
+        <Column Name="Column1" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table6" Alias="Tproduct" DataType="System.Int32" Enabled="true" SelectCommand="select ProductCode+' '+ProductDesc1&#13;&#10;from [IN].Product&#13;&#10;">
+        <Column Name="Column1" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table7" Alias="Vendor1" DataType="System.Int32" Enabled="true" SelectCommand="SELECT  VendorCode+' : '+Name As VendorCodename&#13;&#10;From AP.Vendor&#13;&#10;">
+        <Column Name="VendorCodename" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table8" Alias="Vendor2" DataType="System.Int32" Enabled="true" SelectCommand="SELECT  VendorCode+' : '+Name As VendorCodename&#13;&#10;From AP.Vendor">
+        <Column Name="VendorCodename" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table9" Alias="Vendor3" DataType="System.Int32" Enabled="true" SelectCommand="SELECT  VendorCode+' : '+Name As VendorCodename&#13;&#10;From AP.Vendor">
+        <Column Name="VendorCodename" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table10" Alias="Vendor4" DataType="System.Int32" Enabled="true" SelectCommand="SELECT  VendorCode+' : '+Name As VendorCodename&#13;&#10;From AP.Vendor&#13;&#10;">
+        <Column Name="VendorCodename" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table11" Alias="Vendor5" DataType="System.Int32" Enabled="true" SelectCommand="SELECT  VendorCode+' : '+Name As VendorCodename&#13;&#10;From AP.Vendor&#13;&#10;">
+        <Column Name="VendorCodename" DataType="System.String"/>
+      </TableDataSource>
+    </MsSqlDataConnection>
+    <Parameter Name="p_FDate" DataType="System.DateTime"/>
+    <Parameter Name="p_TDate" DataType="System.DateTime"/>
+    <Parameter Name="p_Fcat" DataType="System.String"/>
+    <Parameter Name="p_Tcat" DataType="System.String"/>
+    <Parameter Name="p_Fproductcode" DataType="System.String"/>
+    <Parameter Name="p_Tproductcode" DataType="System.String"/>
+  </Dictionary>
+  <ReportPage Name="Page1" Landscape="true" PaperWidth="297" PaperHeight="210" RawPaperSize="9" FirstPageSource="15" OtherPagesSource="15">
+    <PageHeaderBand Name="PageHeader1" Width="1047.06" Height="103.95">
+      <PictureObject Name="Picture1" Width="245.7" Height="75.6" DataColumn="ADMIN_Bu.BuLogo"/>
+      <TextObject Name="Text3" Left="320.36" Top="33.07" Width="406.35" Height="37.8" Text="Pricelist Comparison by Vendor" HorzAlign="Center" Font="Tahoma, 16pt, style=Bold"/>
+      <TextObject Name="Text4" Top="85.05" Width="349.65" Height="18.9" Text="[ADMIN_Bu.Name]" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text10" Left="812.7" Width="292.95" Height="66.15" Text="Date: From &lt;b&gt;[TextDate1.Text]&lt;/b&gt; To &lt;b&gt;[TextDate2.Text]&lt;/b&gt;&#13;&#10;Category: From &lt;b&gt;[p_Fcat]&lt;/b&gt; To &lt;b&gt;[p_Tcat]&lt;/b&gt;&#13;&#10;Product: From &lt;b&gt;[p_Fproductcode]&lt;/b&gt; To &lt;b&gt;[p_Tproductcode]&lt;/b&gt;&#13;&#10;		" Font="Tahoma, 8pt" HtmlTags="true">
+        <Formats>
+          <DateFormat/>
+          <DateFormat/>
+          <GeneralFormat/>
+          <GeneralFormat/>
+          <GeneralFormat/>
+          <GeneralFormat/>
+        </Formats>
+      </TextObject>
+      <ChildBand Name="Child2" Top="107.95" Width="1047.06" Height="9.45"/>
+    </PageHeaderBand>
+    <ColumnHeaderBand Name="ColumnHeader1" Top="121.4" Width="1047.06" Height="37.8" Guides="28.35">
+      <TableObject Name="Table1" Width="1039.5" Height="37.8" Border.Lines="Left, Top, Bottom">
+        <TableColumn Name="Column1" Width="264.6"/>
+        <TableColumn Name="Column2" Width="56.7"/>
+        <TableColumn Name="Column3" Width="75.6"/>
+        <TableColumn Name="Column4" Width="128.52"/>
+        <TableColumn Name="Column5" Width="128.52"/>
+        <TableColumn Name="Column6" Width="128.52"/>
+        <TableColumn Name="Column7" Width="128.52"/>
+        <TableColumn Name="Column8" Width="128.52"/>
+        <TableRow Name="Row1" Height="37.8">
+          <TableCell Name="Cell1" Border.Lines="Right">
+            <TextObject Name="Text5" Top="9.45" Width="264.6" Height="18.9" Text="Product " Font="Tahoma, 8pt, style=Bold"/>
+          </TableCell>
+          <TableCell Name="Cell2" Border.Lines="Right">
+            <TextObject Name="Text7" Top="9.45" Width="56.7" Height="18.9" Text="Unit" HorzAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+          </TableCell>
+          <TableCell Name="Cell3" Border.Lines="All">
+            <TextObject Name="Text8" Top="9.45" Width="75.6" Height="18.9" Text="Last Price" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
+          </TableCell>
+          <TableCell Name="Cell4" Border.Lines="All">
+            <TextObject Name="Text11" Top="9.45" Width="128.52" Height="18.9" Text="Vendor#1" HorzAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+          </TableCell>
+          <TableCell Name="Cell5" Border.Lines="All">
+            <TextObject Name="Text12" Top="9.45" Width="128.52" Height="18.9" Text="Vendor#2" HorzAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+          </TableCell>
+          <TableCell Name="Cell6" Border.Lines="All">
+            <TextObject Name="Text13" Top="9.45" Width="128.52" Height="18.9" Text="Vendor#3" HorzAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+          </TableCell>
+          <TableCell Name="Cell7" Border.Lines="Right">
+            <TextObject Name="Text14" Top="9.45" Width="128.52" Height="18.9" Text="Vendor#4" HorzAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+          </TableCell>
+          <TableCell Name="Cell8" Border.Lines="All">
+            <TextObject Name="Text15" Top="9.45" Width="128.52" Height="18.9" Text="Vendor#5" HorzAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+          </TableCell>
+        </TableRow>
+      </TableObject>
+    </ColumnHeaderBand>
+    <DataBand Name="Data1" Top="163.2" Width="1047.06" Height="75.6" CanGrow="true" BeforePrintEvent="Data1_BeforePrint" DataSource="Table">
+      <TableObject Name="Table2" Width="1039.5" Height="75.6" Border.Lines="Left, Top, Bottom">
+        <TableColumn Name="Column21" Width="264.6"/>
+        <TableColumn Name="Column22" Width="56.7"/>
+        <TableColumn Name="Column23" Width="75.6"/>
+        <TableColumn Name="Column24" Width="128.52"/>
+        <TableColumn Name="Column25" Width="128.52"/>
+        <TableColumn Name="Column26" Width="128.52"/>
+        <TableColumn Name="Column27" Width="128.52"/>
+        <TableColumn Name="Column28" Width="128.52"/>
+        <TableRow Name="Row2" Height="75.6">
+          <TableCell Name="Cell21" Border.Lines="Right" Text="[plc.ProductCode]-[plc.ProductDesc1]&#13;&#10;[plc.ProductDesc2]" Padding="2, 2, 2, 2" Font="Tahoma, 8pt" Trimming="EllipsisWord"/>
+          <TableCell Name="Cell22" Border.Lines="Right" Text="[plc.OrderUnit]" Padding="2, 2, 2, 2" WordWrap="false" Font="Tahoma, 8pt"/>
+          <TableCell Name="Cell23" Border.Lines="All" Text="[plc.LastPrice]" Padding="2, 2, 2, 2" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt"/>
+          <TableCell Name="Cell24" Border.Lines="All" Padding="2, 0, 2, 0" WordWrap="false" Font="Tahoma, 8pt">
+            <TextObject Name="Text6" Top="1.89" Width="103.95" Height="15.12" Text="[IIf([plc.Vendor1]==&quot;&quot;, &quot;&quot;, [plc.Vendor1])]" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+            <TextObject Name="Text9" Left="107.73" Top="1.89" Width="18.9" Height="15.12" Text="[IIf([plc.Vendor1]==&quot;&quot;, &quot;&quot;, &quot;(&quot; + [plc.Vendor1Rank] +&quot;)&quot;)]" HorzAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+            <TextObject Name="Text16" Top="18.9" Width="128.52" Height="37.8" CanGrow="true" Text="[IIf([plc.Vendor1]==&quot;&quot;, &quot;&quot;, [plc.Vendor1Name])]" Font="Tahoma, 8pt, style=Italic"/>
+            <TextObject Name="Text17" Top="56.7" Width="128.52" Height="15.12" Border.Lines="Top" Border.Style="Dot" CanGrow="true" Text="[IIf([plc.Vendor1]==&quot;&quot;, &quot;&quot;, Format(&quot;{0:N}&quot;, [plc.Vendor1Price]))]" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
+            <Formats>
+              <GeneralFormat/>
+              <GeneralFormat/>
+              <GeneralFormat/>
+            </Formats>
+          </TableCell>
+          <TableCell Name="Cell25" Border.Lines="All" Padding="2, 0, 2, 0" WordWrap="false" Font="Tahoma, 8pt">
+            <TextObject Name="Text21" Top="56.7" Width="128.52" Height="15.12" Border.Lines="Top" Border.Style="Dot" Text="[IIf([plc.Vendor2]==&quot;&quot;, &quot;&quot;, Format(&quot;{0:N}&quot;, [plc.Vendor2Price]))]" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt"/>
+            <TextObject Name="Text20" Top="18.9" Width="128.52" Height="37.8" CanGrow="true" Text="[IIf([plc.Vendor2]==&quot;&quot;, &quot;&quot;, [plc.Vendor2Name])]" Font="Tahoma, 8pt, style=Italic"/>
+            <TextObject Name="Text18" Top="1.89" Width="103.95" Height="15.12" Text="[IIf([plc.Vendor2]==&quot;&quot;, &quot;&quot;, [plc.Vendor2])]" WordWrap="false" Font="Tahoma, 8pt"/>
+            <TextObject Name="Text19" Left="107.73" Top="1.89" Width="18.9" Height="15.12" Text="[IIf([plc.Vendor2]==&quot;&quot;, &quot;&quot;, &quot;(&quot; + [plc.Vendor2Rank] +&quot;)&quot;)]" HorzAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+            <Formats>
+              <GeneralFormat/>
+              <GeneralFormat/>
+              <GeneralFormat/>
+            </Formats>
+          </TableCell>
+          <TableCell Name="Cell26" Border.Lines="All" Padding="2, 0, 2, 0" WordWrap="false" Font="Tahoma, 8pt">
+            <TextObject Name="Text25" Top="56.7" Width="128.52" Height="15.12" Border.Lines="Top" Border.Style="Dot" Text="[IIf([plc.Vendor3]==&quot;&quot;, &quot;&quot;, Format(&quot;{0:N}&quot;, [plc.Vendor3Price]))]" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt"/>
+            <TextObject Name="Text22" Top="1.89" Width="103.95" Height="15.12" Text="[IIf([plc.Vendor3]==&quot;&quot;, &quot;&quot;, [plc.Vendor3])]" WordWrap="false" Font="Tahoma, 8pt"/>
+            <TextObject Name="Text23" Left="107.73" Top="1.89" Width="18.9" Height="15.12" Text="[IIf([plc.Vendor3]==&quot;&quot;, &quot;&quot;, &quot;(&quot; + [plc.Vendor3Rank] +&quot;)&quot;)]" HorzAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+            <TextObject Name="Text24" Top="18.9" Width="128.52" Height="37.8" CanGrow="true" Text="[IIf([plc.Vendor3]==&quot;&quot;, &quot;&quot;, [plc.Vendor3Name])]" Font="Tahoma, 8pt, style=Italic"/>
+            <Formats>
+              <GeneralFormat/>
+              <GeneralFormat/>
+              <GeneralFormat/>
+            </Formats>
+          </TableCell>
+          <TableCell Name="Cell27" Border.Lines="Right" Padding="2, 0, 2, 0" WordWrap="false" Font="Tahoma, 8pt">
+            <TextObject Name="Text26" Top="1.89" Width="103.95" Height="15.12" Text="[IIf([plc.Vendor4]==&quot;&quot;, &quot;&quot;, [plc.Vendor4])]" WordWrap="false" Font="Tahoma, 8pt"/>
+            <TextObject Name="Text28" Top="18.9" Width="128.52" Height="37.8" CanGrow="true" Text="[IIf([plc.Vendor4]==&quot;&quot;, &quot;&quot;, [plc.Vendor4Name])]" Font="Tahoma, 8pt, style=Italic"/>
+            <TextObject Name="Text27" Left="107.73" Top="1.89" Width="18.9" Height="15.12" Text="[IIf([plc.Vendor4]==&quot;&quot;, &quot;&quot;, &quot;(&quot; + [plc.Vendor4Rank] +&quot;)&quot;)]" HorzAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+            <TextObject Name="Text29" Top="56.7" Width="128.52" Height="15.12" Border.Lines="Top" Border.Style="Dot" Text="[IIf([plc.Vendor4]==&quot;&quot;, &quot;&quot;, Format(&quot;{0:N}&quot;, [plc.Vendor4Price]))]" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt"/>
+            <Formats>
+              <GeneralFormat/>
+              <GeneralFormat/>
+              <GeneralFormat/>
+            </Formats>
+          </TableCell>
+          <TableCell Name="Cell28" Border.Lines="All" Padding="2, 0, 2, 0" WordWrap="false" Font="Tahoma, 8pt">
+            <TextObject Name="Text30" Top="1.89" Width="103.95" Height="15.12" Text="[IIf([plc.Vendor5]==&quot;&quot;, &quot;&quot;, [plc.Vendor5])]" WordWrap="false" Font="Tahoma, 8pt"/>
+            <TextObject Name="Text32" Top="18.9" Width="128.52" Height="37.8" CanGrow="true" Text="[IIf([plc.Vendor5]==&quot;&quot;, &quot;&quot;, [plc.Vendor5Name])]" Font="Tahoma, 8pt, style=Italic"/>
+            <TextObject Name="Text33" Top="56.7" Width="128.52" Height="15.12" Border.Lines="Top" Border.Style="Dot" Text="[IIf([plc.Vendor5]==&quot;&quot;, &quot;&quot;, Format(&quot;{0:N}&quot;, [plc.Vendor5Price]))]" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt"/>
+            <TextObject Name="Text31" Left="107.73" Top="1.89" Width="18.9" Height="15.12" Text="[IIf([plc.Vendor5]==&quot;&quot;, &quot;&quot;, &quot;(&quot; + [plc.Vendor5Rank] +&quot;)&quot;)]" HorzAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+            <Formats>
+              <GeneralFormat/>
+              <GeneralFormat/>
+              <GeneralFormat/>
+            </Formats>
+          </TableCell>
+        </TableRow>
+      </TableObject>
+    </DataBand>
+    <ReportSummaryBand Name="ReportSummary1" Top="242.8" Width="1047.06" Height="141.75" PrintOnBottom="true">
+      <TextObject Name="Text34" Left="28.35" Top="9.45" Width="124.74" Height="18.9" Text="Prepared by"/>
+      <TextObject Name="Text35" Left="160.65" Top="9.45" Width="264.6" Height="18.9" Border.Lines="Bottom"/>
+      <TextObject Name="Text36" Left="160.65" Top="37.8" Width="264.6" Height="18.9" Text="Account Officer" HorzAlign="Center"/>
+      <TextObject Name="Text37" Left="28.35" Top="86.05" Width="124.74" Height="18.9" Text="Acknowledged by"/>
+      <TextObject Name="Text38" Left="160.65" Top="86.05" Width="264.6" Height="18.9" Border.Lines="Bottom"/>
+      <TextObject Name="Text39" Left="160.65" Top="114.4" Width="264.6" Height="18.9" Text="Department Leader" HorzAlign="Center"/>
+      <TextObject Name="Text40" Left="604.8" Top="9.45" Width="124.74" Height="18.9" Text="Verified by"/>
+      <TextObject Name="Text41" Left="737.1" Top="9.45" Width="264.6" Height="18.9" Border.Lines="Bottom"/>
+      <TextObject Name="Text42" Left="737.1" Top="37.8" Width="264.6" Height="18.9" Text="Chief Accountant" HorzAlign="Center"/>
+      <TextObject Name="Text43" Left="604.8" Top="86.05" Width="124.74" Height="18.9" Text="Approved by"/>
+      <TextObject Name="Text44" Left="737.1" Top="86.05" Width="264.6" Height="18.9" Border.Lines="Bottom"/>
+      <TextObject Name="Text45" Left="737.1" Top="114.4" Width="264.6" Height="18.9" Text="General Manager" HorzAlign="Center"/>
+    </ReportSummaryBand>
+    <PageFooterBand Name="PageFooter1" Top="388.55" Width="1047.06" Height="37.8" Border.Lines="Top" Border.Style="Dot">
+      <TextObject Name="Text2" Left="869.4" Top="7.56" Width="170.1" Height="28.35" Text="Page [Page#] of [TotalPages#]" HorzAlign="Right" Font="Arial, 8pt"/>
+      <TextObject Name="Text1" Left="9.45" Top="7.56" Width="170.1" Height="28.35" Text="Report Summary&#13;&#10;[Date]" Font="Arial, 8pt"/>
+    </PageFooterBand>
+  </ReportPage>
+  <DialogPage Name="ReportDialog" Width="374" Height="374" AcceptButton="btnOk" CancelButton="btnCancel" Text="Pricelist Comparison by Vendor" LoadEvent="ReportDialog_Load">
+    <ButtonControl Name="btnOk" Left="146" Top="314" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="0" Text="OK" ClickEvent="btnOk_Click" DialogResult="OK"/>
+    <ButtonControl Name="btnCancel" Left="253" Top="314" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="1" Text="Cancel" DialogResult="Cancel"/>
+    <TextBoxControl Name="TextDate1" Left="36" Top="36" Width="300" Font="Tahoma, 8pt" TabIndex="3"/>
+    <TextBoxControl Name="TextDate2" Left="36" Top="81" Width="300" Font="Tahoma, 8pt" TabIndex="3"/>
+    <LabelControl Name="Label1" Left="36" Top="20" Width="66" Height="13" Font="Tahoma, 8pt, style=Bold" TabIndex="4" Text="From Date" ClickEvent="Label1_Click"/>
+    <LabelControl Name="Label2" Left="36" Top="65" Width="51" Height="13" Font="Tahoma, 8pt, style=Bold" TabIndex="4" Text="To Date" ClickEvent="Label1_Click"/>
+    <ComboBoxControl Name="ComboBox1" Left="36" Top="126" Width="300" Font="Tahoma, 8pt" TabIndex="5" DataColumn="Fcatcode.Column1" DropDownWidth="300" ItemHeight="13"/>
+    <ComboBoxControl Name="ComboBox2" Left="36" Top="173" Width="300" Font="Tahoma, 8pt" TabIndex="5" DataColumn="Tcatcode.Column1" DropDownWidth="300" ItemHeight="13"/>
+    <ComboBoxControl Name="ComboBox3" Left="36" Top="220" Width="300" Font="Tahoma, 8pt" TabIndex="5" DataColumn="Fproduct.Column1" DropDownWidth="300" ItemHeight="13"/>
+    <ComboBoxControl Name="ComboBox4" Left="36" Top="271" Width="300" Font="Tahoma, 8pt" TabIndex="5" DataColumn="Tproduct.Column1" DropDownWidth="300" ItemHeight="13"/>
+    <LabelControl Name="Label3" Left="36" Top="110" Width="91" Height="13" Font="Tahoma, 8pt, style=Bold" TabIndex="6" Text="From Category"/>
+    <LabelControl Name="Label4" Left="36" Top="156" Width="76" Height="13" Font="Tahoma, 8pt, style=Bold" TabIndex="6" Text="To Category"/>
+    <LabelControl Name="Label5" Left="36" Top="202" Width="83" Height="13" Font="Tahoma, 8pt, style=Bold" TabIndex="7" Text="From Product" ClickEvent="Label5_Click"/>
+    <LabelControl Name="Label6" Left="36" Top="251" Width="68" Height="13" Font="Tahoma, 8pt, style=Bold" TabIndex="7" Text="To Product"/>
+  </DialogPage>
+</Report>

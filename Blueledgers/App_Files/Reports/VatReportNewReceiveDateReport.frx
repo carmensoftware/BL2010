@@ -1,0 +1,222 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="03/19/2014 16:37:55" ReportInfo.CreatorVersion="2013.4.11.0">
+  <ScriptText>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Data;
+using FastReport;
+using FastReport.Data;
+using FastReport.Dialog;
+using FastReport.Barcode;
+using FastReport.Table;
+using FastReport.Utils;
+
+namespace FastReport
+{
+  public class ReportScript
+  {
+
+    private void _StartReport(object sender, EventArgs e)
+    {
+      DateTime startOfMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+      TextDate1.Text = startOfMonth.ToShortDateString();
+      TextDate2.Text = DateTime.Today.ToShortDateString();
+      
+    }
+
+    private void btnOk_Click(object sender, EventArgs e)
+    {
+      Report.SetParameterValue(&quot;p_FDate&quot;, Convert.ToDateTime(TextDate1.Text));
+      Report.SetParameterValue(&quot;p_TDate&quot;, Convert.ToDateTime(TextDate2.Text));
+      Report.SetParameterValue(&quot;p_Flocation&quot;, ComboBox1.Text.Split(' ')[0].ToString());
+      Report.SetParameterValue(&quot;p_Tlocation&quot;, ComboBox2.Text.Split(' ')[0].ToString());
+      
+      if (CheckBox1.Checked==true)
+      {
+         Report.SetParameterValue(&quot;p_Showzero&quot;,&quot;0&quot;);
+        
+      }
+      else
+      {
+         Report.SetParameterValue(&quot;p_Showzero&quot;,&quot;0.01&quot;);
+      }
+      
+    }
+
+
+  }
+}
+</ScriptText>
+  <Dictionary>
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqCvlJxRoS3oNe5N3zvkC4Lm0GTlhzQjT2TIHST/VUwxymBjkMasIlge3mQyaNyvDqobp2jyqEN90mfyWPC487XDSLyx03j+wSoCmtzywJpR7ziN62fZM9oI7O96e9x/Sd">
+      <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;">
+        <Column Name="BuCode" DataType="System.String"/>
+        <Column Name="Name" DataType="System.String"/>
+        <Column Name="NameBilling" DataType="System.String"/>
+        <Column Name="Address" DataType="System.String"/>
+        <Column Name="PostCode" DataType="System.String"/>
+        <Column Name="City" DataType="System.String"/>
+        <Column Name="Country" DataType="System.String"/>
+        <Column Name="Phone" DataType="System.String"/>
+        <Column Name="Fax" DataType="System.String"/>
+        <Column Name="Email" DataType="System.String"/>
+        <Column Name="DeliveryTerm" DataType="System.String"/>
+        <Column Name="POS" DataType="System.String"/>
+        <Column Name="POSModel" DataType="System.String"/>
+        <Column Name="BackOffice" DataType="System.String"/>
+        <Column Name="BackOfficeModel" DataType="System.String"/>
+        <Column Name="BuLogo" DataType="System.Byte[]" BindableControl="Picture"/>
+      </TableDataSource>
+      <TableDataSource Name="Table" Alias="vrn" DataType="System.Int32" Enabled="true" SelectCommand="EXEC [RPT].rptVatReportNewReceiveDateReport &#13;&#10;@FDATE=@p_FDate,@TDATE=@p_TDate,@FLOCATION=@p_Flocation,&#13;&#10;@TLOCATION=@p_Tlocation,@SHOWZEROTAX=@p_Showzero">
+        <Column Name="BuCode" DataType="System.String"/>
+        <Column Name="BuName" DataType="System.String"/>
+        <Column Name="BuNameBilling" DataType="System.String"/>
+        <Column Name="BuAdd" DataType="System.String"/>
+        <Column Name="TotalAmt" DataType="System.Decimal"/>
+        <Column Name="TaxAmt" DataType="System.Decimal"/>
+        <Column Name="NetAmt" DataType="System.Decimal"/>
+        <Column Name="CommitDate" DataType="System.DateTime"/>
+        <Column Name="InvoiceDate" DataType="System.DateTime"/>
+        <Column Name="RecDate" DataType="System.DateTime"/>
+        <Column Name="InvoiceNo" DataType="System.String"/>
+        <Column Name="Name" DataType="System.String"/>
+        <Column Name="chkInvDes" DataType="System.String"/>
+        <Column Name="Check" DataType="System.String"/>
+        <Column Name="LocationCode" DataType="System.String"/>
+        <Column Name="Row" DataType="System.Int64"/>
+        <CommandParameter Name="p_FDate" DataType="4" Expression="[p_FDate]" DefaultValue="10/10/13"/>
+        <CommandParameter Name="p_TDate" DataType="4" Expression="[p_TDate]" DefaultValue="10/10/13"/>
+        <CommandParameter Name="p_Flocation" DataType="22" Expression="[p_Flocation]"/>
+        <CommandParameter Name="p_Tlocation" DataType="22" Expression="[p_Tlocation]"/>
+        <CommandParameter Name="p_Showzero" DataType="22" Expression="[p_Showzero]"/>
+      </TableDataSource>
+      <TableDataSource Name="Table3" Alias="Flocation" DataType="System.Int32" Enabled="true" SelectCommand="exec rpt.listlocationbytype 0">
+        <Column Name="Item" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table4" Alias="Tlocation" DataType="System.Int32" Enabled="true" SelectCommand="exec rpt.listlocationbytype 0">
+        <Column Name="Item" DataType="System.String"/>
+      </TableDataSource>
+    </MsSqlDataConnection>
+    <Parameter Name="p_FDate" DataType="System.DateTime"/>
+    <Parameter Name="p_TDate" DataType="System.DateTime"/>
+    <Parameter Name="p_Flocation" DataType="System.String"/>
+    <Parameter Name="p_Tlocation" DataType="System.String"/>
+    <Parameter Name="p_Showzero" DataType="System.String"/>
+    <Total Name="sumnet" Expression="[vrn.NetAmt]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+    <Total Name="sumtax" Expression="[vrn.TaxAmt]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+    <Total Name="sumtotal" Expression="[vrn.TotalAmt]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+  </Dictionary>
+  <ReportPage Name="Page1" RawPaperSize="9" FirstPageSource="15" OtherPagesSource="15" Guides="727.65">
+    <PageHeaderBand Name="PageHeader1" Width="718.2" Height="103.95">
+      <PictureObject Name="Picture1" Left="-18.9" Width="198.45" Height="66.15" DataColumn="ADMIN_Bu.BuLogo"/>
+      <TextObject Name="Text3" Left="222.08" Top="1.89" Width="292.95" Height="37.8" Text="รายงานภาษีซื้อ" HorzAlign="Center" Font="Tahoma, 16pt, style=Bold"/>
+      <TextObject Name="Text4" Top="75.6" Width="264.6" Height="18.9" CanGrow="true" Text="[ADMIN_Bu.Name]" Font="Tahoma, 9pt"/>
+      <TextObject Name="Text17" Left="453.6" Top="56.7" Width="255.15" Height="47.25" Text="วันที่  [TextDate1.Text] ถึง  [TextDate2.Text]&#13;&#10;สถานที่  [p_Flocation]  ถึง [p_Tlocation]" HorzAlign="Right" Font="Tahoma, 8pt"/>
+    </PageHeaderBand>
+    <ColumnHeaderBand Name="ColumnHeader1" Top="107.95" Width="718.2" Height="85.05">
+      <TextObject Name="Text5" Top="9.45" Width="576.45" Height="18.9" Text="ชื่อผู้ประกอบการ  [vrn.BuName]" Font="Tahoma, 9pt, style=Bold"/>
+      <TextObject Name="Text6" Top="28.35" Width="576.45" Height="18.9" Text="ชื่อสถานที่ประกอบการ  [vrn.BuNameBilling]  สาขา  [vrn.BuCode]" Font="Tahoma, 9pt, style=Bold"/>
+      <TextObject Name="Text7" Top="47.25" Width="463.05" Height="18.9" CanGrow="true" Text="ที่อยู่  [vrn.BuAdd]" Font="Tahoma, 9pt, style=Bold"/>
+      <TextObject Name="Text8" Left="481.95" Top="66.15" Width="217.35" Height="18.9" Text="เลขประจำตัวผู้เสียภาษี" Font="Tahoma, 9pt, style=Bold"/>
+      <ChildBand Name="Child1" Top="197" Width="718.2" Height="37.8">
+        <TableObject Name="Table1" Width="727.65" Height="37.8">
+          <TableColumn Name="Column1" Width="58.05"/>
+          <TableColumn Name="Column2" Width="67.5"/>
+          <TableColumn Name="Column3" Width="114.75"/>
+          <TableColumn Name="Column4" Width="228.15"/>
+          <TableColumn Name="Column5" Width="86.4"/>
+          <TableColumn Name="Column6" Width="67.5"/>
+          <TableColumn Name="Column7" Width="105.3"/>
+          <TableRow Name="Row1" Height="37.8">
+            <TableCell Name="Cell1" Border.Lines="All">
+              <TextObject Name="Text9" Left="9.45" Top="9.45" Width="37.8" Height="18.9" Text="ลำดับ" Font="Tahoma, 8pt, style=Bold"/>
+            </TableCell>
+            <TableCell Name="Cell2" Border.Lines="All">
+              <TextObject Name="Text10" Top="9.45" Width="66.15" Height="18.9" Text="วันที่รับ" Font="Tahoma, 8pt, style=Bold"/>
+            </TableCell>
+            <TableCell Name="Cell3" Border.Lines="All">
+              <TextObject Name="Text11" Top="9.45" Width="94.5" Height="18.9" Text="เล่มที่/เลขที่" Font="Tahoma, 8pt, style=Bold"/>
+            </TableCell>
+            <TableCell Name="Cell4" Border.Lines="All">
+              <TextObject Name="Text12" Left="9.45" Top="9.45" Width="189" Height="18.9" Text="รายการ" HorzAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+            </TableCell>
+            <TableCell Name="Cell5" Border.Lines="All">
+              <TextObject Name="Text13" Top="9.45" Width="85.05" Height="18.9" Text="ราคาสินค้า" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
+            </TableCell>
+            <TableCell Name="Cell26" Border.Lines="All">
+              <TextObject Name="Text14" Top="9.45" Width="66.15" Height="18.9" Text="ภาษี 7%" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
+            </TableCell>
+            <TableCell Name="Cell27" Border.Lines="All">
+              <TextObject Name="Text15" Top="9.45" Width="94.5" Height="18.9" Text="ยอดรวม" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
+            </TableCell>
+          </TableRow>
+        </TableObject>
+      </ChildBand>
+    </ColumnHeaderBand>
+    <DataBand Name="Data1" Top="238.8" Width="718.2" Height="20.4" CanGrow="true" BeforePrintEvent="Data1_BeforePrint" Guides="0" DataSource="Table">
+      <TableObject Name="Table1" Width="727.65" Height="20.4">
+        <TableColumn Name="Column8" Width="58.05"/>
+        <TableColumn Name="Column9" Width="67.5"/>
+        <TableColumn Name="Column10" Width="114.75"/>
+        <TableColumn Name="Column11" Width="228.15"/>
+        <TableColumn Name="Column12" Width="86.4"/>
+        <TableColumn Name="Column13" Width="67.5"/>
+        <TableColumn Name="Column14" Width="105.3"/>
+        <TableRow Name="Row2" Height="20.4">
+          <TableCell Name="Cell28" Border.Lines="All" Text="[vrn.Row]" HorzAlign="Center" Font="Tahoma, 8pt"/>
+          <TableCell Name="Cell29" Border.Lines="All" Text="[vrn.RecDate]" Format="Date" Format.Format="d" Font="Tahoma, 8pt"/>
+          <TableCell Name="Cell30" Border.Lines="All" Text="[vrn.InvoiceNo]" Font="Tahoma, 8pt"/>
+          <TableCell Name="Cell31" Border.Lines="All" Text="[vrn.Name]" Font="Tahoma, 8pt"/>
+          <TableCell Name="Cell32" Border.Lines="All" Text="[vrn.NetAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Tahoma, 8pt"/>
+          <TableCell Name="Cell33" Border.Lines="All" Text="[vrn.TaxAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Tahoma, 8pt"/>
+          <TableCell Name="Cell34" Border.Lines="All" Text="[vrn.TotalAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Tahoma, 8pt"/>
+        </TableRow>
+      </TableObject>
+    </DataBand>
+    <ReportSummaryBand Name="ReportSummary1" Top="263.2" Width="718.2" Height="28.35">
+      <TableObject Name="Table1" Width="727.65" Height="28.35">
+        <TableColumn Name="Column15" Width="58.05"/>
+        <TableColumn Name="Column16" Width="67.5"/>
+        <TableColumn Name="Column17" Width="114.75"/>
+        <TableColumn Name="Column18" Width="228.15"/>
+        <TableColumn Name="Column19" Width="86.4"/>
+        <TableColumn Name="Column20" Width="67.5"/>
+        <TableColumn Name="Column21" Width="105.3"/>
+        <TableRow Name="Row3" Height="28.35">
+          <TableCell Name="Cell35" Border.Lines="All"/>
+          <TableCell Name="Cell36" Border.Lines="All"/>
+          <TableCell Name="Cell37" Border.Lines="All"/>
+          <TableCell Name="Cell38" Border.Lines="All">
+            <TextObject Name="Text16" Left="56.7" Width="94.5" Height="18.9" Text="รวม" HorzAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+          </TableCell>
+          <TableCell Name="Cell39" Border.Lines="All" Text="[sumnet]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
+          <TableCell Name="Cell40" Border.Lines="All" Text="[sumtax]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
+          <TableCell Name="Cell41" Border.Lines="All" Text="[sumtotal]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
+        </TableRow>
+      </TableObject>
+    </ReportSummaryBand>
+    <PageFooterBand Name="PageFooter1" Top="295.55" Width="718.2" Height="9.45">
+      <ChildBand Name="Child2" Top="309" Width="718.2" Height="37.8" Border.Lines="Top">
+        <TextObject Name="Text1" Top="9.45" Width="236.25" Height="28.35" Text="Report Detailed&#13;&#10;Print on [Date]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text2" Left="529.2" Top="9.45" Width="198.45" Height="28.35" Text="Page [Page#] of [TotalPages#]" HorzAlign="Right" Font="Arial, 8pt"/>
+      </ChildBand>
+    </PageFooterBand>
+  </ReportPage>
+  <DialogPage Name="ReportDialog" Width="454" Height="302" AcceptButton="btnOk" CancelButton="btnCancel" Text="Vat Report (New) (Receive Date) Report" LoadEvent="ReportDialog_Load">
+    <ButtonControl Name="btnOk" Left="242" Top="230" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="0" Text="OK" ClickEvent="btnOk_Click" DialogResult="OK"/>
+    <ButtonControl Name="btnCancel" Left="337" Top="230" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="1" Text="Cancel" DialogResult="Cancel"/>
+    <TextBoxControl Name="TextDate1" Left="112" Top="24" Width="300" Font="Tahoma, 8pt" TabIndex="2"/>
+    <TextBoxControl Name="TextDate2" Left="112" Top="68" Width="300" Font="Tahoma, 8pt" TabIndex="2"/>
+    <LabelControl Name="Label1" Left="20" Top="24" Width="57" Height="13" Font="Tahoma, 8pt" TabIndex="3" Text="From Date"/>
+    <LabelControl Name="Label2" Left="20" Top="68" Width="45" Height="13" Font="Tahoma, 8pt" TabIndex="4" Text="To Date"/>
+    <LabelControl Name="Label9" Left="20" Top="116" Width="74" Height="13" Font="Tahoma, 8pt" TabIndex="12" Text="Location From"/>
+    <LabelControl Name="Label10" Left="20" Top="152" Width="62" Height="13" Font="Tahoma, 8pt" TabIndex="13" Text="Location To"/>
+    <ComboBoxControl Name="ComboBox1" Left="112" Top="116" Width="300" Font="Tahoma, 8pt" TabIndex="5" DataColumn="Flocation.Item" DropDownWidth="300" ItemHeight="13"/>
+    <ComboBoxControl Name="ComboBox2" Left="112" Top="152" Width="300" Font="Tahoma, 8pt" TabIndex="5" DataColumn="Tlocation.Item" DropDownWidth="300" ItemHeight="13"/>
+    <LabelControl Name="Label3" Left="20" Top="196" Width="0" Height="13" Font="Tahoma, 8pt" TabIndex="14"/>
+    <CheckBoxControl Name="CheckBox1" Left="112" Top="196" Width="105" Height="17" Font="Tahoma, 8pt" TabIndex="15" Text="Show zero value"/>
+  </DialogPage>
+</Report>

@@ -1,0 +1,161 @@
+:root
+{
+    --theme-color: #2196f3; /*#20B9EB;*/
+    --background-color: #fff;
+    --border-top-size: 8px;
+}
+
+body
+{
+    font-family: 'Tahoma' , 'Arial' , 'Helvetica' , 'Courier New' , 'Trebuchet MS' , 'Verdana';
+}
+
+.master-form
+{
+    border-top: var(--border-top-size) solid var(--theme-color);
+    background-color: var(--background-color);
+    width: 100%;
+    margin: 0 auto;
+    padding:0px;
+}
+
+.master-menu-bar
+{
+    clear: both;
+    display: block;
+    /*margin: 0 0 0 25px;*/
+    margin-bottom: 10px;
+    width:100%;
+}
+
+.master-logo
+{
+    display: inline-block;
+    margin-left: 25px;
+}
+
+.master-menu
+{
+    display: inline-block;
+    vertical-align: top;
+}
+
+.master-option
+{
+    display: inline-block;
+    vertical-align: top;
+    float: right;
+    position: absolute;
+    right:20px;
+}
+
+
+.master-info-bar
+{
+    clear: both; 
+    margin: 0 0 0 25px;
+    margin-bottom: 10px;
+    font-size: 1.25em;
+    width: 100%;
+}
+
+.master-user
+{
+    display: inline-block;
+    float: right;
+    position: absolute;
+    right: 25px;
+    width: auto;
+}
+
+.master-content
+{
+    margin: 0 20px 0 20px;
+    height: auto;
+}
+
+.master-option-sm
+{
+    display: none;
+}
+
+.clear-both
+{
+    clear: both;
+}
+
+.inline-block
+{
+    display: inline-block;
+}
+
+.text-center
+{
+    text-align: center;
+}
+
+.color-link
+{
+    color: #1E90FF;
+}
+
+
+
+/*--------------------------------*/
+
+
+
+@media screen and (max-width: 830px)
+{
+    .master-menu-bar
+    {
+    }
+
+    .master-option
+    {
+        display: none;
+    }
+
+
+    .master-info-bar
+    {
+        clear:both;
+        display:block;
+    }
+
+    .master-user
+    {
+        display:inline-block;
+        float:left;
+        position:absolute;
+        left:25px;
+        
+    }
+
+    .master-option-sm
+    {
+        display: inline-block;
+        float: right;
+        position: absolute;
+        right: 25px;
+    }
+
+}
+
+@media print
+{
+    body *
+    {
+        visibility: hidden;
+    }
+    .printable, .printable *
+    {
+        visibility: visible;
+    }
+    .printable
+    {
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+}

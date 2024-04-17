@@ -1,0 +1,255 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" UseFileCache="true" StartReportEvent="_StartReport" ReportInfo.Created="07/03/2014 17:19:30" ReportInfo.Modified="10/08/2014 11:39:35" ReportInfo.CreatorVersion="2013.4.11.0">
+  <ScriptText>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Data;
+using FastReport;
+using FastReport.Data;
+using FastReport.Dialog;
+using FastReport.Barcode;
+using FastReport.Table;
+using FastReport.Utils;
+
+namespace FastReport
+{
+  public class ReportScript
+  {  
+    
+    private void _StartReport(object sender, EventArgs e)
+    {
+      DateTime startOfMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+      TextDate1.Text = startOfMonth.ToShortDateString();
+      TextDate2.Text = DateTime.Today.ToShortDateString();
+      
+    }
+
+    private void btnOk_Click(object sender, EventArgs e)
+    {
+      Report.SetParameterValue(&quot;p_FDate&quot;, Convert.ToDateTime(TextDate1.Text));
+      Report.SetParameterValue(&quot;p_TDate&quot;, Convert.ToDateTime(TextDate2.Text));
+    }
+
+
+
+
+  }
+}
+</ScriptText>
+  <Dictionary>
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlquI5mm9eIqX7nRdDiks3qPXqDNCBXa6r0KuGeR7GvhwYlnOedGSDqx24gbDblXA4yOox4FtQM+LdCT1LBaokO+yzufYXR5DlYHTM3ShwpnnY=">
+      <TableDataSource Name="Tool_vRcvDaily" DataType="System.Int32" Enabled="true" TableName="Tool.&quot;vRcvDaily&quot;" SelectCommand="Exec [RPT].rptrecevingdaily @FDATE=@p_FDate,@TDATE=@p_TDate">
+        <Column Name="Period" DataType="System.String"/>
+        <Column Name="RecDate" DataType="System.DateTime"/>
+        <Column Name="InvoiceDate" DataType="System.DateTime"/>
+        <Column Name="InvoiceNo" DataType="System.String"/>
+        <Column Name="RecNo" DataType="System.String"/>
+        <Column Name="LocationCode" DataType="System.String"/>
+        <Column Name="LocationName" DataType="System.String"/>
+        <Column Name="DepName" DataType="System.String"/>
+        <Column Name="StoreType" DataType="System.String"/>
+        <Column Name="ProductCode" DataType="System.String"/>
+        <Column Name="CategoryCode" DataType="System.String"/>
+        <Column Name="CategoryName" DataType="System.String"/>
+        <Column Name="AccountCode" DataType="System.String"/>
+        <Column Name="ProductDesc1" DataType="System.String"/>
+        <Column Name="ProductDesc2" DataType="System.String"/>
+        <Column Name="RecQty" DataType="System.Decimal"/>
+        <Column Name="Price" DataType="System.Decimal"/>
+        <Column Name="Amount" DataType="System.Decimal"/>
+        <Column Name="TaxType" DataType="System.String"/>
+        <Column Name="TaxRate" DataType="System.Decimal"/>
+        <Column Name="NetAmt" DataType="System.Decimal"/>
+        <Column Name="TaxAmt" DataType="System.Decimal"/>
+        <Column Name="TotalAmt" DataType="System.Decimal"/>
+        <Column Name="NetAmtS" DataType="System.Decimal"/>
+        <Column Name="TaxAmtS" DataType="System.Decimal"/>
+        <Column Name="TotalAmtS" DataType="System.Decimal"/>
+        <Column Name="NetAmtN" DataType="System.Decimal"/>
+        <Column Name="TaxAmtN" DataType="System.Decimal"/>
+        <Column Name="TotalAmtN" DataType="System.Decimal"/>
+        <Column Name="NetAmtFST" DataType="System.Decimal"/>
+        <Column Name="NetAmtBST" DataType="System.Decimal"/>
+        <Column Name="NetAmtGST" DataType="System.Decimal"/>
+        <Column Name="NetAmtCST" DataType="System.Decimal"/>
+        <Column Name="NetAmtEST" DataType="System.Decimal"/>
+        <Column Name="NetAmtCHST" DataType="System.Decimal"/>
+        <Column Name="NetAmtFDST" DataType="System.Decimal"/>
+        <Column Name="NetAmtPST" DataType="System.Decimal"/>
+        <Column Name="NetAmtCKST" DataType="System.Decimal"/>
+        <Column Name="NetAmtBDST" DataType="System.Decimal"/>
+        <Column Name="NetAmtAST" DataType="System.Decimal"/>
+        <Column Name="NetAmtOST" DataType="System.Decimal"/>
+        <Column Name="DocStatus" DataType="System.String"/>
+        <CommandParameter Name="p_FDate" DataType="4" Expression="[p_FDate]" DefaultValue="10/10/13"/>
+        <CommandParameter Name="p_TDate" DataType="4" Expression="[p_TDate]" DefaultValue="10/10/13"/>
+      </TableDataSource>
+      <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;">
+        <Column Name="BuCode" DataType="System.String"/>
+        <Column Name="Name" DataType="System.String"/>
+        <Column Name="NameBilling" DataType="System.String"/>
+        <Column Name="Address" DataType="System.String"/>
+        <Column Name="PostCode" DataType="System.String"/>
+        <Column Name="City" DataType="System.String"/>
+        <Column Name="Country" DataType="System.String"/>
+        <Column Name="Phone" DataType="System.String"/>
+        <Column Name="Fax" DataType="System.String"/>
+        <Column Name="Email" DataType="System.String"/>
+        <Column Name="DeliveryTerm" DataType="System.String"/>
+        <Column Name="POS" DataType="System.String"/>
+        <Column Name="POSModel" DataType="System.String"/>
+        <Column Name="BackOffice" DataType="System.String"/>
+        <Column Name="BackOfficeModel" DataType="System.String"/>
+        <Column Name="BuLogo" DataType="System.Byte[]" BindableControl="Picture"/>
+        <Column Name="TaxId" DataType="System.String"/>
+      </TableDataSource>
+    </MsSqlDataConnection>
+    <Parameter Name="p_FDate" DataType="System.DateTime"/>
+    <Parameter Name="p_TDate" DataType="System.DateTime"/>
+    <Total Name="recDateNetTotalS" Expression="[Tool_vRcvDaily.NetAmtS]" Evaluator="Data1"/>
+    <Total Name="recDateNetTotalN" Expression="[Tool_vRcvDaily.NetAmtN]" Evaluator="Data1"/>
+    <Total Name="recFSNetTotal" Expression="[Tool_vRcvDaily.NetAmtFST]" Evaluator="Data1" PrintOn="GroupFooter2"/>
+    <Total Name="recBSNetTotal" Expression="[Tool_vRcvDaily.NetAmtBST]" Evaluator="Data1" PrintOn="GroupFooter2"/>
+    <Total Name="recCSNetTotal" Expression="[Tool_vRcvDaily.NetAmtCST]" Evaluator="Data1" PrintOn="GroupFooter2"/>
+    <Total Name="recGSNetTotal" Expression="[Tool_vRcvDaily.NetAmtGST]" Evaluator="Data1" PrintOn="GroupFooter2"/>
+    <Total Name="recESNetTotal" Expression="[Tool_vRcvDaily.NetAmtEST]" Evaluator="Data1" PrintOn="GroupFooter2"/>
+    <Total Name="recOtherNetTotal" Expression="[Tool_vRcvDaily.NetAmtOST]" Evaluator="Data1" PrintOn="GroupFooter2"/>
+    <Total Name="SumGrandMonthlyCSTotal" Expression="[Tool_vRcvDaily.NetAmtCST]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+    <Total Name="SumGrandMonthlyGSTotal" Expression="[Tool_vRcvDaily.NetAmtGST]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+    <Total Name="SumGrandMonthlyESTotal" Expression="[Tool_vRcvDaily.NetAmtEST]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+    <Total Name="SumGrandMonthlyFSTotal" Expression="[Tool_vRcvDaily.NetAmtFST]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+    <Total Name="SumGrandMonthlyBSTotal" Expression="[Tool_vRcvDaily.NetAmtBST]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+    <Total Name="SumGrangMonthlyOtherTotal" Expression="[Tool_vRcvDaily.NetAmtOST]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+    <Total Name="recCHNetTotal" Expression="[Tool_vRcvDaily.NetAmtCHST]" Evaluator="Data1" PrintOn="GroupFooter2"/>
+    <Total Name="recFDNetTotal" Expression="[Tool_vRcvDaily.NetAmtFDST]" Evaluator="Data1" PrintOn="GroupFooter2"/>
+    <Total Name="recPSNetTotal" Expression="[Tool_vRcvDaily.NetAmtPST]" Evaluator="Data1" PrintOn="GroupFooter2"/>
+    <Total Name="recCKNetTotal" Expression="[Tool_vRcvDaily.NetAmtCKST]" Evaluator="Data1" PrintOn="GroupFooter2"/>
+    <Total Name="recBDNetTotal" Expression="[Tool_vRcvDaily.NetAmtBDST]" Evaluator="Data1" PrintOn="GroupFooter2"/>
+    <Total Name="recASNetTotal" Expression="[Tool_vRcvDaily.NetAmtAST]" Evaluator="Data1" PrintOn="GroupFooter2"/>
+    <Total Name="recOSTNetTotal" Expression="[Tool_vRcvDaily.NetAmtOST]" Evaluator="Data1" PrintOn="GroupFooter2"/>
+    <Total Name="SumGrandMonthlyCHTotal" Expression="[Tool_vRcvDaily.NetAmtCHST]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+    <Total Name="SumGrandMonthlyFDTotal" Expression="[Tool_vRcvDaily.NetAmtFDST]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+    <Total Name="SumGrandMonthlyPSTotal" Expression="[Tool_vRcvDaily.NetAmtPST]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+    <Total Name="SumGrandMonthlyCKTotal" Expression="[Tool_vRcvDaily.NetAmtCKST]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+    <Total Name="SumGrandMonthlyBDTotal" Expression="[Tool_vRcvDaily.NetAmtBDST]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+    <Total Name="SumGrandMonthlyASTotal" Expression="[Tool_vRcvDaily.NetAmtAST]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+    <Total Name="SumGrandMonthlyOSTTotal" Expression="[Tool_vRcvDaily.NetAmtOST]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+    <Total Name="SumRecDailyFSTotal" Expression="[Tool_vRcvDaily.NetAmtFST]" Evaluator="Data1" PrintOn="GroupFooter3"/>
+    <Total Name="SumRecDailyBSTotal" Expression="[Tool_vRcvDaily.NetAmtBST]" Evaluator="Data1" PrintOn="GroupFooter3"/>
+    <Total Name="SumRecDailyCSTotal" Expression="[Tool_vRcvDaily.NetAmtCST]" Evaluator="Data1" PrintOn="GroupFooter3"/>
+    <Total Name="SumRecDailyGSTotal" Expression="[Tool_vRcvDaily.NetAmtGST]" Evaluator="Data1" PrintOn="GroupFooter3"/>
+    <Total Name="SumRecDailyESTotal" Expression="[Tool_vRcvDaily.NetAmtEST]" Evaluator="Data1" PrintOn="GroupFooter3"/>
+    <Total Name="SumRecDailyCHTotal" Expression="[Tool_vRcvDaily.NetAmtCHST]" Evaluator="Data1" PrintOn="GroupFooter3"/>
+    <Total Name="SumRecDailyFDTotal" Expression="[Tool_vRcvDaily.NetAmtFDST]" Evaluator="Data1" PrintOn="GroupFooter3"/>
+    <Total Name="SumRecDailyPSTotal" Expression="[Tool_vRcvDaily.NetAmtPST]" Evaluator="Data1" PrintOn="GroupFooter3"/>
+    <Total Name="SumRecDailyCKTotal" Expression="[Tool_vRcvDaily.NetAmtCKST]" Evaluator="Data1" PrintOn="GroupFooter3"/>
+    <Total Name="SumRecDailyBDTotal" Expression="[Tool_vRcvDaily.NetAmtBDST]" Evaluator="Data1" PrintOn="GroupFooter3"/>
+    <Total Name="SumRecDailyASTotal" Expression="[Tool_vRcvDaily.NetAmtAST]" Evaluator="Data1" PrintOn="GroupFooter3"/>
+    <Total Name="SumRecDailyOSTotal" Expression="[Tool_vRcvDaily.NetAmtOST]" Evaluator="Data1" PrintOn="GroupFooter3"/>
+  </Dictionary>
+  <ReportPage Name="Page1" Landscape="true" PaperWidth="297" PaperHeight="210" RawPaperSize="9" LeftMargin="5" TopMargin="5" RightMargin="5" BottomMargin="5" FirstPageSource="15" OtherPagesSource="15" Guides="1084.86,3.78,374.22,665.28,68.04,434.7,495.18,551.88,608.58,3.78,945,718.2,774.9,888.3,831.6,309.96,608.58,1001.7" StartPageEvent="Page1_StartPage">
+    <ReportTitleBand Name="ReportTitle1" Width="1084.86">
+      <LineObject Name="Line1" Left="-3780" Top="-3780" Diagonal="true"/>
+    </ReportTitleBand>
+    <PageHeaderBand Name="PageHeader1" Top="4" Width="1084.86" Height="86.94" Guides="0,18.9,90.72">
+      <TextObject Name="Text20" Left="831.6" Top="3.78" Width="253.26" Height="41.58" CanGrow="true" Text="** Report was data representation on actual receiving if Receiving have lately ,Please re-print this report for updating." VertAlign="Center" Font="Arial, 7pt, style=Bold"/>
+      <PictureObject Name="Picture1" Left="3.78" Width="117.18" Height="60.48" DataColumn="ADMIN_Bu.BuLogo"/>
+      <TextObject Name="Text56" Left="3.78" Top="66.15" Width="306.18" Height="15.12" Text="[ADMIN_Bu.Name]" Font="Arial, 6pt, style=Bold"/>
+      <TextObject Name="Text35" Left="329.8" Top="18.9" Width="425.25" Height="41.58" Text="Receiving Summary by All Location and Category&#13;&#10;Between on [p_FDate] and [p_TDate]" HorzAlign="Center" VertAlign="Center" Font="Arial, 12pt, style=Bold">
+        <Formats>
+          <DateFormat/>
+          <DateFormat/>
+        </Formats>
+      </TextObject>
+    </PageHeaderBand>
+    <ColumnHeaderBand Name="ColumnHeader1" Top="94.94" Width="1084.86" Height="34.02" Guides="0,15.12,34.02">
+      <TextObject Name="Text17" Left="3.78" Width="370.44" Height="34.02" Border.Lines="Top" Border.Width="0.5" Text="Receiving - All Location" Format="Date" Format.Format="d" VertAlign="Center" Font="Arial, 6.5pt, style=Bold"/>
+      <TextObject Name="Text18" Left="309.96" Width="298.62" Height="15.12" Border.Lines="Left, Top, Bottom" Border.Width="0.5" Text="Stock Item" Format="Date" Format.Format="d" HorzAlign="Center" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+      <TextObject Name="Text19" Left="608.58" Width="393.12" Height="15.12" Border.Lines="Left, Top, Bottom" Border.Width="0.5" Text="Direct Item" Format="Date" Format.Format="d" HorzAlign="Center" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+      <TextObject Name="Text70" Left="1001.7" Width="83.16" Height="34.02" Border.Lines="Left, Top" Border.Width="0.5" Fill.Color="DarkGray" Text="Net Total &#13;&#10;on Location" Format="Date" Format.Format="d" HorzAlign="Center" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+      <TextObject Name="Text57" Left="309.96" Top="15.12" Width="64.26" Height="18.9" Border.Lines="Left" Border.Width="0.5" Text="Food (1)" Format="Date" Format.Format="d" HorzAlign="Center" Font="Arial, 6pt, style=Bold"/>
+      <TextObject Name="Text58" Left="374.22" Top="15.12" Width="60.48" Height="18.9" Border.Lines="Left" Border.Width="0.5" Text="Beverage (2)" Format="Date" Format.Format="d" HorzAlign="Center" Font="Arial, 6pt, style=Bold"/>
+      <TextObject Name="Text59" Left="434.7" Top="15.12" Width="60.48" Height="18.9" Border.Lines="Left" Border.Width="0.5" Text="Convenience (3)" Format="Date" Format.Format="d" HorzAlign="Center" Font="Arial, 6pt, style=Bold"/>
+      <TextObject Name="Text60" Left="495.18" Top="15.12" Width="56.7" Height="18.9" Border.Lines="Left" Border.Width="0.5" Text="General (4)" Format="Date" Format.Format="d" HorzAlign="Center" Font="Arial, 6pt, style=Bold"/>
+      <TextObject Name="Text61" Left="551.88" Top="15.12" Width="56.7" Height="18.9" Border.Lines="Left" Border.Width="0.5" Text="Engineer (5)" Format="Date" Format.Format="d" HorzAlign="Center" Font="Arial, 6pt, style=Bold"/>
+      <TextObject Name="Text62" Left="888.3" Top="15.12" Width="56.7" Height="18.9" Border.Lines="Left" Border.Width="0.5" Text="Asset (11)" Format="Date" Format.Format="d" HorzAlign="Center" Font="Arial, 6pt, style=Bold"/>
+      <TextObject Name="Text63" Left="831.6" Top="15.12" Width="56.7" Height="18.9" Border.Lines="Left" Border.Width="0.5" Text="Beverage (10)" Format="Date" Format.Format="d" HorzAlign="Center" Font="Arial, 6pt, style=Bold"/>
+      <TextObject Name="Text65" Left="608.58" Top="15.12" Width="56.7" Height="18.9" Border.Lines="Left" Border.Width="0.5" Text="Chinese Food (6)" Format="Date" Format.Format="d" HorzAlign="Center" Font="Arial, 6pt, style=Bold"/>
+      <TextObject Name="Text66" Left="718.2" Top="15.12" Width="56.7" Height="18.9" Border.Lines="Left" Border.Width="0.5" Text="Pastry (8)" Format="Date" Format.Format="d" HorzAlign="Center" Font="Arial, 6pt, style=Bold"/>
+      <TextObject Name="Text67" Left="774.9" Top="15.12" Width="56.7" Height="18.9" Border.Lines="Left" Border.Width="0.5" Text="Cooked Food (9)" Format="Date" Format.Format="d" HorzAlign="Center" Font="Arial, 6pt, style=Bold"/>
+      <TextObject Name="Text68" Left="945" Top="15.12" Width="56.7" Height="18.9" Border.Lines="Left" Border.Width="0.5" Text="Other (12)" Format="Date" Format.Format="d" HorzAlign="Center" Font="Arial, 6pt, style=Bold"/>
+      <TextObject Name="Text64" Left="665.28" Top="15.12" Width="52.92" Height="18.9" Border.Lines="Left" Border.Width="0.5" Text="Food Stall (7)" Format="Date" Format.Format="d" HorzAlign="Center" Font="Arial, 6pt, style=Bold"/>
+    </ColumnHeaderBand>
+    <GroupHeaderBand Name="GroupHeader3" Top="132.96" Width="1084.86" Height="15.12" Fill.Color="LightGray" RepeatOnEveryPage="true" Condition="[Tool_vRcvDaily.StoreType]" SortOrder="Descending" KeepTogether="true">
+      <TextObject Name="Text8" Left="3.78" Width="306.18" Height="15.12" Text="[Tool_vRcvDaily.StoreType]" VertAlign="Center" Font="Arial, 6.5pt, style=Bold"/>
+      <GroupHeaderBand Name="GroupHeader2" Top="152.08" Width="1084.86" Condition="[Tool_vRcvDaily.LocationCode]" KeepTogether="true">
+        <DataBand Name="Data1" Top="156.08" Width="1084.86" DataSource="Tool_vRcvDaily"/>
+        <GroupFooterBand Name="GroupFooter2" Top="160.08" Width="1084.86" Height="15.12" CanShrink="true" Guides="0,15.12">
+          <TextObject Name="Text2" Left="3.78" Width="64.26" Height="15.12" Border.Lines="Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Color="Gray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" Text="[[Tool_vRcvDaily.LocationCode]]" VertAlign="Center" Font="Arial, 6pt"/>
+          <TextObject Name="Text3" Left="68.04" Width="241.92" Height="15.12" Border.Lines="Left, Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Color="Gray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" Text="[Tool_vRcvDaily.LocationName]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" VertAlign="Center" WordWrap="false" Font="Arial, 6pt"/>
+          <TextObject Name="Text1" Left="309.96" Width="64.26" Height="15.12" Border.Lines="Left, Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Color="Gray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" Text="[recFSNetTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt"/>
+          <TextObject Name="Text4" Left="374.22" Width="60.48" Height="15.12" Border.Lines="Left, Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Color="Gray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" Text="[recBSNetTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt"/>
+          <TextObject Name="Text5" Left="434.7" Width="60.48" Height="15.12" Border.Lines="Left, Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Color="Gray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" Text="[recCSNetTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt"/>
+          <TextObject Name="Text6" Left="495.18" Width="56.7" Height="15.12" Border.Lines="Left, Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Color="Gray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" Text="[recGSNetTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt"/>
+          <TextObject Name="Text7" Left="551.88" Width="56.7" Height="15.12" Border.Lines="Left, Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Color="Gray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" Text="[recESNetTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt"/>
+          <TextObject Name="Text16" Left="608.58" Width="56.7" Height="15.12" Border.Lines="Left, Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Color="Gray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" Text="[recCHNetTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt"/>
+          <TextObject Name="Text21" Left="665.28" Width="52.92" Height="15.12" Border.Lines="Left, Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Color="Gray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" Text="[recFDNetTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt"/>
+          <TextObject Name="Text22" Left="718.2" Width="56.7" Height="15.12" Border.Lines="Left, Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Color="Gray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" Text="[recPSNetTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt"/>
+          <TextObject Name="Text23" Left="774.9" Width="56.7" Height="15.12" Border.Lines="Left, Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Color="Gray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" Text="[recCKNetTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt"/>
+          <TextObject Name="Text24" Left="831.6" Width="56.7" Height="15.12" Border.Lines="Left, Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Color="Gray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" Text="[recBDNetTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt"/>
+          <TextObject Name="Text25" Left="888.3" Width="56.7" Height="15.12" Border.Lines="Left, Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Color="Gray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" Text="[recASNetTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt"/>
+          <TextObject Name="Text26" Left="945" Width="56.7" Height="15.12" Border.Lines="Left, Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Color="Gray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" Text="[recOSTNetTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt"/>
+          <TextObject Name="Text69" Left="1001.7" Width="83.16" Height="15.12" Border.Lines="Left, Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Color="Gray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" Fill.Color="DarkGray" Text="[[recFSNetTotal]+[recBSNetTotal]+[recCSNetTotal]+[recGSNetTotal]+[recESNetTotal]+[recCHNetTotal]+[recFDNetTotal]+[recPSNetTotal]+[recCKNetTotal]+[recBDNetTotal]+[recASNetTotal]+[recOSTNetTotal]]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt"/>
+        </GroupFooterBand>
+      </GroupHeaderBand>
+      <GroupFooterBand Name="GroupFooter3" Top="179.2" Width="1084.86" Height="15.12" Fill.Color="LightGray" CanShrink="true" Guides="0,15.12">
+        <TextObject Name="Text71" Left="3.78" Width="306.18" Height="15.12" Text="Total - [Tool_vRcvDaily.StoreType]" Format="Date" Format.Format="d" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+        <TextObject Name="Text36" Left="309.96" Width="64.26" Height="15.12" Border.Lines="Left" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Color="Gray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" Text="[SumRecDailyFSTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+        <TextObject Name="Text37" Left="374.22" Width="60.48" Height="15.12" Border.Lines="Left" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Color="Gray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" Text="[SumRecDailyBSTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+        <TextObject Name="Text38" Left="434.7" Width="60.48" Height="15.12" Border.Lines="Left" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Color="Gray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" Text="[SumRecDailyCSTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+        <TextObject Name="Text39" Left="495.18" Width="56.7" Height="15.12" Border.Lines="Left" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Color="Gray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" Text="[SumRecDailyGSTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+        <TextObject Name="Text40" Left="551.88" Width="56.7" Height="15.12" Border.Lines="Left" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Color="Gray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" Text="[SumRecDailyESTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+        <TextObject Name="Text41" Left="608.58" Width="56.7" Height="15.12" Border.Lines="Left" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Color="Gray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" Text="[SumRecDailyCHTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+        <TextObject Name="Text42" Left="665.28" Width="52.92" Height="15.12" Border.Lines="Left" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Color="Gray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" Text="[SumRecDailyFDTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+        <TextObject Name="Text44" Left="718.2" Width="56.7" Height="15.12" Border.Lines="Left" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Color="Gray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" Text="[SumRecDailyPSTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+        <TextObject Name="Text45" Left="774.9" Width="56.7" Height="15.12" Border.Lines="Left" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Color="Gray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" Text="[SumRecDailyCKTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+        <TextObject Name="Text46" Left="831.6" Width="56.7" Height="15.12" Border.Lines="Left" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Color="Gray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" Text="[SumRecDailyBDTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+        <TextObject Name="Text47" Left="888.3" Width="56.7" Height="15.12" Border.Lines="Left" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Color="Gray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" Text="[SumRecDailyASTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+        <TextObject Name="Text48" Left="945" Width="56.7" Height="15.12" Border.Lines="Left" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Color="Gray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" Text="[SumRecDailyOSTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+        <TextObject Name="Text72" Left="1001.7" Width="83.16" Height="15.12" Border.Lines="Left" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Color="Gray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" Text="[[SumRecDailyFSTotal]+[SumRecDailyBSTotal]+[SumRecDailyCSTotal]+[SumRecDailyESTotal]+[SumRecDailyCHTotal]+[SumRecDailyFDTotal]+[SumRecDailyPSTotal]+[SumRecDailyCKTotal]+[SumRecDailyBDTotal]+[SumRecDailyASTotal]+[SumRecDailyOSTotal]]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+        <ChildBand Name="Child1" Top="198.32" Width="1084.86" Height="3.78" Guides="3.78"/>
+      </GroupFooterBand>
+    </GroupHeaderBand>
+    <ReportSummaryBand Name="ReportSummary1" Top="206.1" Width="1084.86" Height="18.9" Fill.Color="DarkGray" CanShrink="true" Guides="18.9,0">
+      <TextObject Name="Text13" Left="3.78" Width="306.18" Height="18.9" Border.Lines="Bottom" Border.Width="0.5" Text="Grand Total - All Location" Format="Date" Format.Format="d" VertAlign="Center" Font="Arial, 6.5pt, style=Bold"/>
+      <TextObject Name="Text9" Left="1001.7" Width="83.16" Height="18.9" Border.Lines="Left, Bottom" Border.Width="0.5" Fill.Color="DarkGray" Text="[[SumGrandMonthlyFSTotal]+[SumGrandMonthlyBSTotal]+[SumGrandMonthlyCSTotal]+[SumGrandMonthlyGSTotal]+[SumGrandMonthlyESTotal]+[SumGrandMonthlyCHTotal]+[SumGrandMonthlyFDTotal]+[SumGrandMonthlyPSTotal]+[SumGrandMonthlyCKTotal]+[SumGrandMonthlyBDTotal]+[SumGrandMonthlyASTotal]+[SumGrandMonthlyOSTTotal]]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+      <TextObject Name="Text10" Left="309.96" Width="64.26" Height="18.9" Border.Lines="Left, Bottom" Border.Width="0.5" Text="[SumGrandMonthlyFSTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+      <TextObject Name="Text11" Left="374.22" Width="60.48" Height="18.9" Border.Lines="Left, Bottom" Border.Width="0.5" Text="[SumGrandMonthlyBSTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+      <TextObject Name="Text12" Left="551.88" Width="56.7" Height="18.9" Border.Lines="Left, Bottom" Border.Width="0.5" Text="[SumGrandMonthlyESTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+      <TextObject Name="Text14" Left="495.18" Width="56.7" Height="18.9" Border.Lines="Left, Bottom" Border.Width="0.5" Text="[SumGrandMonthlyGSTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+      <TextObject Name="Text15" Left="434.7" Width="60.48" Height="18.9" Border.Lines="Left, Bottom" Border.Width="0.5" Text="[SumGrandMonthlyCSTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+      <TextObject Name="Text27" Left="608.58" Width="56.7" Height="18.9" Border.Lines="Left, Bottom" Border.Width="0.5" Text="[SumGrandMonthlyCHTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+      <TextObject Name="Text28" Left="665.28" Width="52.92" Height="18.9" Border.Lines="Left, Bottom" Border.Width="0.5" Text="[SumGrandMonthlyFDTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+      <TextObject Name="Text29" Left="718.2" Width="56.7" Height="18.9" Border.Lines="Left, Bottom" Border.Width="0.5" Text="[SumGrandMonthlyPSTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+      <TextObject Name="Text31" Left="774.9" Width="56.7" Height="18.9" Border.Lines="Left, Bottom" Border.Width="0.5" Text="[SumGrandMonthlyCKTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+      <TextObject Name="Text32" Left="831.6" Width="56.7" Height="18.9" Border.Lines="Left, Bottom" Border.Width="0.5" Text="[SumGrandMonthlyBDTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+      <TextObject Name="Text33" Left="888.3" Width="56.7" Height="18.9" Border.Lines="Left, Bottom" Border.Width="0.5" Text="[SumGrandMonthlyASTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+      <TextObject Name="Text34" Left="945" Width="56.7" Height="18.9" Border.Lines="Left, Bottom" Border.Width="0.5" Text="[SumGrandMonthlyOSTTotal]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+    </ReportSummaryBand>
+    <PageFooterBand Name="PageFooter1" Top="229" Width="1084.86" Height="22.68">
+      <TextObject Name="Text30" Left="945" Top="3.78" Width="139.86" Height="18.9" Text="[PageN]" HorzAlign="Right" VertAlign="Bottom" Font="Arial, 6pt"/>
+      <TextObject Name="Text43" Left="3.78" Top="3.78" Width="128.52" Height="18.9" Text="[Date]" VertAlign="Bottom" Font="Arial, 6pt"/>
+    </PageFooterBand>
+  </ReportPage>
+  <DialogPage Name="Form1" Width="402" Height="158" AcceptButton="btnOk" CancelButton="btnCancel" LoadEvent="Form1_Load">
+    <ButtonControl Name="btnOk" Left="230" Top="99" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="0" Text="OK" ClickEvent="btnOk_Click" DialogResult="OK"/>
+    <ButtonControl Name="btnCancel" Left="313" Top="99" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="1" Text="Cancel" DialogResult="Cancel"/>
+    <LabelControl Name="Label1" Left="8" Top="24" Width="57" Height="13" Font="Tahoma, 8pt" TabIndex="2" Text="From Date"/>
+    <LabelControl Name="Label2" Left="8" Top="60" Width="45" Height="13" Font="Tahoma, 8pt" TabIndex="2" Text="To Date"/>
+    <TextBoxControl Name="TextDate1" Left="72" Top="24" Width="316" Font="Tahoma, 8pt" TabIndex="3"/>
+    <TextBoxControl Name="TextDate2" Left="72" Top="60" Width="316" Font="Tahoma, 8pt" TabIndex="3"/>
+  </DialogPage>
+</Report>

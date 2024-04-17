@@ -1,0 +1,54 @@
+﻿<%--
+Default skin template. The following skins are provided as examples only.
+
+1. Named control skin. The SkinId should be uniquely defined because
+   duplicate SkinId's per control type are not allowed in the same theme.
+
+<asp:GridView runat="server" SkinId="gridviewSkin" BackColor="White" >
+   <AlternatingRowStyle BackColor="Blue" />
+</asp:GridView>
+
+2. Default skin. The SkinId is not defined. Only one default 
+   control skin per control type is allowed in the same theme.
+
+<asp:Image runat="server" ImageUrl="~/images/image1.jpg" />
+--%>
+<%@ Register Assembly="DevExpress.Web.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a"
+    Namespace="DevExpress.Web.ASPxMenu" TagPrefix="dx" %>
+    
+<dx:ASPxMenu SkinID="MAIN_MENU" runat="server" BackColor="Transparent" Font-Bold="False" ForeColor="White" Font-Underline="False"
+    SeparatorColor="Black" SyncSelectionMode="None"> 
+    <ItemStyle>
+        <HoverStyle BackColor="#EEEEEE" ForeColor="Black">
+            <Border BorderColor="#EEEEEE" />
+        </HoverStyle>        
+    </ItemStyle>   
+    <SubMenuItemStyle ForeColor="Black">        
+    </SubMenuItemStyle>
+    <Border BorderStyle="None" />
+</dx:ASPxMenu>
+
+<dx:ASPxMenu SkinID="SUB_MENU" runat="server" BackColor="Transparent" Font-Bold="False" ForeColor="White" Font-Underline="False"
+    SeparatorColor="Black" SyncSelectionMode="None"> 
+    <ItemStyle>
+        <HoverStyle BackColor="#EEEEEE" ForeColor="Black">
+            <Border BorderColor="#EEEEEE" />
+        </HoverStyle>        
+    </ItemStyle>   
+    <SubMenuItemStyle ForeColor="Black">        
+    </SubMenuItemStyle>
+    <Border BorderStyle="None" />    
+</dx:ASPxMenu>
+
+<dx:ASPxMenu SkinID="COMMAND_BAR" runat="server" BackColor="Transparent" Font-Bold="False" ForeColor="Black" Font-Underline="False"
+    SeparatorColor="Black" SyncSelectionMode="None" ShowPopOutImages="True"> 
+    <Paddings Padding="0px" />
+    <ItemStyle>
+        <HoverStyle BackColor="#FFFFFF" ForeColor="Black">
+            <Border BorderColor="#FFFFFF" />
+        </HoverStyle>        
+    </ItemStyle>   
+    <SubMenuItemStyle ForeColor="Black" HorizontalAlign="Left">        
+    </SubMenuItemStyle>
+    <Border BorderStyle="None" />    
+</dx:ASPxMenu>

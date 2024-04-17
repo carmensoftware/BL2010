@@ -1,0 +1,32 @@
+﻿<%--
+Default skin template. The following skins are provided as examples only.
+
+1. Named control skin. The SkinId should be uniquely defined because
+   duplicate SkinId's per control type are not allowed in the same theme.
+
+<asp:GridView runat="server" SkinId="gridviewSkin" BackColor="White" >
+   <AlternatingRowStyle BackColor="Blue" />
+</asp:GridView>
+
+2. Default skin. The SkinId is not defined. Only one default 
+   control skin per control type is allowed in the same theme.
+
+<asp:Image runat="server" ImageUrl="~/images/image1.jpg" />
+--%>
+<%-- Header --%>
+<asp:ImageButton SkinID="IMGB_LOGO" runat="server" ImageUrl="~/App_Themes/Default/Images/logo.jpg" />
+<asp:ImageButton SkinID="IMGB_HOME" runat="server" ImageUrl="~/App_Themes/Default/Images/Menu/Home.gif" />
+
+<%-- TreeView --%>
+<asp:ImageButton SkinID="IMGB_AddParent" runat="server" ImageUrl="~/App_Themes/Default/Images/TreeView/AddParent.gif" />                                
+<asp:ImageButton SkinID="IMGB_AddChild" runat="server" ImageUrl="~/App_Themes/Default/Images/TreeView/AddChild.gif" />                               
+<asp:ImageButton SkinID="IMGB_RemoveNode" runat="server" ImageUrl="~/App_Themes/Default/Images/TreeView/Remove.gif" />
+
+<%-- Print --%>
+<asp:ImageButton SkinID="IMGB_Print" runat="server" ImageUrl="~/App_Themes/Default/Images/Print.gif" />
+
+<%-- List select --%>
+<asp:ImageButton SkinID="IMGB_Left" runat="server" ImageUrl="~/App_Themes/Default/Images/left.gif" />
+<asp:ImageButton SkinID="IMGB_Right" runat="server" ImageUrl="~/App_Themes/Default/Images/right.gif" />
+<asp:ImageButton SkinID="IMGB_Up" runat="server" ImageUrl="~/App_Themes/Default/Images/up.gif" />
+<asp:ImageButton SkinID="IMGB_Down" runat="server" ImageUrl="~/App_Themes/Default/Images/down.gif" />

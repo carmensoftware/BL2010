@@ -1,0 +1,254 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="10/17/2014 11:17:07" ReportInfo.CreatorVersion="2013.4.11.0">
+  <ScriptText>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Data;
+using FastReport;
+using FastReport.Data;
+using FastReport.Dialog;
+using FastReport.Barcode;
+using FastReport.Table;
+using FastReport.Utils;
+
+namespace FastReport
+{
+  public class ReportScript
+  {
+
+    private void btnOk_Click(object sender, EventArgs e)
+    {
+      Report.SetParameterValue(&quot;p_FDATE&quot;, Convert.ToDateTime(TextDate1.Text));
+      Report.SetParameterValue(&quot;p_TDATE&quot;, Convert.ToDateTime(TextDate2.Text));
+      
+      Report.SetParameterValue(&quot;p_FStore&quot;, ComboBox1.Text.Split(' ')[0].ToString());
+      //Report.SetParameterValue(&quot;p_TStore&quot;, ComboBox2.Text.Split(' ')[0].ToString());
+      Report.SetParameterValue(&quot;p_TStore&quot;, ComboBox1.Text.Split(' ')[0].ToString());
+      
+      Report.SetParameterValue(&quot;p_FIsStore&quot;, ComboBox5.Text.Split(' ')[0].ToString());
+      Report.SetParameterValue(&quot;p_TIsStore&quot;, ComboBox6.Text.Split(' ')[0].ToString());
+
+      Report.SetParameterValue(&quot;p_FAdjCode&quot;, ComboBox3.Text.Split(' ')[0].ToString());
+      Report.SetParameterValue(&quot;p_TAdjCode&quot;, ComboBox4.Text.Split(' ')[0].ToString());
+      
+      Report.SetParameterValue(&quot;p_FReqCode&quot;, &quot;&quot;);
+      Report.SetParameterValue(&quot;p_TReqCode&quot;, &quot;&quot;);
+
+
+      
+    }
+
+
+    private void _StartReport(object sender, EventArgs e)
+    {
+      // Initial date at here (complatible with WebReport)
+      DateTime startOfMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+      TextDate1.Text = startOfMonth.ToShortDateString();
+      TextDate2.Text = DateTime.Today.ToShortDateString();
+    }
+
+  }
+}
+</ScriptText>
+  <Dictionary>
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqOYTMYw5/jEQg4pS6MrJhvatnARRNJIvQXR66ij+Xw84bFI4f6+nbsFQvqdZgAgaJTS+orIPz5r6lYgzNU4ThcaqpZQKvrP0O1a7rVW0rijA=">
+      <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;">
+        <Column Name="BuCode" DataType="System.String"/>
+        <Column Name="Name" DataType="System.String"/>
+        <Column Name="NameBilling" DataType="System.String"/>
+        <Column Name="Address" DataType="System.String"/>
+        <Column Name="PostCode" DataType="System.String"/>
+        <Column Name="City" DataType="System.String"/>
+        <Column Name="Country" DataType="System.String"/>
+        <Column Name="Phone" DataType="System.String"/>
+        <Column Name="Fax" DataType="System.String"/>
+        <Column Name="Email" DataType="System.String"/>
+        <Column Name="DeliveryTerm" DataType="System.String"/>
+        <Column Name="POS" DataType="System.String"/>
+        <Column Name="POSModel" DataType="System.String"/>
+        <Column Name="BackOffice" DataType="System.String"/>
+        <Column Name="BackOfficeModel" DataType="System.String"/>
+        <Column Name="BuLogo" DataType="System.Byte[]" BindableControl="Picture"/>
+      </TableDataSource>
+      <TableDataSource Name="Table" Alias="SRQ" DataType="System.Int32" Enabled="true" SelectCommand="IF 1=0&#13;&#10;BEGIN &#13;&#10;  SET FMTONLY OFF&#13;&#10;END&#13;&#10;&#13;&#10;EXECUTE [RPT].[rptStoreRequisitionByRequestStore] &#13;&#10;@FDATE=@p_FDATE,&#13;&#10;@TDATE=@p_TDATE,&#13;&#10;@FReqStore = @p_FStore,&#13;&#10;@TReqStore = @p_TStore,&#13;&#10;@FIssueStore= @p_FIsStore,&#13;&#10;@TIssueStore = @p_TIsStore,&#13;&#10;@FAdjCode = @p_FAdjCode,&#13;&#10;@TAdjCode = @p_TAdjCode&#13;&#10;&#13;&#10;">
+        <Column Name="CreateDate" DataType="System.DateTime"/>
+        <Column Name="DeliveryDate" DataType="System.DateTime"/>
+        <Column Name="RequestCode" DataType="System.String"/>
+        <Column Name="Description" DataType="System.String"/>
+        <Column Name="ApprStatus" DataType="System.String"/>
+        <Column Name="LocationCode" DataType="System.String"/>
+        <Column Name="LocationName" DataType="System.String"/>
+        <Column Name="DocStatus" DataType="System.String"/>
+        <Column Name="CreateBy" DataType="System.String"/>
+        <Column Name="ApproveBy" DataType="System.String"/>
+        <Column Name="AdjID" DataType="System.Int32"/>
+        <Column Name="AdjCode" DataType="System.String"/>
+        <Column Name="AdjName" DataType="System.String"/>
+        <Column Name="AdjDesc" DataType="System.String"/>
+        <Column Name="ProjectRef" DataType="System.String"/>
+        <Column Name="ProjectDesc" DataType="System.String"/>
+        <Column Name="ToLocationCode" DataType="System.String"/>
+        <Column Name="ToLocationName" DataType="System.String"/>
+        <Column Name="DeliveryDate_Item" DataType="System.DateTime"/>
+        <Column Name="CategoryCode" DataType="System.String"/>
+        <Column Name="CategoryName" DataType="System.String"/>
+        <Column Name="ProductCode" DataType="System.String"/>
+        <Column Name="ProductDesc1" DataType="System.String"/>
+        <Column Name="ProductDesc2" DataType="System.String"/>
+        <Column Name="InventoryUnit" DataType="System.String"/>
+        <Column Name="RequestQty" DataType="System.Decimal"/>
+        <Column Name="RequestUnit" DataType="System.String"/>
+        <Column Name="ApprStatus_Item" DataType="System.String"/>
+        <Column Name="ApprQty" DataType="System.Decimal"/>
+        <Column Name="AllocateQty" DataType="System.Decimal"/>
+        <Column Name="TotalAmount" DataType="System.Decimal"/>
+        <Column Name="ISSUEDATE" DataType="System.DateTime"/>
+        <Column Name="QtyOut" DataType="System.Decimal"/>
+        <Column Name="Itemprice" DataType="System.Decimal"/>
+        <CommandParameter Name="p_FDATE" DataType="31" Expression="[p_FDATE]" DefaultValue="01/01/2013"/>
+        <CommandParameter Name="p_TDATE" DataType="31" Expression="[p_TDATE]" DefaultValue="01/01/2013"/>
+        <CommandParameter Name="p_FStore" DataType="22" Expression="[p_FStore]"/>
+        <CommandParameter Name="p_TStore" DataType="22" Expression="[p_TStore]"/>
+        <CommandParameter Name="p_FAdjCode" DataType="22" Expression="[p_FAdjCode]"/>
+        <CommandParameter Name="p_TAdjCode" DataType="22" Expression="[p_TAdjCode]"/>
+        <CommandParameter Name="p_FReqCode" DataType="22" Expression="[p_FReqCode]"/>
+        <CommandParameter Name="p_TReqCode" DataType="22" Expression="[p_TReqCode]"/>
+        <CommandParameter Name="p_IsVoid" DataType="8" Expression="[p_IsVoid]" DefaultValue="0"/>
+        <CommandParameter Name="p_IsReject" DataType="8" Expression="[p_IsReject]" DefaultValue="0"/>
+        <CommandParameter Name="p_FIsStore" DataType="22" Expression="[p_FIsStore]"/>
+        <CommandParameter Name="p_TIsStore" DataType="22" Expression="[p_TIsStore]"/>
+      </TableDataSource>
+      <TableDataSource Name="Table1" Alias="FLocation" DataType="System.Int32" Enabled="true" SelectCommand="exec rpt.listlocationbytype 1">
+        <Column Name="Item" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table2" Alias="TLocation" DataType="System.Int32" Enabled="true" SelectCommand="exec rpt.listlocationbytype 1">
+        <Column Name="Item" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table3" Alias="FMovement" DataType="System.Int32" Enabled="true" SelectCommand="SELECT (AdjCode + ' : ' + AdjName) AS Item&#13;&#10;FROM [IN].AdjType&#13;&#10;WHERE AdjCode LIKE 'SR%' OR AdjCode LIKE 'TR%' &#13;&#10;ORDER BY AdjCode">
+        <Column Name="Item" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table4" Alias="TMovement" DataType="System.Int32" Enabled="true" SelectCommand="SELECT (AdjCode + ' : ' + AdjName) AS Item&#13;&#10;FROM [IN].AdjType&#13;&#10;WHERE AdjCode LIKE 'SR%' OR AdjCode LIKE 'TR%' &#13;&#10;ORDER BY AdjCode">
+        <Column Name="Item" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table5" Alias="FReqNo" DataType="System.Int32" Enabled="true" SelectCommand="SELECT RequestCode + ' : ' + ISNULL([Description],'') as Item&#13;&#10;FROM [IN].StoreRequisition&#13;&#10;ORDER BY RequestCode">
+        <Column Name="Item" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table6" Alias="TReqNo" DataType="System.Int32" Enabled="true" SelectCommand="SELECT RequestCode + ' : ' + ISNULL([Description],'') as Item&#13;&#10;FROM [IN].StoreRequisition&#13;&#10;ORDER BY RequestCode">
+        <Column Name="Item" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table7" Alias="FisLocation" DataType="System.Int32" Enabled="true" SelectCommand="exec rpt.listlocationbytype 0">
+        <Column Name="Item" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table8" Alias="TisLocation" DataType="System.Int32" Enabled="true" SelectCommand="exec rpt.listlocationbytype 0">
+        <Column Name="Item" DataType="System.String"/>
+      </TableDataSource>
+    </MsSqlDataConnection>
+    <Parameter Name="p_FDATE" DataType="System.DateTime"/>
+    <Parameter Name="p_TDATE" DataType="System.DateTime"/>
+    <Parameter Name="p_FStore" DataType="System.String"/>
+    <Parameter Name="p_TStore" DataType="System.String"/>
+    <Parameter Name="p_FAdjCode" DataType="System.String"/>
+    <Parameter Name="p_TAdjCode" DataType="System.String"/>
+    <Parameter Name="p_FReqCode" DataType="System.String"/>
+    <Parameter Name="p_TReqCode" DataType="System.String"/>
+    <Parameter Name="p_IsVoid" DataType="System.Int32"/>
+    <Parameter Name="p_IsReject" DataType="System.Int32"/>
+    <Parameter Name="p_FIsStore" DataType="System.String"/>
+    <Parameter Name="p_TIsStore" DataType="System.String"/>
+    <Total Name="sumtotalmovement" Expression="[SRQ.TotalAmount]" Evaluator="Data1" PrintOn="GroupFooter2"/>
+    <Total Name="sumtotaltolocation" Expression="[SRQ.TotalAmount]" Evaluator="Data1" PrintOn="GroupFooter3"/>
+    <Total Name="sumtotalfromlocation" Expression="[SRQ.TotalAmount]" Evaluator="Data1" PrintOn="GroupFooter1"/>
+  </Dictionary>
+  <ReportPage Name="Page1" Landscape="true" PaperWidth="297" PaperHeight="210" RawPaperSize="9" FirstPageSource="15" OtherPagesSource="15" Guides="915.98">
+    <PageHeaderBand Name="PageHeader1" Width="1047.06" Height="126.63" Border.Lines="Bottom">
+      <TextObject Name="Text1" Left="258.93" Top="28.35" Width="529.2" Height="28.35" Text="Store Requisition Details – Request to any/some location" AllowExpressions="false" HorzAlign="Center" WordWrap="false" Font="Tahoma, 14pt"/>
+      <TextObject Name="Text31" Left="718.2" Top="60.25" Width="330.75" Height="56.7" Text="Date from [TextDate1.Text] to [TextDate2.Text]&#13;&#10;Request From: [p_FStore]&#13;&#10;Issue From: [p_FIsStore] To [p_TIsStore]&#13;&#10;Movement: [p_FAdjCode] to [p_TAdjCode]&#13;&#10;" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Tahoma, 8pt"/>
+      <PictureObject Name="Picture1" Left="-0.98" Top="-0.98" Width="189" Height="94.5" DataColumn="ADMIN_Bu.BuLogo"/>
+      <TextObject Name="Text5" Left="2" Top="98.05" Width="283.5" Height="18.9" Text="[ADMIN_Bu.Name]" Font="Tahoma, 8pt"/>
+      <ChildBand Name="Child2" Top="130.63" Width="1047.06"/>
+    </PageHeaderBand>
+    <GroupHeaderBand Name="GroupHeader1" Top="134.63" Width="1047.06" Height="47.25" Border.Lines="Top" Fill.Color="Gainsboro" KeepWithData="true" RepeatOnEveryPage="true" Condition="Trim([SRQ.LocationCode])" SortOrder="None">
+      <TextObject Name="Text3" Left="162.97" Top="14.18" Width="717.53" Height="18.9" Text="[SRQ.LocationCode]:[SRQ.LocationName]" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text2" Top="14.18" Width="151.2" Height="18.9" Text="Request From Location :" Font="Tahoma, 8pt, style=Bold"/>
+      <GroupHeaderBand Name="GroupHeader2" Top="185.88" Width="1047.06" Height="24.77" KeepWithData="true" RepeatOnEveryPage="true" Condition="[SRQ.AdjCode]" SortOrder="None">
+        <TextObject Name="Text38" Left="26" Top="2.94" Width="125.2" Height="18.9" Text="Movement Type :" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text39" Left="162.97" Top="2.94" Width="719.98" Height="18.9" Text="[SRQ.AdjCode] : [SRQ.AdjName]" WordWrap="false" Font="Tahoma, 8pt"/>
+        <GroupHeaderBand Name="GroupHeader3" Top="214.65" Width="1047.06" Height="30.27" Fill.Color="WhiteSmoke" KeepWithData="true" RepeatOnEveryPage="true" Condition="Trim([SRQ.ToLocationCode])" SortOrder="None">
+          <TextObject Name="Text24" Left="26.02" Top="7.41" Width="125.18" Height="18.9" Text="Issue To Location:" Font="Tahoma, 8pt, style=Bold"/>
+          <TextObject Name="Text34" Left="162.97" Top="7.41" Width="719.98" Height="18.9" Text="[SRQ.ToLocationCode] : [SRQ.ToLocationName]" WordWrap="false" Font="Tahoma, 8pt"/>
+          <ChildBand Name="Child1" Top="248.92" Width="1047.06" Height="23.79">
+            <TextObject Name="Text11" Left="527.08" Top="5.09" Width="68.04" Height="17.01" Text="Unit" Font="Tahoma, 8pt, style=Underline"/>
+            <TextObject Name="Text16" Left="928.52" Top="5.09" Width="117.18" Height="17.01" Text="Amount" HorzAlign="Right" Font="Tahoma, 8pt, style=Underline"/>
+            <TextObject Name="Text10" Left="82.25" Top="5.09" Width="75.6" Height="17.01" GrowToBottom="true" Text="Product" Font="Tahoma, 8pt, style=Underline"/>
+            <TextObject Name="Text13" Left="835.83" Top="5.09" Width="75.94" Height="17.01" Text="Issue" HorzAlign="Right" Font="Tahoma, 8pt, style=Underline"/>
+            <TextObject Name="Text12" Left="657.48" Top="5.09" Width="81.27" Height="17.01" Text="Req." HorzAlign="Right" Font="Tahoma, 8pt, style=Underline"/>
+            <TextObject Name="Text25" Left="743.98" Top="5.09" Width="81.27" Height="17.01" Text="Apprv." HorzAlign="Right" Font="Tahoma, 8pt, style=Underline"/>
+            <TextObject Name="Text51" Top="5.09" Width="75.6" Height="17.01" GrowToBottom="true" Text="RequestCode" Font="Tahoma, 8pt, style=Underline"/>
+            <TextObject Name="Text4" Left="595.35" Top="5.09" Width="56.7" Height="17.01" Text="Price" HorzAlign="Right" VertAlign="Center" Font="Tahoma, 8pt, style=Underline"/>
+          </ChildBand>
+          <DataBand Name="Data1" Top="276.71" Width="1047.06" Height="20.79" CanGrow="true" BeforePrintEvent="Data1_BeforePrint" Guides="19.95" DataSource="Table">
+            <TextObject Name="Text26" Left="82.25" Top="1.89" Width="75.6" Height="18.9" Text="[SRQ.ProductCode]" WordWrap="false" Font="Tahoma, 8pt"/>
+            <TextObject Name="Text27" Left="527.08" Top="1.05" Width="68.04" Height="18.9" Text="[SRQ.RequestUnit]" Font="Tahoma, 8pt"/>
+            <TextObject Name="Text29" Left="657.48" Top="1.05" Width="81.27" Height="18.9" Text="[SRQ.RequestQty]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="4" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="0" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
+            <TextObject Name="Text35" Left="162.89" Top="1.05" Width="359.1" Height="18.9" CanGrow="true" Text="[SRQ.ProductDesc1]" Font="Tahoma, 8pt"/>
+            <TextObject Name="Text45" Left="743.98" Top="1.05" Width="81.27" Height="18.9" Text="[SRQ.ApprQty]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
+            <TextObject Name="Text14" Left="928.52" Top="1.89" Width="117.18" Height="18.9" Text="[SRQ.TotalAmount]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
+            <TextObject Name="Text32" Left="832.87" Top="1.05" Width="78.9" Height="18.9" Text="[SRQ.QtyOut]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
+            <TextObject Name="Text15" Top="1.89" Width="73.56" Height="18.9" Text="[SRQ.RequestCode]" Format="Date" Format.Format="d" WordWrap="false" Font="Tahoma, 8pt"/>
+            <TextObject Name="Text52" Left="595.35" Top="1.05" Width="56.7" Height="18.9" CanGrow="true" CanBreak="false" Text="[SRQ.Itemprice]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+          </DataBand>
+          <GroupFooterBand Name="GroupFooter3" Top="301.5" Width="1047.06" Height="28.35" Fill.Color="WhiteSmoke">
+            <TextObject Name="Text36" Left="386.94" Top="4.9" Width="189" Height="18.9" Text="Total Of Issue To Location :" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+            <TextObject Name="Text30" Left="920.26" Top="4.9" Width="125.44" Height="18.9" Border.Lines="Top, Bottom" Border.Style="Dot" Fill.Color="WhiteSmoke" Text="[sumtotaltolocation]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Tahoma, 8pt"/>
+            <TextObject Name="Text47" Left="585.3" Top="4.9" Width="302.4" Height="18.9" Text="[SRQ.ToLocationCode] : [SRQ.ToLocationName]" AutoWidth="true" WordWrap="false" Font="Tahoma, 8pt"/>
+            <ChildBand Name="Child4" Top="333.85" Width="1047.06" Height="9.45"/>
+          </GroupFooterBand>
+        </GroupHeaderBand>
+        <GroupFooterBand Name="GroupFooter2" Top="347.3" Width="1047.06" Height="35.6" Fill.Color="WhiteSmoke">
+          <TextObject Name="Text46" Left="387.92" Top="8.35" Width="189" Height="18.9" Text="Total Of Movement Type :" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+          <TextObject Name="Text48" Left="585.3" Top="8.35" Width="302.4" Height="18.9" Text="[SRQ.AdjCode] : [SRQ.AdjName]" AutoWidth="true" WordWrap="false" Font="Tahoma, 8pt"/>
+          <TextObject Name="Text50" Left="919.24" Top="8.35" Width="125.44" Height="18.9" Border.Lines="Top, Bottom" Border.Style="Dot" Fill.Color="WhiteSmoke" Text="[sumtotalmovement]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Tahoma, 8pt"/>
+          <ChildBand Name="Child5" Top="386.9" Width="1047.06" Height="8.89"/>
+        </GroupFooterBand>
+      </GroupHeaderBand>
+      <GroupFooterBand Name="GroupFooter1" Top="399.79" Width="1047.06" Height="36.3" Border.Lines="Bottom" Fill.Color="Gainsboro">
+        <TextObject Name="Text40" Left="586.28" Top="8.71" Width="302.4" Height="18.9" Text=" [SRQ.LocationCode] : [SRQ.LocationName]" AutoWidth="true" WordWrap="false" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text33" Left="919.06" Top="8.17" Width="126.58" Height="18.9" Border.Lines="Top, Bottom" Border.Style="Dot" Text="[sumtotalfromlocation]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text49" Left="388.9" Top="8.2" Width="189" Height="19.92" Text="Total of Request Location :" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <ChildBand Name="Child6" Top="440.09" Width="1047.06" Height="9.45"/>
+      </GroupFooterBand>
+    </GroupHeaderBand>
+    <PageFooterBand Name="PageFooter1" Top="453.54" Width="1047.06" Height="18.79">
+      <ChildBand Name="Child3" Top="476.33" Width="1047.06" Height="50.9" Border.Lines="Top">
+        <TextObject Name="Text41" Left="4.01" Top="11.11" Width="207.9" Height="37.8" Text="Report Detailed&#13;&#10;Print On [Date]" Format="Date" Format.Format="d" AutoWidth="true" WordWrap="false" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text37" Left="826.16" Top="11.11" Width="217.35" Height="37.8" Text="Page [Page#] Of [TotalPages#]" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt"/>
+      </ChildBand>
+    </PageFooterBand>
+  </ReportPage>
+  <DialogPage Name="ReportDialog" Width="450" Height="426" AcceptButton="btnOk" CancelButton="btnCancel" LoadEvent="">
+    <LabelControl Name="Label1" Left="66" Top="40" Width="31" Height="13" Font="Tahoma, 8pt" TabIndex="1" Text="From"/>
+    <LabelControl Name="Label2" Left="66" Top="65" Width="19" Height="13" Font="Tahoma, 8pt" TabIndex="2" Text="To"/>
+    <LabelControl Name="Label3" Left="66" Top="125" Width="31" Height="13" Font="Tahoma, 8pt" TabIndex="3" Text="From"/>
+    <LabelControl Name="Label4" Left="66" Top="151" Width="19" Height="13" Visible="false" Font="Tahoma, 8pt" TabIndex="4" Text="To"/>
+    <LabelControl Name="Label5" Left="18" Top="287" Width="84" Height="13" Font="Tahoma, 8pt" TabIndex="5" Text="Movement From"/>
+    <LabelControl Name="Label6" Left="18" Top="315" Width="72" Height="13" Font="Tahoma, 8pt" TabIndex="6" Text="Movement To"/>
+    <TextBoxControl Name="TextDate1" Left="108" Top="37" Width="300" Font="Tahoma, 8pt" TabIndex="7"/>
+    <TextBoxControl Name="TextDate2" Left="108" Top="62" Width="300" Font="Tahoma, 8pt" TabIndex="8"/>
+    <ComboBoxControl Name="ComboBox1" Left="108" Top="121" Width="300" Font="Tahoma, 8pt" TabIndex="9" ClickEvent="" DataColumn="FLocation.Item" DropDownWidth="200" ItemHeight="13"/>
+    <ComboBoxControl Name="ComboBox2" Left="108" Top="147" Width="300" Visible="false" Font="Tahoma, 8pt" TabIndex="10" DataColumn="TLocation.Item" DropDownWidth="200" ItemHeight="13"/>
+    <ComboBoxControl Name="ComboBox3" Left="108" Top="283" Width="300" Font="Tahoma, 8pt" TabIndex="11" DataColumn="FMovement.Item" DropDownWidth="200" ItemHeight="13"/>
+    <ComboBoxControl Name="ComboBox4" Left="108" Top="311" Width="300" Font="Tahoma, 8pt" TabIndex="12" DataColumn="TMovement.Item" DropDownWidth="200" ItemHeight="13"/>
+    <ButtonControl Name="btnOk" Left="249" Top="354" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="13" Text="OK" ClickEvent="btnOk_Click" DialogResult="OK"/>
+    <ButtonControl Name="btnCancel" Left="332" Top="354" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="14" Text="Cancel" DialogResult="Cancel"/>
+    <LabelControl Name="Label8" Left="20" Top="108" Width="47" Height="13" Font="Tahoma, 8pt" TabIndex="19" Text="Request"/>
+    <ComboBoxControl Name="ComboBox5" Left="108" Top="200" Width="300" Font="Tahoma, 8pt" TabIndex="9" ClickEvent="" DataColumn="FisLocation.Item" DropDownWidth="200" ItemHeight="13"/>
+    <ComboBoxControl Name="ComboBox6" Left="108" Top="226" Width="300" Font="Tahoma, 8pt" TabIndex="10" DataColumn="TisLocation.Item" DropDownWidth="200" ItemHeight="13"/>
+    <LabelControl Name="Label9" Left="20" Top="196" Width="33" Height="13" Font="Tahoma, 8pt" TabIndex="20" Text="Issue"/>
+    <LabelControl Name="Label10" Left="64" Top="204" Width="31" Height="13" Font="Tahoma, 8pt" TabIndex="3" Text="From"/>
+    <LabelControl Name="Label11" Left="64" Top="230" Width="19" Height="13" Font="Tahoma, 8pt" TabIndex="4" Text="To"/>
+    <LabelControl Name="Label12" Left="20" Top="12" Width="59" Height="13" Font="Tahoma, 8pt" TabIndex="19" Text="Issue Date"/>
+  </DialogPage>
+</Report>

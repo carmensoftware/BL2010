@@ -1,0 +1,64 @@
+﻿<%--
+Default skin template. The following skins are provided as examples only.
+
+1. Named control skin. The SkinId should be uniquely defined because
+   duplicate SkinId's per control type are not allowed in the same theme.
+
+<asp:GridView runat="server" SkinId="gridviewSkin" BackColor="White" >
+   <AlternatingRowStyle BackColor="Blue" />
+</asp:GridView>
+
+2. Default skin. The SkinId is not defined. Only one default 
+   control skin per control type is allowed in the same theme.
+
+<asp:Image runat="server" ImageUrl="~/images/image1.jpg" />
+--%>
+
+<%-- Master Page --%>
+<asp:Label SkinID="HOME_TITLE" runat="server" ForeColor="White" Font-Bold="true"></asp:Label>
+<asp:Label SkinID="OPTION_TITLE" runat="server" ForeColor="White" Font-Bold="true"></asp:Label>
+<asp:Label SkinID="PURCHASE_TITLE" runat="server" ForeColor="White" Font-Bold="true"></asp:Label>
+<asp:Label SkinID="INVEN_TITLE" runat="server" ForeColor="White" Font-Bold="true"></asp:Label>
+<asp:Label SkinID="COST_TITLE" runat="server" ForeColor="White" Font-Bold="true"></asp:Label>
+<asp:Label SkinID="AP_TITLE" runat="server" ForeColor="White" Font-Bold="true"></asp:Label>
+<asp:Label SkinID="GL_TITLE" runat="server" ForeColor="White" Font-Bold="true"></asp:Label>
+<asp:Label SkinID="RPT_TITLE" runat="server" ForeColor="White" Font-Bold="true"></asp:Label>
+
+<%-- Login Information Control --%>
+<asp:Label SkinID="LOGIN_INFO_TITLE" runat="server" ForeColor="White"></asp:Label>
+<asp:Label SkinID="LOGIN_INFO" runat="server" Font-Size="11pt" ForeColor="#00447b"></asp:Label>
+
+<%-- Login --%>
+<asp:Label SkinID="LOGIN_TITLE" runat="server" ForeColor="Black" Font-Bold="true"></asp:Label>
+
+<%-- Business Unit List --%>
+<asp:Label SkinID="BULIST_TITLE" runat="server" ForeColor="White" Font-Size="9pt" Font-Bold="true"></asp:Label>
+
+<%-- PO Header --%>
+<asp:Label SkinID="LBL_NORMAL" runat="server" ForeColor="Black" Font-Names="Arail,Tahoma,MS Sans Serif" Font-Size="8pt" ></asp:Label>
+<asp:Label SkinID="LBL_HEADER" runat="server" ForeColor="Black" Font-Names="Arail,Tahoma,MS Sans Serif" Font-Size="8pt" Font-Bold="true"></asp:Label>
+<asp:Label SkinID="LBL_H1_WHITE" runat="server" Font-Bold="True" ForeColor="White" Font-Names="Arial"></asp:Label>
+
+<%-- Display Detail Data--%>
+ <asp:Label SkinID="LBL_N1" runat="server" Font-Names="Arial" Font-Size="9pt" ForeColor="#4D4D4D"></asp:Label>
+ <asp:Label SkinID="LBL_H1" runat="server" Font-Names="Arial" Font-Size="9pt" ForeColor="#4D4D4D" Font-Bold="true"></asp:Label>
+ 
+ <%-- Display 2001-06-01--%>
+ <asp:Label SkinID="LBL_HD_WHITE" runat="server" CssClass="lbl_HD_White"></asp:Label>
+ <asp:Label SkinID="LBL_HD" runat="server" CssClass="lbl_HD"></asp:Label>
+ <asp:Label SkinID="LBL_HD_GRD" runat="server" CssClass="lbl_HD_GRD"></asp:Label>
+ <asp:Label SkinID="LBL_NR" runat="server" CssClass="lbl_NR"></asp:Label>
+ <asp:Label SkinID="LBL_NR_BLUE" runat="server" CssClass="lbl_NR_BLUE"></asp:Label>
+ <asp:Label SkinID="LBL_NR_BLUE_NUM" runat="server" CssClass="lbl_NR_BLUE_NUM"></asp:Label>
+ <asp:Label SkinID="LBL_NR_BI" runat="server" CssClass="lbl_NR_BI"></asp:Label>
+ <asp:Label SkinID="LBL_NR_I" runat="server" CssClass="lbl_NR_Italic"></asp:Label>
+ <asp:Label SkinID="LBL_NR_NUM" runat="server" CssClass="lbl_NR_NUM"></asp:Label>
+ <asp:Label SkinID="LBL_NR_RED" runat="server" CssClass="lbl_NR_RED"></asp:Label>
+ <asp:Label SkinID="LBL_NR_1" runat="server" CssClass="lbl_NR"></asp:Label>
+ <asp:Label SkinID="LBL_HD_1" runat="server" CssClass="lbl_HD"></asp:Label>
+ 
+ <asp:Label SkinID="LBL_TITLE" runat="server" CssClass="lbl_TITLE"></asp:Label>
+ <asp:Label SkinID="LBL_BOLD_HEADER" runat="server" ForeColor="Black" Font-Names="Arail,Tahoma,MS Sans Serif" Font-Size="8pt" Font-Bold="true"></asp:Label>
+ <asp:Label SkinID="LBL_BOLD" runat="server" ForeColor="Black" Font-Names="Arail,Tahoma,MS Sans Serif" Font-Size="8pt" ></asp:Label>
+
+ 

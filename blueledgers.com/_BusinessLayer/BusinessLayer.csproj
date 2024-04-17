@@ -1,0 +1,571 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{518743BA-C002-4510-A0B3-96F617B78D9B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>BlueLedger.BL</RootNamespace>
+    <AssemblyName>BusinessLayer</AssemblyName>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Logger, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\Logger.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Management">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions, Version=1.0.61025.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Web.Extensions.Design, Version=1.0.61025.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ADMIN\Menu.cs" />
+    <Compile Include="APP\Attachment.cs" />
+    <Compile Include="APP\TAX.cs" />
+    <Compile Include="APP\WFHis.cs" />
+    <Compile Include="APP\TransType.cs" />
+    <Compile Include="Common\ConnectionStringConstant.cs" />
+    <Compile Include="dbo\Bu.cs" />
+    <Compile Include="dbo\BuFmt.cs" />
+    <Compile Include="dbo\BuGroup.cs" />
+    <Compile Include="dbo\BuInfo.cs" />
+    <Compile Include="dbo\BuLicense.cs" />
+    <Compile Include="dbo\BUUser.cs" />
+    <Compile Include="dbo\City.cs" />
+    <Compile Include="dbo\Country.cs" />
+    <Compile Include="dbo\Lang.cs" />
+    <Compile Include="dbo\OnlineUser.cs" />
+    <Compile Include="dbo\User.cs" />
+    <Compile Include="dbo\UTC.cs" />
+    <Compile Include="Import\JobCode.cs" />
+    <Compile Include="IN\CA.cs" />
+    <Compile Include="IN\CADt.cs" />
+    <Compile Include="IN\StoreGrp.cs" />
+    <Compile Include="IN\TransferDt.cs" />
+    <Compile Include="IN\Transfer.cs" />
+    <Compile Include="IN\Movement.cs" />
+    <Compile Include="IN\MovementDt.cs" />
+    <Compile Include="IN\ProdUnit.cs" />
+    <Compile Include="Option\Admin\Security\Department.cs" />
+    <Compile Include="Option\Inventory\ProdLocHQ.cs" />
+    <Compile Include="Option\Inventory\ProdCateType.cs" />
+    <Compile Include="PC\EOP\EOPDt.cs" />
+    <Compile Include="ProjectAdmin\SysParameter\SysParameter.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ADMIN\AccountMapp.cs" />
+    <Compile Include="ADMIN\Bu.cs" />
+    <Compile Include="ADMIN\TransComment.cs" />
+    <Compile Include="ADMIN\Department.cs" />
+    <Compile Include="ADMIN\TransLog.cs" />
+    <Compile Include="ADMIN\UserStore.cs" />
+    <Compile Include="ADMIN\RolePermission.cs" />
+    <Compile Include="ADMIN\VendorMapp.cs" />
+    <Compile Include="Application\Attachment.cs" />
+    <Compile Include="Application\FieldType\FieldType.cs" />
+    <Compile Include="Application\Field\Field.cs" />
+    <Compile Include="Application\LookupItem\LookupItem.cs" />
+    <Compile Include="Application\Lookup\Lookup.cs" />
+    <Compile Include="Application\Menu.cs" />
+    <Compile Include="Application\Schema\Schema.cs" />
+    <Compile Include="Application\Table\Table.cs" />
+    <Compile Include="Application\UserShortcut\UserShortcut.cs" />
+    <Compile Include="APP\Config.cs" />
+    <Compile Include="APP\ViewHandlerOrder.cs" />
+    <Compile Include="APP\WFDt.cs" />
+    <Compile Include="APP\WF.cs" />
+    <Compile Include="APP\ViewHandlerCrtr.cs" />
+    <Compile Include="APP\Module.cs" />
+    <Compile Include="APP\ViewHandlerCols.cs" />
+    <Compile Include="APP\Field.cs" />
+    <Compile Include="APP\Lookup.cs" />
+    <Compile Include="APP\LookupItem.cs" />
+    <Compile Include="APP\ViewHandler.cs" />
+    <Compile Include="AP\BankAccount.cs" />
+    <Compile Include="AP\Bank\BankCode.cs" />
+    <Compile Include="AP\Expense.cs" />
+    <Compile Include="AP\Invoice\Invoice.cs" />
+    <Compile Include="AP\Invoice\InvoiceAttachment.cs" />
+    <Compile Include="AP\Invoice\InvoiceComment.cs" />
+    <Compile Include="AP\Invoice\InvoiceDetail.cs" />
+    <Compile Include="AP\Invoice\InvoiceDetailAmt.cs" />
+    <Compile Include="AP\Invoice\InvoiceLog.cs" />
+    <Compile Include="AP\Invoice\InvoiceMisc.cs" />
+    <Compile Include="AP\Invoice\InvoiceReport.cs" />
+    <Compile Include="AP\Invoice\InvoiceTool.cs" />
+    <Compile Include="AP\Invoice\InvoiceView.cs" />
+    <Compile Include="AP\Invoice\InvoiceViewColumn.cs" />
+    <Compile Include="AP\Invoice\InvoiceViewCriteria.cs" />
+    <Compile Include="AP\Invoice\TaxInvoice.cs" />
+    <Compile Include="AP\Invoice\TaxInvoiceStatus.cs" />
+    <Compile Include="AP\Payment\PaymentAuto.cs" />
+    <Compile Include="AP\Payment\PaymentCash.cs" />
+    <Compile Include="AP\Payment\PaymentCheq.cs" />
+    <Compile Include="AP\Payment\PaymentCheqDetail.cs" />
+    <Compile Include="AP\Payment\PaymentCredit.cs" />
+    <Compile Include="AP\Payment\PaymentLog.cs" />
+    <Compile Include="AP\Payment\PaymentReport.cs" />
+    <Compile Include="AP\Payment\Payment.cs" />
+    <Compile Include="AP\Payment\PaymentAttachment.cs" />
+    <Compile Include="AP\Payment\PaymentComment.cs" />
+    <Compile Include="AP\Payment\PaymentDetail.cs" />
+    <Compile Include="AP\Payment\PaymentDetailAmt.cs" />
+    <Compile Include="AP\Payment\PaymentMisc.cs" />
+    <Compile Include="AP\Payment\PaymentTool.cs" />
+    <Compile Include="AP\Payment\PaymentTrans.cs" />
+    <Compile Include="AP\Payment\PaymentView.cs" />
+    <Compile Include="AP\Payment\PaymentViewColumn.cs" />
+    <Compile Include="AP\Payment\PaymentViewCriteria.cs" />
+    <Compile Include="AP\Payment\PaymentWHT.cs" />
+    <Compile Include="AP\Payment\PaymentWHTType.cs" />
+    <Compile Include="AP\Vendor\Vendor.cs" />
+    <Compile Include="AP\Vendor\VendorActiveLog.cs" />
+    <Compile Include="AP\Vendor\VendorAttachment.cs" />
+    <Compile Include="AP\Vendor\VendorCategory.cs" />
+    <Compile Include="AP\Vendor\VendorComment.cs" />
+    <Compile Include="AP\Vendor\VendorDefaultWHT.cs" />
+    <Compile Include="AP\Vendor\VendorDetail.cs" />
+    <Compile Include="AP\Vendor\VendorMisc.cs" />
+    <Compile Include="AP\Vendor\VendorReport.cs" />
+    <Compile Include="AP\Vendor\VendorTool.cs" />
+    <Compile Include="AP\Vendor\VendorView.cs" />
+    <Compile Include="AP\Vendor\VendorViewColumn.cs" />
+    <Compile Include="AP\Vendor\VendorViewCriteria.cs" />
+    <Compile Include="AR\Income.cs" />
+    <Compile Include="AR\Profile\ARProfile.cs" />
+    <Compile Include="AR\Profile\ProfileView.cs" />
+    <Compile Include="AR\Profile\ProfileViewColumn.cs" />
+    <Compile Include="AR\Profile\ProfileViewCriteria.cs" />
+    <Compile Include="AR\Profile\DebtorReport.cs" />
+    <Compile Include="AR\Profile\DebtorTool.cs" />
+    <Compile Include="AR\Profile\ProfileActiveLog.cs" />
+    <Compile Include="AR\Profile\ProfileAttachment.cs" />
+    <Compile Include="AR\Profile\ProfileCategory.cs" />
+    <Compile Include="AR\Profile\ProfileComment.cs" />
+    <Compile Include="AR\Profile\ProfileDefaultWHT.cs" />
+    <Compile Include="AR\Invoice\Invoice.cs" />
+    <Compile Include="AR\Invoice\InvoiceAttachment.cs" />
+    <Compile Include="AR\Invoice\InvoiceComment.cs" />
+    <Compile Include="AR\Invoice\InvoiceDetail.cs" />
+    <Compile Include="AR\Invoice\InvoiceDetailAmt.cs" />
+    <Compile Include="AR\Invoice\InvoiceMisc.cs" />
+    <Compile Include="AR\Invoice\InvoiceReport.cs" />
+    <Compile Include="AR\Invoice\InvoiceTool.cs" />
+    <Compile Include="AR\Invoice\InvoiceView.cs" />
+    <Compile Include="AR\Invoice\InvoiceViewColumn.cs" />
+    <Compile Include="AR\Invoice\InvoiceViewCriteria.cs" />
+    <Compile Include="AR\PaymentType\PaymentType.cs" />
+    <Compile Include="AR\Profile\ProfileMisc.cs" />
+    <Compile Include="AR\Receipt\ReceiptLog.cs" />
+    <Compile Include="AR\Receipt\ReceiptWHT.cs" />
+    <Compile Include="AR\Receipt\ReceiptAuto.cs" />
+    <Compile Include="AR\Receipt\ReceiptTrans.cs" />
+    <Compile Include="AR\Receipt\ReceiptCash.cs" />
+    <Compile Include="AR\Receipt\ReceiptCredit.cs" />
+    <Compile Include="AR\Receipt\ReceiptCheq.cs" />
+    <Compile Include="AR\Receipt\ReceiptCheqDetail.cs" />
+    <Compile Include="AR\Receipt\ReceiptComment.cs" />
+    <Compile Include="AR\Receipt\Receipt.cs" />
+    <Compile Include="AR\Receipt\ReceiptAttachment.cs" />
+    <Compile Include="AR\Receipt\ReceiptDetail.cs" />
+    <Compile Include="AR\Receipt\ReceiptDetailAmt.cs" />
+    <Compile Include="AR\Receipt\ReceiptMisc.cs" />
+    <Compile Include="AR\Receipt\ReceiptView.cs" />
+    <Compile Include="AR\Receipt\ReceiptViewColumn.cs" />
+    <Compile Include="AR\Receipt\ReceiptViewCriteria.cs" />
+    <Compile Include="AR\TransactionType\TransactionType.cs" />
+    <Compile Include="Bank\Bank.cs" />
+    <Compile Include="Bank\BankAccountType.cs" />
+    <Compile Include="Consolidation\Budget\ImpBudget.cs" />
+    <Compile Include="Consolidation\Budget\ImpBudgetDetail.cs" />
+    <Compile Include="Consolidation\Budget\ImpBudgetView.cs" />
+    <Compile Include="Consolidation\Budget\ImpBudgetViewColumn.cs" />
+    <Compile Include="Consolidation\Budget\ImpBudgetViewCriteria.cs" />
+    <Compile Include="Consolidation\GL\ImpGL\ImpGL.cs" />
+    <Compile Include="Consolidation\GL\ImpGL\ImpGLDetail.cs" />
+    <Compile Include="Consolidation\GL\ImpGL\ImpGLView.cs" />
+    <Compile Include="Consolidation\GL\ImpGL\ImpGLViewColumn.cs" />
+    <Compile Include="Consolidation\GL\ImpGL\ImpGLViewCriteria.cs" />
+    <Compile Include="Consolidation\Setup\Application\AccountExt.cs" />
+    <Compile Include="Consolidation\Setup\Application\AccountView.cs" />
+    <Compile Include="Consolidation\Setup\Application\AccountViewColumn.cs" />
+    <Compile Include="Consolidation\Setup\Application\AccountViewCriteria.cs" />
+    <Compile Include="Consolidation\Setup\Application\AccountAttachment.cs" />
+    <Compile Include="Consolidation\Setup\Application\Category.cs" />
+    <Compile Include="Consolidation\Setup\Application\Department.cs" />
+    <Compile Include="Consolidation\Setup\Application\Division.cs" />
+    <Compile Include="Consolidation\Setup\Application\Region.cs" />
+    <Compile Include="Consolidation\Setup\Application\Section.cs" />
+    <Compile Include="Consolidation\Setup\Application\SubCategory.cs" />
+    <Compile Include="GL\AccountListing\AccountDetailView.cs" />
+    <Compile Include="GL\AccountListing\AccountDetailViewColumn.cs" />
+    <Compile Include="GL\AccountListing\AccountDetailViewCriteria.cs" />
+    <Compile Include="GL\AccountListing\TrialBalanceView.cs" />
+    <Compile Include="GL\AccountListing\TrialBalanceViewColumn.cs" />
+    <Compile Include="GL\AccountListing\TrialBalanceViewCriteria.cs" />
+    <Compile Include="GL\AccountReconcile\StatusReconcile.cs" />
+    <Compile Include="GL\AccountReconcile\AccountReconcile.cs" />
+    <Compile Include="GL\AccountReconcile\AccountReconcileView.cs" />
+    <Compile Include="GL\AccountReconcile\AccountReconcileViewColumn.cs" />
+    <Compile Include="GL\AccountReconcile\AccountReconcileViewCriteria.cs" />
+    <Compile Include="GL\AccountReconcile\AccountReconcileDraft.cs" />
+    <Compile Include="GL\AccountReconcile\AccountReconcileMiscDraft.cs" />
+    <Compile Include="GL\AccountReconcile\AccountReconcileMisc.cs" />
+    <Compile Include="GL\AccountReconcile\AccountReconcileDetail.cs" />
+    <Compile Include="GL\AccountReconcile\AccountReconcileDetailDraft.cs" />
+    <Compile Include="GL\AccountReconcile\AccountReconcileActLog.cs" />
+    <Compile Include="GL\AccountReconcile\AccountReconcileAttachment.cs" />
+    <Compile Include="GL\AccountReconcile\AccountReconcileComment.cs" />
+    <Compile Include="GL\Account\Account.cs" />
+    <Compile Include="GL\Account\AccGroup.cs" />
+    <Compile Include="GL\Account\AccTp.cs" />
+    <Compile Include="GL\Account\AccType.cs" />
+    <Compile Include="GL\Account\AccountView.cs" />
+    <Compile Include="GL\Account\AccountViewColumn.cs" />
+    <Compile Include="GL\Account\AccountViewCriteria.cs" />
+    <Compile Include="GL\Account\AccTpDt.cs" />
+    <Compile Include="GL\GLProc.cs" />
+    <Compile Include="GL\Budget\BudgetActiveLog.cs" />
+    <Compile Include="GL\Budget\BudgetAttachment.cs" />
+    <Compile Include="GL\Budget\BudgetComment.cs" />
+    <Compile Include="GL\GLHis\GLHis.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GL\JV\LedgersDraft.cs" />
+    <Compile Include="GL\JV\JVDtDraft.cs" />
+    <Compile Include="GL\JV\JVDraft.cs" />
+    <Compile Include="GL\JV\JVDt.cs" />
+    <Compile Include="GL\JV\JV.cs" />
+    <Compile Include="GL\JV\JVView.cs" />
+    <Compile Include="GL\JV\JVViewCols.cs" />
+    <Compile Include="GL\JV\JVViewCrtr.cs" />
+    <Compile Include="GL\JV\Ledgers.cs" />
+    <Compile Include="GL\PeriodEnd\PeriodEnd.cs" />
+    <Compile Include="GL\Rec\RecDt.cs" />
+    <Compile Include="GL\Rec\RecViewCols.cs" />
+    <Compile Include="GL\Rec\RecViewCrtr.cs" />
+    <Compile Include="GL\Rec\RecView.cs" />
+    <Compile Include="GL\Rec\Rec.cs" />
+    <Compile Include="GL\StandardVoucherMonthlyWeek.cs" />
+    <Compile Include="GL\StandardVoucherMonthlyDate.cs" />
+    <Compile Include="GL\JournalVoucher\JournalVoucherMiscDraft.cs" />
+    <Compile Include="GL\JournalVoucher\JournalVoucherActiveLog.cs" />
+    <Compile Include="GL\JournalVoucher\JournalVoucherComment.cs" />
+    <Compile Include="GL\JournalVoucher\JournalVoucherDraft.cs" />
+    <Compile Include="GL\JournalVoucher\JournalVoucherDraftDetail.cs" />
+    <Compile Include="GL\StandardVoucherScheduleOccur.cs" />
+    <Compile Include="GL\StandardVoucherScheduleType.cs" />
+    <Compile Include="GL\StandardVoucher\StandardVoucher.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GL\StandardVoucher\StandardVoucherMiscDraft.cs" />
+    <Compile Include="GL\StandardVoucher\StandardVoucherAttachment.cs" />
+    <Compile Include="GL\StandardVoucher\StandardVoucherActiveLog.cs" />
+    <Compile Include="GL\StandardVoucher\StandardVoucherComment.cs" />
+    <Compile Include="GL\StandardVoucher\StandardVoucherDetailDraft.cs" />
+    <Compile Include="GL\StandardVoucher\StandardVoucherDraft.cs" />
+    <Compile Include="GL\StdJv\StdJv.cs" />
+    <Compile Include="GL\StdJv\StdJvLg.cs" />
+    <Compile Include="GL\StdJv\StdJvDt.cs" />
+    <Compile Include="GL\StdJv\StdJvType.cs" />
+    <Compile Include="GL\StdJv\StdJvSchdType.cs" />
+    <Compile Include="GL\StdJv\StdJvView.cs" />
+    <Compile Include="GL\StdJv\StdJvViewCols.cs" />
+    <Compile Include="GL\StdJv\StdJvViewCrtr.cs" />
+    <Compile Include="GL\TrBal\TrBal.cs" />
+    <Compile Include="GL\TrBal\TrBalView.cs" />
+    <Compile Include="GL\TrBal\TrBalViewColumn.cs" />
+    <Compile Include="GL\TrBal\TrBalViewCriteria.cs" />
+    <Compile Include="IM\IMDelete.cs" />
+    <Compile Include="IM\IMInbox.cs" />
+    <Compile Include="IM\IMSearchEmail.cs" />
+    <Compile Include="IM\IMSent.cs" />
+    <Compile Include="Invoice\InvoiceDefault.cs" />
+    <Compile Include="Invoice\InvoiceDefaultDetail.cs" />
+    <Compile Include="AP\Payment\PaymentDefault.cs" />
+    <Compile Include="AP\Payment\PaymentDefaultAuto.cs" />
+    <Compile Include="AP\Payment\PaymentDefaultCash.cs" />
+    <Compile Include="AP\Payment\PaymentDefaultCheq.cs" />
+    <Compile Include="AP\Payment\PaymentDefaultCredit.cs" />
+    <Compile Include="AP\Payment\PaymentDefaultTrans.cs" />
+    <Compile Include="IN\AdjType.cs" />
+    <Compile Include="IN\TrfInDt.cs" />
+    <Compile Include="IN\TrfIn.cs" />
+    <Compile Include="IN\TrfOutDt.cs" />
+    <Compile Include="IN\TrfOut.cs" />
+    <Compile Include="IN\StockOutDt.cs" />
+    <Compile Include="IN\StockOut.cs" />
+    <Compile Include="IN\StockInDt.cs" />
+    <Compile Include="IN\StockIn.cs" />
+    <Compile Include="IN\VendorProd.cs" />
+    <Compile Include="IN\ProdBu.cs" />
+    <Compile Include="IN\PriceList.cs" />
+    <Compile Include="IN\StandardRequisitionDetail.cs" />
+    <Compile Include="IN\StandardRequistion.cs" />
+    <Compile Include="IN\StoreRequisition.cs" />
+    <Compile Include="IN\StoreRequisitionDetail.cs" />
+    <Compile Include="Option\Admin\Interface\AccountMapp.cs" />
+    <Compile Include="Option\Admin\Interface\VendorMapp.cs" />
+    <Compile Include="Option\Admin\Security\UserRole.cs" />
+    <Compile Include="Option\Admin\Security\Role.cs" />
+    <Compile Include="IN\Inventory.cs" />
+    <Compile Include="Option\Inventory\ApprLv.cs" />
+    <Compile Include="Option\Inventory\DeliveryPoint.cs" />
+    <Compile Include="Option\Inventory\ProdCat.cs" />
+    <Compile Include="Option\Inventory\ProdLoc.cs" />
+    <Compile Include="Option\Inventory\Product.cs" />
+    <Compile Include="Option\Inventory\Season.cs" />
+    <Compile Include="Option\Inventory\StoreLct.cs" />
+    <Compile Include="Option\Inventory\StockLev.cs" />
+    <Compile Include="Option\Inventory\Unit.cs" />
+    <Compile Include="Option\Inventory\UnitConv.cs" />
+    <Compile Include="PC\CN\CnDt.cs" />
+    <Compile Include="PC\CN\Cn.cs" />
+    <Compile Include="PC\EOP\EOP.cs">
+      <SubType>
+      </SubType>
+    </Compile>
+    <Compile Include="PC\PL\PLDt.cs" />
+    <Compile Include="PC\PL\PL.cs" />
+    <Compile Include="PC\PO\Po.cs" />
+    <Compile Include="PC\PO\PoDt.cs" />
+    <Compile Include="PC\PR\PR.cs" />
+    <Compile Include="PC\PR\PrDt.cs" />
+    <Compile Include="PC\REC\RECDt.cs" />
+    <Compile Include="PC\REC\REC.cs" />
+    <Compile Include="PC\TP\Template.cs" />
+    <Compile Include="PC\TP\TemplateDt.cs" />
+    <Compile Include="PC\Period.cs" />
+    <Compile Include="Profile\Profile.cs" />
+    <Compile Include="ProjectAdmin\User.cs" />
+    <Compile Include="PT\RCP\RcpCategory.cs" />
+    <Compile Include="PT\RCP\Rcp.cs" />
+    <Compile Include="PT\RCP\RcpDt.cs" />
+    <Compile Include="Reference\Account\AccountDraft.cs" />
+    <Compile Include="Reference\Account\AccountGroup.cs" />
+    <Compile Include="Reference\Account\AccountMiscDraft.cs" />
+    <Compile Include="Reference\ExchangeRate\ExchangeRate.cs" />
+    <Compile Include="Reference\PaymentMethod.cs" />
+    <Compile Include="Profile\AddressPart.cs" />
+    <Compile Include="Profile\AddressType.cs" />
+    <Compile Include="Profile\BankAccount.cs" />
+    <Compile Include="Profile\Address.cs" />
+    <Compile Include="Profile\Contact.cs" />
+    <Compile Include="Profile\ContactCategory.cs" />
+    <Compile Include="Profile\ContactDetail.cs" />
+    <Compile Include="Profile\ContactType.cs" />
+    <Compile Include="Profile\ProfileName.cs" />
+    <Compile Include="Profile\ProfileNameUsed.cs" />
+    <Compile Include="Reference\Account\AccountActiveLog.cs" />
+    <Compile Include="Reference\Account\AccountAttachment.cs" />
+    <Compile Include="Reference\Account\AccountComment.cs" />
+    <Compile Include="Reference\TimeZone.cs" />
+    <Compile Include="Reference\Unit\Unit.cs" />
+    <Compile Include="Reference\WHTType.cs" />
+    <Compile Include="Ref\City.cs" />
+    <Compile Include="Ref\Country.cs" />
+    <Compile Include="Ref\ExRate.cs" />
+    <Compile Include="Ref\Currency.cs" />
+    <Compile Include="Ref\TimeZone.cs" />
+    <Compile Include="Report\Category\Category.cs" />
+    <Compile Include="Report\ChartType\ChartType.cs" />
+    <Compile Include="Report\DataSourceColumn\DataSourceColumn.cs" />
+    <Compile Include="Report\DataSource\DataSource.cs" />
+    <Compile Include="Report\Palette\Palette.cs" />
+    <Compile Include="Report\ReportChartSeries\ReportChartSeries.cs" />
+    <Compile Include="Report\ReportChart\ReportChart.cs" />
+    <Compile Include="Report\ReportCriteria\ReportCriteria.cs" />
+    <Compile Include="Report\ReportData\ReportData.cs" />
+    <Compile Include="Report\ReportPivotField\ReportPivotField.cs" />
+    <Compile Include="Report\ReportPivot\ReportPivot.cs" />
+    <Compile Include="Report\ReportSpreadSheetField\ReportSpreadSheetField.cs" />
+    <Compile Include="Report\ReportSpreadSheet\ReportSpreadSheet.cs" />
+    <Compile Include="Report\ReportTableColumn\ReportTableColumn.cs" />
+    <Compile Include="Report\ReportTableSummary\ReportTableSummary.cs" />
+    <Compile Include="Report\ReportTable\ReportTable.cs" />
+    <Compile Include="Report\ReportType\ReportType.cs" />
+    <Compile Include="Report\Report\Report.cs" />
+    <Compile Include="Report\SubCategory\SubCategory.cs" />
+    <Compile Include="Report\Template\Template.cs" />
+    <Compile Include="RPT\DataSource.cs" />
+    <Compile Include="RPT\DataSourceColumn.cs" />
+    <Compile Include="RPT\Report.cs" />
+    <Compile Include="RPT\ReportCriteria.cs" />
+    <Compile Include="RPT\ReportData.cs" />
+    <Compile Include="RPT\ReportType.cs" />
+    <Compile Include="RSS\News.cs" />
+    <Compile Include="SB\Subscriber.cs" />
+    <Compile Include="Setup\Administrator\BusinessUnit\BuinessUnit.cs" />
+    <Compile Include="Setup\Administrator\BusinessUnit\AddressType.cs" />
+    <Compile Include="Setup\Administrator\BusinessUnit\BusinessUnitAddress.cs" />
+    <Compile Include="Setup\Administrator\BusinessUnit\BusinessUnitCntr.cs" />
+    <Compile Include="Consolidation\GL\Period.cs" />
+    <Compile Include="Consolidation\Setup\Admin\BusinessUnit.cs" />
+    <Compile Include="Consolidation\Setup\Admin\User.cs" />
+    <Compile Include="Consolidation\Setup\Application\Account.cs" />
+    <Compile Include="Consolidation\Setup\Application\AccountType.cs" />
+    <Compile Include="Consolidation\Setup\Application\Currency.cs" />
+    <Compile Include="Consolidation\Setup\Application\CurrencyExRate.cs" />
+    <Compile Include="GL\Budget\Budget.cs" />
+    <Compile Include="GL\Budget\BudgetDetail.cs" />
+    <Compile Include="GL\Budget\BudgetMisc.cs" />
+    <Compile Include="GL\Budget\BudgetReport.cs" />
+    <Compile Include="GL\Budget\BudgetTool.cs" />
+    <Compile Include="GL\Budget\BudgetView.cs" />
+    <Compile Include="GL\Budget\BudgetViewColumn.cs" />
+    <Compile Include="GL\Budget\BudgetViewCriteria.cs" />
+    <Compile Include="GL\JournalVoucher\JournalVoucher.cs" />
+    <Compile Include="GL\JournalVoucher\JournalVoucherAttachment.cs" />
+    <Compile Include="GL\JournalVoucher\JournalVoucherDetail.cs" />
+    <Compile Include="GL\JournalVoucher\JournalVoucherMisc.cs" />
+    <Compile Include="GL\JournalVoucher\JournalVoucherTool.cs" />
+    <Compile Include="GL\JournalVoucher\JournalVoucherView.cs" />
+    <Compile Include="GL\JournalVoucher\JournalVoucherViewColumn.cs" />
+    <Compile Include="GL\JournalVoucher\JournalVoucherViewCriteria.cs" />
+    <Compile Include="GL\JournalVoucher\JoutnalVoucherReport.cs" />
+    <Compile Include="GL\Period\Period.cs" />
+    <Compile Include="GL\Prefix\Prefix.cs" />
+    <Compile Include="GL\StandardVoucher\StandardVoucherMisc.cs" />
+    <Compile Include="GL\StandardVoucher\StandardVoucherTool.cs" />
+    <Compile Include="GL\StandardVoucher\StandardVoucherDetail.cs" />
+    <Compile Include="GL\StandardVoucher\StandardVoucherReport.cs" />
+    <Compile Include="GL\StandardVoucher\StandardVoucherType.cs" />
+    <Compile Include="GL\StandardVoucher\StandardVoucherView.cs" />
+    <Compile Include="GL\StandardVoucher\StandardVoucherViewColumn.cs" />
+    <Compile Include="GL\StandardVoucher\StandardVoucherViewCriteria.cs" />
+    <Compile Include="GnxLib.cs" />
+    <Compile Include="ProjectAdmin\Menu\Menu.cs" />
+    <Compile Include="ProjectAdmin\UserShortcut\UserShortcut.cs" />
+    <Compile Include="Reference\Account\Account.cs" />
+    <Compile Include="Reference\Account\AccountMisc.cs" />
+    <Compile Include="Reference\Account\AccountViewColumn.cs" />
+    <Compile Include="Reference\Account\AccountViewCriteria.cs" />
+    <Compile Include="Reference\Account\AccountType.cs" />
+    <Compile Include="Reference\Account\AccountReport.cs" />
+    <Compile Include="Reference\Account\AccountTool.cs" />
+    <Compile Include="Reference\Account\AccountView.cs" />
+    <Compile Include="Reference\City\City.cs" />
+    <Compile Include="Reference\District\District.cs" />
+    <Compile Include="Reference\Country\Country.cs" />
+    <Compile Include="Reference\Province\Province.cs" />
+    <Compile Include="Reference\Region\Region.cs" />
+    <Compile Include="Reference\Category\Category.cs" />
+    <Compile Include="Reference\Currency\Currency.cs" />
+    <Compile Include="Reference\Department\Department.cs" />
+    <Compile Include="Reference\Division\Division.cs" />
+    <Compile Include="Reference\Section\Section.cs" />
+    <Compile Include="Reference\SubCategory\SubCategory.cs" />
+    <Compile Include="Reference\UOM\UOM.cs" />
+    <Compile Include="Setup\Administrator\Security\RolePermission\RolePermission.cs" />
+    <Compile Include="Setup\Administrator\Security\Role\Role.cs" />
+    <Compile Include="Setup\Administrator\Security\UserRole\UserRole.cs" />
+    <Compile Include="Setup\Administrator\Security\User\User.cs" />
+    <Compile Include="Setup\GL\AccountGroup.cs" />
+    <Compile Include="Setup\GL\AccountType.cs" />
+    <Compile Include="Setup\GL\AccountCategory.cs" />
+    <Compile Include="Setup\GL\AccountSubCategory.cs" />
+    <Compile Include="Setup\SysAdmin\BU\Currency.cs" />
+    <Compile Include="TransactionType\TransactionType.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DataAccessLayer\DataAccessLayer.csproj">
+      <Project>{BB535D87-8432-49DD-AF07-C8FB14F26D36}</Project>
+      <Name>DataAccessLayer</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Consolidation\GL\ImpGLs\" />
+    <Folder Include="obj\Debug\Refactor\" />
+    <Folder Include="obj\Debug\TempPE\" />
+    <Folder Include="ProjectAdmin\AccountCodePart\" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="bin\Logger.dll" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

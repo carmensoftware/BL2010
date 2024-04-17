@@ -1,0 +1,109 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="SkinDefault.master.cs" Inherits="BlueLedger.PL.Master.In.MasterDefault" %>
+
+<%@ Register Src="~/Master/In/Menu.ascx" TagName="Menu" TagPrefix="uc1" %>
+<%@ Register Src="~/UserControl/Comment2.ascx" TagName="Comment2" TagPrefix="uc2" %>
+<%@ Register Src="~/UserControl/Attach2.ascx" TagName="Attach2" TagPrefix="uc3" %>
+<%@ Register Src="~/UserControl/Log2.ascx" TagName="Log2" TagPrefix="uc4" %>
+<!DOCTYPE html>
+<html>
+<head id="Head1" runat="server">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex" />
+    <meta name="googlebot" content="noindex" />
+    <title>Blueledgers</title>
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
+<body>
+    <form id="MasterForm" runat="server" class="master-form">
+    <div class="master-menu-bar">
+        <!-- Logo -->
+        <div class="master-logo">
+            <asp:ImageButton ID="logo_Blueledgers" runat="server" Height="68" ImageUrl="~/App_Themes/Default/Images/Login/_logo.png" OnClick="Home_Click" />
+        </div>
+        <!-- Menu -->
+        <div class="master-menu">
+            <uc1:Menu ID="Menu" ParentID="2" runat="server" />
+        </div>
+        <div class="master-option">
+            <div class="inline-block text-center">
+                <asp:ImageButton ID="imgb_ChangeBu" runat="server" ImageUrl="~/App_Themes/Default/Images/Master/In/menu_header_03.png" OnClick="ChangeBu_Click" />
+                <br />
+                <asp:Label ID="Label_ChangeBu" runat="server" Text="Business Unit" />
+            </div>
+            <div class="inline-block text-center">
+                <asp:ImageButton ID="imgb_Separator" runat="server" ImageUrl="~/App_Themes/Default/Images/Master/In/menu_header_01.png" />
+            </div>
+            <div class="inline-block text-center">
+                <asp:ImageButton ID="imgb_LogOut" runat="server" ImageUrl="~/App_Themes/Default/Images/Master/In/menu_header_02.png" OnClick="LogOut_Click" OnClientClick="return confirm('Do you want to exit?');" />
+                <br />
+                <asp:Label ID="Label_LogOut" runat="server" Text="Log Out" />
+            </div>
+        </div>
+    </div>
+    <div class="master-info-bar">
+        <div class="master-user">
+            <%--<asp:Label ID="Label_Greeting" runat="server" Text="<%$ Resources:Master_In_Default, Msg002 %>" Font-Bold="true" />--%>
+            <label style="font-weight: bold;">
+                Welcome,
+            </label>
+            <asp:HyperLink ID="lnk_UserName" runat="server" ForeColor="#1E90FF" Font-Bold="true" NavigateUrl="~/Option/User/Default.aspx"><%= LoginInfo.LoginName %></asp:HyperLink>
+            <label>
+                to
+                <%= LoginInfo.BuInfo.BuName %></label>
+        </div>
+        <!-- Options -->
+        <div class="master-option-sm">
+            <div style="display: inline-block; margin-left: 15px;">
+                <asp:ImageButton ID="imgb_ChangeBu2" runat="server" ImageUrl="~/App_Themes/Default/Images/Master/In/menu_header_03.png" ToolTip="Change business unit"
+                    OnClick="ChangeBu_Click" />
+                <%--<asp:LinkButton ID="btn_ChangeBu" runat="server" Text="Business Unit" OnClick="btn_ChangeBu_Click" />--%>
+            </div>
+            <div style="display: inline-block; margin-left: 15px;">
+                <asp:ImageButton ID="imgb_LogOut2" runat="server" ImageUrl="~/App_Themes/Default/Images/Master/In/menu_header_02.png" ToolTip="Log out" OnClick="LogOut_Click"
+                    OnClientClick="return confirm('Do you want to exit?');" />
+                <%--<asp:LinkButton ID="btn_Logout" runat="server" Text="Log Out" OnClick="btn_Logout_Click" OnClientClick="return confirm('Do you want to exit?');" />--%>
+            </div>
+        </div>
+    </div>
+    <div style="clear: both;">
+    </div>
+    <br />
+    <br />
+    <!-- Content -->
+    <div class="master-content">
+        <ajaxToolkit:ToolkitScriptManager ID="ToolkitScriptManager1" runat="server" EnableScriptGlobalization="true" EnablePageMethods="true">
+        </ajaxToolkit:ToolkitScriptManager>
+        <div>
+            <asp:ContentPlaceHolder ID="cph_Main" runat="server" />
+        </div>
+        <div style="clear: both;">
+        </div>
+        <div>
+            <uc2:Comment2 ID="Comment" runat="server" Visible="false" EnableViewState="True" />
+            <br />
+        </div>
+        <div>
+            <uc3:Attach2 ID="Attach" runat="server" Visible="false" EnableViewState="True" />
+            <br />
+        </div>
+        <div>
+            <uc4:Log2 ID="Log" runat="server" Visible="false" EnableViewState="True" />
+            <br />
+        </div>
+    </div>
+    <footer style="position: fixed; bottom: 0; padding-top: 5px; width: 100%; background-color: White; color: gray; text-align: right; right: 0px;">
+        <span style="margin-right:25px;">Period :<%= (new Blue.BL.PC.Priod()).GetLatestOpenStartDate(LoginInfo.ConnStr).ToShortDateString() %></span>
+    </footer>
+    </form>
+    <script type="text/javascript">
+        $(document).keypress(
+            function (event) {
+                if (event.which == '13') {
+                    event.preventDefault();
+                }
+            });
+    </script>
+</body>
+</html>

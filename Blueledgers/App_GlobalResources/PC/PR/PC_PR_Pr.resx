@@ -1,0 +1,516 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="lbl_Desc_Nm" xml:space="preserve">
+    <value>Description:</value>
+  </data>
+  <data name="lbl_PRDate_Nm0" xml:space="preserve">
+    <value>Date:</value>
+  </data>
+  <data name="lbl_PRNo_Nm0" xml:space="preserve">
+    <value>PR Ref#:</value>
+  </data>
+  <data name="lbl_Process_Nm0" xml:space="preserve">
+    <value>Process:</value>
+  </data>
+  <data name="lbl_PRRequest_Nm" xml:space="preserve">
+    <value>Purchase Request - </value>
+  </data>
+  <data name="lbl_Status_Nm" xml:space="preserve">
+    <value>Status:</value>
+  </data>
+  <data name="lbl_AccDetail_Nm" xml:space="preserve">
+    <value>Account Detail</value>
+  </data>
+  <data name="lbl_AllHQBuyer_Nm" xml:space="preserve">
+    <value>4. Allocate HQ Buyer</value>
+  </data>
+  <data name="lbl_AlloBuyer_Nm" xml:space="preserve">
+    <value>2. Allocate Buyer</value>
+  </data>
+  <data name="lbl_AlloVendor_Nm" xml:space="preserve">
+    <value>3. Allocate Vendor</value>
+  </data>
+  <data name="lbl_Approve" xml:space="preserve">
+    <value>Complete</value>
+  </data>
+  <data name="lbl_ApproVendor_Nm" xml:space="preserve">
+    <value>5. Approve Vendor</value>
+  </data>
+  <data name="lbl_Apprv_Grd_Nm" xml:space="preserve">
+    <value>Apprv.</value>
+  </data>
+  <data name="lbl_Buyer_Nm" xml:space="preserve">
+    <value>Buyer:</value>
+  </data>
+  <data name="lbl_BU_Compare_Nm" xml:space="preserve">
+    <value>Business Unit</value>
+  </data>
+  <data name="lbl_Comment_Detail_Nm" xml:space="preserve">
+    <value>Comment</value>
+  </data>
+  <data name="lbl_DeliDate_Nm" xml:space="preserve">
+    <value>Delivery Date:</value>
+  </data>
+  <data name="lbl_DeliPoint_Nm" xml:space="preserve">
+    <value>Delivery Point:</value>
+  </data>
+  <data name="lbl_DelivDate_Grd_Nm" xml:space="preserve">
+    <value>Deliv Date</value>
+  </data>
+  <data name="lbl_DelivP_Grd_Nm" xml:space="preserve">
+    <value>Deliv Point</value>
+  </data>
+  <data name="lbl_DiscAmt_Compare_Nm" xml:space="preserve">
+    <value>Disc Amt</value>
+  </data>
+  <data name="lbl_DiscAmt_Nm" xml:space="preserve">
+    <value>Disc. Amount:</value>
+  </data>
+  <data name="lbl_DiscPercent_Compare_Nm" xml:space="preserve">
+    <value>Disc %</value>
+  </data>
+  <data name="lbl_DiscPercent_Nm" xml:space="preserve">
+    <value>Disc. (%):</value>
+  </data>
+  <data name="lbl_FC_Nm" xml:space="preserve">
+    <value>7. FC</value>
+  </data>
+  <data name="lbl_FOC_Compare_Nm" xml:space="preserve">
+    <value>FOC</value>
+  </data>
+  <data name="lbl_FOC_Grd_Nm" xml:space="preserve">
+    <value>FOC</value>
+  </data>
+  <data name="lbl_GFC_Nm" xml:space="preserve">
+    <value>9. Group FC</value>
+  </data>
+  <data name="lbl_GGM_Nm" xml:space="preserve">
+    <value>10. Group GM</value>
+  </data>
+  <data name="lbl_GM_Nm" xml:space="preserve">
+    <value>8. GM</value>
+  </data>
+  <data name="lbl_HOD_Nm" xml:space="preserve">
+    <value>6. Head of Department</value>
+  </data>
+  <data name="lbl_ItemDesc_Grd_Nm" xml:space="preserve">
+    <value>Item Description</value>
+  </data>
+  <data name="lbl_QtyTo_Compare_Nm" xml:space="preserve">
+    <value>To</value>
+  </data>
+  <data name="lbl_QtyFrom_Compare_Nm" xml:space="preserve">
+    <value>Qty.From</value>
+  </data>
+  <data name="lbl_VendorName_Compare_Nm" xml:space="preserve">
+    <value>Vendor Name</value>
+  </data>
+  <data name="lbl_NetAC_Nm" xml:space="preserve">
+    <value>Net A/C#:</value>
+  </data>
+  <data name="lbl_NetAmt_Nm" xml:space="preserve">
+    <value>Net Amount:</value>
+  </data>
+  <data name="lbl_Order_Nm" xml:space="preserve">
+    <value>Ordered:</value>
+  </data>
+  <data name="lbl_PartialApprove" xml:space="preserve">
+    <value>Partial</value>
+  </data>
+  <data name="lbl_Pending" xml:space="preserve">
+    <value>In Process</value>
+  </data>
+  <data name="lbl_Po_Nm" xml:space="preserve">
+    <value>PO#:</value>
+  </data>
+  <data name="lbl_PriceCompare_HD_Nm" xml:space="preserve">
+    <value>Price Comparison</value>
+  </data>
+  <data name="lbl_Price_Compare_Nm" xml:space="preserve">
+    <value>Price</value>
+  </data>
+  <data name="lbl_Price_Nm" xml:space="preserve">
+    <value>Order Price:</value>
+  </data>
+  <data name="lbl_PRIssue_Nm" xml:space="preserve">
+    <value>1. PR Issue</value>
+  </data>
+  <data name="lbl_Process_Grd_Nm" xml:space="preserve">
+    <value>Process</value>
+  </data>
+  <data name="lbl_ProStatus_Nm" xml:space="preserve">
+    <value>Process Status :</value>
+  </data>
+  <data name="lbl_QtyApp_Nm" xml:space="preserve">
+    <value>Qty Approved:</value>
+  </data>
+  <data name="lbl_QtyReq_Grd_Nm" xml:space="preserve">
+    <value>Qty Req.</value>
+  </data>
+  <data name="lbl_Rank_Compare_Nm" xml:space="preserve">
+    <value>Rank</value>
+  </data>
+  <data name="lbl_Receive_Nm" xml:space="preserve">
+    <value>Receieved:</value>
+  </data>
+  <data name="lbl_Ref_Compare_Nm" xml:space="preserve">
+    <value>Ref#</value>
+  </data>
+  <data name="lbl_Ref_Nm" xml:space="preserve">
+    <value>Ref #:</value>
+  </data>
+  <data name="lbl_Reject" xml:space="preserve">
+    <value>Rejected</value>
+  </data>
+  <data name="lbl_TaxAC_Nm" xml:space="preserve">
+    <value>Tax A/C#:</value>
+  </data>
+  <data name="lbl_TaxAmt_Nm" xml:space="preserve">
+    <value>Tax Amount:</value>
+  </data>
+  <data name="lbl_TaxRate_Nm" xml:space="preserve">
+    <value>Tax Rate (%):</value>
+  </data>
+  <data name="lbl_TaxType_Nm" xml:space="preserve">
+    <value>Tax Type:</value>
+  </data>
+  <data name="lbl_TotalAmt_Nm" xml:space="preserve">
+    <value>Total Amount:</value>
+  </data>
+  <data name="lbl_Total_Grd_Nm" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="lbl_transDetail_Nm" xml:space="preserve">
+    <value>Transaction Detail</value>
+  </data>
+  <data name="lbl_Unit_Grd_Nm" xml:space="preserve">
+    <value>Unit</value>
+  </data>
+  <data name="lbl_Vendor_Grd_Nm" xml:space="preserve">
+    <value>Vendor</value>
+  </data>
+  <data name="btn_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="btn_CancelApprove" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="btn_CancelAutoAlloVd" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="btn_CancelReject" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="btn_CancelSendback" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="btn_CC" xml:space="preserve">
+    <value>Cc ...</value>
+  </data>
+  <data name="btn_ConfirmApprove" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="btn_ConfirmAutoAlloVd" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="btn_ConfirmReject" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="btn_ConfirmSendback" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="btn_Exit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="btn_OK_PopApprove" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="btn_OK_PopAutoAlloVd" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="btn_Reject_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="btn_Reject_OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="btn_SandBack_OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="btn_Send" xml:space="preserve">
+    <value>Send</value>
+  </data>
+  <data name="btn_SendBack_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="btn_To" xml:space="preserve">
+    <value>To ...</value>
+  </data>
+  <data name="Button3" xml:space="preserve">
+    <value>Bcc ...</value>
+  </data>
+  <data name="lbl_AllBuyer_Grd_Nm" xml:space="preserve">
+    <value>Allocated Buyer</value>
+  </data>
+  <data name="lbl_AllVendor_Grd_Nm" xml:space="preserve">
+    <value>Allocated Vendor</value>
+  </data>
+  <data name="lbl_ApproBy_Grd_Nm" xml:space="preserve">
+    <value>Approved By</value>
+  </data>
+  <data name="lbl_ApprOn_Grd_Nm" xml:space="preserve">
+    <value>Approved On</value>
+  </data>
+  <data name="lbl_AutoAlloSuccess_Nm" xml:space="preserve">
+    <value>Auto Allocate Vendor Successfully.</value>
+  </data>
+  <data name="lbl_AutoAllo_Nm" xml:space="preserve">
+    <value>Confirm to Auto Allocate Vendor ?</value>
+  </data>
+  <data name="lbl_BuyAllOn_Grd_Nm" xml:space="preserve">
+    <value>Buyer Allocated On</value>
+  </data>
+  <data name="lbl_CommentSendBack_Nm" xml:space="preserve">
+    <value>Comment</value>
+  </data>
+  <data name="lbl_Comment_POP_Nm" xml:space="preserve">
+    <value>Comment</value>
+  </data>
+  <data name="lbl_ConfirmAppr_Nm" xml:space="preserve">
+    <value>Confirm to Approve ?</value>
+  </data>
+  <data name="lbl_ConfirmReject_Nm" xml:space="preserve">
+    <value>Confirm to Reject?</value>
+  </data>
+  <data name="lbl_ConfirmSendBack_HD" xml:space="preserve">
+    <value>Send Back</value>
+  </data>
+  <data name="lbl_CreateBy_Grd_Nm" xml:space="preserve">
+    <value>Created By</value>
+  </data>
+  <data name="lbl_CreateOn_Grd_Nm" xml:space="preserve">
+    <value>Created On</value>
+  </data>
+  <data name="lbl_FirstAuBy_Grd_Nm" xml:space="preserve">
+    <value>First Authorized By</value>
+  </data>
+  <data name="lbl_FIrstAuOn_Grd_Nm" xml:space="preserve">
+    <value>First Authorized On</value>
+  </data>
+  <data name="lbl_HisOfOrder_Nm" xml:space="preserve">
+    <value>History Of Order</value>
+  </data>
+  <data name="lbl_MsgText_Nm" xml:space="preserve">
+    <value>Message Text:</value>
+  </data>
+  <data name="lbl_SecondAuBy_Grd_Nm" xml:space="preserve">
+    <value>Second Authorized By</value>
+  </data>
+  <data name="lbl_SecondAuOn_Grd_Nm" xml:space="preserve">
+    <value>Second Authorized On</value>
+  </data>
+  <data name="lbl_SendMsg_HD" xml:space="preserve">
+    <value>Send Message</value>
+  </data>
+  <data name="lbl_SendTo_Nm" xml:space="preserve">
+    <value>Send To</value>
+  </data>
+  <data name="lbl_Subject_Nm" xml:space="preserve">
+    <value>Subject</value>
+  </data>
+  <data name="lbl_ThirdAuBy_Grd_Nm" xml:space="preserve">
+    <value>Third Authorized By</value>
+  </data>
+  <data name="lbl_ThirdAuOn_Grd_Nm" xml:space="preserve">
+    <value>Third Authorized ByOn</value>
+  </data>
+  <data name="lbl_VendorAllOn_Grd_Nm" xml:space="preserve">
+    <value>Vendor Allocated On</value>
+  </data>
+  <data name="lbl_VendorApprBy_Grd_Nm" xml:space="preserve">
+    <value>Vendor Approved By</value>
+  </data>
+  <data name="lbl_VendorApprOn_Grd_Nm" xml:space="preserve">
+    <value>Vendor Approved On</value>
+  </data>
+  <data name="lbl_VendorRequir_Nm" xml:space="preserve">
+    <value>Vendor are require.</value>
+  </data>
+  <data name="lbl_Warning_VendorRequir_Nm" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="lbl_PrType_Nm" xml:space="preserve">
+    <value>PR Type:</value>
+  </data>
+  <data name="lbl_LastPrice_Nm" xml:space="preserve">
+    <value>Last Price:</value>
+  </data>
+  <data name="lbl_LastVendor_Nm" xml:space="preserve">
+    <value>Last Vendor:</value>
+  </data>
+  <data name="lbl_OnHand_Nm" xml:space="preserve">
+    <value>On Hand:</value>
+  </data>
+  <data name="lbl_OnOrder_Nm" xml:space="preserve">
+    <value>On Ordered:</value>
+  </data>
+  <data name="lbl_ReOrder_Nm" xml:space="preserve">
+    <value>Reorder:</value>
+  </data>
+  <data name="lbl_Requestor_Nm" xml:space="preserve">
+    <value>Requestor:</value>
+  </data>
+  <data name="lbl_ReStock_Nm" xml:space="preserve">
+    <value>Restock:</value>
+  </data>
+  <data name="pop_ProcessHis" xml:space="preserve">
+    <value>Process History</value>
+  </data>
+  <data name="btn_CancelVoid" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="btn_ConfirmVoid" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="btn_OKApprove_Succ" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="lbl_ConfirmVoid_Nm" xml:space="preserve">
+    <value>Do you confirm to Void ?</value>
+  </data>
+  <data name="lbl_OKApprove_Succ_Nm" xml:space="preserve">
+    <value>Approve Item is Succesfully.</value>
+  </data>
+  <data name="lbl_VoidSuc_Nm" xml:space="preserve">
+    <value>Void Successfully.</value>
+  </data>
+  <data name="lbl_LocationCode_Grd_Nm" xml:space="preserve">
+    <value>Store</value>
+  </data>
+  <data name="lbl_Price_Grd_Nm" xml:space="preserve">
+    <value>Price</value>
+  </data>
+  <data name="lbl_HOD" xml:space="preserve">
+    <value>Approve By</value>
+  </data>
+  <data name="lbl_HODRE" xml:space="preserve">
+    <value>Permit by</value>
+  </data>
+</root>

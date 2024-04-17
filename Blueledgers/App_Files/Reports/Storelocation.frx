@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="03/27/2014 17:06:31" ReportInfo.CreatorVersion="2013.4.11.0">
+  <ScriptText>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Data;
+using FastReport;
+using FastReport.Data;
+using FastReport.Dialog;
+using FastReport.Barcode;
+using FastReport.Table;
+using FastReport.Utils;
+
+namespace FastReport
+{
+  public class ReportScript
+  {
+
+    private void _StartReport(object sender, EventArgs e)
+    {
+      // Initial values (For WebReport must set at here)
+      
+    }
+
+    private void btnOk_Click(object sender, EventArgs e)
+    {
+      Report.SetParameterValue(&quot;p_Flocation&quot;, ComboBox1.Text.Split(' ')[0].ToString());
+      Report.SetParameterValue(&quot;p_Tlocation&quot;, ComboBox2.Text.Split(' ')[0].ToString());
+      
+      if (rall.Checked==true)
+      {
+        Report.SetParameterValue(&quot;p_Status&quot;,2); 
+        Report.SetParameterValue(&quot;p_show&quot;,&quot;Show All&quot;); 
+         
+      }
+      else if (rac.Checked==true)
+      {
+        Report.SetParameterValue(&quot;p_Status&quot;,1); 
+        Report.SetParameterValue(&quot;p_show&quot;,&quot;Active&quot;); 
+         
+      }
+      else if (rin.Checked==true)
+      {
+        Report.SetParameterValue(&quot;p_Status&quot;,0); 
+        Report.SetParameterValue(&quot;p_show&quot;,&quot;InActive&quot;); 
+         
+      }
+      
+      
+    }
+
+  }
+}
+</ScriptText>
+  <Dictionary>
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqCvlJxRoS3oNe5N3zvkC4Lm0GTlhzQjT2TIHST/VUwxymBjkMasIlge3mQyaNyvDqobp2jyqEN90mfyWPC487XDSLyx03j+wSoCmtzywJpR4W564IFe7YSL/guaNQp/w3">
+      <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;">
+        <Column Name="BuCode" DataType="System.String"/>
+        <Column Name="Name" DataType="System.String"/>
+        <Column Name="NameBilling" DataType="System.String"/>
+        <Column Name="Address" DataType="System.String"/>
+        <Column Name="PostCode" DataType="System.String"/>
+        <Column Name="City" DataType="System.String"/>
+        <Column Name="Country" DataType="System.String"/>
+        <Column Name="Phone" DataType="System.String"/>
+        <Column Name="Fax" DataType="System.String"/>
+        <Column Name="Email" DataType="System.String"/>
+        <Column Name="DeliveryTerm" DataType="System.String"/>
+        <Column Name="POS" DataType="System.String"/>
+        <Column Name="POSModel" DataType="System.String"/>
+        <Column Name="BackOffice" DataType="System.String"/>
+        <Column Name="BackOfficeModel" DataType="System.String"/>
+        <Column Name="BuLogo" DataType="System.Byte[]" BindableControl="Picture"/>
+      </TableDataSource>
+      <TableDataSource Name="Table" Alias="stl" DataType="System.Int32" Enabled="true" SelectCommand="exec rpt.rptstorelocation @FLOCATION=@p_Flocation,@TLOCATION=@p_Tlocation,&#13;&#10;@STATUS=@p_Status">
+        <Column Name="LocationCode" DataType="System.String"/>
+        <Column Name="LocationName" DataType="System.String"/>
+        <Column Name="DeptCode" DataType="System.String"/>
+        <Column Name="Name" DataType="System.String"/>
+        <Column Name="EOPTYPE" DataType="System.String"/>
+        <Column Name="ISACTIVE" DataType="System.String"/>
+        <CommandParameter Name="p_Flocation" DataType="22" Expression="[p_Flocation]"/>
+        <CommandParameter Name="p_Tlocation" DataType="22" Expression="[p_Tlocation]"/>
+        <CommandParameter Name="p_Status" DataType="22" Expression="[p_Status]"/>
+      </TableDataSource>
+      <TableDataSource Name="Table1" Alias="Flocation" DataType="System.Int32" Enabled="true" SelectCommand="exec [RPT].listlocationbytype 1">
+        <Column Name="Item" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table2" Alias="Tlocation" DataType="System.Int32" Enabled="true" SelectCommand="exec [RPT].listlocationbytype 1">
+        <Column Name="Item" DataType="System.String"/>
+      </TableDataSource>
+    </MsSqlDataConnection>
+    <Parameter Name="p_Flocation" DataType="System.String"/>
+    <Parameter Name="p_Tlocation" DataType="System.String"/>
+    <Parameter Name="p_Status" DataType="System.Int32"/>
+    <Parameter Name="p_show" DataType="System.String"/>
+  </Dictionary>
+  <ReportPage Name="Page1" RawPaperSize="9" LeftMargin="5" RightMargin="5" FirstPageSource="15" OtherPagesSource="15">
+    <PageHeaderBand Name="PageHeader1" Width="756" Height="117.18">
+      <PictureObject Name="Picture1" Width="179.55" Height="85.05" DataColumn="ADMIN_Bu.BuLogo"/>
+      <TextObject Name="Text3" Left="193.73" Top="20.79" Width="349.65" Height="28.35" Text="Store Location" HorzAlign="Center" Font="Tahoma, 14pt"/>
+      <TextObject Name="Text4" Top="85.05" Width="302.4" Height="18.9" Text="[ADMIN_Bu.Name]" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text10" Left="481.95" Top="66.15" Width="264.6" Height="37.8" Text="Location From [p_Flocation] To [p_Tlocation]&#13;&#10;Status : [p_show]" HorzAlign="Right" Font="Tahoma, 8pt"/>
+    </PageHeaderBand>
+    <ColumnHeaderBand Name="ColumnHeader1" Top="121.18" Width="756" Height="56.7" Border.Lines="Top, Bottom" Fill.Color="Gainsboro">
+      <TextObject Name="Text5" Top="18.9" Width="66.15" Height="18.9" Text="Code" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text7" Left="302.4" Top="18.9" Width="66.15" Height="18.9" Text="DeptCode&#13;&#10;" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text8" Left="368.55" Top="18.9" Width="207.9" Height="18.9" Text="Deliverly Point" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text9" Left="585.9" Top="18.9" Width="113.4" Height="18.9" Text="Eop" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text16" Left="708.75" Top="18.9" Width="47.25" Height="18.9" Text="Status" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text6" Left="75.6" Top="18.9" Width="103.95" Height="18.9" Fill.Color="Gainsboro" Text="Location Name" Font="Tahoma, 8pt, style=Bold"/>
+      <ChildBand Name="Child2" Top="181.88" Width="756" Height="9.45"/>
+    </ColumnHeaderBand>
+    <DataBand Name="Data1" Top="195.33" Width="756" Height="47.25" CanGrow="true" BeforePrintEvent="Data1_BeforePrint" DataSource="Table">
+      <TextObject Name="Text11" Top="9.45" Width="75.6" Height="18.9" Text="[stl.LocationCode]" Font="Arial, 8pt"/>
+      <TextObject Name="Text12" Left="75.6" Top="9.45" Width="226.8" Height="28.35" Text=" [stl.LocationName]" Font="Arial, 8pt"/>
+      <TextObject Name="Text13" Left="302.4" Top="9.45" Width="66.15" Height="28.35" Text="[stl.DeptCode]" Font="Arial, 8pt"/>
+      <TextObject Name="Text15" Left="368.55" Top="9.45" Width="217.35" Height="28.35" Text="[stl.Name]" Font="Arial, 8pt"/>
+      <TextObject Name="Text14" Left="585.9" Top="9.45" Width="113.4" Height="28.35" Text="[stl.EOPTYPE]" Font="Arial, 8pt"/>
+      <TextObject Name="Text17" Left="708.75" Top="9.45" Width="47.25" Height="28.35" Text="[stl.ISACTIVE]" Font="Tahoma, 8pt"/>
+    </DataBand>
+    <PageFooterBand Name="PageFooter1" Top="246.58" Width="756" Height="9.45">
+      <ChildBand Name="Child1" Top="260.03" Width="756" Height="56.7" Border.Lines="Top">
+        <TextObject Name="Text1" Top="18.9" Width="132.3" Height="37.8" Text="Report Detailed&#13;&#10;Print On [Date]" Format="Date" Format.Format="d" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text2" Left="567" Top="18.9" Width="179.55" Height="28.35" Text="Page [Page#] Of [TotalPages#]" HorzAlign="Right" Font="Tahoma, 8pt"/>
+      </ChildBand>
+    </PageFooterBand>
+  </ReportPage>
+  <DialogPage Name="ReportDialog" Width="414" Height="198" AcceptButton="btnOk" CancelButton="btnCancel" LoadEvent="">
+    <ButtonControl Name="btnOk" Left="226" Top="130" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="0" Text="OK" ClickEvent="btnOk_Click" DialogResult="OK"/>
+    <ButtonControl Name="btnCancel" Left="309" Top="130" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="1" Text="Cancel" DialogResult="Cancel"/>
+    <LabelControl Name="Label3" Left="4" Top="24" Width="74" Height="13" Font="Tahoma, 8pt" TabIndex="3" Text="Location From"/>
+    <LabelControl Name="Label4" Left="4" Top="50" Width="62" Height="13" Font="Tahoma, 8pt" TabIndex="4" Text="Location To"/>
+    <ComboBoxControl Name="ComboBox1" Left="86" Top="20" Width="300" Font="Tahoma, 8pt" TabIndex="9" DataColumn="Flocation.Item" DropDownWidth="200" ItemHeight="13"/>
+    <ComboBoxControl Name="ComboBox2" Left="86" Top="46" Width="300" Font="Tahoma, 8pt" TabIndex="10" DataColumn="Tlocation.Item" DropDownWidth="200" ItemHeight="13"/>
+    <RadioButtonControl Name="rac" Left="152" Top="92" Width="55" Height="17" Font="Tahoma, 8pt" TabIndex="11" Text="Active"/>
+    <RadioButtonControl Name="rin" Left="228" Top="92" Width="65" Height="17" Font="Tahoma, 8pt" TabIndex="11" Text="InActive"/>
+    <RadioButtonControl Name="rall" Left="80" Top="92" Width="36" Height="17" Font="Tahoma, 8pt" TabIndex="11" Text="All"/>
+    <LabelControl Name="Label1" Left="8" Top="92" Width="38" Height="13" Font="Tahoma, 8pt" TabIndex="12" Text="Status"/>
+  </DialogPage>
+</Report>

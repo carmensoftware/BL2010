@@ -1,0 +1,185 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="01/08/2019 16:08:28" ReportInfo.CreatorVersion="2013.4.11.0">
+  <ScriptText>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Data;
+using FastReport;
+using FastReport.Data;
+using FastReport.Dialog;
+using FastReport.Barcode;
+using FastReport.Table;
+using FastReport.Utils;
+
+namespace FastReport
+{
+  public class ReportScript
+  {
+
+    private void Form1_Load(object sender, EventArgs e)
+    {
+      DateTimePicker1.Value = ((DateTime)Report.GetVariableValue(&quot;Date&quot;));
+      DateTimePicker2.Value = ((DateTime)Report.GetVariableValue(&quot;Date&quot;));
+  
+    }
+
+    private void btnOk_Click(object sender, EventArgs e)
+    {
+    }
+
+
+    private void ReportDialog_Shown(object sender, EventArgs e)
+    { 
+
+    }
+
+    private void ComboBox1_DataLoaded(object sender, EventArgs e)
+    {
+//      ComboBox1.Text = &quot;7026-1-HR-01&quot;;
+//      ComboBox1.Text = ComboBox1.Items[ComboBox1.Items.Count-1].ToString(); 
+
+    }
+
+    private void DateTimePicker1_DataLoaded(object sender, EventArgs e)
+    {
+    }
+
+    private void ComboBox1_SelectedIndexChanged(object sender, EventArgs e)
+    {
+      int fl = ComboBox1.SelectedIndex;
+      int tl = ComboBox2.SelectedIndex;
+      
+      if (tl &lt; fl)
+        ComboBox2.Text = ComboBox1.Text;
+     
+      //ComboBox2.Text = ComboBox2.Items[ComboBox2.Items.Count-1].ToString(); 
+    }
+
+    private void ComboBox2_DataLoaded(object sender, EventArgs e)
+    {
+//      ComboBox2.Text = ComboBox1.Items[ComboBox1.Items.Count-1].ToString(); 
+      
+    }
+  }
+}
+</ScriptText>
+  <Dictionary>
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqCvlJxRoS3oNe5N3zvkC4LlmkTOi213q2PMFzU8HZZ4AhPg4pM82wbBECzXbZ3GOOicK2TNO8bcpCQrLDd/cpSIVtxC79JjZbtp+caOWeidY=">
+      <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;">
+        <Column Name="BuCode" DataType="System.String"/>
+        <Column Name="Name" DataType="System.String"/>
+        <Column Name="NameBilling" DataType="System.String"/>
+        <Column Name="Address" DataType="System.String"/>
+        <Column Name="PostCode" DataType="System.String"/>
+        <Column Name="City" DataType="System.String"/>
+        <Column Name="Country" DataType="System.String"/>
+        <Column Name="Phone" DataType="System.String"/>
+        <Column Name="Fax" DataType="System.String"/>
+        <Column Name="Email" DataType="System.String"/>
+        <Column Name="DeliveryTerm" DataType="System.String"/>
+        <Column Name="POS" DataType="System.String"/>
+        <Column Name="POSModel" DataType="System.String"/>
+        <Column Name="BackOffice" DataType="System.String"/>
+        <Column Name="BackOfficeModel" DataType="System.String"/>
+        <Column Name="BuLogo" DataType="System.Byte[]" BindableControl="Picture"/>
+      </TableDataSource>
+      <TableDataSource Name="Table" Alias="Report" DataType="System.Int32" Enabled="true" SelectCommand="SELECT TOP(100) *&#13;&#10;FROM [IN].Inventory&#13;&#10;WHERE 1=1&#13;&#10;AND Location BETWEEN @FLoc AND @TLoc&#13;&#10;AND ProductCode BETWEEN @FProd AND @TProd&#13;&#10;AND CAST(CommittedDate AS DATE) BETWEEN @FDate AND @TDate">
+        <Column Name="HdrNo" DataType="System.String"/>
+        <Column Name="DtNo" DataType="System.Int32"/>
+        <Column Name="InvNo" DataType="System.Int32"/>
+        <Column Name="ProductCode" DataType="System.String"/>
+        <Column Name="Location" DataType="System.String"/>
+        <Column Name="ToLocation" DataType="System.String"/>
+        <Column Name="IN" DataType="System.Decimal"/>
+        <Column Name="OUT" DataType="System.Decimal"/>
+        <Column Name="Remain" DataType="System.Decimal"/>
+        <Column Name="Amount" DataType="System.Decimal"/>
+        <Column Name="FIFOAudit" DataType="System.Decimal"/>
+        <Column Name="FIFOMng" DataType="System.Decimal"/>
+        <Column Name="FIFOBank" DataType="System.Decimal"/>
+        <Column Name="MAvgAudit" DataType="System.Decimal"/>
+        <Column Name="MAvgMng" DataType="System.Decimal"/>
+        <Column Name="MAvgBank" DataType="System.Decimal"/>
+        <Column Name="PAvgAudit" DataType="System.Decimal"/>
+        <Column Name="PAvgMng" DataType="System.Decimal"/>
+        <Column Name="PAvgBank" DataType="System.Decimal"/>
+        <Column Name="RptAudit" DataType="System.Decimal"/>
+        <Column Name="RptMng" DataType="System.Decimal"/>
+        <Column Name="RptBank" DataType="System.Decimal"/>
+        <Column Name="Type" DataType="System.String"/>
+        <Column Name="CommittedDate" DataType="System.DateTime"/>
+        <Column Name="RefNo" DataType="System.String"/>
+        <Column Name="RefDtNo" DataType="System.Int32"/>
+        <Column Name="LotsNo" DataType="System.Int32"/>
+        <Column Name="PriceOnLots" DataType="System.Decimal"/>
+        <Column Name="UnitsOnLots" DataType="System.String"/>
+        <Column Name="CNType" DataType="System.String"/>
+        <CommandParameter Name="@FLoc" DataType="12" Expression="[p_FLoc]"/>
+        <CommandParameter Name="@TLoc" DataType="12" Expression="[p_TLoc]"/>
+        <CommandParameter Name="@FProd" DataType="12" Expression="[p_FProd]"/>
+        <CommandParameter Name="@TProd" DataType="12" Expression="[p_TProd]"/>
+        <CommandParameter Name="@FDate" DataType="31" Expression="[p_FDate]" DefaultValue="2018-12-01"/>
+        <CommandParameter Name="@TDate" DataType="31" Expression="[p_TDate]" DefaultValue="2018-12-31"/>
+      </TableDataSource>
+      <TableDataSource Name="Table1" Alias="FLocation" DataType="System.Int32" Enabled="true" SelectCommand="SELECT LocationCode as Item, LocationName as Name&#13;&#10;FROM [IN].StoreLocation&#13;&#10;WHERE EOP = 1&#13;&#10;ORDER BY LocationCode">
+        <Column Name="Item" DataType="System.String"/>
+        <Column Name="Name" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table2" Alias="TLocation" DataType="System.Int32" Enabled="true" SelectCommand="SELECT LocationCode as Item, LocationName as Name&#13;&#10;FROM [IN].StoreLocation&#13;&#10;WHERE EOP = 1&#13;&#10;ORDER BY LocationCode">
+        <Column Name="Item" DataType="System.String"/>
+        <Column Name="Name" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table3" Alias="FProduct" DataType="System.Int32" Enabled="true" SelectCommand="SELECT ProductCode as Item, ProductDesc1, ProductDesc2&#13;&#10;FROM [IN].Product&#13;&#10;WHERE IsActive = 1&#13;&#10;ORDER BY ProductCode">
+        <Column Name="ProductDesc1" DataType="System.String"/>
+        <Column Name="ProductDesc2" DataType="System.String"/>
+        <Column Name="Item" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table4" Alias="TProduct" DataType="System.Int32" Enabled="true" SelectCommand="SELECT ProductCode as Item, ProductDesc1, ProductDesc2&#13;&#10;FROM [IN].Product&#13;&#10;WHERE IsActive = 1&#13;&#10;ORDER BY ProductCode">
+        <Column Name="ProductDesc1" DataType="System.String"/>
+        <Column Name="ProductDesc2" DataType="System.String"/>
+        <Column Name="Item" DataType="System.String"/>
+      </TableDataSource>
+    </MsSqlDataConnection>
+    <Parameter Name="p_FDate" DataType="System.DateTime"/>
+    <Parameter Name="p_TDate" DataType="System.DateTime"/>
+    <Parameter Name="p_FLoc" DataType="System.String"/>
+    <Parameter Name="p_TLoc" DataType="System.String"/>
+    <Parameter Name="p_FProd" DataType="System.String"/>
+    <Parameter Name="p_TProd" DataType="System.String"/>
+  </Dictionary>
+  <DialogPage Name="ReportDialog" Width="470" Height="462" AcceptButton="btnOk" LoadEvent="Form1_Load" ShownEvent="ReportDialog_Shown">
+    <ButtonControl Name="btnOk" Left="298" Top="402" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="0" Text="OK" ClickEvent="btnOk_Click" DialogResult="OK"/>
+    <ButtonControl Name="btnCancel" Left="381" Top="402" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="1" Text="Cancel" DialogResult="Cancel"/>
+    <ComboBoxControl Name="ComboBox1" Left="116" Top="112" Width="300" Font="Tahoma, 8pt" TabIndex="9" DataColumn="FProduct.Item" ReportParameter="p_FLoc" DataLoadedEvent="ComboBox1_DataLoaded" DropDownWidth="200" ItemHeight="13" SelectedIndexChangedEvent="ComboBox1_SelectedIndexChanged"/>
+    <LabelControl Name="Label1" Left="84" Top="24" Width="35" Height="13" Font="Tahoma, 8pt" TabIndex="5" Text="From:"/>
+    <LabelControl Name="Label2" Left="84" Top="56" Width="23" Height="13" Font="Tahoma, 8pt" TabIndex="5" Text="To:"/>
+    <DateTimePickerControl Name="DateTimePicker1" Left="140" Top="24" Width="256" Font="Tahoma, 8pt" TabIndex="5" Text="1/11/2013" ReportParameter="p_FDate" DataLoadedEvent="DateTimePicker1_DataLoaded" CustomFormat="yy-mm-dd" Format="Short" Value="11/01/2013 16:57:59"/>
+    <DateTimePickerControl Name="DateTimePicker2" Left="140" Top="52" Width="256" Font="Tahoma, 8pt" TabIndex="5" Text="1/11/2013" ReportParameter="p_TDate" Format="Short" Value="11/01/2013 16:58:04"/>
+    <LabelControl Name="Label3" Left="108" Top="260" Width="32" Height="13" Font="Tahoma, 8pt" TabIndex="10" Text="Label"/>
+    <ComboBoxControl Name="ComboBox2" Left="112" Top="156" Width="300" Font="Tahoma, 8pt" TabIndex="9" DataColumn="TProduct.Item" ReportParameter="p_TLoc" DataLoadedEvent="ComboBox2_DataLoaded" DropDownWidth="200" ItemHeight="13" SelectedIndexChangedEvent=""/>
+  </DialogPage>
+  <ReportPage Name="Page1" RawPaperSize="9" FirstPageSource="15" OtherPagesSource="15">
+    <PageHeaderBand Name="PageHeader1" Width="718.2" Height="122.85">
+      <TextObject Name="Text1" Left="283.5" Top="9.45" Width="94.5" Height="18.9" Text="TEST" HorzAlign="Center"/>
+      <TextObject Name="Text3" Left="9.45" Width="94.5" Height="18.9" Text="HdrNo"/>
+      <TextObject Name="Text5" Left="113.4" Width="94.5" Height="18.9" Text="DtNo"/>
+      <TextObject Name="Text9" Left="425.25" Width="94.5" Height="18.9" Text="IN"/>
+      <TextObject Name="Text11" Left="529.2" Width="94.5" Height="18.9" Text="OUT"/>
+      <TextObject Name="Text13" Left="623.7" Width="94.5" Height="18.9" Text="Amount"/>
+    </PageHeaderBand>
+    <ColumnHeaderBand Name="ColumnHeader1" Top="126.85" Width="718.2" Height="37.8"/>
+    <DataBand Name="Data1" Top="168.65" Width="718.2" Height="32.13" CanGrow="true" BeforePrintEvent="Data1_BeforePrint" DataSource="Table">
+      <TextObject Name="Text2" Left="9.45" Top="9.45" Width="94.5" Height="18.9" Text="[Report.HdrNo]"/>
+      <TextObject Name="Text4" Left="113.4" Top="9.45" Width="94.5" Height="18.9" Text="[Report.DtNo]"/>
+      <TextObject Name="Text6" Left="217.35" Top="9.45" Width="94.5" Height="18.9" Text="[Report.Location]"/>
+      <TextObject Name="Text7" Left="321.3" Top="9.45" Width="94.5" Height="18.9" Text="[Report.ProductCode]"/>
+      <TextObject Name="Text8" Left="425.25" Top="9.45" Width="94.5" Height="18.9" Text="[Report.IN]" Format="Currency" Format.UseLocale="true" HorzAlign="Right" WordWrap="false" Trimming="EllipsisCharacter"/>
+      <TextObject Name="Text10" Left="529.2" Top="9.45" Width="94.5" Height="18.9" Text="[Report.OUT]" Format="Currency" Format.UseLocale="true" HorzAlign="Right" WordWrap="false" Trimming="EllipsisCharacter"/>
+      <TextObject Name="Text12" Left="623.7" Top="9.45" Width="94.5" Height="18.9" Text="[Report.Amount]" Format="Currency" Format.UseLocale="true" HorzAlign="Right" WordWrap="false" Trimming="EllipsisCharacter"/>
+    </DataBand>
+    <PageFooterBand Name="PageFooter1" Top="204.78" Width="718.2" Height="37.8"/>
+  </ReportPage>
+</Report>

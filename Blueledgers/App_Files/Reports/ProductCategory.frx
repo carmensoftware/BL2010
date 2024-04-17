@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" ReportInfo.Created="07/15/2014 16:54:20" ReportInfo.Modified="07/23/2014 15:26:32" ReportInfo.CreatorVersion="2013.4.11.0">
+  <ScriptText>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Data;
+using FastReport;
+using FastReport.Data;
+using FastReport.Dialog;
+using FastReport.Barcode;
+using FastReport.Table;
+using FastReport.Utils;
+
+namespace FastReport
+{
+  public class ReportScript
+  {
+
+    private void btnOk_Click(object sender, EventArgs e)
+    {
+      Report.SetParameterValue(&quot;p_Fcat&quot;, ComboBox1.Text.Split(' ')[0].ToString());
+      Report.SetParameterValue(&quot;p_Tcat&quot;, ComboBox2.Text.Split(' ')[0].ToString());
+    }
+  }
+}
+</ScriptText>
+  <Dictionary>
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlquI5mm9eIqX7nRdDiks3qPXqDNCBXa6r0KuGeR7GvhwYlnOedGSDqx24gbDblXA4yOox4FtQM+LdCT1LBaokO+8pOi+eRQLIzTQMCpVD+E+Q=">
+      <TableDataSource Name="Tool_vProductCategory" DataType="System.Int32" Enabled="true" TableName="Tool.&quot;vProductCategory&quot;" SelectCommand="EXEC [rpt].rptProductCategory @FCAT=@p_Fcat,@TCAT=@p_Tcat">
+        <Column Name="CategoryCode" DataType="System.String"/>
+        <Column Name="CategoryName" DataType="System.String"/>
+        <Column Name="SubCategoryCode" DataType="System.String"/>
+        <Column Name="SubCategoryName" DataType="System.String"/>
+        <Column Name="ItemgroupCode" DataType="System.String"/>
+        <Column Name="ItemGroupName" DataType="System.String"/>
+        <Column Name="IsActive" DataType="System.Boolean" BindableControl="CheckBox"/>
+        <CommandParameter Name="p_Fcat" DataType="22" Expression="[p_Fcat]"/>
+        <CommandParameter Name="p_Tcat" DataType="22" Expression="[p_Tcat]"/>
+      </TableDataSource>
+      <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;">
+        <Column Name="BuCode" DataType="System.String"/>
+        <Column Name="Name" DataType="System.String"/>
+        <Column Name="NameBilling" DataType="System.String"/>
+        <Column Name="Address" DataType="System.String"/>
+        <Column Name="PostCode" DataType="System.String"/>
+        <Column Name="City" DataType="System.String"/>
+        <Column Name="Country" DataType="System.String"/>
+        <Column Name="Phone" DataType="System.String"/>
+        <Column Name="Fax" DataType="System.String"/>
+        <Column Name="Email" DataType="System.String"/>
+        <Column Name="DeliveryTerm" DataType="System.String"/>
+        <Column Name="POS" DataType="System.String"/>
+        <Column Name="POSModel" DataType="System.String"/>
+        <Column Name="BackOffice" DataType="System.String"/>
+        <Column Name="BackOfficeModel" DataType="System.String"/>
+        <Column Name="BuLogo" DataType="System.Byte[]" BindableControl="Picture"/>
+        <Column Name="TaxId" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table" Alias="Fcat" DataType="System.Int32" Enabled="true" SelectCommand="SELECT CategoryCode +' '+CategoryName&#13;&#10;FROM  [IN].ProductCategory&#13;&#10;WHERE ParentNo='0'&#13;&#10;ORDER BY CategoryCode">
+        <Column Name="Column1" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table1" Alias="Tcat" DataType="System.Int32" Enabled="true" SelectCommand="SELECT CategoryCode +' '+CategoryName&#13;&#10;FROM  [IN].ProductCategory&#13;&#10;WHERE ParentNo='0'&#13;&#10;ORDER BY CategoryCode">
+        <Column Name="Column1" DataType="System.String"/>
+      </TableDataSource>
+    </MsSqlDataConnection>
+    <Parameter Name="p_Fcat" DataType="System.String"/>
+    <Parameter Name="p_Tcat" DataType="System.String"/>
+  </Dictionary>
+  <ReportPage Name="Page1">
+    <ReportTitleBand Name="ReportTitle1" Width="718.2" Height="103.95" PrintOn="FirstPage">
+      <PictureObject Name="Picture1" Width="189" Height="75.6" DataColumn="ADMIN_Bu.BuLogo"/>
+      <TextObject Name="Text7" Top="75.6" Width="255.15" Height="18.9" CanGrow="true" CanBreak="false" Text="[ADMIN_Bu.Name]" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text9" Left="472.5" Top="66.15" Width="245.7" Height="37.8" CanBreak="false" Text="Category From  [p_Fcat]  To  [p_Tcat]" HorzAlign="Right" WordWrap="false"/>
+    </ReportTitleBand>
+    <PageHeaderBand Name="PageHeader1" Top="106.62" Width="718.2" Height="103.95" Exportable="false" PrintOn="LastPage, OddPages, EvenPages, RepeatedBand, SinglePage">
+      <PictureObject Name="Picture2" Width="189" Height="75.6" DataColumn="ADMIN_Bu.BuLogo"/>
+      <TextObject Name="Text8" Top="75.6" Width="255.15" Height="18.9" CanGrow="true" CanBreak="false" Text="[ADMIN_Bu.Name]" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text10" Left="472.5" Top="66.15" Width="245.7" Height="37.8" CanBreak="false" Text="Category From  [p_Fcat]  To  [p_Tcat]" HorzAlign="Right" WordWrap="false"/>
+    </PageHeaderBand>
+    <GroupHeaderBand Name="GroupHeader1" Top="213.23" Width="718.2" Height="18.9" Fill.Color="DarkGray" Guides="0,18.9" RepeatOnEveryPage="true" Condition="[Tool_vProductCategory.CategoryCode]" KeepTogether="true">
+      <TextObject Name="Text1" Left="113.4" Width="567" Height="18.9" Text="[Tool_vProductCategory.CategoryCode] : [Tool_vProductCategory.CategoryName]" VertAlign="Center" Font="Consolas, 9pt, style=Bold"/>
+      <TextObject Name="Text4" Left="18.9" Width="94.5" Height="18.9" Text="Category :" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <GroupHeaderBand Name="GroupHeader2" Top="234.8" Width="718.2" Height="22.68" Guides="3.78" Condition="[Tool_vProductCategory.SubCategoryCode]" KeepTogether="true">
+        <TextObject Name="Text2" Left="151.2" Top="3.78" Width="529.2" Height="18.9" Text="[Tool_vProductCategory.SubCategoryCode] : [Tool_vProductCategory.SubCategoryName]" VertAlign="Center" Font="Consolas, 9pt"/>
+        <TextObject Name="Text5" Left="18.9" Top="3.78" Width="117.18" Height="18.9" Text="Sub Category :" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+        <ChildBand Name="Child1" Top="260.15" Width="718.2" Height="18.9">
+          <TextObject Name="Text6" Left="18.9" Width="117.18" Height="18.9" Text="Item Group :" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+        </ChildBand>
+        <GroupHeaderBand Name="GroupHeader3" Top="281.71" Width="718.2" Height="18.9" Guides="18.9" Condition="[Tool_vProductCategory.ItemgroupCode]">
+          <TextObject Name="Text3" Left="189" Width="491.4" Height="18.9" Text="[Tool_vProductCategory.ItemgroupCode] : [Tool_vProductCategory.ItemGroupName]" VertAlign="Center" Font="Consolas, 9pt"/>
+          <CheckBoxObject Name="CheckBox1" Left="154.98" Top="3.78" Width="11.34" Height="11.34" DataColumn="Tool_vProductCategory.IsActive"/>
+          <DataBand Name="Data1" Top="303.28" Width="718.2" DataSource="Tool_vProductCategory"/>
+        </GroupHeaderBand>
+        <GroupFooterBand Name="GroupFooter1" Top="305.95" Width="718.2" Height="7.56" Border.Lines="Bottom" Border.BottomLine.Style="Dash"/>
+      </GroupHeaderBand>
+    </GroupHeaderBand>
+    <PageFooterBand Name="PageFooter1" Top="316.17" Width="718.2" Height="9.45">
+      <ChildBand Name="Child2" Top="328.29" Width="718.2" Height="37.8" Border.Lines="Top">
+        <TextObject Name="Text11" Width="132.3" Height="37.8" Border.Lines="Top" Text="Report Detailed&#13;&#10;Print on [Date]" Format="Date" Format.Format="d" VertAlign="Center" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text12" Left="491.4" Width="226.8" Height="37.8" Border.Lines="Top" Text="Page [Page#] of [TotalPages#]" HorzAlign="Right" VertAlign="Center" Font="Tahoma, 8pt"/>
+      </ChildBand>
+    </PageFooterBand>
+  </ReportPage>
+  <DialogPage Name="Form1" Width="442" Height="218" AcceptButton="btnOk" CancelButton="btnCancel">
+    <ButtonControl Name="btnOk" Left="258" Top="111" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="0" Text="OK" ClickEvent="btnOk_Click" DialogResult="OK"/>
+    <ButtonControl Name="btnCancel" Left="349" Top="111" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="1" Text="Cancel" DialogResult="Cancel"/>
+    <ComboBoxControl Name="ComboBox1" Left="128" Top="24" Width="297" Font="Tahoma, 8pt" TabIndex="2" DataColumn="Fcat.Column1" DropDownWidth="297" ItemHeight="13"/>
+    <ComboBoxControl Name="ComboBox2" Left="128" Top="68" Width="297" Font="Tahoma, 8pt" TabIndex="2" DataColumn="Tcat.Column1" DropDownWidth="297" ItemHeight="13"/>
+    <LabelControl Name="Label1" Left="16" Top="24" Width="79" Height="13" Font="Tahoma, 8pt" TabIndex="3" Text="Category From"/>
+    <LabelControl Name="Label2" Left="16" Top="68" Width="67" Height="13" Font="Tahoma, 8pt" TabIndex="3" Text="Category To"/>
+  </DialogPage>
+</Report>

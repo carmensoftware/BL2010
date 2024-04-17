@@ -1,0 +1,223 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="07/14/2015 16:11:54" ReportInfo.CreatorVersion="2013.4.11.0">
+  <ScriptText>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Data;
+using FastReport;
+using FastReport.Data;
+using FastReport.Dialog;
+using FastReport.Barcode;
+using FastReport.Table;
+using FastReport.Utils;
+
+namespace FastReport
+{
+  public class ReportScript
+  {
+
+    private void _StartReport(object sender, EventArgs e)
+    {
+      DateTime startOfMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+      TextDate1.Text = startOfMonth.ToShortDateString();
+      TextDate2.Text = DateTime.Today.ToShortDateString();
+      
+    }
+
+    private void btnOk_Click(object sender, EventArgs e)
+    {
+      Report.SetParameterValue(&quot;p_FDate&quot;, Convert.ToDateTime(TextDate1.Text));
+      Report.SetParameterValue(&quot;p_TDate&quot;, Convert.ToDateTime(TextDate2.Text));
+      
+      Report.SetParameterValue(&quot;p_Fcat&quot;, ComboBox1.Text.Split(' ')[0].ToString());
+      Report.SetParameterValue(&quot;p_Tcat&quot;, ComboBox2.Text.Split(' ')[0].ToString());
+
+      Report.SetParameterValue(&quot;p_Fproduct&quot;, ComboBox3.Text.Split(' ')[0].ToString());
+      Report.SetParameterValue(&quot;p_Tproduct&quot;, ComboBox4.Text.Split(' ')[0].ToString());
+      
+      Report.SetParameterValue(&quot;p_Flocation&quot;, ComboBox5.Text.Split(' ')[0].ToString());
+      Report.SetParameterValue(&quot;p_Tlocation&quot;, ComboBox6.Text.Split(' ')[0].ToString())  ;
+      
+     Report.SetParameterValue(&quot;p_Created&quot;, ComboBox7.Text.Split(' ')[0].ToString())  ;
+      
+      
+    }
+
+  }
+}
+</ScriptText>
+  <Dictionary>
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlquI5mm9eIqX7nRdDiks3qPRHLV+PkCkRjcCvj2yR9gZNVcwB/pWLXyDNMUFOUJDaqATIh4nDN2jUX17k9cnyntqd2kJcHvJgyVUdzpNe2HIk=">
+      <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;">
+        <Column Name="BuCode" DataType="System.String"/>
+        <Column Name="Name" DataType="System.String"/>
+        <Column Name="NameBilling" DataType="System.String"/>
+        <Column Name="Address" DataType="System.String"/>
+        <Column Name="PostCode" DataType="System.String"/>
+        <Column Name="City" DataType="System.String"/>
+        <Column Name="Country" DataType="System.String"/>
+        <Column Name="Phone" DataType="System.String"/>
+        <Column Name="Fax" DataType="System.String"/>
+        <Column Name="Email" DataType="System.String"/>
+        <Column Name="DeliveryTerm" DataType="System.String"/>
+        <Column Name="POS" DataType="System.String"/>
+        <Column Name="POSModel" DataType="System.String"/>
+        <Column Name="BackOffice" DataType="System.String"/>
+        <Column Name="BackOfficeModel" DataType="System.String"/>
+        <Column Name="BuLogo" DataType="System.Byte[]" BindableControl="Picture"/>
+      </TableDataSource>
+      <TableDataSource Name="Table" Alias="prd" DataType="System.Int32" Enabled="true" SelectCommand="Exec [RPT].rptPurchaserequestbyDepartment 	@FDATE=@p_FDate,@TDATE=@p_TDate,&#13;&#10;											@FCAT=@p_Fcat,@TCAT=@p_Tcat,&#13;&#10;											@FLOCATION=@p_Flocation,@TLOCATION=@p_Tlocation,&#13;&#10;											@FPRODUCT=@p_Fproduct,@TPRODUCT=@p_Tproduct,&#13;&#10;											@CREATEBY=@p_Created">
+        <Column Name="PRNo" DataType="System.String"/>
+        <Column Name="PRDate" DataType="System.DateTime"/>
+        <Column Name="PONo" DataType="System.String"/>
+        <Column Name="LocationCode" DataType="System.String"/>
+        <Column Name="LocationName" DataType="System.String"/>
+        <Column Name="DocStatus" DataType="System.String"/>
+        <Column Name="Buyer" DataType="System.String"/>
+        <Column Name="Description" DataType="System.String"/>
+        <Column Name="ProductCode" DataType="System.String"/>
+        <Column Name="ProductDesc1" DataType="System.String"/>
+        <Column Name="ProductDesc2" DataType="System.String"/>
+        <Column Name="OrderUnit" DataType="System.String"/>
+        <Column Name="ApprQty" DataType="System.Decimal"/>
+        <Column Name="Price" DataType="System.Decimal"/>
+        <Column Name="NetAmt" DataType="System.Decimal"/>
+        <Column Name="TaxAmt" DataType="System.Decimal"/>
+        <Column Name="TotalAmt" DataType="System.Decimal"/>
+        <Column Name="CategoryCode" DataType="System.String"/>
+        <Column Name="Buyer1" DataType="System.String"/>
+        <Column Name="CreatedBy" DataType="System.String"/>
+        <Column Name="VendorCode" DataType="System.String"/>
+        <Column Name="ApprStatus" DataType="System.String"/>
+        <Column Name="ProductName" DataType="System.String"/>
+        <Column Name="JobCode" DataType="System.String"/>
+        <Column Name="PrDtNo" DataType="System.Int32"/>
+        <Column Name="Name" DataType="System.String"/>
+        <CommandParameter Name="p_FDate" DataType="4" Expression="[p_FDate]" DefaultValue="10/10/13"/>
+        <CommandParameter Name="p_TDate" DataType="4" Expression="[p_TDate]" DefaultValue="10/10/13"/>
+        <CommandParameter Name="p_Flocation" DataType="22" Expression="[p_Flocation]"/>
+        <CommandParameter Name="p_Tlocation" DataType="22" Expression="[p_Tlocation]"/>
+        <CommandParameter Name="p_Fproduct" DataType="22" Expression="[p_Fproduct]"/>
+        <CommandParameter Name="p_Tproduct" DataType="22" Expression="[p_Tproduct]"/>
+        <CommandParameter Name="p_Fcat" DataType="22" Expression="[p_Fcat]"/>
+        <CommandParameter Name="p_Tcat" DataType="22" Expression="[p_Tcat]"/>
+        <CommandParameter Name="p_Created" DataType="22" Expression="[p_Created]"/>
+      </TableDataSource>
+      <TableDataSource Name="Table4" Alias="FCAT" DataType="System.Int32" Enabled="true" SelectCommand="select CategoryCode+' '+CategoryName&#13;&#10;from [IN].ProductCategory&#13;&#10;where ParentNo='0'&#13;&#10;Order By CategoryCode">
+        <Column Name="Column1" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table5" Alias="TCAT" DataType="System.Int32" Enabled="true" SelectCommand="select CategoryCode+' '+CategoryName&#13;&#10;from [IN].ProductCategory&#13;&#10;where ParentNo='0'&#13;&#10;Order By CategoryCode">
+        <Column Name="Column1" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table6" Alias="FPRODUCT" DataType="System.Int32" Enabled="true" SelectCommand="select ProductCode+' '+ProductDesc1&#13;&#10;from [IN].Product&#13;&#10;Order By ProductCode">
+        <Column Name="Column1" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table7" Alias="TPRODUCT" DataType="System.Int32" Enabled="true" SelectCommand="select ProductCode+' '+ProductDesc1&#13;&#10;from [IN].Product&#13;&#10;Order By ProductCode">
+        <Column Name="Column1" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table8" Alias="FLOCATION" DataType="System.Int32" Enabled="true" SelectCommand="exec rpt.listlocationbytype 0">
+        <Column Name="Item" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table9" Alias="TLOCATION" DataType="System.Int32" Enabled="true" SelectCommand="exec rpt.listlocationbytype 0">
+        <Column Name="Item" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table11" Alias="Crb" DataType="System.Int32" Enabled="true" SelectCommand="SELECT DISTINCT(LoginName)&#13;&#10; FROM [IMPACT_BL].[ADMIN].[UserStore]&#13;&#10; UNION&#13;&#10; SELECT 'ZZZZ'+' : '+'All User'">
+        <Column Name="LoginName" DataType="System.String"/>
+      </TableDataSource>
+    </MsSqlDataConnection>
+    <Parameter Name="p_FDate" DataType="System.DateTime"/>
+    <Parameter Name="p_TDate" DataType="System.DateTime"/>
+    <Parameter Name="p_Fcat" DataType="System.String"/>
+    <Parameter Name="p_Tcat" DataType="System.String"/>
+    <Parameter Name="p_Fproduct" DataType="System.String"/>
+    <Parameter Name="p_Tproduct" DataType="System.String"/>
+    <Parameter Name="p_Flocation" DataType="System.String"/>
+    <Parameter Name="p_Tlocation" DataType="System.String"/>
+    <Parameter Name="p_Created" DataType="System.String"/>
+    <Total Name="SumlocationAmt" Expression="[prd.TotalAmt]" Evaluator="Data1"/>
+    <Total Name="sumcreateamt" Expression="[prd.TotalAmt]" Evaluator="Data1" PrintOn="GroupFooter2"/>
+  </Dictionary>
+  <DialogPage Name="ReportDialog" Width="442" Height="542" AcceptButton="btnOk" CancelButton="btnCancel" LoadEvent="">
+    <ButtonControl Name="btnOk" Left="270" Top="482" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="0" Text="OK" ClickEvent="btnOk_Click" DialogResult="OK"/>
+    <ButtonControl Name="btnCancel" Left="353" Top="482" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="1" Text="Cancel" DialogResult="Cancel"/>
+    <TextBoxControl Name="TextDate1" Left="116" Top="16" Width="300" Font="Tahoma, 8pt" TabIndex="3"/>
+    <LabelControl Name="Label1" Left="24" Top="16" Width="57" Height="13" Font="Tahoma, 8pt" TabIndex="4" Text="From Date"/>
+    <LabelControl Name="Label2" Left="24" Top="60" Width="45" Height="13" Font="Tahoma, 8pt" TabIndex="4" Text="To Date"/>
+    <TextBoxControl Name="TextDate2" Left="116" Top="60" Width="300" Font="Tahoma, 8pt" TabIndex="3"/>
+    <ComboBoxControl Name="ComboBox5" Left="116" Top="104" Width="300" Font="Tahoma, 8pt" TabIndex="2" DataColumn="FLOCATION.Item" DropDownWidth="300" ItemHeight="13"/>
+    <ComboBoxControl Name="ComboBox6" Left="116" Top="152" Width="300" Font="Tahoma, 8pt" TabIndex="2" ClickEvent="ComboBox6_Click" DataColumn="TLOCATION.Item" DropDownWidth="300" ItemHeight="13"/>
+    <LabelControl Name="Label7" Left="24" Top="104" Width="74" Height="13" Font="Tahoma, 8pt" TabIndex="9" Text="Location From"/>
+    <LabelControl Name="Label8" Left="24" Top="152" Width="62" Height="13" Font="Tahoma, 8pt" TabIndex="10" Text="Location To"/>
+    <ComboBoxControl Name="ComboBox1" Left="116" Top="204" Width="300" Font="Tahoma, 8pt" TabIndex="2" DataColumn="FCAT.Column1" DropDownWidth="300" ItemHeight="13"/>
+    <ComboBoxControl Name="ComboBox2" Left="116" Top="256" Width="300" Font="Tahoma, 8pt" TabIndex="2" DataColumn="TCAT.Column1" DropDownWidth="300" ItemHeight="13"/>
+    <LabelControl Name="Label3" Left="24" Top="204" Width="79" Height="13" Font="Tahoma, 8pt" TabIndex="5" Text="Category From" ClickEvent="Label3_Click"/>
+    <LabelControl Name="Label4" Left="24" Top="256" Width="67" Height="13" Font="Tahoma, 8pt" TabIndex="6" Text="Category To"/>
+    <ComboBoxControl Name="ComboBox3" Left="116" Top="312" Width="300" Font="Tahoma, 8pt" TabIndex="2" DataColumn="FPRODUCT.Column1" DropDownWidth="300" ItemHeight="13"/>
+    <ComboBoxControl Name="ComboBox4" Left="116" Top="368" Width="300" Font="Tahoma, 8pt" TabIndex="2" DataColumn="TPRODUCT.Column1" DropDownWidth="300" ItemHeight="13"/>
+    <LabelControl Name="Label5" Left="24" Top="312" Width="71" Height="13" Font="Tahoma, 8pt" TabIndex="7" Text="Product From"/>
+    <LabelControl Name="Label6" Left="24" Top="368" Width="59" Height="13" Font="Tahoma, 8pt" TabIndex="8" Text="Product To"/>
+    <LabelControl Name="Label9" Left="24" Top="420" Width="61" Height="13" Font="Tahoma, 8pt" TabIndex="11" Text="Created By"/>
+    <ComboBoxControl Name="ComboBox7" Left="116" Top="420" Width="297" Font="Tahoma, 8pt" TabIndex="12" DataColumn="Crb.LoginName" DropDownWidth="297" ItemHeight="13"/>
+  </DialogPage>
+  <ReportPage Name="Page1" RawPaperSize="9" LeftMargin="5" RightMargin="5" FirstPageSource="15" OtherPagesSource="15">
+    <PageHeaderBand Name="PageHeader1" Width="756" Height="125.01">
+      <PictureObject Name="Picture1" Top="-3.97" Width="173.88" Height="94.5" DataColumn="ADMIN_Bu.BuLogo"/>
+      <TextObject Name="Text3" Left="203.36" Top="8.86" Width="357.21" Height="30.24" Text="Purchase Request By Department" HorzAlign="Center" Font="Tahoma, 14pt"/>
+      <TextObject Name="Text4" Top="93.08" Width="238.14" Height="18.9" Text="[ADMIN_Bu.Name]" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text19" Left="465.09" Top="49.19" Width="281.5" Height="72.84" Text="From Date [TextDate1.Text] To [TextDate2.Text]&#13;&#10;Location From [p_Flocation] To [p_Tlocation]&#13;&#10;Category From [p_Fcat] To [p_Tcat]&#13;&#10;Product From [p_Fproduct] To [p_Tproduct]&#13;&#10;Created By [p_Created]" HorzAlign="Right" Font="Tahoma, 8pt"/>
+    </PageHeaderBand>
+    <ColumnHeaderBand Name="ColumnHeader1" Top="128.1" Width="756" Height="9.45"/>
+    <GroupHeaderBand Name="GroupHeader1" Top="140.63" Width="756" Height="35.91" Border.Lines="Top" Fill.Color="Gainsboro" KeepWithData="true" RepeatOnEveryPage="true" Condition="Trim([prd.LocationCode])" KeepTogether="true">
+      <TextObject Name="Text5" Top="7.56" Width="71.82" Height="18.9" Text="PO.NO" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text6" Left="70.6" Top="7.56" Width="58.59" Height="18.9" Text="PR DATE" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text7" Left="127.3" Top="7.56" Width="71.82" Height="18.9" Text="PR.NO." VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text8" Left="200.67" Top="7.56" Width="274.05" Height="18.9" Text="Description" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text26" Left="472.5" Top="7.45" Width="66.15" Height="18.9" Text="Status" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text27" Left="536.65" Top="7.45" Width="47.25" Height="18.9" Text="Vendor" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text28" Left="676.85" Top="7.45" Width="73.71" Height="18.9" Text="Job Code" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text36" Left="582.9" Top="7.45" Width="94.5" Height="18.9" Text="Vendor Name" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <GroupHeaderBand Name="GroupHeader2" Top="179.63" Width="756" Height="24.57" Fill.Color="WhiteSmoke" Condition="[prd.LocationCode]">
+        <TextObject Name="Text11" Left="3.78" Top="5.67" Width="94.5" Height="18.9" Text="To Location :" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text10" Left="100.17" Top="5.67" Width="529.2" Height="18.9" Text="[prd.LocationCode] [prd.LocationName]" VertAlign="Center" Font="Tahoma, 8pt"/>
+        <DataBand Name="Data1" Top="207.28" Width="756" Height="78.82" BeforePrintEvent="Data1_BeforePrint" DataSource="Table">
+          <TextObject Name="Text12" Top="7.56" Width="71.82" Height="17.01" Text="[prd.PONo]" Font="Tahoma, 8pt"/>
+          <TextObject Name="Text13" Left="70.6" Top="7.56" Width="58.59" Height="17.01" Text="[prd.PRDate]" Format="Date" Format.Format="d" Font="Tahoma, 8pt"/>
+          <TextObject Name="Text14" Left="127.3" Top="7.56" Width="71.82" Height="17.01" Text="[prd.PRNo]" Font="Tahoma, 8pt"/>
+          <TextObject Name="Text16" Left="672.84" Top="52.36" Width="73.71" Height="18.9" Text="[prd.TotalAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Tahoma, 8pt"/>
+          <TextObject Name="Text15" Left="200.67" Top="7.56" Width="270.27" Height="37.8" CanShrink="true" Text="[prd.Description]" Font="Tahoma, 8pt"/>
+          <TextObject Name="Text17" Left="472.5" Top="7.56" Width="66.15" Height="18.9" Text="[prd.DocStatus]" Font="Arial, 8pt"/>
+          <TextObject Name="Text29" Left="676.85" Top="7.56" Width="73.71" Height="18.9" Text="[prd.JobCode]" HorzAlign="Right" Font="Tahoma, 8pt"/>
+          <TextObject Name="Text31" Left="536.65" Top="7.56" Width="47.25" Height="18.9" Text="[prd.VendorCode]" Font="Arial, 8pt"/>
+          <TextObject Name="Text32" Left="245.7" Top="52.36" Width="75.6" Height="17.01" Text="[prd.ProductCode]" Font="Tahoma, 8pt"/>
+          <TextObject Name="Text33" Left="321.3" Top="52.36" Width="274.05" Height="26.46" Text="[prd.ProductDesc1]" Font="Tahoma, 8pt"/>
+          <TextObject Name="Text34" Left="132.3" Top="52.36" Width="113.4" Height="18.9" Text="Item Description :" Font="Tahoma, 8pt, style=Bold"/>
+          <TextObject Name="Text35" Left="604.8" Top="52.36" Width="66.15" Height="18.9" Text="Amount :" Font="Tahoma, 8pt, style=Bold"/>
+          <TextObject Name="Text37" Left="582.9" Top="7.56" Width="94.5" Height="28.35" Text="[prd.Name]" Font="Arial, 8pt"/>
+          <Sort>
+            <Sort Expression="[prd.PRNo]"/>
+          </Sort>
+        </DataBand>
+        <GroupFooterBand Name="GroupFooter2" Top="289.19" Width="756" Height="37.8">
+          <TextObject Name="Text23" Left="217.35" Top="9.45" Width="141.75" Height="18.9" Text="Total Of Created By :" Font="Tahoma, 8pt, style=Bold"/>
+          <TextObject Name="Text24" Left="633.15" Top="9.45" Width="122.85" Height="18.9" Border.Lines="Bottom" Border.Style="Double" Text="[sumcreateamt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Tahoma, 9pt"/>
+          <TextObject Name="Text25" Left="368.55" Top="9.45" Width="179.55" Height="18.9" Text="[prd.CreatedBy]" Font="Tahoma, 8pt"/>
+        </GroupFooterBand>
+      </GroupHeaderBand>
+      <GroupFooterBand Name="GroupFooter1" Top="330.08" Width="756" Height="47.25" Border.Lines="Bottom" Fill.Color="Gainsboro" KeepWithData="true">
+        <TextObject Name="Text21" Left="311.85" Top="9.45" Width="283.5" Height="18.9" Text="[prd.LocationCode]: [prd.LocationName]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text20" Left="623.7" Top="9.45" Width="132.3" Height="18.9" Border.Lines="Bottom" Border.Style="Double" Text="[SumlocationAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Tahoma, 9pt"/>
+        <TextObject Name="Text22" Left="189" Top="9.45" Width="113.4" Height="18.9" Text="Total Of Location :" Font="Tahoma, 8pt, style=Bold"/>
+        <ChildBand Name="Child3" Top="380.41" Width="756" Height="18.9"/>
+      </GroupFooterBand>
+    </GroupHeaderBand>
+    <PageFooterBand Name="PageFooter1" Top="402.4" Width="756" Height="6.58">
+      <ChildBand Name="Child1" Top="412.07" Width="756" Height="42.78" Border.Lines="Top">
+        <TextObject Name="Text1" Left="6.58" Top="9.45" Width="132.3" Height="27.66" Text="Report Detailed&#13;&#10;Print On [Date]" Format="Date" Format.Format="d" Font="Arial, 8pt"/>
+        <TextObject Name="Text2" Left="544.32" Top="13.23" Width="207.9" Height="24.64" Text="Page [Page#] Of [TotalPages#]" HorzAlign="Right" Font="Arial, 8pt"/>
+      </ChildBand>
+    </PageFooterBand>
+  </ReportPage>
+</Report>

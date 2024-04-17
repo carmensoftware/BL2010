@@ -1,0 +1,201 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" UseFileCache="true" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="04/05/2017 12:08:40" ReportInfo.CreatorVersion="2013.4.11.0">
+  <ScriptText>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Data;
+using FastReport;
+using FastReport.Data;
+using FastReport.Dialog;
+using FastReport.Barcode;
+using FastReport.Table;
+using FastReport.Utils;
+
+namespace FastReport
+{
+  public class ReportScript
+  {
+
+    private void _StartReport(object sender, EventArgs e)
+    {
+      rall.Checked=true;
+      Report.SetParameterValue(&quot;p_Isactive&quot;,2); 
+      
+    }
+
+    private void btnOk_Click(object sender, EventArgs e)
+    {
+      Report.SetParameterValue(&quot;p_Fvendorcode&quot;, ComboBox5.Text.Split(' ')[0].ToString());
+      Report.SetParameterValue(&quot;p_Tvendorcode&quot;, ComboBox6.Text.Split(' ')[0].ToString());
+      
+      if (ractive.Checked==true)
+      {
+        Report.SetParameterValue(&quot;p_Isactive&quot;,1); 
+      }
+      else if (rnactive.Checked==true)
+      {
+        Report.SetParameterValue(&quot;p_Isactive&quot;,0); 
+      }
+      
+      else if (rall.Checked==true)
+      {
+        Report.SetParameterValue(&quot;p_Isactive&quot;,2); 
+      }
+      
+      
+    }
+
+
+ 
+  }
+}
+</ScriptText>
+  <Dictionary>
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqCvlJxRoS3oNe5N3zvkC4LjSlfOYzn/L53kbXlHU5L9ZvnzIiJSuQt+QzgeHSZj/xj0TWKUs7kDd2q1qe895anQ==">
+      <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;">
+        <Column Name="BuCode" DataType="System.String"/>
+        <Column Name="Name" DataType="System.String"/>
+        <Column Name="NameBilling" DataType="System.String"/>
+        <Column Name="Address" DataType="System.String"/>
+        <Column Name="PostCode" DataType="System.String"/>
+        <Column Name="City" DataType="System.String"/>
+        <Column Name="Country" DataType="System.String"/>
+        <Column Name="Phone" DataType="System.String"/>
+        <Column Name="Fax" DataType="System.String"/>
+        <Column Name="Email" DataType="System.String"/>
+        <Column Name="DeliveryTerm" DataType="System.String"/>
+        <Column Name="POS" DataType="System.String"/>
+        <Column Name="POSModel" DataType="System.String"/>
+        <Column Name="BackOffice" DataType="System.String"/>
+        <Column Name="BackOfficeModel" DataType="System.String"/>
+        <Column Name="BuLogo" DataType="System.Byte[]" BindableControl="Picture"/>
+      </TableDataSource>
+      <TableDataSource Name="Table" Alias="vdd" DataType="System.Int32" Enabled="true" SelectCommand="EXEC [RPT].rptVendordetailed @FVendorCode=@p_Fvendorcode,&#13;&#10;        @TvendorCode=@p_Tvendorcode,&#13;&#10;        @IsActive=@p_Isactive">
+        <Column Name="VendorCode" DataType="System.String"/>
+        <Column Name="SunVendorCode" DataType="System.String"/>
+        <Column Name="ProfileCode" DataType="System.Guid"/>
+        <Column Name="Name" DataType="System.String"/>
+        <Column Name="VendorCategoryCode" DataType="System.String"/>
+        <Column Name="TaxID" DataType="System.String"/>
+        <Column Name="RegisterNo" DataType="System.String"/>
+        <Column Name="CreditTerm" DataType="System.String"/>
+        <Column Name="DiscountRate" DataType="System.Decimal"/>
+        <Column Name="DiscountTerm" DataType="System.Int32"/>
+        <Column Name="TaxType" DataType="System.String"/>
+        <Column Name="Rating" DataType="System.Byte"/>
+        <Column Name="TaxRate" DataType="System.Decimal"/>
+        <Column Name="IsActive" DataType="System.Boolean" BindableControl="CheckBox"/>
+        <Column Name="CreatedBy" DataType="System.String"/>
+        <Column Name="CreatedDate" DataType="System.DateTime"/>
+        <Column Name="UpdatedBy" DataType="System.String"/>
+        <Column Name="UpdatedDate" DataType="System.DateTime"/>
+        <Column Name="VcatName" DataType="System.String"/>
+        <Column Name="Street" DataType="System.String"/>
+        <Column Name="Address1" DataType="System.String"/>
+        <Column Name="Address2" DataType="System.String"/>
+        <Column Name="Address3" DataType="System.String"/>
+        <Column Name="Address4" DataType="System.String"/>
+        <Column Name="Address5" DataType="System.String"/>
+        <Column Name="IsDefault" DataType="System.Boolean" BindableControl="CheckBox"/>
+        <Column Name="ContactCategoryCode" DataType="System.String"/>
+        <Column Name="AddressID" DataType="System.Int32"/>
+        <Column Name="AddTypeName" DataType="System.String"/>
+        <Column Name="CountryName" DataType="System.String"/>
+        <Column Name="ctName" DataType="System.String"/>
+        <Column Name="ContactPerson" DataType="System.String"/>
+        <Column Name="Contact" DataType="System.String"/>
+        <Column Name="Remark" DataType="System.String"/>
+        <Column Name="ContactID" DataType="System.Int32"/>
+        <Column Name="Position" DataType="System.String"/>
+        <Column Name="ContactName" DataType="System.String"/>
+        <Column Name="CName" DataType="System.String"/>
+        <Column Name="Isactive1" DataType="System.String"/>
+        <CommandParameter Name="p_Fvendorcode" DataType="22" Expression="[p_Fvendorcode]"/>
+        <CommandParameter Name="p_Tvendorcode" DataType="22" Expression="[p_Tvendorcode]"/>
+        <CommandParameter Name="p_Isactive" DataType="8" Expression="[p_Isactive]" DefaultValue="0"/>
+      </TableDataSource>
+      <TableDataSource Name="Table1" Alias="Fvendorcode" DataType="System.Int32" Enabled="true" SelectCommand="SELECT  VendorCode + ' : ' + Name AS VendorCodeName&#13;&#10;FROM AP.Vendor&#13;&#10;Order By  VendorCode">
+        <Column Name="VendorCodeName" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table2" Alias="Tvendorcode" DataType="System.Int32" Enabled="true" SelectCommand="SELECT  VendorCode + ' : ' + Name AS VendorCodeName&#13;&#10;FROM AP.Vendor&#13;&#10;Order By  VendorCode">
+        <Column Name="VendorCodeName" DataType="System.String"/>
+      </TableDataSource>
+    </MsSqlDataConnection>
+    <Parameter Name="p_Fvendorcode" DataType="System.String"/>
+    <Parameter Name="p_Tvendorcode" DataType="System.String"/>
+    <Parameter Name="p_Isactive" DataType="System.Int32"/>
+  </Dictionary>
+  <ReportPage Name="Page1" RawPaperSize="9" FirstPageSource="15" OtherPagesSource="15">
+    <PageHeaderBand Name="PageHeader1" Width="718.2" Height="103.95">
+      <PictureObject Name="Picture1" Width="189" Height="75.6" DataColumn="ADMIN_Bu.BuLogo"/>
+      <TextObject Name="Text3" Left="297.68" Top="20.79" Width="160.65" Height="28.35" Text="Vendor Detailed" HorzAlign="Center" Font="Tahoma, 14pt"/>
+      <TextObject Name="Text4" Top="75.6" Width="189" Height="28.35" Text="[ADMIN_Bu.Name]" HorzAlign="Center" Font="Tahoma, 8pt"/>
+    </PageHeaderBand>
+    <ColumnHeaderBand Name="ColumnHeader1" Top="107.15" Width="718.2"/>
+    <GroupHeaderBand Name="GroupHeader1" Top="110.35" Width="718.2" Height="28.35" Border.Lines="Top" Fill.Color="Gainsboro" KeepWithData="true" Condition="Trim([vdd.VendorCode])">
+      <TextObject Name="Text5" Top="9.45" Width="75.6" Height="18.9" Text="Vendor No." Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text6" Left="75.6" Top="9.45" Width="226.8" Height="18.9" Text="Vendor Name" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text7" Left="302.4" Top="9.45" Width="56.7" Height="18.9" Text="B/O #" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text8" Left="359.1" Top="9.45" Width="75.6" Height="18.9" Text="Category" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text9" Left="434.7" Top="9.45" Width="75.6" Height="18.9" Text="Credit Term" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text10" Left="510.3" Top="9.45" Width="94.5" Height="18.9" Text="Tax ID" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text11" Left="604.8" Top="9.45" Width="56.7" Height="18.9" Text="Status" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text12" Left="661.5" Top="9.45" Width="56.7" Height="18.9" Text="Tax" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
+      <DataBand Name="Data1" Top="141.9" Width="718.2" Height="28.35" Border.Lines="Bottom" Fill.Color="Gainsboro" CanGrow="true" BeforePrintEvent="Data1_BeforePrint" DataSource="Table" KeepDetail="true">
+        <TextObject Name="Text20" Left="661.5" Width="56.7" Height="18.9" Text="[vdd.TaxRate]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
+        <TextObject Name="Text13" Width="75.6" Height="18.9" Text="[vdd.VendorCode]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text14" Left="75.6" Width="226.8" Height="28.35" Text="[vdd.Name]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text15" Left="302.4" Width="56.7" Height="18.9" Text="[vdd.SunVendorCode]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text16" Left="359.1" Width="75.6" Height="18.9" Text="[vdd.VendorCategoryCode]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text17" Left="434.7" Width="75.6" Height="18.9" Text="[vdd.CreditTerm]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text18" Left="510.3" Width="94.5" Height="18.9" Text="[vdd.TaxID]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text19" Left="604.8" Width="56.7" Height="18.9" Text="[vdd.Isactive1]" Font="Tahoma, 8pt"/>
+      </DataBand>
+      <GroupFooterBand Name="GroupFooter1" Top="173.45" Width="718.2" Height="160.65" Border.Lines="Bottom" KeepWithData="true">
+        <TextObject Name="Text30" Left="113.4" Top="66.15" Width="170.1" Height="18.9" Text="[vdd.Address5]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text26" Left="113.4" Top="9.45" Width="207.9" Height="28.35" Text="[vdd.Address1]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text27" Left="113.4" Top="37.8" Width="198.45" Height="18.9" Text="[vdd.Address2]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text29" Left="491.4" Top="37.8" Width="189" Height="18.9" Text="[vdd.Address4]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text31" Top="92.95" Width="113.4" Height="21.4" Text="Contact Person" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text32" Left="340.2" Top="95.84" Width="141.75" Height="17.46" Text="Position" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text33" Left="340.2" Top="67.1" Width="66.15" Height="16.93" Text="Category" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text35" Top="122.08" Width="113.4" Height="18.9" Text="Contact" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text37" Left="113.4" Top="93.15" Width="170.1" Height="20.9" Text="[vdd.ContactPerson]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text38" Left="491.4" Top="94.65" Width="189" Height="18.9" Text="[vdd.Position]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text41" Left="415.8" Top="66.3" Width="66.15" Height="18.9" Text="[vdd.ContactCategoryCode]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text25" Top="66.15" Width="113.4" Height="18.9" Text="Postal Code" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text21" Top="9.45" Width="113.4" Height="18.9" Text="Address District&#13;&#10;" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text22" Top="37.8" Width="113.4" Height="18.9" Text="Province" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text24" Left="340.2" Top="37.8" Width="141.75" Height="18.9" Text="Fax" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text23" Left="340.2" Top="9.45" Width="141.75" Height="18.9" Text="Telephone" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text28" Left="491.4" Top="9.45" Width="189" Height="18.9" Text="[vdd.Address3]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text40" Left="491.4" Top="121" Width="190.05" Height="20.37" Text="[vdd.Remark]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text36" Left="340.2" Top="121.91" Width="141.75" Height="18.24" Text="Remark" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text39" Left="113.4" Top="123" Width="170.1" Height="18.4" Text="[vdd.Contact]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text34" Left="491.4" Top="67.09" Width="75.6" Height="18.33" Text="Type" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text42" Left="576.45" Top="66.3" Width="103.95" Height="18.9" Text="[vdd.ContactName]" Font="Tahoma, 8pt"/>
+      </GroupFooterBand>
+    </GroupHeaderBand>
+    <PageFooterBand Name="PageFooter1" Top="337.3" Width="718.2" Height="9.45">
+      <ChildBand Name="Child4" Top="349.95" Width="718.2" Height="47.4" Border.Lines="Top">
+        <TextObject Name="Text1" Top="18.9" Width="189" Height="18.9" Text="Print On [Date]" Format="Date" Format.Format="d" Font="Arial, 8pt" TextFill.Color="Gray"/>
+        <TextObject Name="Text2" Left="557.55" Top="18.9" Width="160.65" Height="18.9" Text="Page [Page#] Of [TotalPages#]" HorzAlign="Right" Font="Arial, 8pt" TextFill.Color="Gray"/>
+      </ChildBand>
+    </PageFooterBand>
+  </ReportPage>
+  <DialogPage Name="ReportDialog" Width="438" Height="254" AcceptButton="btnOk" CancelButton="btnCancel" LoadEvent="ReportDialog_Load">
+    <ButtonControl Name="btnOk" Left="238" Top="162" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="0" Text="OK" ClickEvent="btnOk_Click" DialogResult="OK"/>
+    <ButtonControl Name="btnCancel" Left="325" Top="162" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="1" Text="Cancel" DialogResult="Cancel"/>
+    <LabelControl Name="Label7" Left="16" Top="20" Width="68" Height="13" Font="Tahoma, 8pt" TabIndex="10" Text="Vendor From"/>
+    <LabelControl Name="Label8" Left="16" Top="60" Width="56" Height="13" Font="Tahoma, 8pt" TabIndex="11" Text="Vendor To"/>
+    <ComboBoxControl Name="ComboBox5" Left="108" Top="16" Width="300" Font="Tahoma, 8pt" TabIndex="5" DataColumn="Fvendorcode.VendorCodeName" DropDownWidth="300" ItemHeight="13"/>
+    <ComboBoxControl Name="ComboBox6" Left="108" Top="60" Width="300" Font="Tahoma, 8pt" TabIndex="5" DataColumn="Tvendorcode.VendorCodeName" DropDownWidth="300" ItemHeight="13"/>
+    <RadioButtonControl Name="ractive" Left="108" Top="104" Width="55" Height="17" Font="Tahoma, 8pt" TabIndex="12" Text="Active"/>
+    <RadioButtonControl Name="rnactive" Left="196" Top="104" Width="75" Height="17" Font="Tahoma, 8pt" TabIndex="13" Text="Not Active"/>
+    <LabelControl Name="Label1" Left="16" Top="104" Width="38" Height="13" Font="Tahoma, 8pt" TabIndex="14" Text="Status"/>
+    <RadioButtonControl Name="rall" Left="296" Top="104" Width="36" Height="17" Font="Tahoma, 8pt" TabIndex="15" Text="All"/>
+  </DialogPage>
+</Report>

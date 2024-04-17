@@ -1,0 +1,342 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" UseFileCache="true" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="04/04/2017 12:12:34" ReportInfo.CreatorVersion="2013.4.11.0">
+  <ScriptText>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Data;
+using FastReport;
+using FastReport.Data;
+using FastReport.Dialog;
+using FastReport.Barcode;
+using FastReport.Table;
+using FastReport.Utils;
+
+namespace FastReport
+{
+  public class ReportScript
+  {
+
+    private void _StartReport(object sender, EventArgs e)
+    {
+      // Initial values (For WebReport must set at here)
+      DateTime startOfMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+         
+      ddl_FTLocate.SelectedIndex = ddl_FTLocate.Items.Count -1 ;       
+      ddl_Tlocation.SelectedIndex = ddl_Tlocation.Items.Count - 1;           
+      ddl_Tcategory.SelectedIndex = ddl_Tcategory.Items.Count - 1;
+      ddl_Tsub.SelectedIndex = ddl_Tsub.Items.Count - 1;
+      ddl_Type.SelectedIndex = 0;
+      ddl_FFLocate.Visible = false;
+      ddl_FTLocate.Visible = false;
+    }
+
+    private void btnOk_Click(object sender, EventArgs e)
+    {       
+      if (ddl_Type.SelectedIndex == 0)
+      {  
+        GHFrom.Visible = false;     
+        GFFrom.Visible = false;     
+        lbl_type.Text = &quot;Receiving&quot;;
+      } 
+      else if(ddl_Type.SelectedIndex == 1)
+      {      
+        lbl_type.Text = &quot;Transfer&quot;;
+      }
+       
+      else if(ddl_Type.SelectedIndex == 2)
+      {
+        GHToLocate.Visible = false;      
+        GFToLocate.Visible = false;
+        lbl_type.Text = &quot;StoreRequistion&quot;;
+      }      
+
+      
+      // Sample for assign parameter
+      Report.SetParameterValue(&quot;p_FDate&quot;, DateTimePicker1.Value);
+      Report.SetParameterValue(&quot;p_TDate&quot;, DateTimePicker2.Value);                      
+      //Report.SetParameterValue(&quot;p_FDate&quot;, DateTimePicker1.Value.ToString(&quot;yyyy-MM-dd&quot;));
+      //Report.SetParameterValue(&quot;p_TDate&quot;, DateTimePicker2.Value.ToString(&quot;yyyy-MM-dd&quot;));
+      
+      Report.SetParameterValue(&quot;p_FFLocation&quot;, ddl_FFLocate.Text.Split(':')[0].ToString());
+      Report.SetParameterValue(&quot;p_FTLocation&quot;, ddl_FTLocate.Text.Split(':')[0].ToString());
+      Report.SetParameterValue(&quot;p_TFLocation&quot;, ddl_Flocation.Text.Split(':')[0].ToString());
+      Report.SetParameterValue(&quot;p_TTLocation&quot;, ddl_Tlocation.Text.Split(':')[0].ToString());
+      
+      Report.SetParameterValue(&quot;p_FCategory&quot;, ddl_FCategory.Text.Split(' ')[0].ToString());
+      Report.SetParameterValue(&quot;p_TCategory&quot;, ddl_Tcategory.Text.Split(' ')[0].ToString());
+      
+      Report.SetParameterValue(&quot;p_FSubCate&quot;, ddl_Fsub.Text.Split(' ')[0].ToString());  
+      Report.SetParameterValue(&quot;p_TSubCate&quot;, ddl_Tsub.Text.Split(' ')[0].ToString());
+      
+      Report.SetParameterValue(&quot;p_Type&quot;, ddl_Type.Text.Split(':')[0].ToString());
+    }         
+    
+    private void ddl_Type_SelectedIndexChanged(object sender, EventArgs e)
+    {      
+      ddl_FTLocate.SelectedIndex = ddl_FTLocate.Items.Count -1 ;
+      ddl_Tlocation.SelectedIndex = ddl_Tlocation.Items.Count - 1;
+      ddl_Tcategory.SelectedIndex = ddl_Tcategory.Items.Count - 1;
+      ddl_Tsub.SelectedIndex = ddl_Tsub.Items.Count - 1;
+      if (ddl_Type.SelectedIndex == 0)     
+      { 
+        //GB_ddlsourceLocate.Enabled = false;  
+        //ddl_FFLocate.Enabled = false;
+        //ddl_FTLocate.Enabled = false; 
+        ddl_Tlocation.Visible = true;
+        ddl_Flocation.Visible = true;
+        ddl_FFLocate.Visible = false;
+        ddl_FTLocate.Visible = false;    
+      }
+      else if(ddl_Type.SelectedIndex == 2) // SR
+      {
+        //GB_ddlsourceLocate.Enabled = true;
+        //ddl_FFLocate.Enabled = true;  
+        //ddl_FTLocate.Enabled = true;
+        
+        ddl_FFLocate.Visible = true;
+        ddl_FTLocate.Visible = true;   
+        ddl_Tlocation.Visible = false;
+        ddl_Flocation.Visible = false;
+      }
+      else
+      {
+        ddl_FFLocate.Visible = true;
+        ddl_FTLocate.Visible = true;
+        ddl_Tlocation.Visible = true;
+        ddl_Flocation.Visible = true;
+      }
+    }    
+    
+
+    private void ReportDialog_Load(object sender, EventArgs e)
+    {   
+      ddl_FTLocate.SelectedIndex = (ddl_FTLocate.Items.Count)-1 ;
+      ddl_Tlocation.SelectedIndex = (ddl_Tlocation.Items.Count)- 1;           
+      ddl_Tcategory.SelectedIndex = (ddl_Tcategory.Items.Count)- 1;
+      ddl_Tsub.SelectedIndex = (ddl_Tsub.Items.Count) - 1;
+      ddl_FFLocate.Visible = false;
+      ddl_FTLocate.Visible = false;
+    }
+  }
+}
+</ScriptText>
+  <Dictionary>
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqpVJM9ihmgkpvf7Wf9Mq6b6CesaiAG/R78/subySJEpU2SXh7Cnn6xFZ/I0NvrIuKvyqJip96HmZdrBDbBKi9Og==">
+      <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;">
+        <Column Name="BuCode" DataType="System.String"/>
+        <Column Name="Name" DataType="System.String"/>
+        <Column Name="NameBilling" DataType="System.String"/>
+        <Column Name="Address" DataType="System.String"/>
+        <Column Name="PostCode" DataType="System.String"/>
+        <Column Name="City" DataType="System.String"/>
+        <Column Name="Country" DataType="System.String"/>
+        <Column Name="Phone" DataType="System.String"/>
+        <Column Name="Fax" DataType="System.String"/>
+        <Column Name="Email" DataType="System.String"/>
+        <Column Name="DeliveryTerm" DataType="System.String"/>
+        <Column Name="POS" DataType="System.String"/>
+        <Column Name="POSModel" DataType="System.String"/>
+        <Column Name="BackOffice" DataType="System.String"/>
+        <Column Name="BackOfficeModel" DataType="System.String"/>
+        <Column Name="BuLogo" DataType="System.Byte[]" BindableControl="Picture"/>
+      </TableDataSource>
+      <TableDataSource Name="Table2" Alias="FSubCateList" DataType="System.Int32" Enabled="true" SelectCommand="SELECT  CategoryCode +  '  ' +  CategoryName as SubCateCodeName&#13;&#10;FROM [IN].ProductCategory&#13;&#10;WHERE LevelNo = 2">
+        <Column Name="SubCateCodeName" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table3" Alias="FCategoryList" DataType="System.Int32" Enabled="true" SelectCommand="SELECT CategoryCode + '  ' + CategoryName AS CategoryCodeName&#13;&#10;FROM [IN].ProductCategory&#13;&#10;WHERE LevelNo = 1">
+        <Column Name="CategoryCodeName" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table4" Alias="TFLocationList" DataType="System.Int32" Enabled="true" SelectCommand="select LocationCode + ':  ' + LocationName AS StoreCodeName&#13;&#10;From [IN].StoreLocation&#13;&#10;ORDER BY LocationCode">
+        <Column Name="StoreCodeName" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table5" Alias="FFLocationList" DataType="System.Int32" Enabled="true" SelectCommand="select LocationCode + ':  ' + LocationName AS StoreCodeName&#13;&#10;From [IN].StoreLocation&#13;&#10;ORDER BY LocationCode">
+        <Column Name="StoreCodeName" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table6" Alias="FTLocationList" DataType="System.Int32" Enabled="true" SelectCommand="select LocationCode + ':  ' + LocationName AS StoreCodeName&#13;&#10;From [IN].StoreLocation&#13;&#10;ORDER BY LocationCode DESC">
+        <Column Name="StoreCodeName" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table7" Alias="TTLocationList" DataType="System.Int32" Enabled="true" SelectCommand="select LocationCode + ':  ' + LocationName AS StoreCodeName&#13;&#10;From [IN].StoreLocation&#13;&#10;ORDER BY LocationCode DESC">
+        <Column Name="StoreCodeName" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table8" Alias="TCategoryList" DataType="System.Int32" Enabled="true" SelectCommand="SELECT CategoryCode + '  ' + CategoryName AS CategoryCodeName&#13;&#10;FROM [IN].ProductCategory&#13;&#10;WHERE LevelNo = 1&#13;&#10;ORDER BY CategoryCode DESC">
+        <Column Name="CategoryCodeName" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table9" Alias="TSubCateList" DataType="System.Int32" Enabled="true" SelectCommand="SELECT  CategoryCode +  '  ' +  CategoryName as SubCateCodeName&#13;&#10;FROM [IN].ProductCategory&#13;&#10;WHERE LevelNo = 2&#13;&#10;ORDER BY CategoryCode DESC">
+        <Column Name="SubCateCodeName" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table" Alias="TransList" DataType="System.Int32" Enabled="true" SelectCommand="EXEC RPT.rptTransSum &#13;&#10;	@p_FDate, @p_TDate, &#13;&#10;	@p_FFLocation, @p_FTLocation,&#13;&#10;	@p_TFLocation,@p_TTLocation,&#13;&#10;	@p_FCategory, @p_TCategory,&#13;&#10;	@p_FSubCate, @p_TSubCate,&#13;&#10;	@p_Type">
+        <Column Name="LocationCode" DataType="System.String"/>
+        <Column Name="LocationName" DataType="System.String"/>
+        <Column Name="CategoryCode" DataType="System.String"/>
+        <Column Name="CategoryName" DataType="System.String"/>
+        <Column Name="SubCate" DataType="System.String"/>
+        <Column Name="SubCateName" DataType="System.String"/>
+        <Column Name="ToLocationCode" DataType="System.String"/>
+        <Column Name="ToLocationName" DataType="System.String"/>
+        <Column Name="NetAmt" DataType="System.Decimal"/>
+        <Column Name="TaxAmt" DataType="System.Decimal"/>
+        <Column Name="TotalAmt" DataType="System.Decimal"/>
+        <CommandParameter Name="p_FDate" DataType="31" Expression="[p_FDate]" DefaultValue="0"/>
+        <CommandParameter Name="p_TDate" DataType="31" Expression="[p_TDate]" DefaultValue="0"/>
+        <CommandParameter Name="p_FFLocation" DataType="22" Expression="[p_FFLocation]"/>
+        <CommandParameter Name="p_FTLocation" DataType="22" Expression="[p_FTLocation]"/>
+        <CommandParameter Name="p_TFLocation" DataType="22" Expression="[p_TFLocation]"/>
+        <CommandParameter Name="p_TTLocation" DataType="22" Expression="[p_TTLocation]"/>
+        <CommandParameter Name="p_FCategory" DataType="22" Expression="[p_FCategory]"/>
+        <CommandParameter Name="p_TCategory" DataType="22" Expression="[p_TCategory]"/>
+        <CommandParameter Name="p_FSubCate" DataType="22" Expression="[p_FSubCate]"/>
+        <CommandParameter Name="p_TSubCate" DataType="22" Expression="[p_TSubCate]"/>
+        <CommandParameter Name="p_Type" DataType="22" Expression="[p_Type]" DefaultValue="RC"/>
+      </TableDataSource>
+    </MsSqlDataConnection>
+    <Parameter Name="p_FDate" DataType="System.DateTime"/>
+    <Parameter Name="p_TDate" DataType="System.DateTime"/>
+    <Parameter Name="p_TFLocation" DataType="System.String"/>
+    <Parameter Name="p_TTLocation" DataType="System.String"/>
+    <Parameter Name="p_FCategory" DataType="System.String"/>
+    <Parameter Name="p_TCategory" DataType="System.String"/>
+    <Parameter Name="p_FSubCate" DataType="System.String"/>
+    <Parameter Name="p_TSubCate" DataType="System.String"/>
+    <Parameter Name="p_Type" DataType="System.String"/>
+    <Parameter Name="p_FFLocation" DataType="System.String"/>
+    <Parameter Name="p_FTLocation" DataType="System.String"/>
+    <Total Name="gCateNetAmt" Expression="[TransList.NetAmt]" Evaluator="Data1" PrintOn="GFToLocate"/>
+    <Total Name="gCateTaxAmt" Expression="[TransList.TaxAmt]" Evaluator="Data1" PrintOn="GFToLocate"/>
+    <Total Name="gCateTotalAmt" Expression="[TransList.TotalAmt]" Evaluator="Data1" PrintOn="GFToLocate"/>
+    <Total Name="gLoNetAmt" Expression="[TransList.NetAmt]" Evaluator="Data1" PrintOn="GFFrom"/>
+    <Total Name="gLoTaxAmt" Expression="[TransList.TaxAmt]" Evaluator="Data1" PrintOn="GFFrom"/>
+    <Total Name="gLoTotalAmt" Expression="[TransList.TotalAmt]" Evaluator="Data1" PrintOn="GFFrom"/>
+    <Total Name="GNetAmt" Expression="[TransList.NetAmt]" Evaluator="Data1"/>
+    <Total Name="GTaxAmt" Expression="[TransList.TaxAmt]" Evaluator="Data1"/>
+    <Total Name="GTotalAmt" Expression="[TransList.TotalAmt]" Evaluator="Data1"/>
+    <Total Name="gFrNetAmt" Expression="[TransList.NetAmt]" Evaluator="Data1" PrintOn="GFFrom"/>
+    <Total Name="gFrTaxAmt" Expression="[TransList.TaxAmt]" Evaluator="Data1" PrintOn="GFFrom"/>
+    <Total Name="gFrTotalAmt" Expression="[TransList.TotalAmt]" Evaluator="Data1" PrintOn="GFFrom"/>
+  </Dictionary>
+  <DialogPage Name="ReportDialog" Left="-8" Width="444" Height="530" AcceptButton="btnOk" CancelButton="btnCancel" LoadEvent="ReportDialog_Load">
+    <ButtonControl Name="btnOk" Left="272" Top="470" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="0" Text="OK" ClickEvent="btnOk_Click" DialogResult="OK"/>
+    <ButtonControl Name="btnCancel" Left="355" Top="470" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="1" Text="Cancel" DialogResult="Cancel"/>
+    <DateTimePickerControl Name="DateTimePicker2" Left="128" Top="52" Width="280" Font="Tahoma, 8pt" TabIndex="3" Text="15/12/2559" Format="Custom" Value="12/15/2016 11:38:43"/>
+    <LabelControl Name="Label2" Left="92" Top="52" Width="19" Height="13" Font="Tahoma, 8pt" TabIndex="4" Text="To"/>
+    <LabelControl Name="Label1" Left="80" Top="32" Width="31" Height="13" Font="Tahoma, 8pt" TabIndex="4" Text="From"/>
+    <DateTimePickerControl Name="DateTimePicker1" Left="128" Top="24" Width="280" Font="Tahoma, 8pt" TabIndex="3" Text="15/12/2559" Format="Custom" Value="12/15/2016 11:50:09"/>
+    <ComboBoxControl Name="ddl_FFLocate" Left="128" Top="112" Width="280" Font="Tahoma, 8pt" TabIndex="2" DataColumn="FFLocationList.StoreCodeName" DropDownWidth="300" ItemHeight="13"/>
+    <ComboBoxControl Name="ddl_FTLocate" Left="128" Top="140" Width="280" Font="Tahoma, 8pt" TabIndex="2" DataColumn="FTLocationList.StoreCodeName" DropDownWidth="300" ItemHeight="13"/>
+    <LabelControl Name="Label10" Left="80" Top="120" Width="31" Height="13" Font="Tahoma, 8pt" TabIndex="4" Text="From"/>
+    <LabelControl Name="Label11" Left="92" Top="144" Width="19" Height="13" Font="Tahoma, 8pt" TabIndex="4" Text="To"/>
+    <LabelControl Name="Label7" Left="56" Top="96" Width="40" Height="13" Font="Tahoma, 8pt" TabIndex="11" Text="Source"/>
+    <LabelControl Name="Label13" Left="56" Top="8" Width="30" Height="13" Font="Tahoma, 8pt" TabIndex="11" Text="Date" ClickEvent="Label13_Click"/>
+    <ComboBoxControl Name="ddl_Tlocation" Left="128" Top="212" Width="280" Font="Tahoma, 8pt" TabIndex="2" DataColumn="TTLocationList.StoreCodeName" DropDownWidth="300" ItemHeight="13"/>
+    <LabelControl Name="Label4" Left="96" Top="216" Width="19" Height="13" Font="Tahoma, 8pt" TabIndex="4" Text="To"/>
+    <LabelControl Name="Label3" Left="80" Top="192" Width="31" Height="13" Font="Tahoma, 8pt" TabIndex="4" Text="From"/>
+    <ComboBoxControl Name="ddl_Flocation" Left="128" Top="184" Width="280" Font="Tahoma, 8pt" TabIndex="2" DataColumn="TFLocationList.StoreCodeName" DropDownWidth="300" ItemHeight="13"/>
+    <LabelControl Name="Label14" Left="56" Top="172" Width="62" Height="13" Font="Tahoma, 8pt" TabIndex="11" Text="To Location" ClickEvent="Label13_Click"/>
+    <ComboBoxControl Name="ddl_FCategory" Left="128" Top="260" Width="280" Font="Tahoma, 8pt" TabIndex="2" Text="ComboBox" DataColumn="FCategoryList.CategoryCodeName" DropDownWidth="300" ItemHeight="13"/>
+    <ComboBoxControl Name="ddl_Tcategory" Left="128" Top="288" Width="280" Font="Tahoma, 8pt" TabIndex="2" Text="ComboBox" DataColumn="TCategoryList.CategoryCodeName" DropDownWidth="300" ItemHeight="13"/>
+    <LabelControl Name="Label5" Left="84" Top="264" Width="31" Height="13" Font="Tahoma, 8pt" TabIndex="4" Text="From"/>
+    <LabelControl Name="Label6" Left="96" Top="288" Width="19" Height="13" Font="Tahoma, 8pt" TabIndex="4" Text="To"/>
+    <LabelControl Name="Label15" Left="56" Top="244" Width="52" Height="13" Font="Tahoma, 8pt" TabIndex="11" Text="Category"/>
+    <ComboBoxControl Name="ddl_Fsub" Left="128" Top="336" Width="280" Font="Tahoma, 8pt" TabIndex="2" Text="ComboBox" DataColumn="FSubCateList.SubCateCodeName" DropDownWidth="300" ItemHeight="13"/>
+    <ComboBoxControl Name="ddl_Tsub" Left="128" Top="364" Width="280" Font="Tahoma, 8pt" TabIndex="2" Text="ComboBox" DataColumn="TSubCateList.SubCateCodeName" DropDownWidth="300" ItemHeight="13"/>
+    <LabelControl Name="Label8" Left="92" Top="364" Width="19" Height="13" Font="Tahoma, 8pt" TabIndex="4" Text="To"/>
+    <LabelControl Name="lbl" Left="80" Top="336" Width="31" Height="13" Font="Tahoma, 8pt" TabIndex="4" Text="From"/>
+    <LabelControl Name="Label16" Left="56" Top="316" Width="74" Height="13" Font="Tahoma, 8pt" TabIndex="11" Text="Sub-Category"/>
+    <LabelControl Name="Label12" Left="56" Top="424" Width="67" Height="13" Font="Tahoma, 8pt" TabIndex="11" Text="Report Type"/>
+    <ComboBoxControl Name="ddl_Type" Left="128" Top="440" Width="280" Font="Tahoma, 8pt" TabIndex="2" Text="ComboBox" ClickEvent="" DropDownWidth="300" ItemHeight="13" ItemsText="RC: Receiving&#13;&#10;TR: Transaction&#13;&#10;SR: StoreRequisition" SelectedIndexChangedEvent="ddl_Type_SelectedIndexChanged"/>
+    <LabelControl Name="Label9" Left="80" Top="444" Width="31" Height="13" Font="Tahoma, 8pt" TabIndex="4" Text="Type" ClickEvent=""/>
+    <LabelControl Name="Label" Left="128" Top="76" Width="89" Height="13" Font="Tahoma, 8pt" TabIndex="12" Text="&lt; mm/dd/yyyy &gt;"/>
+  </DialogPage>
+  <ReportPage Name="Page1" Guides="359.1,37.8,75.6">
+    <PageHeaderBand Name="PageHeader1" Width="718.2" Height="122.85">
+      <TextObject Name="Text36" Left="359.1" Top="103.95" Width="359.1" Height="18.9" Text="From Sub-Category: [p_FSubCate] to: [p_TSubCate]" HorzAlign="Right" VertAlign="Center" Font="Arial, 9pt"/>
+      <TextObject Name="Text1" Left="9.45" Top="85.05" Width="141.75" Height="28.35" Text="[ADMIN_Bu.Name]" HorzAlign="Center" Font="Tahoma, 9pt"/>
+      <TextObject Name="Text37" Left="359.1" Top="85.05" Width="359.1" Height="18.9" Text="From Category: [p_FCategory] to: [p_TCategory]" HorzAlign="Right" VertAlign="Center" Font="Arial, 9pt"/>
+      <TextObject Name="Text17" Left="359.1" Top="66.15" Width="359.1" Height="18.9" Text="From Location: [p_TFLocation] to: [p_TTLocation]" HorzAlign="Right" Font="Tahoma, 9pt">
+        <Formats>
+          <DateFormat/>
+          <DateFormat/>
+          <GeneralFormat/>
+          <GeneralFormat/>
+          <GeneralFormat/>
+          <GeneralFormat/>
+          <GeneralFormat/>
+          <GeneralFormat/>
+        </Formats>
+      </TextObject>
+      <TextObject Name="lbl_SLocation" Left="359.1" Top="47.25" Width="359.1" Height="18.9" Text="From Source Location: [p_FFLocation]  to: [p_FTLocation]" HorzAlign="Right" VertAlign="Center" Font="Arial, 9pt"/>
+      <TextObject Name="Text38" Left="359.1" Top="28.35" Width="359.1" Height="18.9" Text="From Date: [p_FDate] to: [p_TDate]" HorzAlign="Right" VertAlign="Center" Font="Arial, 9pt">
+        <Formats>
+          <DateFormat/>
+          <DateFormat/>
+        </Formats>
+      </TextObject>
+      <TextObject Name="Text2" Left="207.9" Top="9.45" Width="302.4" Height="28.35" Text="Transaction Summary" HorzAlign="Center" Font="Tahoma, 14pt, style=Bold"/>
+      <PictureObject Name="Picture1" Left="9.45" Width="141.75" Height="85.05" DataColumn="ADMIN_Bu.BuLogo"/>
+      <ChildBand Name="Child1" Top="126.05" Width="718.2" Height="28.35" Fill.Color="DarkGray">
+        <TextObject Name="Text18" Left="9.45" Width="103.95" Height="28.35" Text="Report Type: " VertAlign="Center" Font="Tahoma, 10pt, style=Bold"/>
+        <TextObject Name="lbl_type" Left="113.4" Width="311.85" Height="28.35" VertAlign="Center" Font="Arial, 10pt, style=Bold"/>
+      </ChildBand>
+    </PageHeaderBand>
+    <GroupHeaderBand Name="GHFrom" Top="157.6" Width="718.2" Height="18.9" Fill.Color="LightGray" Condition="[TransList.LocationCode]">
+      <TextObject Name="Text7" Left="9.45" Width="415.8" Height="18.9" Fill.Color="LightGray" Text="From Location: [TransList.LocationCode] [TransList.LocationName]" VertAlign="Center" Font="Tahoma, 9pt, style=Bold"/>
+      <GroupHeaderBand Name="GHToLocate" Top="185.95" Width="718.2" Height="18.9" Fill.Color="LightGray" Condition="[TransList.ToLocationCode]">
+        <TextObject Name="Text3" Left="113.4" Width="425.25" Height="18.9" Text="[TransList.ToLocationCode] [TransList.ToLocationName]" VertAlign="Center" Font="Tahoma, 9pt"/>
+        <TextObject Name="Text4" Left="37.8" Width="75.6" Height="18.9" Fill.Color="LightGray" Text="Location:" VertAlign="Center" Font="Tahoma, 10pt, style=Bold"/>
+        <DataHeaderBand Name="DataHeader2" Top="179.7" Width="718.2" Height="3.05"/>
+        <GroupHeaderBand Name="GroupCategory" Top="208.05" Width="718.2" Height="28.35" Condition="[TransList.CategoryCode]">
+          <TextObject Name="Text5" Left="37.8" Width="75.6" Height="18.9" Text="Category:" VertAlign="Bottom" Font="Tahoma, 9pt, style=Bold"/>
+          <TextObject Name="Text6" Left="113.4" Width="311.85" Height="18.9" Text=" [TransList.CategoryName]" VertAlign="Bottom" Font="Tahoma, 9pt"/>
+          <DataBand Name="Data1" Top="261.7" Width="718.2" Height="18.9" DataSource="Table">
+            <TextObject Name="Text9" Left="75.6" Width="311.85" Height="18.9" Text="[TransList.SubCateName]" VertAlign="Center" Font="Tahoma, 8.5pt"/>
+            <TextObject Name="Text11" Left="453.6" Width="85.05" Height="18.9" Text="[TransList.NetAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8.5pt" Trimming="EllipsisCharacter"/>
+            <TextObject Name="Text13" Left="538.65" Width="75.6" Height="18.9" Text="[TransList.TaxAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8.5pt" Trimming="EllipsisCharacter"/>
+            <TextObject Name="Text15" Left="623.7" Width="94.5" Height="18.9" Text="[TransList.TotalAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8.5pt" Trimming="EllipsisCharacter"/>
+            <DataHeaderBand Name="DataHeader1" Top="239.6" Width="718.2" Height="18.9">
+              <TextObject Name="Text10" Left="75.6" Width="311.85" Height="18.9" Text="Sub Category" Font="Tahoma, 9pt, style=Bold"/>
+              <TextObject Name="Text12" Left="453.6" Width="85.05" Height="18.9" Text="Net" HorzAlign="Right" Font="Tahoma, 9pt, style=Bold"/>
+              <TextObject Name="Text14" Left="538.65" Width="75.6" Height="18.9" Text="Tax" HorzAlign="Right" Font="Tahoma, 9pt, style=Bold"/>
+              <TextObject Name="Text16" Left="623.7" Width="94.5" Height="18.9" Text="Total" HorzAlign="Right" Font="Tahoma, 9pt, style=Bold"/>
+              <LineObject Name="Line1" Left="75.6" Top="17.75" Width="642.6" Diagonal="true"/>
+            </DataHeaderBand>
+          </DataBand>
+          <GroupFooterBand Name="GroupFooter3" Top="283.8" Width="718.2" Height="25.04">
+            <LineObject Name="Line2" Left="434.7" Top="3.42" Width="283.5" Diagonal="true"/>
+            <TextObject Name="Text19" Left="444.14" Top="6.05" Width="94.5" Height="18.9" Text="[gCateNetAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8.5pt, style=Bold"/>
+            <TextObject Name="Text20" Left="614.25" Top="5.36" Width="103.95" Height="18.9" Text="[gCateTotalAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8.5pt, style=Bold"/>
+            <TextObject Name="Text21" Left="538.64" Top="6.01" Width="75.6" Height="18.9" Text="[gCateTaxAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8.5pt, style=Bold"/>
+            <TextObject Name="Text32" Left="292.95" Top="6.01" Width="132.3" Height="18.9" Text="Category Total:" HorzAlign="Right" VertAlign="Center" Font="Tahoma, 8.5pt, style=Bold"/>
+          </GroupFooterBand>
+        </GroupHeaderBand>
+        <GroupFooterBand Name="GFToLocate" Top="312.04" Width="718.2" Height="23.96">
+          <TextObject Name="Text22" Left="444.15" Width="94.5" Height="18.9" Text="[gLoNetAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8.5pt, style=Bold"/>
+          <TextObject Name="Text23" Left="538.65" Width="75.6" Height="18.9" Text="[gLoTaxAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8.5pt, style=Bold"/>
+          <TextObject Name="Text24" Left="614.25" Width="103.95" Height="18.9" Text="[gLoTotalAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8.5pt, style=Bold"/>
+          <TextObject Name="Text31" Left="292.95" Width="132.3" Height="18.9" Text="Location Total:" HorzAlign="Right" VertAlign="Center" Font="Tahoma, 8.5pt, style=Bold"/>
+          <LineObject Name="Line7" Left="436.04" Top="19.96" Width="283.5" Diagonal="true"/>
+          <LineObject Name="Line6" Left="75.6" Top="-3.31" Width="642.6" Diagonal="true"/>
+        </GroupFooterBand>
+      </GroupHeaderBand>
+      <GroupFooterBand Name="GFFrom" Top="339.2" Width="718.2" Height="28.35">
+        <TextObject Name="Text33" Left="292.95" Top="9.45" Width="132.3" Height="18.9" Text="From Location Total:" HorzAlign="Right" VertAlign="Center" Font="Tahoma, 8.5pt, style=Bold"/>
+        <LineObject Name="Line8" Left="75.6" Top="7.73" Width="642.6" Diagonal="true"/>
+        <TextObject Name="Text8" Left="444.15" Top="9.45" Width="94.5" Height="18.9" Text="[gFrNetAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 9pt, style=Bold"/>
+        <TextObject Name="Text34" Left="538.65" Top="9.45" Width="75.6" Height="18.9" Text="[gFrTaxAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 9pt, style=Bold"/>
+        <TextObject Name="Text35" Left="614.25" Top="9.45" Width="103.95" Height="18.9" Text="[gFrTotalAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 9pt, style=Bold"/>
+      </GroupFooterBand>
+    </GroupHeaderBand>
+    <ReportSummaryBand Name="ReportSummary1" Top="370.75" Width="718.2" Height="28.35" Fill.Color="DarkGray">
+      <TextObject Name="Text27" Left="434.7" Width="94.5" Height="28.35" Text="[GNetAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" Font="Tahoma, 9pt, style=Bold"/>
+      <TextObject Name="Text28" Left="529.2" Width="85.05" Height="28.35" Text="[GTaxAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" Font="Tahoma, 9pt, style=Bold"/>
+      <TextObject Name="Text29" Left="614.25" Width="103.95" Height="28.35" Text="[GTotalAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" Font="Tahoma, 9pt, style=Bold"/>
+      <TextObject Name="Text30" Left="292.95" Width="132.3" Height="28.35" Text="Grand Total:" HorzAlign="Right" VertAlign="Center" Font="Tahoma, 9pt, style=Bold"/>
+    </ReportSummaryBand>
+    <PageFooterBand Name="PageFooter1" Top="402.3" Width="718.2" Height="47.25">
+      <TextObject Name="Text25" Top="9.45" Width="151.2" Height="18.9" Text="Print On [Date]" Format="Date" Format.Format="d" Font="Tahoma, 9pt" TextFill.Color="Gray"/>
+      <TextObject Name="Text26" Left="538.65" Top="9.45" Width="179.55" Height="18.9" Text="[Page#]/[TotalPages#]" HorzAlign="Right" Font="Tahoma, 9pt" TextFill.Color="Gray"/>
+      <LineObject Name="Line5" Width="718.2" Border.Color="Gray" Border.Width="1.5" Diagonal="true"/>
+    </PageFooterBand>
+  </ReportPage>
+</Report>

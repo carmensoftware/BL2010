@@ -1,0 +1,320 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" UseFileCache="true" SmoothGraphics="true" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="09/15/2023 19:08:27" ReportInfo.CreatorVersion="2013.4.11.0">
+  <ScriptText>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Data;
+using FastReport;
+using FastReport.Data;
+using FastReport.Dialog;
+using FastReport.Barcode;
+using FastReport.Table;
+using FastReport.Utils;
+
+namespace FastReport
+{
+  public class ReportScript
+  {
+
+    private void _StartReport(object sender, EventArgs e)
+    {
+      // Initial date at here (complatible with WebReport
+      
+      Report.SetParameterValue(&quot;p_VendorCode&quot;, ((String)Report.GetColumnValue(&quot;PO.VendorCode&quot;)));
+      
+    }
+
+    private void Form1_Load(object sender, EventArgs e)
+    {      
+      //if(Report.GetColumnValue(&quot;PO.PRComment&quot;)== &quot;&quot; ) { Child1.PrintIfDatabandEmpty = true; Child1.Visible = false; }
+      //else { Child1.PrintIfDatabandEmpty = false; Child1.Visible = true; }
+    }
+    
+    private void btnOk_Click(object sender, EventArgs e)
+    {
+      // Sample for assign parameter
+      // Report.SetParameterValue(&quot;p_FDATE&quot;, DateTimePicker1.Value);
+      // Report.SetParameterValue(&quot;p_TDATE&quot;, DateTimePicker2.Value);
+    }
+
+
+  }
+}
+</ScriptText>
+  <Dictionary>
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqfNQ7ch3Qaafl4+f8lCKgOYew4GS7z+xLeD6AveCyl7PGBMuW0A3gHYuJ5tkrRE4PPtU9e54W5ELo95FhFaHKflPaIh0guqOGy3qG7Ac4S8/AgBggXwTxKoYCmooyNinf5GQOi+AizGIsqCEwLKIbgA==">
+      <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;" SelectCommand="SELECT *&#13;&#10;FROM [ADMIN].Bu">
+        <Column Name="BuCode" DataType="System.String"/>
+        <Column Name="Name" DataType="System.String"/>
+        <Column Name="NameBilling" DataType="System.String"/>
+        <Column Name="Address" DataType="System.String"/>
+        <Column Name="PostCode" DataType="System.String"/>
+        <Column Name="City" DataType="System.String"/>
+        <Column Name="Country" DataType="System.String"/>
+        <Column Name="Phone" DataType="System.String"/>
+        <Column Name="Fax" DataType="System.String"/>
+        <Column Name="Email" DataType="System.String"/>
+        <Column Name="DeliveryTerm" DataType="System.String"/>
+        <Column Name="POS" DataType="System.String"/>
+        <Column Name="POSModel" DataType="System.String"/>
+        <Column Name="BackOffice" DataType="System.String"/>
+        <Column Name="BackOfficeModel" DataType="System.String"/>
+        <Column Name="BuLogo" DataType="System.Byte[]" BindableControl="Picture"/>
+        <Column Name="TaxId" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table" Alias="PO" DataType="System.Int32" Enabled="true" SelectCommand="SELECT *&#13;&#10;FROM [PC].[vPOform]&#13;&#10;WHERE PoNo = @ID&#13;&#10;ORDER BY PoDt">
+        <Column Name="BuCode" DataType="System.String"/>
+        <Column Name="BuName" DataType="System.String"/>
+        <Column Name="PoNo" DataType="System.String"/>
+        <Column Name="PoDt" DataType="System.Int32"/>
+        <Column Name="PoDate" DataType="System.DateTime"/>
+        <Column Name="IsVoid" DataType="System.Boolean" BindableControl="CheckBox"/>
+        <Column Name="ApprStatus" DataType="System.String"/>
+        <Column Name="DocStatus" DataType="System.String"/>
+        <Column Name="Description" DataType="System.String"/>
+        <Column Name="ExchageRate" DataType="System.Decimal"/>
+        <Column Name="Name" DataType="System.String"/>
+        <Column Name="ProductDesc1" DataType="System.String"/>
+        <Column Name="ProductDesc2" DataType="System.String"/>
+        <Column Name="ProductCode" DataType="System.String"/>
+        <Column Name="Unit" DataType="System.String"/>
+        <Column Name="LocationCode" DataType="System.String"/>
+        <Column Name="LocationName" DataType="System.String"/>
+        <Column Name="DeliveryPointNm" DataType="System.String"/>
+        <Column Name="DeliveryPoint" DataType="System.Int32"/>
+        <Column Name="Location" DataType="System.String"/>
+        <Column Name="OrdQty" DataType="System.Decimal"/>
+        <Column Name="TaxRate" DataType="System.Decimal"/>
+        <Column Name="TaxType" DataType="System.String"/>
+        <Column Name="Product" DataType="System.String"/>
+        <Column Name="TotalAmt" DataType="System.Decimal"/>
+        <Column Name="TaxAmt" DataType="System.Decimal"/>
+        <Column Name="NetAmt" DataType="System.Decimal"/>
+        <Column Name="Price" DataType="System.Decimal"/>
+        <Column Name="FOCQty" DataType="System.Decimal"/>
+        <Column Name="RcvQty" DataType="System.Decimal"/>
+        <Column Name="Discount" DataType="System.Decimal"/>
+        <Column Name="QuoteNo" DataType="System.String"/>
+        <Column Name="VendorProductCode" DataType="System.String"/>
+        <Column Name="Comment" DataType="System.String"/>
+        <Column Name="DisCountAmt" DataType="System.Decimal"/>
+        <Column Name="CreditTerm" DataType="System.Int32"/>
+        <Column Name="QuantityDeviation" DataType="System.Decimal"/>
+        <Column Name="PriceDeviation" DataType="System.Decimal"/>
+        <Column Name="CancelQty" DataType="System.Decimal"/>
+        <Column Name="ApprovalLevel" DataType="System.Int32"/>
+        <Column Name="Buyer" DataType="System.String"/>
+        <Column Name="ProductCate" DataType="System.String"/>
+        <Column Name="VendorCode" DataType="System.String"/>
+        <Column Name="DeliDate" DataType="System.DateTime"/>
+        <Column Name="AddField1" DataType="System.String"/>
+        <Column Name="AddField2" DataType="System.String"/>
+        <Column Name="AddField3" DataType="System.String"/>
+        <Column Name="PrNo" DataType="System.String"/>
+        <Column Name="PRDesc" DataType="System.String"/>
+        <Column Name="CreatedBy" DataType="System.String"/>
+        <Column Name="DepName" DataType="System.String"/>
+        <Column Name="ApprName1" DataType="System.String"/>
+        <Column Name="ApprName2" DataType="System.String"/>
+        <Column Name="ApprName3" DataType="System.String"/>
+        <Column Name="ApprName4" DataType="System.String"/>
+        <Column Name="ApprName5" DataType="System.String"/>
+        <Column Name="ApprPos1" DataType="System.String"/>
+        <Column Name="ApprPos2" DataType="System.String"/>
+        <Column Name="ApprPos3" DataType="System.String"/>
+        <Column Name="ApprPos4" DataType="System.String"/>
+        <Column Name="ApprPos5" DataType="System.String"/>
+        <Column Name="ApprDate1" DataType="System.DateTime"/>
+        <Column Name="ApprDate2" DataType="System.DateTime"/>
+        <Column Name="ApprDate3" DataType="System.DateTime"/>
+        <Column Name="ApprDate4" DataType="System.DateTime"/>
+        <Column Name="ApprDate5" DataType="System.DateTime"/>
+        <Column Name="Currency" DataType="System.String"/>
+        <Column Name="CurrencyRate" DataType="System.Decimal"/>
+        <Column Name="CurrDiscAmt" DataType="System.Decimal"/>
+        <Column Name="CurrTaxAmt" DataType="System.Decimal"/>
+        <Column Name="CurrNetAmt" DataType="System.Decimal"/>
+        <Column Name="CurrTotalAmt" DataType="System.Decimal"/>
+        <Column Name="DepCode" DataType="System.String"/>
+        <CommandParameter Name="ID" DataType="22" Expression="[ID]" DefaultValue="PO22010001"/>
+      </TableDataSource>
+      <TableDataSource Name="Table2" Alias="Vendor" DataType="System.Int32" Enabled="true" SelectCommand="SELECT&#13;&#10;	v.*,&#13;&#10;	 a.Street, &#13;&#10;	a.Address3 AS Zip, &#13;&#10;	a.Address4 AS Tel, &#13;&#10;	a.Address5 AS Fax&#13;&#10;FROM AP.Vendor v&#13;&#10;LEFT JOIN [Profile].[Address] a ON a.ProfileCode = v.ProfileCode&#13;&#10;WHERE VendorCode = @p_VendorCode">
+        <Column Name="VendorCode" DataType="System.String"/>
+        <Column Name="Name" DataType="System.String"/>
+        <Column Name="SunVendorCode" DataType="System.String"/>
+        <Column Name="ProfileCode" DataType="System.Guid"/>
+        <Column Name="VendorCategoryCode" DataType="System.String"/>
+        <Column Name="TaxID" DataType="System.String"/>
+        <Column Name="RegisterNo" DataType="System.String"/>
+        <Column Name="CreditTerm" DataType="System.Int32"/>
+        <Column Name="DiscountTerm" DataType="System.Int32"/>
+        <Column Name="DiscountRate" DataType="System.Decimal"/>
+        <Column Name="Description" DataType="System.String"/>
+        <Column Name="Rating" DataType="System.Byte"/>
+        <Column Name="TaxType" DataType="System.String"/>
+        <Column Name="TaxRate" DataType="System.Decimal"/>
+        <Column Name="IsActive" DataType="System.Boolean" BindableControl="CheckBox"/>
+        <Column Name="CreatedBy" DataType="System.String"/>
+        <Column Name="CreatedDate" DataType="System.DateTime"/>
+        <Column Name="UpdatedBy" DataType="System.String"/>
+        <Column Name="UpdatedDate" DataType="System.DateTime"/>
+        <Column Name="Street" DataType="System.String"/>
+        <Column Name="Tel" DataType="System.String"/>
+        <Column Name="Fax" DataType="System.String"/>
+        <Column Name="Zip" DataType="System.String"/>
+        <Column Name="TaxBranchID" DataType="System.String"/>
+        <CommandParameter Name="p_VendorCode" DataType="22" Expression="[p_VendorCode]"/>
+      </TableDataSource>
+      <TableDataSource Name="Table1" Alias="VendorContactPerson" DataType="System.Int32" Enabled="true" SelectCommand="SELECT c.ContactPerson&#13;&#10;FROM AP.Vendor v&#13;&#10;LEFT JOIN [Profile].Contact c ON c.ProfileCode = v.ProfileCode AND c.ContactCategoryCode = 1&#13;&#10;WHERE v.VendorCode = @VendorCode">
+        <Column Name="ContactPerson" DataType="System.String"/>
+        <CommandParameter Name="@VendorCode" DataType="12" Expression="[p_VendorCode]"/>
+      </TableDataSource>
+      <TableDataSource Name="Table3" Alias="Appr1" DataType="System.Int32" Enabled="true" SelectCommand=";WITH approve AS(&#13;&#10;	SELECT &#13;&#10;		ISNULL(FName,'') + ' ' + ISNULL(MName,'') + ' ' + ISNULL(LName,'') as ApproveName, 	&#13;&#10;		[Signature], &#13;&#10;		JobTitle, &#13;&#10;		LoginName &#13;&#10;	FROM &#13;&#10;		[Admin].vUser&#13;&#10;)&#13;&#10;SELECT TOP(1) &#13;&#10;	CreatedBy as ProcessBy, &#13;&#10;	CAST( CreatedDate AS DATE) ProcessDate, &#13;&#10;	approve.ApproveName, &#13;&#10;	approve.JobTitle, &#13;&#10;	approve.[Signature]&#13;&#10;FROM &#13;&#10;	[PC].Pr&#13;&#10;	JOIN approve&#13;&#10;	ON pr.CreatedBy COLLATE DATABASE_DEFAULT = approve.LoginName COLLATE DATABASE_DEFAULT&#13;&#10;WHERE &#13;&#10;	PRNo = (SELECT PrNo FROM PC.PrDt WHERE PoNo = @Id)&#13;&#10;">
+        <Column Name="ProcessBy" DataType="System.String"/>
+        <Column Name="ProcessDate" DataType="System.DateTime"/>
+        <Column Name="ApproveName" DataType="System.String"/>
+        <Column Name="JobTitle" DataType="System.String"/>
+        <Column Name="Signature" DataType="System.Byte[]" BindableControl="Picture"/>
+        <CommandParameter Name="@Id" DataType="12" Expression="[ID]"/>
+      </TableDataSource>
+      <TableDataSource Name="Table4" Alias="Appr2" DataType="System.Int32" Enabled="true" SelectCommand=";WITH Approve AS(&#13;&#10;	SELECT &#13;&#10;		ISNULL(FName,'') + ' ' + ISNULL(MName,'') + ' ' + ISNULL(LName,'') as ApproveName, 	&#13;&#10;		[Signature], &#13;&#10;		JobTitle, &#13;&#10;		LoginName &#13;&#10;	FROM &#13;&#10;		[Admin].vUser&#13;&#10;)&#13;&#10;SELECT TOP(1) [APP].WfHis.ProcessBy, CAST( [APP].WfHis.ProcessDate AS DATE) ProcessDate, Approve.ApproveName, Approve.JobTitle, Approve.[Signature]&#13;&#10;FROM &#13;&#10;	[APP].WfHis&#13;&#10;	JOIN Approve&#13;&#10;		ON [APP].WfHis.ProcessBy COLLATE DATABASE_DEFAULT = Approve.LoginName COLLATE DATABASE_DEFAULT&#13;&#10;WHERE SubModule = 'PR'&#13;&#10;AND RefNo = (SELECT TOP(1)  PrNo FROM PC.PrDt WHERE PoNo = @Id)&#13;&#10;AND Step = 2">
+        <Column Name="ProcessBy" DataType="System.String"/>
+        <Column Name="ProcessDate" DataType="System.DateTime"/>
+        <Column Name="ApproveName" DataType="System.String"/>
+        <Column Name="JobTitle" DataType="System.String"/>
+        <Column Name="Signature" DataType="System.Byte[]" BindableControl="Picture"/>
+        <CommandParameter Name="@ID" DataType="12" Expression="[ID]"/>
+      </TableDataSource>
+      <TableDataSource Name="Table5" Alias="Appr3" DataType="System.Int32" Enabled="true" SelectCommand=";WITH Approve AS(&#13;&#10;	SELECT &#13;&#10;		ISNULL(FName,'') + ' ' + ISNULL(MName,'') + ' ' + ISNULL(LName,'') as ApproveName, 	&#13;&#10;		[Signature], &#13;&#10;		JobTitle, &#13;&#10;		LoginName &#13;&#10;	FROM &#13;&#10;		[Admin].vUser&#13;&#10;)&#13;&#10;SELECT TOP(1) [APP].WfHis.ProcessBy, CAST( [APP].WfHis.ProcessDate AS DATE) ProcessDate, Approve.ApproveName, Approve.JobTitle, Approve.[Signature]&#13;&#10;FROM &#13;&#10;	[APP].WfHis&#13;&#10;	JOIN Approve&#13;&#10;		ON [APP].WfHis.ProcessBy COLLATE DATABASE_DEFAULT = Approve.LoginName COLLATE DATABASE_DEFAULT&#13;&#10;WHERE SubModule = 'PR'&#13;&#10;AND RefNo = (SELECT TOP(1)  PrNo FROM PC.PrDt WHERE PoNo = @Id)&#13;&#10;AND Step = 3">
+        <Column Name="ProcessBy" DataType="System.String"/>
+        <Column Name="ProcessDate" DataType="System.DateTime"/>
+        <Column Name="ApproveName" DataType="System.String"/>
+        <Column Name="JobTitle" DataType="System.String"/>
+        <Column Name="Signature" DataType="System.Byte[]" BindableControl="Picture"/>
+        <CommandParameter Name="@ID" DataType="12" Expression="[ID]"/>
+      </TableDataSource>
+      <TableDataSource Name="Table6" Alias="Appr4" DataType="System.Int32" Enabled="true" SelectCommand=";WITH Approve AS(&#13;&#10;	SELECT &#13;&#10;		ISNULL(FName,'') + ' ' + ISNULL(MName,'') + ' ' + ISNULL(LName,'') as ApproveName, 	&#13;&#10;		[Signature], &#13;&#10;		JobTitle, &#13;&#10;		LoginName &#13;&#10;	FROM &#13;&#10;		[Admin].vUser&#13;&#10;)&#13;&#10;SELECT TOP(1) [APP].WfHis.ProcessBy, CAST( [APP].WfHis.ProcessDate AS DATE) ProcessDate, Approve.ApproveName, Approve.JobTitle, Approve.[Signature]&#13;&#10;FROM &#13;&#10;	[APP].WfHis&#13;&#10;	JOIN Approve&#13;&#10;		ON [APP].WfHis.ProcessBy COLLATE DATABASE_DEFAULT = Approve.LoginName COLLATE DATABASE_DEFAULT&#13;&#10;WHERE SubModule = 'PR'&#13;&#10;AND RefNo = (SELECT TOP(1)  PrNo FROM PC.PrDt WHERE PoNo = @Id)&#13;&#10;AND Step = 4">
+        <Column Name="ProcessBy" DataType="System.String"/>
+        <Column Name="ProcessDate" DataType="System.DateTime"/>
+        <Column Name="ApproveName" DataType="System.String"/>
+        <Column Name="JobTitle" DataType="System.String"/>
+        <Column Name="Signature" DataType="System.Byte[]" BindableControl="Picture"/>
+        <CommandParameter Name="@ID" DataType="12" Expression="[ID]"/>
+      </TableDataSource>
+      <TableDataSource Name="Table7" Alias="Appr5" DataType="System.Int32" Enabled="true" SelectCommand=";WITH Approve AS(&#13;&#10;	SELECT &#13;&#10;		ISNULL(FName,'') + ' ' + ISNULL(MName,'') + ' ' + ISNULL(LName,'') as ApproveName, 	&#13;&#10;		[Signature], &#13;&#10;		JobTitle, &#13;&#10;		LoginName &#13;&#10;	FROM &#13;&#10;		[Admin].vUser&#13;&#10;)&#13;&#10;SELECT TOP(1) [APP].WfHis.ProcessBy, CAST( [APP].WfHis.ProcessDate AS DATE) ProcessDate, Approve.ApproveName, Approve.JobTitle, Approve.[Signature]&#13;&#10;FROM &#13;&#10;	[APP].WfHis&#13;&#10;	JOIN Approve&#13;&#10;		ON [APP].WfHis.ProcessBy COLLATE DATABASE_DEFAULT = Approve.LoginName COLLATE DATABASE_DEFAULT&#13;&#10;WHERE SubModule = 'PR'&#13;&#10;AND RefNo = (SELECT TOP(1)  PrNo FROM PC.PrDt WHERE PoNo = @Id)&#13;&#10;AND Step = 5">
+        <Column Name="ProcessBy" DataType="System.String"/>
+        <Column Name="ProcessDate" DataType="System.DateTime"/>
+        <Column Name="ApproveName" DataType="System.String"/>
+        <Column Name="JobTitle" DataType="System.String"/>
+        <Column Name="Signature" DataType="System.Byte[]" BindableControl="Picture"/>
+        <CommandParameter Name="@ID" DataType="12" Expression="[ID]"/>
+      </TableDataSource>
+    </MsSqlDataConnection>
+    <Parameter Name="BuAddress" DataType="System.String"/>
+    <Parameter Name="PrintOn" DataType="System.String"/>
+    <Parameter Name="p_PoNo" DataType="System.String"/>
+    <Parameter Name="p_VendorCode" DataType="System.String"/>
+    <Parameter Name="ID" DataType="System.String"/>
+    <Total Name="SUM_TotalAmt" Expression="[PO.TotalAmt]" Evaluator="Data1" PrintOn="ReportSummary1" ResetAfterPrint="false"/>
+    <Total Name="SUM_NetAmt" Expression="[PO.NetAmt]" Evaluator="Data1" PrintOn="ReportSummary1" ResetOnReprint="true"/>
+    <Total Name="SUM_TaxAmt" Expression="[PO.TaxAmt]" Evaluator="Data1" PrintOn="ReportSummary1" ResetOnReprint="true"/>
+    <Total Name="SUM_DISCOUNT" Expression="[PO.DisCountAmt]" Evaluator="Data1"/>
+  </Dictionary>
+  <ReportPage Name="Page1" RawPaperSize="9" LeftMargin="5" TopMargin="5" RightMargin="5" Guides="774.9,669.06,597.24,30.24,532.98,669.06,132.3,359.1,544.32" Border.Lines="All">
+    <PageHeaderBand Name="PageHeader1" Width="756" Height="58.59" Border.Lines="Bottom" CanGrow="true" Guides="11.34,41.58,200.34">
+      <TextObject Name="Text1" Left="245.7" Top="35.24" Width="264.6" Height="22.68" Text="Purchase Order" HorzAlign="Center" Font="Tahoma, 11pt, style=Bold"/>
+      <PictureObject Name="Picture2" Left="5" Top="1.89" Width="80.05" Height="56.7" DataColumn="ADMIN_Bu.BuLogo"/>
+      <TextObject Name="Text8" Left="522.75" Top="1.89" Width="226.8" Height="56.7" CanGrow="true" Text="[ADMIN_Bu.NameBilling]&#13;&#10;[ADMIN_Bu.Address]&#13;&#10;TEL: [ADMIN_Bu.Phone] FAX: [ADMIN_Bu.Fax]&#13;&#10;Tax ID: [ADMIN_Bu.TaxId]" Font="Arial, 8pt"/>
+      <TextObject Name="Text16" Left="245.7" Top="8.34" Width="264.6" Height="22.68" Text="[ADMIN_Bu.Name]" HorzAlign="Center" Font="Tahoma, 11pt, style=Bold"/>
+      <ChildBand Name="Child5" Top="62.59" Width="756" Height="143.64" CanGrow="true">
+        <TextObject Name="Text4" Left="626.81" Top="78.09" Width="124.74" Height="18.9" CanGrow="true" Text="[PO.DeliveryPointNm]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text6" Left="626.81" Top="54.76" Width="124.74" Height="18.9" Text="[PO.DeliDate]" Format="Date" Format.Format="d" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text80" Left="508.75" Top="54.76" Width="115.29" Height="18.9" Text="Delivery Date:" AllowExpressions="false" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text81" Left="508.75" Top="78.09" Width="115.29" Height="18.9" Text="Delivery to:" AllowExpressions="false" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text34" Left="626.81" Top="31.43" Width="124.74" Height="18.9" Text="[PO.PoDate]" Format="Date" Format.Format="d" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text69" Top="31.43" Width="98.28" Height="18.9" Text="Address:" AllowExpressions="false" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text74" Left="100.5" Top="31.43" Width="404.46" Height="18.9" Text="[Vendor.Street] [Vendor.Zip] " Font="Tahoma, 8pt"/>
+        <TextObject Name="Text79" Left="508.75" Top="31.43" Width="115.29" Height="18.9" Text="Order Date:" AllowExpressions="false" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text78" Left="508.75" Top="8.1" Width="115.29" Height="18.9" Text="PO No.:" AllowExpressions="false" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text73" Left="100.5" Top="8.1" Width="404.46" Height="18.9" Text="[Vendor.Name]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text33" Left="626.81" Top="8.1" Width="124.74" Height="18.9" Text="[PO.PoNo]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text7" Top="8.1" Width="98.28" Height="18.9" Text="Company Name:" AllowExpressions="false" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text9" Left="626.81" Top="101.42" Width="124.74" Height="18.9" Text="[PO.CreditTerm]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text11" Left="626.81" Top="124.74" Width="124.74" Height="18.9" Text="[PO.VendorCode]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text82" Left="508.75" Top="124.74" Width="115.29" Height="18.9" Text="Vendor Code:" AllowExpressions="false" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text83" Left="508.75" Top="101.42" Width="115.29" Height="18.9" Text="Credit Term (days):" AllowExpressions="false" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text120" Top="101.42" Width="98.28" Height="18.9" Text="Contact Person:" AllowExpressions="false" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text121" Left="100.5" Top="101.42" Width="404.46" Height="18.9" Text="[VendorContactPerson.ContactPerson]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text10" Left="100.5" Top="124.74" Width="404.46" Height="18.9" CanGrow="true" Text="[PO.Description]" Font="Arial, 8pt"/>
+        <TextObject Name="Text123" Top="78.09" Width="98.28" Height="18.9" Text="Fax:" AllowExpressions="false" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text124" Left="100.5" Top="78.09" Width="404.46" Height="18.9" CanGrow="true" Text="[Vendor.Fax]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text125" Left="100.5" Top="54.76" Width="404.46" Height="18.9" Text="[Vendor.Tel]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text126" Top="54.76" Width="98.28" Height="18.9" Text="Tel:" AllowExpressions="false" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text127" Top="124.74" Width="98.28" Height="18.9" Text="Description:" AllowExpressions="false" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+      </ChildBand>
+    </PageHeaderBand>
+    <ColumnHeaderBand Name="ColumnHeader1" Top="210.23" Width="756" Height="22.68" Border.Lines="All" Border.Width="0.5" Fill.Color="LightGray">
+      <TextObject Name="Text12" Top="1.89" Width="117.18" Height="18.9" Text="PR No." VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text84" Left="121.85" Top="1.89" Width="236.25" Height="18.9" Text="Product Description" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text85" Left="364.21" Top="1.89" Width="66.15" Height="18.9" Text="Qty." HorzAlign="Right" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text86" Left="434.25" Top="1.89" Width="49.14" Height="18.9" Text="Unit" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text87" Left="487.34" Top="1.89" Width="83.16" Height="18.9" Text="Price" HorzAlign="Right" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text88" Left="630.54" Top="1.89" Width="120.96" Height="18.9" Text="Amount" HorzAlign="Right" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text89" Left="573.75" Top="1.89" Width="56.7" Height="18.9" Text="Tax (%)" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+    </ColumnHeaderBand>
+    <GroupHeaderBand Name="GroupHeader1" Top="236.91" Width="756" Height="19.85" RepeatOnEveryPage="true" Condition="[PO.LocationCode]" SortOrder="None">
+      <TextObject Name="Text58" Top="2.84" Width="113.4" Height="17.01" Text="[PO.LocationCode]" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text91" Left="121.85" Top="2.84" Width="483.84" Height="17.01" Text="[PO.LocationName]" WordWrap="false" Font="Tahoma, 8pt"/>
+      <GroupHeaderBand Name="GroupHeader2" Top="260.76" Width="756" Height="0.38" FirstRowStartsNewPage="true" Condition="[PO.PoDt]">
+        <DataBand Name="Data1" Top="265.14" Width="756" Height="39.69" CanGrow="true" BeforePrintEvent="Data1_BeforePrint" Guides="0" DataSource="Table" MaxRows="7">
+          <TextObject Name="Text59" Top="1.89" Width="117.18" Height="18.9" CanGrow="true" Text="[PO.PRNo]" Font="Tahoma, 8pt"/>
+          <TextObject Name="Text50" Left="121.85" Top="1.89" Width="236.25" Height="37.8" CanGrow="true" Text="[PO.ProductCode]: [PO.ProductDesc1]&#13;&#10;[PO.ProductDesc2]" Font="Tahoma, 8pt"/>
+          <TextObject Name="Text13" Left="434.25" Top="1.89" Width="49.14" Height="18.9" CanShrink="true" Text="[PO.Unit]" Font="Tahoma, 8pt" Trimming="EllipsisWord"/>
+          <TextObject Name="Text51" Left="364.21" Top="1.89" Width="66.15" Height="18.9" Text="[PO.OrdQty]&#13;&#10;" Format="Number" Format.UseLocale="true" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter" HtmlTags="true"/>
+          <TextObject Name="Text53" Left="487.34" Top="1.89" Width="83.16" Height="18.9" Text="[PO.Price]" Format="Number" Format.UseLocale="true" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
+          <TextObject Name="Text55" Left="630.54" Top="1.89" Width="120.96" Height="18.9" Text="[PO.NetAmt]" Format="Number" Format.UseLocale="true" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
+          <TextObject Name="Text90" Left="573.75" Top="1.89" Width="56.7" Height="18.9" CanGrow="true" Text="([PO.TaxType]) [IIf([PO.TaxType]==&quot;N&quot;,&quot;&quot;,[PO.TaxRate])]" Format="Number" Format.UseLocale="true" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
+          <TextObject Name="Text128" Left="364.21" Top="20.79" Width="66.15" Height="18.9" Text="[IIf([PO.FOCQty]&gt;0,&quot;(&quot;+[PO.FOCQty]+&quot;)&quot;,&quot;&quot;)]&#13;&#10;" Format="Number" Format.UseLocale="true" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt, style=Italic" Trimming="EllipsisCharacter" HtmlTags="true"/>
+          <ChildBand Name="Child1" Top="308.83" Width="756" Height="18.9" Border.Lines="Bottom" Border.Style="Dash" CanGrow="true" CanShrink="true">
+            <TextObject Name="Text_PrComment" Left="-2.11" Top="1.89" Width="516.19" Height="15.12" CanGrow="true" CanShrink="true" Text="[PO.Comment]" Font="Tahoma, 8pt, style=Italic"/>
+          </ChildBand>
+        </DataBand>
+      </GroupHeaderBand>
+      <GroupFooterBand Name="GroupFooter1" Top="331.73" Width="756" Height="42.13">
+        <TextObject Name="Text105" Left="609.09" Top="4.48" Width="141.75" Height="18.9" Text="[SUM_NetAmt]" Format="Number" Format.UseLocale="true" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text104" Left="609.09" Top="21.23" Width="141.75" Height="18.9" Text="[SUM_TaxAmt]" Format="Number" Format.UseLocale="true" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text106" Left="498.29" Top="4.48" Width="94.5" Height="18.9" Text="Sub Net" Format="Number" Format.UseLocale="true" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text107" Left="498.29" Top="21.23" Width="94.5" Height="18.9" Text="Sub Tax" Format="Number" Format.UseLocale="true" Font="Tahoma, 8pt"/>
+        <LineObject Name="Line4" Width="756" Dock="Top" Border.Style="Dash" Border.Width="0.5"/>
+      </GroupFooterBand>
+    </GroupHeaderBand>
+    <ReportSummaryBand Name="ReportSummary1" Top="377.86" Width="756" Height="113.4" Border.Lines="All" PrintOnBottom="true" Guides="3.78">
+      <TextObject Name="Text60" Left="607.2" Top="70.38" Width="143.64" Height="18.9" Text="[SUM_TaxAmt]" Format="Number" Format.UseLocale="true" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text61" Left="499.53" Top="70.38" Width="94.5" Height="18.9" Text="VAT" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text62" Left="607.2" Top="48.18" Width="143.64" Height="18.9" Text="[SUM_NetAmt]" Format="Number" Format.UseLocale="true" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text63" Left="499.53" Top="48.18" Width="94.5" Height="18.9" Text="Net Total" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text2" Left="607.2" Top="25.98" Width="143.64" Height="18.9" Text="[SUM_DISCOUNT]" Format="Number" Format.UseLocale="true" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text64" Left="499.53" Top="25.98" Width="94.5" Height="18.9" Text="Discount" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text65" Left="499.53" Top="3.78" Width="94.5" Height="18.9" Text="Amount" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text66" Left="607.2" Top="3.78" Width="143.64" Height="18.9" Text="[[SUM_NetAmt]+[SUM_DISCOUNT]]" Format="Number" Format.UseLocale="true" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text3" Left="1.89" Top="22.68" Width="500.85" Height="85.05" Text="1. Tax Invoice/Delivery order must company delivery and must give reference to our P.O. No.&#13;&#10;2. Delivery will be accepted by Receiving Department, who will return the duplicate copy of&#13;&#10;Invoice/Delivery oreder duly stamped.&#13;&#10;3. A copy of this purchase order should be attached to the invoice which is submitted.&#13;&#10;4. Delivery place at the Sarojin." Font="Tahoma, 8pt"/>
+      <TextObject Name="Text14" Left="1.89" Top="3.78" Width="71.82" Height="18.9" Text="Remark" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text49" Left="607.2" Top="94.5" Width="143.64" Height="18.9" Text="[SUM_TotalAmt]" Format="Number" Format.UseLocale="true" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text94" Left="499.53" Top="94.5" Width="94.5" Height="18.9" Text="Total" Font="Tahoma, 8pt, style=Bold"/>
+      <LineObject Name="Line2" Left="597.81" Top="88.83" Width="153.09" Border.Width="0.25"/>
+    </ReportSummaryBand>
+    <PageFooterBand Name="PageFooter1" Top="495.26" Width="756" Height="132.3" Guides="219.24,128.52">
+      <TextObject Name="Text98" Left="208.83" Top="86.82" Width="141.75" Height="39.69" Border.Lines="Top" CanGrow="true" Text="[Appr3.ApproveName]&#13;&#10;&#13;&#10;Head of Department" HorzAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text99" Left="405.87" Top="86.82" Width="141.75" Height="39.69" Border.Lines="Top" CanGrow="true" Text="[Appr4.ApproveName]&#13;&#10;&#13;&#10;Financial Controller" HorzAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text97" Left="11.79" Top="86.82" Width="141.75" Height="39.69" Border.Lines="Top" CanGrow="true" Text="[Appr2.ApproveName]&#13;&#10;&#13;&#10;Purchase Manager" HorzAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text118" Left="602.91" Top="86.27" Width="141.75" Height="39.69" Border.Lines="Top" CanGrow="true" Text="[Appr5.ApproveName]&#13;&#10;&#13;&#10;General Manager" HorzAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <PictureObject Name="Picture1" Left="11.79" Top="9.45" Width="139.86" Height="75.6" DataColumn="Appr2.Signature"/>
+      <PictureObject Name="Picture3" Left="208.83" Top="9.45" Width="139.86" Height="75.6" DataColumn="Appr3.Signature"/>
+      <PictureObject Name="Picture4" Left="405.87" Top="9.45" Width="139.86" Height="75.6" DataColumn="Appr4.Signature"/>
+      <PictureObject Name="Picture5" Left="602.91" Top="9.45" Width="139.86" Height="75.6" DataColumn="Appr5.Signature"/>
+    </PageFooterBand>
+  </ReportPage>
+</Report>

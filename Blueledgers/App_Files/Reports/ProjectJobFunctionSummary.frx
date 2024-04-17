@@ -1,0 +1,211 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="11/06/2014 17:53:20" ReportInfo.CreatorVersion="2013.4.11.0">
+  <ScriptText>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Data;
+using FastReport;
+using FastReport.Data;
+using FastReport.Dialog;
+using FastReport.Barcode;
+using FastReport.Table;
+using FastReport.Utils;
+using System.Data.SqlClient;
+
+namespace FastReport
+{
+  public class ReportScript
+  {
+    private static string constring=string.Empty;
+    SqlDataAdapter da;
+    SqlConnection conn;
+    SqlCommand cmd;
+    private string sqlperiod =&quot;select CAST(year AS VARCHAR(4))+'-'+CAST(PeriodNumber AS NVARCHAR(3)) AS PERIOD FROM [IN].Period ORDER BY YEAR,PeriodNumber&quot;;
+    
+    private void _StartReport(object sender, EventArgs e)
+    {
+      constring=Report.Dictionary.Connections[0].ConnectionString.ToString();
+      DataTableToCom(sqlperiod,ComboBox5); 
+      ComboBox5.Text=DateTime.Today.Year.ToString()+&quot;-&quot;+DateTime.Today.Month.ToString();
+    }
+    
+    private void DataTableToCom(string sqlstring,ComboBoxControl cmb)
+    {
+      
+      conn =new SqlConnection(constring);
+      da=new SqlDataAdapter(sqlstring,conn);
+      DataTable ds=new DataTable();
+      da.Fill(ds);
+      int i=0;
+      foreach (DataRow loop in ds.Rows)
+      {
+        cmb.Items.Add(ds.Rows[i][0].ToString());
+        i++;
+      }
+      cmb.SelectedIndex=0;
+
+    }
+
+    private void btnOk_Click(object sender, EventArgs e)
+    {
+      string yy=ComboBox5.Text.Split('-')[0].ToString();
+      string mm=ComboBox5.Text.Split('-')[1].ToString();
+      int mn=Convert.ToInt32(ComboBox5.Text.Split('-')[1]);
+      
+      if(mn&lt;10)
+      {
+
+        Report.SetParameterValue(&quot;p_Period&quot;, yy+&quot;-0&quot;+mm);
+        Report.SetParameterValue(&quot;p_pshow&quot;, yy+&quot;-0&quot;+mm);
+      }
+      else
+      {
+        Report.SetParameterValue(&quot;p_Period&quot;, yy+&quot;-&quot;+mm);
+        Report.SetParameterValue(&quot;p_pshow&quot;, yy+&quot;-&quot;+mm);
+      }
+      
+          Report.SetParameterValue(&quot;p_Fjob&quot;, ComboBox1.Text.Split(':')[0].ToString());
+          Report.SetParameterValue(&quot;p_Tjob&quot;,ComboBox2.Text.Split(':')[0].ToString());
+      
+    }
+
+  }
+}
+</ScriptText>
+  <Dictionary>
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlquI5mm9eIqX7nRdDiks3qPXqDNCBXa6r0KuGeR7GvhwYlnOedGSDqx24gbDblXA4yOox4FtQM+LdCT1LBaokO+8TsNcMJtMjMRumR2ECB2qc=">
+      <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;">
+        <Column Name="BuCode" DataType="System.String"/>
+        <Column Name="Name" DataType="System.String"/>
+        <Column Name="NameBilling" DataType="System.String"/>
+        <Column Name="Address" DataType="System.String"/>
+        <Column Name="PostCode" DataType="System.String"/>
+        <Column Name="City" DataType="System.String"/>
+        <Column Name="Country" DataType="System.String"/>
+        <Column Name="Phone" DataType="System.String"/>
+        <Column Name="Fax" DataType="System.String"/>
+        <Column Name="Email" DataType="System.String"/>
+        <Column Name="DeliveryTerm" DataType="System.String"/>
+        <Column Name="POS" DataType="System.String"/>
+        <Column Name="POSModel" DataType="System.String"/>
+        <Column Name="BackOffice" DataType="System.String"/>
+        <Column Name="BackOfficeModel" DataType="System.String"/>
+        <Column Name="BuLogo" DataType="System.Byte[]" BindableControl="Picture"/>
+      </TableDataSource>
+      <TableDataSource Name="Tool_vRequisitionGL" DataType="System.Int32" Enabled="true" TableName="Tool.&quot;vRequisitionGL&quot;" SelectCommand="if 1=0&#13;&#10;SET FMTONLY OFF&#13;&#10;EXEC [Rpt].RptProjectJobFunction &#13;&#10;&#13;&#10;@Period=@p_Period,&#13;&#10;@FJOB=@p_FJob,&#13;&#10;@TJOB=@p_TJob">
+        <Column Name="Period" DataType="System.String"/>
+        <Column Name="CommittedDate" DataType="System.DateTime"/>
+        <Column Name="RequestCode" DataType="System.String"/>
+        <Column Name="LocationCode" DataType="System.String"/>
+        <Column Name="FromLocationName" DataType="System.String"/>
+        <Column Name="ToLocationCode" DataType="System.String"/>
+        <Column Name="ToLocationName" DataType="System.String"/>
+        <Column Name="ProductCode" DataType="System.String"/>
+        <Column Name="ProductCate" DataType="System.String"/>
+        <Column Name="ProductDesc1" DataType="System.String"/>
+        <Column Name="ProductDesc2" DataType="System.String"/>
+        <Column Name="DRACCOUNT" DataType="System.String"/>
+        <Column Name="CRACCOUNT" DataType="System.String"/>
+        <Column Name="RequestQty" DataType="System.Decimal"/>
+        <Column Name="RequestUnit" DataType="System.String"/>
+        <Column Name="ApprQty" DataType="System.Decimal"/>
+        <Column Name="AllocateQty" DataType="System.Decimal"/>
+        <Column Name="InQty" DataType="System.Decimal"/>
+        <Column Name="OutQty" DataType="System.Decimal"/>
+        <Column Name="InAmt" DataType="System.Decimal"/>
+        <Column Name="OutAmt" DataType="System.Decimal"/>
+        <Column Name="Description" DataType="System.String"/>
+        <Column Name="DocStatus" DataType="System.String"/>
+        <Column Name="Type" DataType="System.String"/>
+        <Column Name="AdjID" DataType="System.Int32"/>
+        <Column Name="AdjCode" DataType="System.String"/>
+        <Column Name="AdjName" DataType="System.String"/>
+        <Column Name="ProjectRef" DataType="System.String"/>
+        <Column Name="JobName" DataType="System.String"/>
+        <Column Name="ApproveBy" DataType="System.String"/>
+        <Column Name="IssueBy" DataType="System.String"/>
+        <Column Name="AdjNameEN" DataType="System.String"/>
+        <CommandParameter Name="p_Period" DataType="12" Expression="[p_Period]"/>
+        <CommandParameter Name="p_FJob" DataType="22" Expression="[p_Fjob]"/>
+        <CommandParameter Name="p_TJob" DataType="22" Expression="[p_Tjob]"/>
+      </TableDataSource>
+      <TableDataSource Name="Table4" Alias="Period" DataType="System.Int32" Enabled="true" SelectCommand="  select CAST(year AS VARCHAR(4))+'-'+CAST(PeriodNumber AS NVARCHAR(3)) AS PERIOD&#13;&#10;  FROM [IN].Period&#13;&#10; --WHERE IsClose=0&#13;&#10; ORDER BY YEAR,PeriodNumber">
+        <Column Name="PERIOD" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table5" Alias="FJobCode" DataType="System.Int32" Enabled="true" SelectCommand="SELECT Code+':'+Description&#13;&#10;FROM [IMPORT].[JobCode]&#13;&#10;WHERE IsActive=1&#13;&#10;ORDER BY Code">
+        <Column Name="Column1" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table" Alias="TJobCode" DataType="System.Int32" Enabled="true" SelectCommand="SELECT Code+':'+Description&#13;&#10;FROM [IMPORT].[JobCode]&#13;&#10;WHERE IsActive=1&#13;&#10;ORDER BY Code">
+        <Column Name="Column1" DataType="System.String"/>
+      </TableDataSource>
+    </MsSqlDataConnection>
+    <Parameter Name="p_Period" DataType="System.String"/>
+    <Parameter Name="p_Fjob" DataType="System.String"/>
+    <Parameter Name="p_Tjob" DataType="System.String"/>
+    <Total Name="SumTotalAmtJob" Expression="[Tool_vRequisitionGL.OutAmt]" Evaluator="Data1" PrintOn="GroupFooter1"/>
+    <Total Name="TotalSR" Expression="[Tool_vRequisitionGL.OutAmt]" Evaluator="Data1" PrintOn="GroupFooter3"/>
+  </Dictionary>
+  <ReportPage Name="Page1" RawPaperSize="9" TopMargin="5" BottomMargin="5" FirstPageSource="15" OtherPagesSource="15" Guides="86.94,7.56,438.48,438.48,521.64,714.42,638.82,7.56,264.6">
+    <PageHeaderBand Name="PageHeader1" Width="718.2" Height="98.28">
+      <PictureObject Name="Picture1" Left="7.56" Width="139.86" Height="79.38" DataColumn="ADMIN_Bu.BuLogo"/>
+      <TextObject Name="Text3" Left="175.77" Top="20.79" Width="366.66" Height="37.8" Text="Project Function Summary&#13;&#10;on [ComboBox5.Text]" HorzAlign="Center" Font="Tahoma, 11pt, style=Bold"/>
+      <TextObject Name="Text18" Left="7.56" Top="79.38" Width="430.92" Height="18.9" Text="[ADMIN_Bu.Name]" VertAlign="Center" Font="Tahoma, 7.5pt"/>
+      <TextObject Name="Text23" Left="438.48" Top="75.6" Width="275.94" Height="18.9" Text="Job Code From [p_Fjob] To [p_Tjob]" HorzAlign="Right" Font="Tahoma, 8pt"/>
+    </PageHeaderBand>
+    <ColumnHeaderBand Name="ColumnHeader1" Top="100.84" Width="718.2" Height="26.46">
+      <TextObject Name="Text11" Width="438.48" Height="26.46" Fill.Color="Silver" Text="Req. Code" VertAlign="Center" Font="Tahoma, 8.5pt, style=Bold"/>
+      <TextObject Name="Text10" Left="438.48" Width="83.16" Height="26.46" Fill.Color="Silver" Text="Amount" Padding="2, 0, 6, 0" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8.5pt, style=Bold" Trimming="EllipsisCharacter"/>
+      <TextObject Name="Text14" Left="521.64" Width="117.18" Height="26.46" Fill.Color="Silver" Text="Dr. Account" Padding="6, 0, 2, 0" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" VertAlign="Center" WordWrap="false" Font="Tahoma, 8.5pt, style=Bold" Trimming="EllipsisCharacter"/>
+      <TextObject Name="Text15" Left="638.82" Width="83.16" Height="26.46" Fill.Color="Silver" Text="Cr. Account" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" VertAlign="Center" WordWrap="false" Font="Tahoma, 8.5pt, style=Bold" Trimming="EllipsisCharacter"/>
+    </ColumnHeaderBand>
+    <GroupHeaderBand Name="GroupHeader1" Top="129.87" Width="718.2" Height="26.46" Border.Lines="Top, Bottom" Border.TopLine.Width="0.75" Border.BottomLine.Width="0.75" Fill.Color="DarkGray" RepeatOnEveryPage="true" Condition="[Tool_vRequisitionGL.ProjectRef]">
+      <TextObject Name="Text4" Top="3.78" Width="714.42" Height="18.9" Text="[[Tool_vRequisitionGL.ProjectRef]] : [[Tool_vRequisitionGL.JobName]]" VertAlign="Center" Font="Tahoma, 9pt, style=Bold"/>
+      <GroupHeaderBand Name="GroupHeader2" Top="158.89" Width="718.2" Height="22.68" Border.Lines="Bottom" Border.BottomLine.Color="DimGray" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5" CanGrow="true" KeepWithData="true" RepeatOnEveryPage="true" Condition="[Tool_vRequisitionGL.Type]" KeepTogether="true">
+        <TextObject Name="Text9" Left="7.56" Width="430.92" Height="22.68" Border.Lines="Bottom" Border.Style="Dot" Text="[Tool_vRequisitionGL.Type] : [Tool_vRequisitionGL.Type]" VertAlign="Bottom" Font="Tahoma, 9pt, style=Bold"/>
+        <ChildBand Name="Child2" Top="184.14" Width="718.2"/>
+        <GroupHeaderBand Name="GroupHeader3" Top="186.7" Width="718.2" Height="22.68" CanGrow="true" Condition="[Tool_vRequisitionGL.RequestCode]" KeepTogether="true">
+          <TextObject Name="Text5" Left="7.56" Top="3.78" Width="79.38" Height="18.9" Text="[Tool_vRequisitionGL.RequestCode]" Font="Tahoma, 8pt, style=Bold"/>
+          <TextObject Name="Text7" Left="86.94" Top="3.78" Width="551.88" Height="18.9" CanGrow="true" Text="[Tool_vRequisitionGL.Description]" Font="Tahoma, 8pt, style=Bold"/>
+          <ChildBand Name="Child3" Top="211.94" Width="718.2" Height="22.68" CanGrow="true">
+            <TextObject Name="Text16" Left="7.56" Top="3.78" Width="551.88" Height="18.9" CanGrow="true" Text="[Tool_vRequisitionGL.AdjName]" Font="Tahoma, 8pt"/>
+          </ChildBand>
+          <DataBand Name="Data1" Top="237.19" Width="718.2" CanGrow="true" BeforePrintEvent="Data1_BeforePrint" DataSource="Tool_vRequisitionGL"/>
+          <GroupFooterBand Name="GroupFooter3" Top="239.75" Width="718.2" Height="45.36" CanGrow="true" Guides="22.68,41.58">
+            <TextObject Name="Text12" Left="521.64" Top="22.68" Width="117.18" Height="18.9" Text="[Tool_vRequisitionGL.DRACCOUNT]" Padding="6, 0, 2, 0" Font="Tahoma, 8pt"/>
+            <TextObject Name="Text13" Left="638.82" Width="75.6" Height="18.9" Text="[Tool_vRequisitionGL.CRACCOUNT]" Font="Tahoma, 8pt"/>
+            <TextObject Name="Text8" Left="438.48" Width="83.16" Height="18.9" Text="[TotalSR]" Padding="2, 0, 6, 0" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Tahoma, 8pt"/>
+            <TextObject Name="Text19" Left="86.94" Width="351.54" Height="18.9" CanGrow="true" Text="[Tool_vRequisitionGL.LocationCode] : [Tool_vRequisitionGL.FromLocationName]" Font="Arial, 8pt"/>
+            <TextObject Name="Text20" Left="86.94" Top="22.68" Width="423.36" Height="18.9" CanGrow="true" Text="[Tool_vRequisitionGL.ToLocationCode] :[Tool_vRequisitionGL.ToLocationName]" Font="Arial, 8pt"/>
+            <TextObject Name="Text21" Left="7.56" Width="79.38" Height="18.9" Text="Issue From" VertAlign="Center" Font="Tahoma, 8.5pt, style=Bold"/>
+            <TextObject Name="Text22" Left="7.56" Top="22.68" Width="79.38" Height="18.9" Text="Issue To" VertAlign="Center" Font="Tahoma, 8.5pt, style=Bold"/>
+            <ChildBand Name="Child1" Top="287.68" Width="718.2" Height="3.78" Border.Lines="Bottom" Border.BottomLine.Style="Dash" Border.BottomLine.Width="0.5"/>
+          </GroupFooterBand>
+        </GroupHeaderBand>
+        <GroupFooterBand Name="GroupFooter2" Top="294.02" Width="718.2">
+          <LineObject Name="Line1" Left="7.56" Top="-3.78" Width="706.86" Border.Style="Dash" Border.Width="0.5" Diagonal="true"/>
+        </GroupFooterBand>
+      </GroupHeaderBand>
+      <GroupFooterBand Name="GroupFooter1" Top="296.59" Width="718.2" Height="22.68" Fill.Color="Silver">
+        <TextObject Name="Text6" Left="404.46" Width="117.18" Height="18.9" Text="[SumTotalAmtJob]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" Font="Tahoma, 8.5pt, style=Bold, Underline"/>
+        <TextObject Name="Text17" Width="404.46" Height="18.9" Text="Total Amount of [Tool_vRequisitionGL.ProjectRef] : [[Tool_vRequisitionGL.JobName]]" VertAlign="Center" Font="Tahoma, 9pt, style=Bold"/>
+      </GroupFooterBand>
+    </GroupHeaderBand>
+    <PageFooterBand Name="PageFooter1" Top="321.83" Width="718.2" Height="28.35" Guides="7.56">
+      <TextObject Name="Text1" Left="7.56" Top="7.56" Width="189" Height="20.79" Text="[Date]" Font="Arial, 8pt"/>
+      <TextObject Name="Text2" Left="529.2" Top="7.56" Width="185.22" Height="20.79" Text="[Page#]/[TotalPages#]" HorzAlign="Right" Font="Arial, 8pt"/>
+    </PageFooterBand>
+  </ReportPage>
+  <DialogPage Name="ReportDialog" Width="418" Height="250" AcceptButton="btnOk" CancelButton="btnCancel" LoadEvent="">
+    <ButtonControl Name="btnOk" Left="234" Top="170" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="0" Text="OK" ClickEvent="btnOk_Click" DialogResult="OK"/>
+    <ButtonControl Name="btnCancel" Left="317" Top="170" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="1" Text="Cancel" DialogResult="Cancel"/>
+    <LabelControl Name="Label1" Left="8" Top="19" Width="37" Height="13" Font="Tahoma, 8pt" TabIndex="1" Text="Period"/>
+    <ComboBoxControl Name="ComboBox5" Left="90" Top="20" Width="301" Font="Tahoma, 8pt" TabIndex="13" DropDownWidth="301" ItemHeight="13"/>
+    <LabelControl Name="Label2" Left="8" Top="76" Width="54" Height="13" Font="Tahoma, 8pt" TabIndex="14" Text="From Job "/>
+    <LabelControl Name="Label3" Left="8" Top="116" Width="39" Height="13" Font="Tahoma, 8pt" TabIndex="15" Text="To Job"/>
+    <ComboBoxControl Name="ComboBox1" Left="88" Top="76" Width="301" Font="Tahoma, 8pt" TabIndex="16" Text="ComboBox" DataColumn="FJobCode.Column1" DropDownWidth="301" ItemHeight="13"/>
+    <ComboBoxControl Name="ComboBox2" Left="88" Top="116" Width="301" Font="Tahoma, 8pt" TabIndex="16" Text="ComboBox" DataColumn="TJobCode.Column1" DropDownWidth="301" ItemHeight="13"/>
+  </DialogPage>
+</Report>

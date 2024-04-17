@@ -1,0 +1,239 @@
+<%--
+Default skin template. The following skins are provided as examples only.
+
+1. Named control skin. The SkinId should be uniquely defined because
+   duplicate SkinId's per control type are not allowed in the same theme.
+
+<asp:GridView runat="server" SkinId="gridviewSkin" BackColor="White" >
+   <AlternatingRowStyle BackColor="Blue" />
+</asp:GridView>
+
+2. Default skin. The SkinId is not defined. Only one default 
+   control skin per control type is allowed in the same theme.
+
+<asp:Image runat="server" ImageUrl="~/images/image1.jpg" />
+--%>
+
+<%-- NORMAL --%>
+<asp:GridView SkinID="NORMAL" runat="server" BorderStyle="None" GridLines="None" CellPadding="1" CellSpacing="0">
+    <HeaderStyle BackColor="#a0a0a0" Height="22px" />
+    <RowStyle BackColor="#ffffff" Height="22px" />    
+    <AlternatingRowStyle BackColor="#f7f7f7" Height="22px" />
+    <FooterStyle BackColor="#ffffff" Height="22px" />
+    <PagerStyle BackColor="#ffffff" ForeColor="#363636" HorizontalAlign="Right" Height="22px" />
+</asp:GridView>
+
+<%-- Aqua --%>
+<asp:GridView SkinID="Aqua" runat="server" BackColor="White" BorderColor="#A3C0E8" BorderStyle="Solid" BorderWidth="1px"
+    CellPadding="5" EmptyDataText="No data to display " Font-Names="Arial,Tahoma" Font-Size="9pt" ForeColor="#4F4F4F">
+    <HeaderStyle CssClass="gvHeaderRow_Aqua" />
+    <RowStyle CssClass="gvDataRow_Aqua" />
+    <FooterStyle CssClass="gvFooterRow_Aqua" />
+    <PagerStyle CssClass="gvPager_Aqua" />
+    <PagerSettings Mode="NumericFirstLast" />
+</asp:GridView>
+
+<asp:GridView SkinID="GRD_NORMAL" runat="server" BorderStyle="None" GridLines="None" CellPadding="1" CellSpacing="0">
+    <HeaderStyle BackColor="#a0a0a0" Height="22px" />
+    <RowStyle BackColor="#ffffff" Height="22px" />    
+    <AlternatingRowStyle BackColor="#f7f7f7" Height="22px" />
+    <FooterStyle BackColor="#ffffff" Height="22px" />
+    <PagerStyle BackColor="#ffffff" ForeColor="#363636" Font-Names="Trebuchet MS,Tahoma,MS Sans Serif"
+        Font-Size="9pt" HorizontalAlign="Right" Height="22px" />
+</asp:GridView>
+<asp:GridView SkinID="GRD_GL" runat="server"  BorderStyle="None" GridLines="None" CellSpacing="0" Width="100%">
+    <HeaderStyle HorizontalAlign="Left" VerticalAlign="Middle" CssClass="GL_GRD_HEADER_ROW" />
+    <RowStyle VerticalAlign="Middle" CssClass="GL_GRD_ROW" /> 
+    <FooterStyle BackColor="#ffffff" Height="22px" />
+    <PagerSettings Mode="NumericFirstLast" />
+    <PagerStyle Font-Names="Tahoma" Font-Size="10pt" Font-Bold="true" HorizontalAlign="Right" VerticalAlign="Bottom" Height="30px" />      
+</asp:GridView>
+<asp:GridView SkinID="GRD_AR" runat="server" BorderStyle="None" GridLines="None" CellPadding="1" CellSpacing="0">
+    <HeaderStyle BackColor="#a0a0a0" Height="22px" />
+    <RowStyle BackColor="#ffffff" Height="22px" />    
+    <AlternatingRowStyle BackColor="#f7f7f7" Height="22px" />
+    <FooterStyle BackColor="#ffffff" Height="22px" />
+    <PagerStyle BackColor="#ffffff" ForeColor="#363636" Font-Names="Trebuchet MS,Tahoma,MS Sans Serif"
+        Font-Size="9pt" HorizontalAlign="Right" Height="22px" />
+</asp:GridView>
+<asp:GridView SkinID="GRD_RPT" runat="server"  BorderStyle="None" GridLines="None" CellSpacing="0" Width="100%">
+    <HeaderStyle HorizontalAlign="Left" VerticalAlign="Middle" CssClass="GL_GRD_HEADER_ROW" />
+    <RowStyle VerticalAlign="Middle" CssClass="GL_GRD_ROW" /> 
+    <FooterStyle BackColor="#ffffff" Height="22px" />
+    <PagerSettings Mode="NumericFirstLast" />
+    <PagerStyle Font-Names="Tahoma" Font-Size="10pt" Font-Bold="true" HorizontalAlign="Right" VerticalAlign="Bottom" Height="30px" />      
+</asp:GridView>
+<asp:GridView SkinID="GRD_IM" runat="server" BorderStyle="None" GridLines="None" CellPadding="1" CellSpacing="0">
+    <HeaderStyle BackColor="#a0a0a0" Height="22px" />
+    <RowStyle BackColor="#ffffff" Height="22px" />    
+    <AlternatingRowStyle BackColor="#f7f7f7" Height="22px" />
+    <FooterStyle BackColor="#ffffff" Height="22px" />
+    <PagerStyle BackColor="#ffffff" ForeColor="#363636" Font-Names="Trebuchet MS,Tahoma,MS Sans Serif"
+        Font-Size="9pt" HorizontalAlign="Right" Height="22px" />
+</asp:GridView>
+<asp:GridView SkinID="GRD_INC" runat="server" BorderStyle="None" GridLines="None" CellPadding="1" CellSpacing="0">
+    <HeaderStyle BackColor="#a0a0a0" Height="22px" />
+    <RowStyle BackColor="#ffffff" Height="22px" />    
+    <AlternatingRowStyle BackColor="#f7f7f7" Height="22px" />
+    <FooterStyle BackColor="#ffffff" Height="22px" />
+    <PagerStyle BackColor="#ffffff" ForeColor="#363636" Font-Names="Trebuchet MS,Tahoma,MS Sans Serif"
+        Font-Size="9pt" HorizontalAlign="Right" Height="22px" />
+</asp:GridView>
+<asp:GridView SkinID="GRD_SETUP" runat="server" BorderStyle="None" GridLines="None" CellPadding="1" CellSpacing="0">
+    <HeaderStyle BackColor="#a0a0a0" Height="22px" />
+    <RowStyle BackColor="#ffffff" Height="22px" />    
+    <AlternatingRowStyle BackColor="#f7f7f7" Height="22px" />
+    <FooterStyle BackColor="#ffffff" Height="22px" />
+    <PagerStyle BackColor="#ffffff" ForeColor="#363636" Font-Names="Trebuchet MS,Tahoma,MS Sans Serif"
+        Font-Size="9pt" HorizontalAlign="Right" Height="22px" />
+</asp:GridView>
+<asp:GridView SkinID="GRD_INVEN" runat="server" BorderStyle="None" GridLines="None" CellPadding="1" CellSpacing="0">
+    <HeaderStyle BackColor="#a0a0a0" Height="22px" />
+    <RowStyle BackColor="#ffffff" Height="22px" />    
+    <AlternatingRowStyle BackColor="#f7f7f7" Height="22px" />
+    <FooterStyle BackColor="#ffffff" Height="22px" />
+    <PagerStyle BackColor="#ffffff" ForeColor="#363636" Font-Names="Trebuchet MS,Tahoma,MS Sans Serif"
+        Font-Size="9pt" HorizontalAlign="Right" Height="22px" />
+</asp:GridView>
+
+
+<%-- PRINT --%>
+<asp:GridView SkinID="GRD_PRINT" runat="server" BorderStyle="None" GridLines="None" CellPadding="1" CellSpacing="0">
+    <HeaderStyle BackColor="#FFFFFF"  Height="22px" HorizontalAlign="Left" />
+    <RowStyle BackColor="#f7f7f7" Height="22px" HorizontalAlign="Left" />
+    <AlternatingRowStyle BackColor="#FFFFFF" Height="22px" HorizontalAlign="Left" />
+    <FooterStyle BackColor="#FFFFFF" Height="22px" />    
+</asp:GridView>
+
+<%-- CLEAR STYLE --%>
+<asp:GridView SkinID="GRD_CLEAR" runat="server" BorderStyle="None" GridLines="None" CellPadding="1" CellSpacing="0">
+    <HeaderStyle Height="22px" />
+    <RowStyle Height="22px" />    
+    <AlternatingRowStyle Height="22px" />
+    <FooterStyle Height="22px" />
+    <PagerStyle ForeColor="#363636" Font-Names="Trebuchet MS,Tahoma,MS Sans Serif"
+        Font-Size="9pt" HorizontalAlign="Right" Font-Bold="True" Height="22px" />    
+</asp:GridView>
+
+<asp:GridView SkinID="GRD_ACC" runat="server"  BorderStyle="None" GridLines="None" CellSpacing="0"
+    AllowPaging="True" AllowSorting="True" PageSize="50" Width="100%" 
+    EmptyDataText="There is no result related to selected view." >
+    <HeaderStyle HorizontalAlign="Left" VerticalAlign="Middle" CssClass="GL_GRD_HEADER_ROW" />
+    <RowStyle VerticalAlign="Middle" CssClass="GL_GRD_ROW" /> 
+    <FooterStyle BackColor="#ffffff" Height="22px" />
+    <PagerSettings Mode="NumericFirstLast" />
+    <PagerStyle Font-Names="Tahoma" Font-Size="10pt" Font-Bold="true"
+        HorizontalAlign="Right" VerticalAlign="Bottom" Height="30px" />      
+</asp:GridView>
+
+
+<asp:GridView SkinID="GRD_JVL" runat="server" BorderStyle="None" 
+GridLines="None" CellSpacing="0" Width="100%" AutoGenerateColumns="False"
+HeaderStyle-CssClass="GL_GRD_HEADER_ROW" RowStyle-CssClass="GL_GRD_ROW">
+</asp:GridView>
+
+
+<asp:GridView SkinID="GRD_AP" runat="server" GridLines="None" CellPadding="1">
+    <HeaderStyle CssClass="AP_GRD_HEADER"/>
+    <RowStyle CssClass="AP_GRD_ROW" />
+    <AlternatingRowStyle CssClass="AP_GRD_AROW" />
+    <FooterStyle CssClass="AP_GRD_FOOTER" />
+</asp:GridView>
+<asp:GridView SkinID="GRD_DetailAdd" runat="server" GridLines="None" CellPadding="1">
+    <PagerStyle Font-Names="Verdana,Tahoma,MS Sans Serif"
+        Font-Size="8pt" HorizontalAlign="Right" Font-Bold="True" Height="25px" />
+</asp:GridView>
+<asp:GridView SkinID="GRD_VIEW" runat="server" BackColor="Transparent" BorderStyle="None" GridLines="None" 
+ShowHeader="False" CellPadding="1">
+</asp:GridView>
+<asp:GridView SkinID="GRD_CONSO" runat="server" BorderStyle="None" GridLines="None" CellPadding="0">  
+    <HeaderStyle CssClass="CONSO_GRD_HEADER" />
+    <RowStyle CssClass="CONSO_GRD_ROW" />    
+    <AlternatingRowStyle CssClass="CONSO_GRD_AROW" />
+    <FooterStyle CssClass="CONSO_GRD_FOOTER" />
+</asp:GridView>
+<asp:GridView SkinID="GRD_LOOKUP" runat="server" GridLines="None" CellPadding="0">
+    <HeaderStyle CssClass="LOOKUP_GRD_HEADER" />
+    <RowStyle CssClass="LOOKUP_GRD_ROW" />    
+    <AlternatingRowStyle CssClass="LOOKUP_GRD_AROW" />
+    <FooterStyle CssClass="LOOKUP_GRD_FOOTER" />
+</asp:GridView>
+<asp:GridView SkinID="GRD_REPORT" runat="server" GridLines="None" CellPadding="0">
+    <HeaderStyle CssClass="RPT_GRD_HEADER" />
+    <RowStyle CssClass="RPT_GRD_ROW" />    
+    <AlternatingRowStyle CssClass="RPT_GRD_AROW" />
+    <FooterStyle CssClass="RPT_GRD_FOOTER" />
+</asp:GridView>
+<asp:GridView SkinID="GRD_BUDGET" runat="server" GridLines="None" CellPadding="0">
+    <HeaderStyle CssClass="BUDGET_GRD_HEADER" />
+    <RowStyle CssClass="BUDGET_GRD_ROW" />    
+    <AlternatingRowStyle CssClass="BUDGET_GRD_AROW" />
+    <FooterStyle CssClass="BUDGET_GRD_FOOTER" />
+</asp:GridView>
+
+
+<asp:GridView SkinID="Default9" runat="server" EmptyDataText="No Data to Display" CellPadding="1" GridLines="None" Width="100%">
+    <HeaderStyle BackColor="#999999" Font-Bold="True" Font-Names="Arial" Font-Size="9pt"
+        ForeColor="White" Height="20px" HorizontalAlign="Left"  />
+    <RowStyle BackColor="White" Font-Names="Arial" Font-Size="9pt" ForeColor="#4D4D4D"
+        Height="20px" />
+    <AlternatingRowStyle BackColor="#F2F2F2" Font-Names="Arial" Font-Size="9pt" ForeColor="#4D4D4D"
+        Height="20px" />    
+    <EmptyDataRowStyle HorizontalAlign="Center" Height="25px" />
+    <FooterStyle BackColor="#999999" Font-Bold="True" Font-Names="Arial" Font-Size="9pt"
+        ForeColor="White" Height="20px" HorizontalAlign="Left" />
+    <PagerStyle BackColor="#4D4D4D" ForeColor="#FFFFFF" Font-Names="Arial" Font-Bold="True" Font-Size="9pt" HorizontalAlign="Right" Height="20px"/>
+</asp:GridView>
+
+<asp:GridView SkinID="Default" runat="server" EmptyDataText="No Data to Display" CellPadding="1" GridLines="None" Width="100%">
+    <HeaderStyle  BackColor="#999999" Font-Bold="True" Font-Names="Arial" Font-Size="9pt"
+        ForeColor="White" Height="20px" HorizontalAlign="Left"  />
+    <RowStyle BackColor="White" Font-Names="Arial" Font-Size="9pt" ForeColor="#4D4D4D"
+        Height="20px" />
+    <AlternatingRowStyle BackColor="#F2F2F2" Font-Names="Arial" Font-Size="9pt" ForeColor="#4D4D4D"
+        Height="20px" />    
+    <EmptyDataRowStyle HorizontalAlign="Center" Height="25px" />
+    <FooterStyle BackColor="#999999" Font-Bold="True" Font-Names="Arial" Font-Size="9pt"
+        ForeColor="White" Height="20px" HorizontalAlign="Left" />
+    <PagerStyle BackColor="#4D4D4D" ForeColor="#FFFFFF" Font-Names="Arial" Font-Bold="True" Font-Size="9pt" HorizontalAlign="Right" Height="20px"/>
+</asp:GridView>
+
+<%-- START USE 2011-06-14 --%>
+<asp:GridView SkinID="GRD_V1" runat="server" EmptyDataText="No data" AutoGenerateColumns="False" ShowFooter="False" BorderStyle="NotSet" GridLines="None" >
+    <HeaderStyle BackColor="#2196f3" ForeColor="#ffffff" />
+    <AlternatingRowStyle BackColor="#f2f2f2" />
+    <EmptyDataRowStyle HorizontalAlign="Center" />    
+</asp:GridView>
+
+<asp:GridView SkinID="GRD_V1_2022" CssClass="empty" runat="server" EmptyDataText="No Data to Display" 
+EnableModelValidation="True" AutoGenerateColumns="False"
+ShowFooter="False" BorderStyle="NotSet" GridLines="None" >
+    <HeaderStyle  CssClass="grdHeaderRow_V1" />
+    <RowStyle  CssClass="grdDataRow_V1"  />
+    <AlternatingRowStyle CssClass="grdAlternatingRow_V1" />    
+    <EmptyDataRowStyle CssClass="empty" HorizontalAlign="Center" />
+    <FooterStyle CssClass="grdFooterRow_V1" HorizontalAlign="right" />
+    <PagerStyle CssClass="grdPager_V1" HorizontalAlign="Right"/>   
+</asp:GridView>
+
+<asp:GridView SkinID="GRD_V1.1" CssClass="empty" runat="server" EmptyDataText="No Data to Display" 
+EnableModelValidation="True" AutoGenerateColumns="False"
+BorderStyle="NotSet" GridLines="None" >
+    <HeaderStyle  CssClass="grdHeaderRow_V1" />
+    <RowStyle  CssClass="grdDataRow_V1"  />
+    <AlternatingRowStyle CssClass="grdAlternatingRow_V1" />    
+    <EmptyDataRowStyle CssClass="empty" HorizontalAlign="Center" />
+    <FooterStyle CssClass="grdFooterRow_V1" HorizontalAlign="right" />
+    <PagerStyle CssClass="grdPager_V1" HorizontalAlign="Right"/>   
+</asp:GridView>
+
+<asp:GridView SkinID="GRD_V2" runat="server" EmptyDataText="No Data to Display" 
+EnableModelValidation="True" AutoGenerateColumns="False"
+ShowFooter="True" BorderStyle="NotSet" GridLines="None" >
+    <HeaderStyle  CssClass="grdHeaderRow_V1" />
+    <RowStyle  CssClass="grdDataRow_V1"  />
+    <AlternatingRowStyle CssClass="grdAlternatingRow_V1" />    
+    <EmptyDataRowStyle CssClass="empty" HorizontalAlign="Center" />
+    <FooterStyle CssClass="grdFooterRow_V1" HorizontalAlign="right" />
+    <PagerStyle CssClass="grdPager_V1" HorizontalAlign="Right"/>   
+</asp:GridView>

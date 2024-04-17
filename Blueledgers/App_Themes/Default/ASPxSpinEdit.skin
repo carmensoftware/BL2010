@@ -1,0 +1,31 @@
+﻿<%--
+Default skin template. The following skins are provided as examples only.
+
+1. Named control skin. The SkinId should be uniquely defined because
+   duplicate SkinId's per control type are not allowed in the same theme.
+
+<asp:GridView runat="server" SkinId="gridviewSkin" BackColor="White" >
+   <AlternatingRowStyle BackColor="Blue" />
+</asp:GridView>
+
+2. Default skin. The SkinId is not defined. Only one default 
+   control skin per control type is allowed in the same theme.
+
+<asp:Image runat="server" ImageUrl="~/images/image1.jpg" />
+--%>
+
+<%@ Register TagPrefix="dx" Namespace="DevExpress.Web.ASPxEditors" Assembly="DevExpress.Web.ASPxEditors.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" %>
+
+<dx:ASPxSpinEdit runat="server" DecimalPlaces="3" DisplayFormatString="#,###.###"
+    Height="17px" HorizontalAlign="Right" NullText="0.000" MinValue="0" MaxValue="2147483647"
+    Number="0" AutoPostBack="true" SkinID="sk_qty" AllowMouseWheel="False">
+    <%--50px--%>
+    <SpinButtons ShowIncrementButtons="False">
+    </SpinButtons>
+    <ValidationSettings Display="Dynamic">
+        <ErrorFrameStyle ImageSpacing="4px">
+            <ErrorTextPaddings PaddingLeft="4px" />
+        </ErrorFrameStyle>
+        <RequiredField IsRequired="True" />
+    </ValidationSettings>
+</dx:ASPxSpinEdit>

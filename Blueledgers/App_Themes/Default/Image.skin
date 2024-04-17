@@ -1,0 +1,26 @@
+﻿<%--
+Default skin template. The following skins are provided as examples only.
+
+1. Named control skin. The SkinId should be uniquely defined because
+   duplicate SkinId's per control type are not allowed in the same theme.
+
+<asp:GridView runat="server" SkinId="gridviewSkin" BackColor="White" >
+   <AlternatingRowStyle BackColor="Blue" />
+</asp:GridView>
+
+2. Default skin. The SkinId is not defined. Only one default 
+   control skin per control type is allowed in the same theme.
+
+<asp:Image runat="server" ImageUrl="~/images/image1.jpg" />
+--%>
+<asp:Image SkinID="IMG_Create" runat="server" ImageUrl="~/App_Themes/Default/Images/new.gif" />
+<asp:Image SkinID="IMG_Print" runat="server" ImageUrl="~/App_Themes/Default/Images/print.gif" />
+<asp:Image SkinID="IMG_Favorite" runat="server" ImageUrl="~/App_Themes/Default/Images/favorite.gif" />
+<asp:Image SkinID="IMG_Add" runat="server" ImageUrl="~/App_Themes/Default/Images/add.gif" />
+<asp:Image SkinID="IMG_Save" runat="server" ImageUrl="~/App_Themes/Default/Images/save.gif" />
+<asp:Image SkinID="IMG_Delete" runat="server" ImageUrl="~/App_Themes/Default/Images/delete.gif" />
+<asp:Image SkinID="IMG_Back" runat="server" ImageUrl="~/App_Themes/Default/Images/back.gif" />
+<asp:Image SkinID="IMG_Edit" runat="server" ImageUrl="~/App_Themes/Default/Images/edit.gif" />
+<asp:Image SkinID="IMG_Copy" runat="server" ImageUrl="~/App_Themes/Default/Images/copy.gif" />
+<asp:Image SkinID="IMG_Logo" runat="server" ImageUrl="~/App_Themes/Default/Images/logo.jpg" />
+<asp:Image SkinID="IMG_ChgPwd" runat="server" ImageUrl="~/App_Themes/Default/Images/chgpwd.gif" />

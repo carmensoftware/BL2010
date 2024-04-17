@@ -1,0 +1,186 @@
+﻿<%--
+Default skin template. The following skins are provided as examples only.
+
+1. Named control skin. The SkinId should be uniquely defined because
+   duplicate SkinId's per control type are not allowed in the same theme.
+
+<asp:GridView runat="server" SkinId="gridviewSkin" BackColor="White" >
+   <AlternatingRowStyle BackColor="Blue" />
+</asp:GridView>
+
+2. Default skin. The SkinId is not defined. Only one default 
+   control skin per control type is allowed in the same theme.
+
+<asp:Image runat="server" ImageUrl="~/images/image1.jpg" />
+--%>
+
+<%@ Register Assembly="DevExpress.Web.ASPxGridView.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a"
+    Namespace="DevExpress.Web.ASPxGridView" TagPrefix="dx" %>
+    
+<dx:ASPxGridView SkinID="Default" runat="server" Font-Names="Arial" Font-Size="9pt"> 
+    <Border BorderStyle="None" />   
+    <Styles>
+        <Table>
+            <Border BorderStyle="None" />
+        </Table>
+        <Header Font-Names="Arial" Font-Bold="True" ForeColor="White" BackColor="#999999" Font-Size="9pt">
+            <Border BorderStyle="None" />
+        </Header>
+        <Row Font-Names="Arial" Font-Size="9pt" ForeColor="#4D4D4D">
+        </Row>
+        <AlternatingRow BackColor="#F2F2F2" Font-Names="Arial" Font-Size="9pt" ForeColor="#4D4D4D">
+        </AlternatingRow>
+        <Cell>
+            <Border BorderStyle="None" />
+        </Cell>
+        <Footer BackColor="#999999" Font-Bold="True" Font-Names="Arial" Font-Size="9pt" ForeColor="White">
+        </Footer>
+        <HeaderPanel>
+            <Border BorderStyle="None" />
+        </HeaderPanel>
+        <PagerBottomPanel BackColor="#999999" ForeColor="White">
+        </PagerBottomPanel>
+        <TitlePanel>
+            <Border BorderStyle="None" />
+        </TitlePanel>
+        <FilterBar>
+            <Border BorderStyle="None" />
+        </FilterBar>
+    </Styles>            
+    <StylesPager>
+        <CurrentPageNumber ForeColor="White">
+        </CurrentPageNumber>
+        <PageNumber ForeColor="White">
+        </PageNumber>
+        <Summary ForeColor="White">
+        </Summary>
+    </StylesPager>    
+    <Settings GridLines="None" />
+</dx:ASPxGridView>
+
+<dx:ASPxGridView SkinID="Default2" runat="server" Font-Names="Arial" Font-Size="9pt"> 
+    <Border BorderStyle="None" />   
+    <Styles>
+        <Table>
+            <Border BorderStyle="None" />
+        </Table>
+        <Header Font-Names="Arial" Font-Bold="True" ForeColor="White" BackColor="#999999" Font-Size="9pt">
+            <Border BorderStyle="None" />
+        </Header>
+        <Row Font-Names="Arial" Font-Size="9pt" ForeColor="#4D4D4D">
+        </Row>
+        <AlternatingRow BackColor="#F5F5F5" Font-Names="Arial" Font-Size="9pt" ForeColor="#4D4D4D">
+        </AlternatingRow>
+        <Cell>
+            <Border BorderStyle="None" />
+        </Cell>
+        <Footer BackColor="#999999" Font-Bold="True" Font-Names="Arial" Font-Size="9pt" ForeColor="White">
+        </Footer>
+        <HeaderPanel>
+            <Border BorderStyle="None" />
+        </HeaderPanel>
+        <PagerBottomPanel BackColor="#999999" ForeColor="White">
+        </PagerBottomPanel>
+        <TitlePanel>
+            <Border BorderStyle="None" />
+        </TitlePanel>
+        <FilterBar>
+            <Border BorderStyle="None" />
+        </FilterBar>
+        <SelectedRow BackColor="#CCCCCC">
+        </SelectedRow>
+    </Styles>            
+    <StylesPager>
+        <CurrentPageNumber ForeColor="White">
+        </CurrentPageNumber>
+        <PageNumber ForeColor="White">
+        </PageNumber>
+        <Summary ForeColor="White">
+        </Summary>
+    </StylesPager>    
+    <Settings GridLines="None" />
+</dx:ASPxGridView>
+
+<dx:ASPxGridView SkinID="DevGRD_V1" runat="server" Font-Names="Arial" Font-Size="9pt"> 
+    <Border BorderStyle="None" />   
+    <Styles>
+        <Table>
+            <Border BorderStyle="None" />
+        </Table>
+        <Header CssClass="GL_GRD_COMMAND">
+            <Border BorderStyle="None" />
+        </Header>
+        <Row Font-Names="Arial" Font-Size="9pt" ForeColor="#4D4D4D">
+        </Row>
+        <AlternatingRow BackColor="#F2F2F2" Font-Names="Arial" Font-Size="9pt" ForeColor="#4D4D4D">
+        </AlternatingRow>
+        <Cell>
+            <Border BorderStyle="None" />
+        </Cell>
+        <Footer CssClass="grdHeaderRow_V1">
+        </Footer>
+        <HeaderPanel>
+            <Border BorderStyle="None" />
+        </HeaderPanel>
+        <PagerBottomPanel BackColor="#999999" ForeColor="White">
+        </PagerBottomPanel>
+        <TitlePanel>
+            <Border BorderStyle="None" />
+        </TitlePanel>
+        <FilterBar>
+            <Border BorderStyle="None" />
+        </FilterBar>
+    </Styles>            
+    <StylesPager>
+        <CurrentPageNumber ForeColor="White">
+        </CurrentPageNumber>
+        <PageNumber ForeColor="White">
+        </PageNumber>
+        <Summary ForeColor="White">
+        </Summary>
+    </StylesPager>    
+    <Settings GridLines="None" />
+</dx:ASPxGridView>
+
+<dx:ASPxGridView SkinID="GRD_V1" runat="server" Font-Names="Arial" Font-Size="8pt"> 
+    <Border BorderStyle="None" />   
+    <Styles>
+        <Table>
+            <Border BorderStyle="None" />
+        </Table>
+        <Header Font-Names="Arial" Font-Bold="True" ForeColor="White" BackColor="#999999" Font-Size="8pt">
+            <Border BorderStyle="None" />
+        </Header>
+        <Row Font-Names="Arial" Font-Size="8pt" ForeColor="#4D4D4D">
+        </Row>
+        <AlternatingRow BackColor="#F5F5F5" Font-Names="Arial" Font-Size="8pt" ForeColor="#4D4D4D">
+        </AlternatingRow>
+        <Cell>
+            <Border BorderStyle="None" />
+        </Cell>
+        <Footer BackColor="#999999" Font-Bold="True" Font-Names="Arial" Font-Size="8pt" ForeColor="White">
+        </Footer>
+        <HeaderPanel>
+            <Border BorderStyle="None" />
+        </HeaderPanel>
+        <PagerBottomPanel BackColor="#999999" ForeColor="White">
+        </PagerBottomPanel>
+        <TitlePanel>
+            <Border BorderStyle="None" />
+        </TitlePanel>
+        <FilterBar>
+            <Border BorderStyle="None" />
+        </FilterBar>
+        <SelectedRow BackColor="#CCCCCC">
+        </SelectedRow>
+    </Styles>            
+    <StylesPager>
+        <CurrentPageNumber ForeColor="White">
+        </CurrentPageNumber>
+        <PageNumber ForeColor="White">
+        </PageNumber>
+        <Summary ForeColor="White">
+        </Summary>
+    </StylesPager>    
+    <Settings GridLines="None" />
+</dx:ASPxGridView>
