@@ -1092,7 +1092,7 @@ namespace BlueLedger.PL.PC.PO
         {
             var strVendor = ddl_Vendor.SelectedItem.Value;
             var dteDeliDate = dte_DeliDate.Date;
-
+              
             if ((strVendor != string.Empty) & (dteDeliDate.ToString() != DateTime.MinValue.ToString()))
             {
                 var result = _po.GetListByClosePO(_dsPo, strVendor, dteDeliDate, LoginInfo.ConnStr);

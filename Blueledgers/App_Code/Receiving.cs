@@ -6,6 +6,7 @@ using System.Web;
 using BlueLedger.PL.BaseClass;
 using System.Data;
 using System.Data.SqlClient;
+using System.Text;
 
 /// <summary>
 /// Receiving functions
@@ -71,7 +72,7 @@ namespace BlueLedger.PL.IN.REC
                 drInv["Type"] = "RC";
 
                 decimal extraCost = string.IsNullOrEmpty(drRecDt["ExtraCost"].ToString()) ? 0 : Convert.ToDecimal(drRecDt["ExtraCost"]);
-                drInv["PriceOnLots"] = Convert.ToDecimal(drRecDt["NetAmt"].ToString()) + extraCost;  
+                drInv["PriceOnLots"] = Convert.ToDecimal(drRecDt["NetAmt"].ToString()) + extraCost;
 
                 dsSave.Tables[inv.TableName].Rows.Add(drInv);
 
@@ -156,6 +157,248 @@ namespace BlueLedger.PL.IN.REC
         }
 
 
+
         #endregion // Methods
+
+
+        public void InsertInventory(string connectionString, string docNo, DateTime committedDate)
+        {
+
+            // Remove prevoious committed if avaiable
+            var query = "DELETE FROM [IN].Inventory WHERE [Type]='RC' AND HdrNo=@HdrNo";
+
+            ExecuteNoneQuery(connectionString, query, new SqlParameter[] { new SqlParameter("@HdrNo", docNo) });
+
+            var queryInsertInventory = "INSERT INTO [IN].Inventory (HdrNo, DtNo, InvNo, ProductCode, Location, [IN], [OUT], Amount, PriceOnLots,[Type], CommittedDate)";
+            var builder = new StringBuilder();
+
+            if (IsAverageCost(connectionString))
+            #region --Average--
+            {
+                builder.Clear();
+                builder.AppendLine(queryInsertInventory);
+                builder.Append(@"
+SELECT
+		d.RecNo,
+		d.RecDtNo,
+		1,
+		d.ProductCode,
+		d.LocationCode,
+		ROUND(RecQty * Rate, app.DigitQty()),
+		0,
+		ROUND(NetAmt/ROUND(RecQty * Rate, app.DigitQty()), app.DigitAmt()),
+		NetAmt,
+		'RC',
+		@CommittedDate
+	FROM
+		PC.REC h
+		JOIN PC.RECDt d
+			ON d.RecNo=h.RecNo
+	WHERE
+		h.RecNo = @DocNo;
+
+EXEC [IN].[UpdateAverageCost] @DocNo
+");
+                var parameters = new List<SqlParameter>();
+
+                parameters.Add(new SqlParameter("@DocNo", docNo));
+                parameters.Add(new SqlParameter("@CommittedDate", committedDate));
+
+                var affected = ExecuteNoneQuery(connectionString, builder.ToString(), parameters);
+            }
+            #endregion
+            else
+            #region --FIFO--
+            {
+                builder.Clear();
+                //builder.AppendLine(queryInsertInventory);
+                builder.AppendFormat(@"DECLARE @DocNo nvarchar(20)='{0}', @CommittedDate DATETIME = '{1}';", docNo, committedDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                builder.AppendLine(@"
+DELETE FROM [IN].Inventory WHERE HdrNo=@docno
+
+DECLARE 
+	@DigitQty INT = APP.DigitQty(),
+	@DigitAmt INT = APP.DigitAmt(),
+	@Price decimal(18, 4),
+	@DiffAmt decimal(18, 4),
+	@DiffQty decimal(18, 3),
+	@Qty1 decimal(18,3),
+	@Qty2 decimal(18,3),
+	@Amt1 decimal(18,4),
+	@Amt2 decimal(18,4)
+
+DECLARE 
+	@HdrNo nvarchar(20),
+	@DtNo INT,
+	@InvNo INT,
+	@ProductCode nvarchar(20),
+	@LocationCode nvarchar(20),
+	@Qty decimal(18,3),
+	@Total decimal(18,4)
+
+
+DECLARE rc_cursor CURSOR FOR
+SELECT
+	RecNo,
+	RecDtNo,
+	ProductCode,
+	LocationCode,
+	ROUND(RecQty * Rate, @DigitQty) as Qty,
+	NetAmt + ExtraCost as Total
+FROM
+	PC.RECDt
+WHERE
+	RecNo=@DocNo
+
+OPEN rc_cursor
+FETCH NEXT FROM rc_cursor INTO @HdrNo, @DtNo, @ProductCode, @LocationCode, @Qty, @Total
+
+WHILE @@FETCH_STATUS=0
+BEGIN
+	SET @Price  = ROUND(@Total/@Qty, APP.DigitAmt())
+	SET @DiffAmt = @Total - ROUND(@Price * @Qty, @DigitAmt)
+	SET @DiffQty = ABS( (@DiffAmt % 1) * POWER(10, APP.DigitQty()))
+
+	DECLARE @p decimal(18,4) = (CAST(1 as decimal(18,4))/POWER(10,@DigitAmt))
+
+	IF @DiffAmt <= 0
+	BEGIN
+		SET @Qty1 = @Qty - @DiffQty
+		SET @Amt1 = @Price
+
+		SET @Qty2 = @DiffQty
+		SET @Amt2 = @Price - @p
+	END
+	ELSE
+	BEGIN
+		SET @Qty1 = @DiffQty
+		SET @Amt1 = @Price - @p
+
+		SET @Qty2 = @Qty - @DiffQty
+		SET @Amt2 = @Price
+	END
+
+	INSERT INTO [IN].Inventory (HdrNo, DtNo, InvNo, ProductCode, Location, [IN], [OUT], Amount, PriceOnLots,[Type], CommittedDate) 
+	SELECT 
+		@HdrNo as HdrNo, 
+		@DtNo as DtNo,
+		1 as InvNo,
+		@ProductCode as ProductCode,
+		@LocationCode as [Location],
+		@Qty1 as [IN],
+		0 as [OUT],
+		@Amt1 as Amount,
+		ROUND(@Qty1 * @Amt1, @DigitAmt) as PriceOnLots,
+		'RC' as [Type],
+		@CommittedDate as CommittedDate
+
+	IF (@DiffQty <> 0)
+	BEGIN
+		INSERT INTO [IN].Inventory (HdrNo, DtNo, InvNo, ProductCode, Location, [IN], [OUT], Amount, PriceOnLots,[Type], CommittedDate) 
+		SELECT 
+			@HdrNo as HdrNo, 
+			@DtNo as DtNo,
+			2 as InvNo,
+			@ProductCode as ProductCode,
+			@LocationCode as [Location],
+			@Qty2 as [IN],
+			0 as [OUT],
+			@Amt2 as Amount,
+			ROUND(@Qty2 * @Amt2, @DigitAmt) as PriceOnLots,
+			'RC' as [Type],
+			@CommittedDate as CommittedDate
+	END
+
+	FETCH NEXT FROM rc_cursor INTO @HdrNo, @DtNo, @ProductCode, @LocationCode, @Qty, @Total
+END
+
+CLOSE rc_cursor
+DEALLOCATE rc_cursor");
+                //var parameters = new List<SqlParameter>();
+
+                //parameters.Add(new SqlParameter("@DocNo", docNo));
+                //parameters.Add(new SqlParameter("@CommittedDate", committedDate));
+                //parameters.Add(new SqlParameter("@p_DocNo", docNo));
+                //parameters.Add(new SqlParameter("@p_CommittedDate", committedDate));
+
+                //var affected = ExecuteNoneQuery(connectionString, builder.ToString(), parameters);
+                var affected = ExecuteNoneQuery(connectionString, builder.ToString());
+            }
+            #endregion
+
+        }
+
+
+        private bool IsAverageCost(string connectionString)
+        {
+            var query = "SELECT [Value] FROM APP.Config WHERE [Module]='IN' AND SubModule='SYS' AND [Key]='COST'";
+
+            var dt = ExecuteQuery(connectionString, query);
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                var result = dt.Rows[0][0].ToString().Trim();
+
+                return result != "FIFO";
+            }
+            else
+                return true;
+        }
+
+
+        // Method(s) -- SQL
+        public DataTable ExecuteQuery(string connectionString, string query, IEnumerable<SqlParameter> parameters = null)
+        {
+            try
+            {
+                using (var conn = new SqlConnection(connectionString))
+                {
+                    using (var da = new SqlDataAdapter(query, conn))
+                    {
+                        if (parameters != null && parameters.ToArray().Length > 0)
+                        {
+                            foreach (var p in parameters)
+                            {
+                                da.SelectCommand.Parameters.AddWithValue(p.ParameterName, p.Value);
+                            }
+                        }
+
+                        var dt = new DataTable();
+                        da.Fill(dt);
+
+                        return dt;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public int ExecuteNoneQuery(string connectionString, string query, IEnumerable<SqlParameter> parameters = null)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    SqlCommand command = new SqlCommand(query, connection);
+
+                    if (parameters != null && parameters.ToArray().Length > 0)
+                    {
+                        foreach (var p in parameters)
+                        {
+                            command.Parameters.AddWithValue(p.ParameterName, p.Value);
+                        }
+                    }
+                    command.Connection.Open();
+                    return (int)command.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
     }
 }

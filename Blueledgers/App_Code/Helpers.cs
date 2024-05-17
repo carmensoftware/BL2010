@@ -21,7 +21,6 @@ public class Helpers
 
         public string ConnectionString { set { _connStr = value; } }
 
-
         public DataTable ExecuteQuery(string query, SqlParameter[] parameters = null, string connectionString = null)
         {
             try
@@ -84,10 +83,6 @@ public class Helpers
                 throw new Exception(ex.Message);
             }
         }
-
-
-
-
 
     }
 

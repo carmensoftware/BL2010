@@ -14,7 +14,7 @@ namespace Blue.BL.dbo
         /* 
             2025-02-28 = G Nimman = 1
 
-            2025-01-31 = siamese = 24+2 = 26
+            2025-01-31 = siamese = 24+2 = 26 + 20 = 46
             2025-01-31 = BwChatuchak = 9
             2025-01-31 = bwpluscarapace =17
             2025-01-31 = OKM = 50
@@ -22,9 +22,15 @@ namespace Blue.BL.dbo
             2025-01-31 = ibis = 999
             2025-01-31 = MysKhaoyai = 12
             2025-01-31 = HopInn = 27
+            2025-01-31 = urbanalangsuanbkk = 7
+            2025-01-31 = legacysuites = 15
 
             2024-11-30 = wyndhamgardennaithon = 21
             2024-11-30 = skyviewresortphuket = 11
+          
+            2024-10-31 = rasahospitality = 73 + 17 = 90
+            2024-10-31 = BlumonkeyKrabi = 6
+            2024-10-31 = maduzi = 20
 
             2024-09-30 = The Sarojin = 3
             2024-09-30 = varanahotel = 16
@@ -43,34 +49,26 @@ namespace Blue.BL.dbo
             2024-07-31 = silavadeepoolsparesort = 28
             2024-07-31 = Public House = 6
             2024-07-31 = wyndhamjomtienpattaya = 20
-            2024-07-31 = UrbanaLangsuanBkk = 7
 
-            2024-06-30 = legacysuites = 15
             2024-06-30 = floralcourthotel = 5+6 = 11
             2024-06-30 = The Twin Lotus Hotel Co.,Ltd (on Permise) = 16
             2024-06-30 = rxvwellness = 35
             2024-06-30 = BaanSamuiResort = 8
-            2024-06-30 = maduzi = 20
+            2024-06-30 = kappasensesubud = 17
 
             2024-05-31 = chi = 2
             2024-05-31 = HotelSensai (Chiang Mai) = 3+8 = 11
             2024-05-31 = brownstarling = 18
-
-            2024-04-30 = bestwesternratchada = 10        
-            2024-04-30 = BlumonkeyKrabi = 6
-            2024-04-30 = tribehotels = 8
-            2024-04-30 = DeevanaPhuket = 65=> 69
-            2024-04-30 = homa = 24
-            2024-04-30 = kappasensesubud = 17
+            2024-05-31 = DeevanaPhuket = 65=> 69
+            2024-05-31 = bestwesternratchada = 10        
+          
             
-            2024-03-31 = Lilit = 8
-         
-         
-         
-
-
 
             --------- Expired -------------
+            2024-05-31 = tribehotels = 8 *ย้ายไปรวมกับ siamese
+
+            2024-03-31 = homa = 24
+            2024-03-31 = Lilit = 8
 
             2023-10-31 = did3 (SHotel) = 10
             2023-10-31 = Best Western Premier Bayphere Pattaya = 25         
@@ -79,7 +77,7 @@ namespace Blue.BL.dbo
         
         */
         private DateTime licenseExpiredDate = new DateTime(2025, 1, 31);
-        private int licenseActiveUser = 270;
+        private int licenseActiveUser = 46;
 
         public User()
         {

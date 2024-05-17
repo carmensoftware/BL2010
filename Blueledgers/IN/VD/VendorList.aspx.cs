@@ -5,6 +5,7 @@ using BlueLedger.PL.BaseClass;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Text;
 
 namespace BlueLedger.PL.IN
 {
@@ -110,7 +111,7 @@ namespace BlueLedger.PL.IN
             // Get data
             dtVendorView = VendorView.GetVendorViewList(3, LoginInfo.ConnStr);
 
-           
+
         }
 
         protected void ValidatePermission()
@@ -120,7 +121,7 @@ namespace BlueLedger.PL.IN
         }
 
 
-        
+
         private string GetDefaultVendorViewID(DataTable vendorView)
         {
             var vendorViewID = string.Empty;
@@ -144,7 +145,7 @@ namespace BlueLedger.PL.IN
         }
 
 
-       
+
         private void menu_ItemClick(object source, DevExpress.Web.ASPxMenu.MenuItemEventArgs e)
         {
             var objArrList = new ArrayList();
@@ -179,7 +180,7 @@ namespace BlueLedger.PL.IN
         }
 
 
-        
+
         protected void btn_Go_Click(object sender, EventArgs e)
         {
             // Re-binding account list
@@ -190,7 +191,7 @@ namespace BlueLedger.PL.IN
         protected void btn_SyncVendor_Click(object sender, EventArgs e)
         {
             SyncVendor();
-            Response.Redirect(Request.RawUrl); 
+            Response.Redirect(Request.RawUrl);
         }
 
 
@@ -214,10 +215,13 @@ namespace BlueLedger.PL.IN
                     var api = new CarmenApi(host, token);
                     var vendors = api.GetVendors();
 
-                    var script = new List<string>();
+                    var script = new StringBuilder();
+                    var recordCount = 1;
+                    var builder = new StringBuilder();
 
                     foreach (var item in vendors)
                     {
+
                         var vnCode = item.VnCode;
                         var vnName = item.VnName.Replace("\'", "\'\'");
                         var vnAdd1 = string.IsNullOrEmpty(item.VnAdd1) ? "" : item.VnAdd1.Replace("\'", "\'\'");
@@ -229,6 +233,9 @@ namespace BlueLedger.PL.IN
                         var vnCateCode = item.VnCateCode;
                         var vnTaxNo = string.IsNullOrEmpty(item.VnTaxNo) ? "" : item.VnTaxNo.Replace("\'", "\'\'"); // item.VnTaxNo;
                         var branchNo = string.IsNullOrEmpty(item.BranchNo) ? "" : item.BranchNo.Replace("\'", "\'\'");  //item.BranchNo;
+
+                        branchNo = branchNo.Length > 20 ? branchNo.Substring(0, 20) : branchNo;
+
                         var vnVat1 = item.VnVat1.Substring(0, 1);
                         var vnTaxR1 = item.VnTaxR1 ?? 0;
                         var vnTerm = item.VnTerm ?? 0;
@@ -238,37 +245,53 @@ namespace BlueLedger.PL.IN
                         var address = string.Format("{0} {1} {2} {3}", vnAdd1, vnAdd2, vnAdd3, vnAdd4).Trim();
                         var userModified = string.IsNullOrEmpty(item.UserModified);
 
-                        string sql = "EXEC [Tool].[Vendor_InsertOrUpdate] ";
-                        sql += string.Format("@VendorCode='{0}',", vnCode);
-                        sql += string.Format("@CategoryCode='{0}',", vnCateCode);
-                        sql += string.Format("@VendorName=N'{0}',", vnName.Replace("'", "''"));
-                        sql += string.Format("@Address=N'{0}',", address.Replace("'", "''"));
-                        sql += string.Format("@Tel=N'{0}',", vnTel.Replace("'", "''"));
-                        sql += string.Format("@Fax=N'{0}',", vnFax.Replace("'", "''"));
-                        sql += string.Format("@TaxId=N'{0}',", vnTaxNo.Replace("'", "''"));
-                        sql += string.Format("@BranchId=N'{0}',", branchNo.Replace("'", "''"));
-                        sql += string.Format("@TaxType='{0}',", vnVat1);
-                        sql += string.Format("@TaxRate='{0}',", vnTaxR1);
-                        sql += string.Format("@CreditTerm='{0}',", vnTerm);
-                        sql += string.Format("@IsActive='{0}',", active);
-                        sql += string.Format("@UpdatedBy='{0}',", userModified);
-                        sql += string.Format("@UpdatedDate='{0}'", lastModified);
+
+                        builder.Append("EXEC [Tool].[Vendor_InsertOrUpdate] ");
+                        builder.AppendFormat("@VendorCode='{0}',", vnCode);
+                        builder.AppendFormat("@CategoryCode='{0}',", vnCateCode);
+                        builder.AppendFormat("@VendorName=N'{0}',", vnName.Replace("'", "''"));
+                        builder.AppendFormat("@Address=N'{0}',", address.Replace("'", "''"));
+                        builder.AppendFormat("@Tel=N'{0}',", vnTel.Replace("'", "''"));
+                        builder.AppendFormat("@Fax=N'{0}',", vnFax.Replace("'", "''"));
+                        builder.AppendFormat("@TaxId=N'{0}',", vnTaxNo.Replace("'", "''"));
+                        builder.AppendFormat("@BranchId=N'{0}',", branchNo.Replace("'", "''"));
+                        builder.AppendFormat("@TaxType='{0}',", vnVat1);
+                        builder.AppendFormat("@TaxRate='{0}',", vnTaxR1);
+                        builder.AppendFormat("@CreditTerm='{0}',", vnTerm);
+                        builder.AppendFormat("@IsActive='{0}',", active);
+                        builder.AppendFormat("@UpdatedBy='{0}',", userModified);
+                        builder.AppendFormat("@UpdatedDate='{0}'", lastModified);
+                        builder.AppendLine(";");
 
 
-                        script.Add(sql);
+                        if (recordCount > 500)
+                        {
+                            script.AppendLine(builder.ToString());
+                            recordCount = 0;
+                            builder.Clear();
+
+                        }
+
+                        recordCount++;
+
                     }
+
+                    script.AppendLine(builder.ToString());
+
+                    //throw new Exception(script.ToString());
+
                     // run scripts
                     using (SqlConnection conn = new SqlConnection(LoginInfo.ConnStr))
                     {
-                        SqlCommand command = new SqlCommand(string.Join("; ", script), conn);
+                        SqlCommand command = new SqlCommand(script.ToString(), conn);
                         command.Connection.Open();
                         command.ExecuteNonQuery();
                         conn.Close();
                     }
                 }
             }
-            
-            
+
+
 
         }
 

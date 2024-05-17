@@ -390,7 +390,7 @@ namespace BlueLedger.PL.PC.PR
             // --------------------------------------------------------------------------------------------------------
 
             var vid = Request.QueryString["VID"].ToString();
-            var page = Request.QueryString["page"].ToString();
+            var page = Request.QueryString["page"]==null ? "1" : Request.QueryString["page"].ToString();
 
             // Modified on: 05/09/2017, By: Fon
             menu_CmdBar.Items.FindByName("Commit").ToolTip = "Commit";
