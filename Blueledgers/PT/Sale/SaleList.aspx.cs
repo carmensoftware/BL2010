@@ -22,10 +22,9 @@ namespace BlueLedger.PL.PT.Sale
         private readonly string moduleID = "4.3";
         private readonly Blue.BL.dbo.Bu bu = new Blue.BL.dbo.Bu();
         private readonly Blue.BL.ADMIN.RolePermission rolePermiss = new Blue.BL.ADMIN.RolePermission();
-        //private readonly Blue.BL.Option.Inventory.StoreLct storeLct = new Blue.BL.Option.Inventory.StoreLct();
 
         private readonly string[] ImportFields = { "SaleDate", "OutletCode", "DepartmentCode", "ItemCode", "Qty", "Price", "Total" };
-
+        public string iconEdit = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAcQAAAHEBHD+AdwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAEESURBVDiNldO/LuxRFMXxz5KJRqFSKCU6IUIp0XoGkXgBDUFHoldQ6XQ6iUqlcm8iOh5AoUGp9C83dysQMn4zmVnJKU72/q61T7KPqtLPwRL+4BAjqSpJJjHrWw9VdaZNSVaxginMYznYwRguf/TeVdVpAzyHexTWcQFXPYy9imO0Pu97uMbmAAbaR+2QvFhV/36Uzqtqt284yR5U1Zpu6b3AHQ2SrPQCNxokCTYwhFY32FdDm2bw18eynCS5wf8muNMTFvCECUzjuQlOspVktGmCJ7zgDFtV9dyUjHEM/zKoqv0OQKO67kGvBo9JRvqBkgz6+D+3LWzjKMlwHx5vOKiq13cd46KPLEvGfQAAAABJRU5ErkJggg==";
 
 
         private DataTable dtSale
@@ -914,12 +913,36 @@ namespace BlueLedger.PL.PT.Sale
 
         private DataTable GetSaleData(DateTime date)
         {
-            var sql = "SELECT CONCAT(s.Outlet,' : ', o.OutletName) as Outlet, CONCAT(s.ItemCode,' : ', i.ItemName) as Item, s.Qty, s.UnitPrice, s.Total";
-            sql += " FROM PT.Sale s";
-            sql += " LEFT JOIN PT.Outlet o ON o.OutletCode=s.Outlet";
-            sql += " LEFT JOIN PT.Item i ON i.ItemCode=s.ItemCode";
-            sql += string.Format(" WHERE SaleDate='{0}'", date.ToString("yyyy-MM-dd")); ;
-            sql += " ORDER BY s.ID";
+            var sql =string.Format(@"DECLARE @SaleDate DATE = '{0}'
+ 
+SELECT 
+	CONCAT(s.OutletCode,' : ', o.OutletName) as Outlet, 
+	CASE 
+		WHEN ISNULL(s.LocationCode,'')='' THEN CONCAT(o.LocationCode, CASE WHEN ISNULL(o.LocationCode,'')='' THEN '' ELSE ' : ' END,l.LocationName) 
+		ELSE s.LocationCode
+	END as Location,
+	CONCAT(s.ItemCode,' : ', i.ItemName) as Item, 
+	CASE 
+		WHEN ISNULL(s.RcpCode,'')='' THEN CONCAT(i.RcpCode,CASE WHEN ISNULL(i.RcpCode,'')='' THEN '' ELSE ' : ' END, r.RcpDesc1)
+		ELSE  s.RcpCode
+	END as Recipe, 
+	s.Qty, 
+	s.UnitPrice, 
+	s.Total
+ FROM 
+	PT.Sale s
+	LEFT JOIN PT.Outlet o 
+		ON o.OutletCode=s.OutletCode
+	LEFT JOIN [IN].StoreLocation l
+		ON l.LocationCode=o.LocationCode
+	LEFT JOIN PT.Item i 
+		ON i.ItemCode=s.ItemCode
+	LEFT JOIN PT.Rcp r
+		ON r.RcpCode=i.RcpCode
+ WHERE 
+	SaleDate=@SaleDate
+ ORDER BY 
+	s.ID", date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
 
             return bu.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
         }
@@ -936,7 +959,12 @@ namespace BlueLedger.PL.PT.Sale
 
             if (outlets.Count() > 0)
             {
-                lbl_Alert.Text = string.Format("Found outlets are not mapped to locations.<br /> {0}", string.Join(",", outlets.Select(x => x.Key)));
+                var list = outlets
+                    .Select(x => x.Key + " : " + x.Value)
+                    .ToArray();
+
+                lbl_Alert.Text = string.Format("Found outlets are not mapped to locations.<br /> {0}", string.Join("<br/>", list));
+                //lbl_Alert.Text = string.Format("Found outlets are not mapped to locations.<br /> {0}", string.Join(",", outlets.Select(x => x.Key)));
                 pop_Alert.ShowOnPageLoad = true;
 
                 return;
@@ -1870,14 +1898,24 @@ namespace BlueLedger.PL.PT.Sale
         private IEnumerable<KeyValue> GetOutletNoMap(DateTime date)
         {
             var saleDate = date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            var sql = string.Format("SELECT s.OutletCode, o.OutletName FROM PT.Sale s LEFT JOIN PT.Outlet o ON o.OutletCode=s.Outlet WHERE SaleDate='{0}' AND ISNULL(o.LocationCode,'')='' ", saleDate);
+            var sql = string.Format(@"
+SELECT 
+    DISTINCT s.OutletCode, 
+    o.OutletName 
+FROM 
+    PT.Sale s 
+    LEFT JOIN PT.Outlet o 
+        ON o.OutletCode=s.OutletCode 
+WHERE 
+    SaleDate='{0}' 
+    AND ISNULL(o.LocationCode,'')=''", saleDate);
 
             var dt = bu.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
 
             return dt.AsEnumerable()
                 .Select(x => new KeyValue
                 {
-                    Key = x.Field<string>("Outlet"),
+                    Key = x.Field<string>("OutletCode"),
                     Value = x.Field<string>("OutletName")
                 });
         }
@@ -1959,7 +1997,6 @@ namespace BlueLedger.PL.PT.Sale
             public decimal Total { get; set; }
         }
 
-
         [Serializable]
         internal class KeyValue
         {
@@ -1977,7 +2014,6 @@ namespace BlueLedger.PL.PT.Sale
             public decimal Price { get; set; }
             public decimal Total { get; set; }
         }
-
     }
 
 }

@@ -71,7 +71,7 @@
                     <Paddings PaddingLeft="10" PaddingRight="10" />
                     <Border BorderStyle="None" />
                 </ItemStyle>
-                <Items>                    
+                <Items>
                     <dx:MenuItem Name="Department" Text="Department" Visible="false">
                         <ItemStyle BackColor="DarkGray" ForeColor="White" />
                     </dx:MenuItem>
@@ -141,6 +141,22 @@
                                 </asp:TemplateField>
                                 <asp:TemplateField>
                                     <HeaderTemplate>
+                                        Location
+                                    </HeaderTemplate>
+                                    <ItemTemplate>
+                                        <asp:LinkButton runat="server" ID="btn_EditLocation"><img src="<%=iconEdit%>" alt="edit" /> <%# Eval("Location") %></asp:LinkButton>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                                <asp:TemplateField>
+                                    <HeaderTemplate>
+                                        Recipe
+                                    </HeaderTemplate>
+                                    <ItemTemplate>
+                                        <asp:LinkButton runat="server" ID="btn_EditRecipe"><img src="<%=iconEdit%>" alt="edit" /> <%# Eval("Recipe") %></asp:LinkButton>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                                <asp:TemplateField>
+                                    <HeaderTemplate>
                                         <div class="text-end">
                                             Qty
                                         </div>
@@ -195,11 +211,13 @@
         Modal="True" AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter" ShowPageScrollbarWhenModal="True">
         <ContentCollection>
             <dx:PopupControlContentControl ID="PopupControlContentControl_Alert" runat="server">
-                <div style="width: 100%; text-align: center;">
+                <div style="width: 100%; text-align: justify;">
                     <asp:Label ID="lbl_Alert" runat="server" />
                     <br />
                     <br />
                     <br />
+                </div>
+                <div style="width: 100%; text-align: center;">
                     <asp:Button ID="btn_Alert_Ok" runat="server" Width="80" Text="OK" OnClientClick="pop_Alert.Hide();" />
                 </div>
             </dx:PopupControlContentControl>
@@ -771,46 +789,47 @@
             </dx:PopupControlContentControl>
         </ContentCollection>
     </dx:ASPxPopupControl>
-    <dx:ASPxPopupControl ID="pop_Consumptioon" ClientInstanceName="pop_Consumptioon" runat="server" Width="800" HeaderText="Product Consumption" ShowHeader="true" CloseAction="CloseButton"
-        Modal="True" AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="Above" PopupHorizontalAlign="WindowCenter" ShowPageScrollbarWhenModal="True">
+    <dx:ASPxPopupControl ID="pop_Consumptioon" ClientInstanceName="pop_Consumptioon" runat="server" Width="800" HeaderText="Product Consumption" ShowHeader="true"
+        CloseAction="CloseButton" Modal="True" AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="Above" PopupHorizontalAlign="WindowCenter"
+        ShowPageScrollbarWhenModal="True">
         <ContentCollection>
             <dx:PopupControlContentControl ID="PopupControlContentControl_Consumption" runat="server">
                 <table width="100%">
-        <tr>
-            <td style="width: 20%; vertical-align: top;">
-                <div class="mb-3">
-                    <b>Location(s)</b>
-                </div>
-                <asp:ListBox ID="listbox_Location" runat="server" AutoPostBack="true" Width="90%" Rows="30" OnSelectedIndexChanged="listbox_Location_SelectedIndexChanged">
-                </asp:ListBox>
-            </td>
-            <td style="vertical-align: top;">
-                <div class="mb-3">
-                    <b>
-                        <%= (listbox_Location.SelectedIndex < 0?"":listbox_Location.SelectedItem.Text) %></b>
-                </div>
-                <asp:GridView ID="gv_Items" runat="server" SkinID="GRD_V2" Width="100%" HeaderStyle-HorizontalAlign="Left">
-                    <Columns>
-                        <asp:BoundField DataField="ProductCode" HeaderText="Code" />
-                        <asp:BoundField DataField="ProductDesc1" HeaderText="Name1" />
-                        <asp:BoundField DataField="ProductDesc2" HeaderText="Name2" />
-                        <asp:BoundField DataField="Unit" HeaderText="Unit" />
-                        <asp:TemplateField>
-                            <HeaderTemplate>
-                                <div style="text-align: right;">
-                                    Quantity
-                                </div>
-                            </HeaderTemplate>
-                            <ItemTemplate>
-                                <%# FormatQty(Eval("Qty")) %>
-                            </ItemTemplate>
-                            <ItemStyle HorizontalAlign="Right" />
-                        </asp:TemplateField>
-                    </Columns>
-                </asp:GridView>
-            </td>
-        </tr>
-    </table>
+                    <tr>
+                        <td style="width: 20%; vertical-align: top;">
+                            <div class="mb-3">
+                                <b>Location(s)</b>
+                            </div>
+                            <asp:ListBox ID="listbox_Location" runat="server" AutoPostBack="true" Width="90%" Rows="30" OnSelectedIndexChanged="listbox_Location_SelectedIndexChanged">
+                            </asp:ListBox>
+                        </td>
+                        <td style="vertical-align: top;">
+                            <div class="mb-3">
+                                <b>
+                                    <%= (listbox_Location.SelectedIndex < 0?"":listbox_Location.SelectedItem.Text) %></b>
+                            </div>
+                            <asp:GridView ID="gv_Items" runat="server" SkinID="GRD_V2" Width="100%" HeaderStyle-HorizontalAlign="Left">
+                                <Columns>
+                                    <asp:BoundField DataField="ProductCode" HeaderText="Code" />
+                                    <asp:BoundField DataField="ProductDesc1" HeaderText="Name1" />
+                                    <asp:BoundField DataField="ProductDesc2" HeaderText="Name2" />
+                                    <asp:BoundField DataField="Unit" HeaderText="Unit" />
+                                    <asp:TemplateField>
+                                        <HeaderTemplate>
+                                            <div style="text-align: right;">
+                                                Quantity
+                                            </div>
+                                        </HeaderTemplate>
+                                        <ItemTemplate>
+                                            <%# FormatQty(Eval("Qty")) %>
+                                        </ItemTemplate>
+                                        <ItemStyle HorizontalAlign="Right" />
+                                    </asp:TemplateField>
+                                </Columns>
+                            </asp:GridView>
+                        </td>
+                    </tr>
+                </table>
                 <div style="width: 100%; text-align: center;">
                     <asp:Button ID="Button1" runat="server" Width="80" Text="Close" OnClientClick="pop_Consumptioon.Hide();" />
                 </div>

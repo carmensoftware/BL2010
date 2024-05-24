@@ -979,11 +979,8 @@ namespace BlueLedger.PL.PC.CN
             cmdDel.Parameters.AddWithValue("dtNo", drCnDetail["CnDtNo"].ToString());
             cmdDel.ExecuteNonQuery();
 
-
-
             if (cnType == "Q")
             {
-
                 decimal recQty = Convert.ToDecimal(drCnDetail["RecQty"].ToString());
                 string unitCode = drCnDetail["UnitCode"].ToString();
                 string invUnit = prodUnit.GetInvenUnit(productCode, hf_ConnStr.Value);
@@ -1103,7 +1100,7 @@ namespace BlueLedger.PL.PC.CN
 
                 string refNo = reader["HdrNo"].ToString();
                 int refDtNo = Convert.ToInt32(reader["DtNo"].ToString());
-
+                int lotsNo = Convert.ToInt32(reader["InvNo"].ToString()); // represent for InvNo
 
                 decimal recTotal = Convert.ToDecimal(reader["NetAmt"].ToString());
                 decimal recQty = Convert.ToDecimal(reader["Qty"].ToString());
@@ -1164,6 +1161,7 @@ namespace BlueLedger.PL.PC.CN
                 //drInv["RptBank"] = System.DBNull.Value;
                 drInv["RefNo"] = refNo;
                 drInv["RefDtNo"] = refDtNo;
+                drInv["LotsNo"] = lotsNo;
                 drInv["CommittedDate"] = committedDate;
                 drInv["Type"] = "CR";
 

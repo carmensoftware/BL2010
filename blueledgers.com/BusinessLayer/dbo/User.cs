@@ -38,7 +38,7 @@ namespace Blue.BL.dbo
             2024-09-30 = indochinephuket = 27
 
             2024-08-31 = bestwesternclicksathorn11 = 10
-            2024-08-31 = Cafedelmar Phuket = 31
+            2024-08-31 = Cafedelmar Phuket = 31+5=36
 
          
             2024-07-31 = Nexen = 20
@@ -76,8 +76,8 @@ namespace Blue.BL.dbo
             2023-01-31 = SPM = 20 
         
         */
-        private DateTime licenseExpiredDate = new DateTime(2025, 1, 31);
-        private int licenseActiveUser = 46;
+        private DateTime licenseExpiredDate = new DateTime(2024, 8, 31);
+        private int licenseActiveUser = 36;
 
         public User()
         {
