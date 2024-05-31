@@ -12,6 +12,13 @@ namespace Blue.BL.dbo
         private readonly Blue.BL.ADMIN.UserStore userStore = new Blue.BL.ADMIN.UserStore();
 
         /* 
+            2025-05-31 = HotelSensai (Chiang Mai) = 3+8 = 11 ปรับเป็น 10 ตาม license (27052024_blueledgers.xlsx)
+            2025-05-31 = chi = 2
+
+            2025-04-30 = bestwesternratchada = 10        
+
+            2025-03-31 = silavadeepoolsparesort = 28
+
             2025-02-28 = G Nimman = 1
 
             2025-01-31 = siamese = 24+2 = 26 + 20 = 46
@@ -39,6 +46,7 @@ namespace Blue.BL.dbo
 
             2024-08-31 = bestwesternclicksathorn11 = 10
             2024-08-31 = Cafedelmar Phuket = 31+5=36
+            2024-08-31 = ramadadmabangkok = 14
 
          
             2024-07-31 = Nexen = 20
@@ -46,7 +54,6 @@ namespace Blue.BL.dbo
             2024-07-31 = bwsanctuary = 10
             2024-07-31 = boulevardhotelbangkok = 10 + 17 = 27
             2024-07-31 = Diamond Cottage = 15+5=20
-            2024-07-31 = silavadeepoolsparesort = 28
             2024-07-31 = Public House = 6
             2024-07-31 = wyndhamjomtienpattaya = 20
 
@@ -55,12 +62,9 @@ namespace Blue.BL.dbo
             2024-06-30 = rxvwellness = 35
             2024-06-30 = BaanSamuiResort = 8
             2024-06-30 = kappasensesubud = 17
+            2024-06-30 = DeevanaPhuket = 65=> 69
 
-            2024-05-31 = chi = 2
-            2024-05-31 = HotelSensai (Chiang Mai) = 3+8 = 11
             2024-05-31 = brownstarling = 18
-            2024-05-31 = DeevanaPhuket = 65=> 69
-            2024-05-31 = bestwesternratchada = 10        
           
             
 
@@ -76,8 +80,8 @@ namespace Blue.BL.dbo
             2023-01-31 = SPM = 20 
         
         */
-        private DateTime licenseExpiredDate = new DateTime(2024, 8, 31);
-        private int licenseActiveUser = 36;
+        private DateTime licenseExpiredDate = new DateTime(2024, 6, 30);
+        private int licenseActiveUser = 69;
 
         public User()
         {

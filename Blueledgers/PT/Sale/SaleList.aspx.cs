@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Blue.DAL;
 using BlueLedger.PL.BaseClass;
 using DevExpress.Web.ASPxEditors;
 using Newtonsoft.Json;
@@ -22,9 +23,26 @@ namespace BlueLedger.PL.PT.Sale
         private readonly string moduleID = "4.3";
         private readonly Blue.BL.dbo.Bu bu = new Blue.BL.dbo.Bu();
         private readonly Blue.BL.ADMIN.RolePermission rolePermiss = new Blue.BL.ADMIN.RolePermission();
+        private readonly Blue.BL.IN.StockOut stockOut = new Blue.BL.IN.StockOut();
 
         private readonly string[] ImportFields = { "SaleDate", "OutletCode", "DepartmentCode", "ItemCode", "Qty", "Price", "Total" };
         public string iconEdit = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAcQAAAHEBHD+AdwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAEESURBVDiNldO/LuxRFMXxz5KJRqFSKCU6IUIp0XoGkXgBDUFHoldQ6XQ6iUqlcm8iOh5AoUGp9C83dysQMn4zmVnJKU72/q61T7KPqtLPwRL+4BAjqSpJJjHrWw9VdaZNSVaxginMYznYwRguf/TeVdVpAzyHexTWcQFXPYy9imO0Pu97uMbmAAbaR+2QvFhV/36Uzqtqt284yR5U1Zpu6b3AHQ2SrPQCNxokCTYwhFY32FdDm2bw18eynCS5wf8muNMTFvCECUzjuQlOspVktGmCJ7zgDFtV9dyUjHEM/zKoqv0OQKO67kGvBo9JRvqBkgz6+D+3LWzjKMlwHx5vOKiq13cd46KPLEvGfQAAAABJRU5ErkJggg==";
+
+        private DataTable dtStockOut
+        {
+            get
+            {
+                if (ViewState["dtStockOut"] == null)
+                    ViewState["dtStockOut"] = new DataTable();
+
+                return (DataTable)ViewState["dtStockOut"];
+            }
+
+            set
+            {
+                ViewState["dtStockOut"] = value;
+            }
+        }
 
 
         private DataTable dtSale
@@ -109,13 +127,13 @@ namespace BlueLedger.PL.PT.Sale
             set { Session["PosData"] = value; }
         }
 
-        private string _Date
+        private DateTime _Date
         {
             get
             {
                 var date = Request.QueryString["date"];
 
-                return string.IsNullOrEmpty(date) ? DateTime.Today.ToString("yyyy-MM-dd") : date.ToString();
+                return string.IsNullOrEmpty(date) ? DateTime.Today : Convert.ToDateTime(date);
             }
         }
 
@@ -204,71 +222,47 @@ namespace BlueLedger.PL.PT.Sale
 
         }
 
+
         // Grid OutletItem
-
-        protected void grd_Outlet_RowDataBound(object sender, GridViewRowEventArgs e)
+        protected void btn_OutletItem_Edit_Click(object sender, EventArgs e)
         {
-            var gv = sender as GridView;
+            var row = (sender as Button).NamingContainer;
 
-            if (e.Row.RowType == DataControlRowType.DataRow)
+            var hf_OutletCode = row.FindControl("hf_OutletCode") as HiddenField;
+            var hf_ItemCode = row.FindControl("hf_ItemCode") as HiddenField;
+            var hf_LocationCode = row.FindControl("hf_LocationCode") as HiddenField;
+
+            SetOutletItem(hf_OutletCode.Value, hf_ItemCode.Value, hf_LocationCode.Value);
+            pop_SetOutlet.ShowOnPageLoad = true;
+        }
+
+        protected void btn_OutletItem_Delete_Click(object sender, EventArgs e)
+        {
+            var row = (sender as Button).NamingContainer;
+
+            var hf_OutletCode = row.FindControl("hf_OutletCode") as HiddenField;
+            var hf_ItemCode = row.FindControl("hf_ItemCode") as HiddenField;
+            var hf_LocationCode = row.FindControl("hf_LocationCode") as HiddenField;
+
+            var outletCode = hf_OutletCode.Value;
+            var itemCode = hf_ItemCode.Value;
+
+            if (string.IsNullOrEmpty(itemCode))
             {
-                if (e.Row.FindControl("ddl_LocationCode") != null)
-                {
-                    var ddl_LocationCode = e.Row.FindControl("ddl_LocationCode") as ASPxComboBox;
+                var sql = string.Format("SELECT TOP(1) OutletCode FROM PT.Sale WHERE OutletCode='{0}'", outletCode);
+                var dt = bu.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
 
-                    ddl_LocationCode.Value = DataBinder.Eval(e.Row.DataItem, "LocationCode");
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    ShowAlert(string.Format("No deleted. The '{0}' is exist in sale.", outletCode), "Warning");
+
+                    return;
                 }
             }
 
-        }
 
-        protected void grd_Outlet_RowEditing(object sender, GridViewEditEventArgs e)
-        {
-            (sender as GridView).EditIndex = e.NewEditIndex;
-            BindOutletData();
 
-        }
-
-        protected void grd_Outlet_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e)
-        {
-            (sender as GridView).EditIndex = -1;
-            BindOutletData();
-        }
-
-        protected void grd_Outlet_RowUpdating(object sender, GridViewUpdateEventArgs e)
-        {
-            var txt_OutletName = grd_Outlet.Rows[e.RowIndex].FindControl("txt_OutletName") as TextBox;
-            var ddl_LocationCode = grd_Outlet.Rows[e.RowIndex].FindControl("ddl_LocationCode") as ASPxComboBox;
-
-            var code = grd_Outlet.DataKeys[e.RowIndex].Value.ToString();
-            var name = txt_OutletName.Text.Trim();
-            var locationCode = ddl_LocationCode.Value == null ? "" : ddl_LocationCode.SelectedItem.Value.ToString();
-
-            var sql = string.Format("UPDATE PT.Outlet SET OutletName=@Name, LocationCode = N'{0}'WHERE OutletCode = N'{1}'", locationCode, code);
-            var p = new List<Blue.DAL.DbParameter>();
-
-            p.Add(new Blue.DAL.DbParameter("Name", name));
-            bu.DbExecuteQuery(@sql, p.ToArray(), LoginInfo.ConnStr);
-
-            (sender as GridView).EditIndex = -1;
-            BindOutletData();
-        }
-
-        protected void grd_Outlet_RowDeleting(object sender, GridViewDeleteEventArgs e)
-        {
-            var code = grd_Outlet.DataKeys[e.RowIndex].Value.ToString();
-
-            var sql = string.Format("SELECT TOP(1) OutletCode FROM PT.Sale WHERE OutletCode='{0}'", code);
-            var dt = bu.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
-
-            if (dt != null && dt.Rows.Count > 0)
-            {
-                ShowAlert(string.Format("No deleted. The '{0}' is exist in sale.", code), "Warning");
-
-                return;
-            }
-
-            ShowConfirmDelete("Outlet", code);
+            ShowConfirmDelete("Outlet", outletCode, itemCode);
         }
 
         // Controls
@@ -294,30 +288,114 @@ namespace BlueLedger.PL.PT.Sale
             ddl_NewOutletLocation.DataBind();
 
             pop_Outlet.ShowOnPageLoad = true;
-
         }
 
         private void BindOutletData()
         {
-            string sql = string.Empty;
+            string sql = @"
 
-            sql = "SELECT o.OutletCode, o.OutletName, OutletCode + ' : ' + ISNULL(OutletName,'') as Outlet, o.LocationCode, l.LocationCode + ' : ' + l.LocationName as Location";
-            sql += " FROM PT.Outlet o";
-            sql += " LEFT JOIN [IN].StoreLocation l ON o.LocationCode = l.LocationCode";
-            sql += " ORDER BY o.OutletCode";
-
-            //DataSet ds = new DataSet();
-
-            //dtOutlet = null;
-            //bu.DbExecuteQuery(sql, ds, null, "Table1", LoginInfo.ConnStr);
-            //dtOutlet = ds.Tables["Table1"];
+SELECT 
+	o.OutletCode, 
+	o.OutletName, 
+	o.OutletCode + ' : ' + ISNULL(o.OutletName,'') as Outlet, 
+	o.LocationCode, 
+    l.LocationName,
+	o.LocationCode + ' : ' + l.LocationName as Location
+FROM 
+	PT.OUTLET o
+	LEFT JOIN [IN].StoreLocation l 
+		ON l.LocationCode = o.LocationCode
+WHERE
+	ISNULL(o.ItemCode,'') = ''
+ORDER BY 
+	o.OutletCode
+";
 
             dtOutlet = bu.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
 
-            grd_Outlet.DataSource = dtOutlet;
-            grd_Outlet.DataBind();
+            gv_Outlet.DataSource = dtOutlet;
+            gv_Outlet.DataBind();
+
+
+            sql = @"
+SELECT 
+	o.OutletCode, 
+	o.OutletName,
+	o.ItemCode,
+	i.ItemName,
+	o.LocationCode,
+	l.LocationName
+FROM 
+	PT.OUTLET o
+	LEFT JOIN PT.Outlet t
+		ON t.OutletCode=o.OutletCode AND ISNULL(t.ItemCode,'') = ''
+	LEFT JOIN PT.Item i
+		ON i.ItemCode = o.ItemCode
+	LEFT JOIN [IN].StoreLocation l 
+		ON l.LocationCode = o.LocationCode
+WHERE
+	ISNULL(o.ItemCode,'') <> ''
+ORDER BY 
+	o.OutletCode,
+	o.ItemCode";
+
+
+            var dt = bu.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
+
+            gv_OutletItem.DataSource = dt;
+            gv_OutletItem.DataBind();
+
         }
 
+        private void SetOutletItem(string outletCode, string itemCode, string locationCode)
+        {
+            hf_SetOutletCode.Value = outletCode;
+            hf_SetItemCode.Value = itemCode;
+
+            var dtOutlet = bu.DbExecuteQuery(string.Format("SELECT TOP(1) * FROM PT.Outlet WHERE OutletCode='{0}' AND ISNULL(ItemCode,'')=''", outletCode), null, LoginInfo.ConnStr);
+            var dtItem = bu.DbExecuteQuery(string.Format("SELECT TOP(1) * FROM PT.Item WHERE ItemCode='{0}'", itemCode), null, LoginInfo.ConnStr);
+
+            var outletName = dtOutlet.Rows.Count > 0 ? dtOutlet.Rows[0]["OutletName"].ToString() : "";
+            var itemName = dtItem.Rows.Count > 0 ? dtItem.Rows[0]["ItemName"].ToString() : "";
+
+            lbl_SetOutlet.Text = string.Format("{0} : {1}", outletCode, outletName);
+            lbl_SetItem.Text = string.Format("{0} : {1}", itemCode, itemName);
+
+            ddl_SetOutlet_Location.DataSource = GetLocation();
+            ddl_SetOutlet_Location.DataValueField = "LocationCode";
+            ddl_SetOutlet_Location.DataTextField = "Location";
+            ddl_SetOutlet_Location.DataBind();
+
+            if (!string.IsNullOrEmpty(locationCode))
+            {
+                ddl_SetOutlet_Location.SelectedValue = locationCode;
+            }
+
+        }
+
+        private void SaveOutletItem()
+        {
+            var outletCode = hf_SetOutletCode.Value;
+            var outletName = hf_SetOutletName.Value;
+            var itemCode = hf_SetItemCode.Value;
+            var locationCode = ddl_SetOutlet_Location.SelectedValue.ToString();
+
+            var query = @"
+IF EXISTS(SELECT * FROM PT.Outlet WHERE OutletCode=@OutletCode AND ItemCode=@ItemCode)
+	UPDATE PT.Outlet SET LocationCode=@LocationCode WHERE OutletCode=@OutletCode AND ItemCode=@ItemCode
+ELSE
+	INSERT INTO PT.Outlet (OutletCode, OutletName, ItemCode, LocationCode) VALUES (@OutletCode, @OutletName, @ItemCode, @LocationCode)";
+            var parameters = new List<Blue.DAL.DbParameter>();
+
+            parameters.Add(new Blue.DAL.DbParameter("OutletCode", outletCode));
+            parameters.Add(new Blue.DAL.DbParameter("OutletName", outletName));
+            parameters.Add(new Blue.DAL.DbParameter("ItemCode", itemCode));
+            parameters.Add(new Blue.DAL.DbParameter("LocationCode", locationCode));
+
+            bu.DbExecuteQuery(query, parameters.ToArray(), LoginInfo.ConnStr);
+
+
+        }
         #endregion
 
         #region --Department--
@@ -602,6 +680,48 @@ namespace BlueLedger.PL.PT.Sale
             ShowConfirmDelete("Item", code);
         }
 
+
+        protected void btn_Item_Edit_Click(object sender, EventArgs e)
+        {
+            var row = (sender as Button).NamingContainer;
+
+            var hf_ItemCode = row.FindControl("hf_ItemCode") as HiddenField;
+            var hf_RcpCode = row.FindControl("hf_RcpCode") as HiddenField;
+
+            SetItem(hf_ItemCode.Value, hf_RcpCode.Value);
+            pop_SetItem.ShowOnPageLoad = true;
+        }
+
+        protected void btn_Item_Delete_Click(object sender, EventArgs e)
+        {
+            var row = (sender as Button).NamingContainer;
+
+            var hf_ItemCode = row.FindControl("hf_ItemCode") as HiddenField;
+            var code = hf_ItemCode.Value;
+
+            var sql = string.Format("SELECT TOP(1) * FROM PT.Sale WHERE ItemCode = '{0}'", code);
+
+            var dtExist = bu.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
+
+            if (dtExist != null && dtExist.Rows.Count > 0)
+            {
+                ShowAlert(string.Format("No deleted. This code '{0}' was exist in sale.", code));
+
+                return;
+            }
+
+            ShowConfirmDelete("Item", code);
+
+        }
+
+
+        protected void btn_SetItem_Save_Click(object sender, EventArgs e)
+        {
+            SaveItem();
+            pop_SetItem.ShowOnPageLoad = false;
+            BindItemData();
+        }
+
         // Private method(s)
 
         private void ShowItem()
@@ -637,10 +757,49 @@ namespace BlueLedger.PL.PT.Sale
                 dtItem = bu.DbExecuteQuery(sql, p.ToArray(), LoginInfo.ConnStr);
             }
 
-
-            grd_Item.DataSource = dtItem;
-            grd_Item.DataBind();
+            gv_Item.DataSource = dtItem;
+            gv_Item.DataBind();
         }
+
+        private void SetItem(string itemCode, string rcpCode)
+        {
+            hf_SetItem_ItemCode.Value = itemCode;
+            hf_SetItem_RcpCode.Value = rcpCode;
+
+            var dtItem = bu.DbExecuteQuery(string.Format("SELECT TOP(1) * FROM PT.Item WHERE ItemCode='{0}'", itemCode), null, LoginInfo.ConnStr);
+            var itemName = dtItem.Rows.Count > 0 ? dtItem.Rows[0]["ItemName"].ToString() : "";
+
+            lbl_SetItem_Item.Text = string.Format("{0} : {1}", itemCode, itemName);
+
+            ddl_SetItem_Recipe.DataSource = GetRecipe();
+            ddl_SetItem_Recipe.DataValueField = "RcpCode";
+            ddl_SetItem_Recipe.DataTextField = "Recipe";
+            ddl_SetItem_Recipe.DataBind();
+
+
+            if (!string.IsNullOrEmpty(rcpCode))
+            {
+                ddl_SetItem_Recipe.SelectedValue = rcpCode;
+            }
+
+        }
+
+        private void SaveItem()
+        {
+            var itemCode = hf_SetItem_ItemCode.Value;
+            var rcpCode = ddl_SetItem_Recipe.SelectedValue.ToString();
+
+            var query = @"UPDATE PT.Item SET RcpCode=@RcpCode WHERE ItemCode=@ItemCode";
+            var parameters = new List<Blue.DAL.DbParameter>();
+
+            parameters.Add(new Blue.DAL.DbParameter("ItemCode", itemCode));
+            parameters.Add(new Blue.DAL.DbParameter("RcpCode", rcpCode));
+
+            bu.DbExecuteQuery(query, parameters.ToArray(), LoginInfo.ConnStr);
+
+
+        }
+
 
         #endregion
 
@@ -669,20 +828,35 @@ namespace BlueLedger.PL.PT.Sale
 
         }
 
-        private void ShowConfirmDelete(string mode, string code)
+        private void ShowConfirmDelete(string mode, string outletCode, string itemCode = "")
         {
             hf_DeleteMode.Value = mode.ToLower();
-            hf_DeleteCode.Value = code;
-            lbl_ConfirmDelete.Text = string.Format("Do you want to delete {0} '{1}'?", mode, code);
+            hf_DeleteCode.Value = outletCode;
+
+            var message = string.Format("Do you want to delete {0} '{1}'", mode, outletCode);
+            if (!string.IsNullOrEmpty(itemCode))
+            {
+                message += string.Format(" with '{0}' ", itemCode);
+            }
+
+
+            lbl_ConfirmDelete.Text = message + "?";
             pop_ConfirmDelete.ShowOnPageLoad = true;
 
         }
 
-        private void DeleteOutlet(string code)
+        private void DeleteOutlet(string outletCode, string itemCode = "")
         {
-            string sql = string.Format("DELETE FROM PT.Outlet WHERE OutletCode = N'{0}'", code);
+            string sql = string.Format("DELETE FROM PT.Outlet WHERE OutletCode = N'{0}'", outletCode);
+
+            if (!string.IsNullOrEmpty(itemCode))
+            {
+                sql += string.Format(" AND ItemCode=N'{0}' ", itemCode);
+            }
+
 
             bu.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
+
             BindOutletData();
         }
 
@@ -726,7 +900,52 @@ namespace BlueLedger.PL.PT.Sale
 
         }
 
+        protected void gv_Sale_RowCommand(Object sender, GridViewCommandEventArgs e)
+        {
+        }
+
+        protected void btn_EditLocation_Click(object sender, EventArgs e)
+        {
+            var row = (sender as LinkButton).NamingContainer;
+
+            var hf_OutletCode = row.FindControl("hf_OutletCode") as HiddenField;
+            var hf_ItemCode = row.FindControl("hf_ItemCode") as HiddenField;
+            var hf_LocationCode = row.FindControl("hf_LocationCode") as HiddenField;
+
+            SetOutletItem(hf_OutletCode.Value, hf_ItemCode.Value, hf_LocationCode.Value);
+            pop_SetOutlet.ShowOnPageLoad = true;
+
+            //hf_SetOutletCode.Value = hf_OutletCode.Value;
+            //hf_SetOutletName.Value = hf_OutletName.Value;
+            //hf_SetItemCode.Value = hf_ItemCode.Value;
+
+            //lbl_SetOutlet.Text = string.Format("{0} : {1}",  hf_OutletCode.Value, hf_OutletName.Value);
+            //lbl_SetItem.Text = string.Format("{0} : {1}",  hf_ItemCode.Value, hf_ItemName.Value);
+
+            //ddl_SetOutlet_Location.DataSource = GetLocation();
+            //ddl_SetOutlet_Location.DataValueField = "LocationCode";
+            //ddl_SetOutlet_Location.DataTextField = "Location";
+            //ddl_SetOutlet_Location.DataBind();
+
+            //if (!string.IsNullOrEmpty(hf_LocationCode.Value))
+            //{
+            //    ddl_SetOutlet_Location.SelectedValue = hf_LocationCode.Value;
+            //}
+
+        }
+
+        protected void btn_SetOutlet_Save_Click(object sender, EventArgs e)
+        {
+            SaveOutletItem();
+            BindSaleData(_Date);
+
+            pop_SetOutlet.ShowOnPageLoad = false;
+        }
+
         // Private method(s)
+
+        // Outlet
+
 
         private string GetJsonData(DateTime date)
         {
@@ -808,61 +1027,6 @@ namespace BlueLedger.PL.PT.Sale
         {
             lbl_Intf_Date.Text = Convert.ToDateTime(data.Date).ToString("dd/MM/yyyy");
 
-            //var sales = data.Outlets
-            //    .Join(data.Sales,
-            //    o => o.Code,
-            //    s => s.Outlet,
-            //    (o, s) => new
-            //    {
-            //        OutletCode = s.Outlet,
-            //        OutletName = o.Desc,
-            //        ItemCode = string.IsNullOrEmpty(s.ItemCode)? s.PLU : s.ItemCode,
-            //        Qty = s.Qty,
-            //        Price = s.UnitPrice,
-            //        Total = s.Total
-            //    })
-            //    .Join(data.Items,
-            //    s => s.ItemCode,
-            //    i => i.Code,
-            //    (s, i) => new
-            //    {
-            //        OutletCode = s.OutletCode,
-            //        OutletName = s.OutletName,
-            //        ItemCode = s.ItemCode,
-            //        ItemName1 = i.Desc1,
-            //        ItemName2 = i.Desc2,
-            //        Qty = s.Qty,
-            //        Price = s.Price,
-            //        Total = s.Total
-            //    })
-            //    .ToList();
-            //var so = from s in data.Sales
-            //         join o in data.Outlets on s.Outlet equals o.Code into gj
-            //         from g in gj.DefaultIfEmpty()
-            //         select new
-            //         {
-            //             OutletCode = s.Outlet,
-            //             OutletName = g.Desc ?? "",
-            //             ItemCode = s.ItemCode,
-            //             Qty = s.Qty,
-            //             Price = s.UnitPrice,
-            //             Total = s.Total
-            //         };
-
-            //var sales = from s in so
-            //            join i in data.Items on s.ItemCode equals i.Code into gj
-            //            from g in gj.DefaultIfEmpty()
-            //            select new
-            //            {
-            //                OutletCode = s.OutletCode,
-            //                OutletName = s.OutletName,
-            //                ItemCode = s.ItemCode,
-            //                ItemName1 = g.Desc1 ?? "",
-            //                ItemName2 = g.Desc2 ?? "",
-            //                Qty = s.Qty,
-            //                Price = s.Price,
-            //                Total = s.Total
-            //            };
 
             var sales = data.Sales
                 .Select(x => new
@@ -907,42 +1071,152 @@ namespace BlueLedger.PL.PT.Sale
                 lbl_SaleTotal.Text = string.Format("{0:N2}", total);
                 lbl_SaleItems.Text = string.Format("{0:N0}", dt.Rows.Count);
 
-                btn_Consumption.Visible = gv_Sale.Rows.Count > 0;
+                btn_View_StockOut.Visible = false;
+                btn_Consumption.Visible = false;
+
+                if (gv_Sale.Rows.Count > 0)
+                {
+                    var isPosted = dt.AsEnumerable().Where(x => !string.IsNullOrEmpty(x.Field<string>("DocNo").ToString())).Count();
+
+
+                    btn_Consumption.Visible = isPosted == 0;
+                    btn_View_StockOut.Visible = isPosted > 0;
+                }
+
             }
         }
 
         private DataTable GetSaleData(DateTime date)
         {
-            var sql =string.Format(@"DECLARE @SaleDate DATE = '{0}'
+
+            var sql = string.Format(@"
+DECLARE @SaleDate DATE = '{0}'
  
-SELECT 
-	CONCAT(s.OutletCode,' : ', o.OutletName) as Outlet, 
-	CASE 
-		WHEN ISNULL(s.LocationCode,'')='' THEN CONCAT(o.LocationCode, CASE WHEN ISNULL(o.LocationCode,'')='' THEN '' ELSE ' : ' END,l.LocationName) 
-		ELSE s.LocationCode
-	END as Location,
-	CONCAT(s.ItemCode,' : ', i.ItemName) as Item, 
-	CASE 
-		WHEN ISNULL(s.RcpCode,'')='' THEN CONCAT(i.RcpCode,CASE WHEN ISNULL(i.RcpCode,'')='' THEN '' ELSE ' : ' END, r.RcpDesc1)
-		ELSE  s.RcpCode
-	END as Recipe, 
-	s.Qty, 
-	s.UnitPrice, 
-	s.Total
- FROM 
-	PT.Sale s
-	LEFT JOIN PT.Outlet o 
-		ON o.OutletCode=s.OutletCode
-	LEFT JOIN [IN].StoreLocation l
-		ON l.LocationCode=o.LocationCode
-	LEFT JOIN PT.Item i 
-		ON i.ItemCode=s.ItemCode
-	LEFT JOIN PT.Rcp r
-		ON r.RcpCode=i.RcpCode
- WHERE 
-	SaleDate=@SaleDate
- ORDER BY 
-	s.ID", date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+DECLARE @PostedCount INT = (SELECT COUNT(ID) FROM PT.Sale WHERE SaleDate=@SaleDate AND ISNULL(DocNo,'') <> '')
+
+IF @PostedCount = 0
+BEGIN
+ 
+	DECLARE @sale TABLE(
+		Id int NOT NULL,
+		OutletCode nvarchar(20),
+		ItemCode nvarchar(20),
+		LocationCode nvarchar(20),
+		RecipeCode nvarchar(20),
+		Qty decimal(18,3) default 0,
+		Price decimal(18,4) default 0,
+		Total decimal(18,4) default 0,
+
+		PRIMARY KEY (Id),
+		INDEX idx_sale_outlet (OutletCode),
+		INDEX idx_sale_item (ItemCode),
+		INDEX idx_sale_location (LocationCode),
+		INDEX idx_sale_recipe (RecipeCode)
+	)
+
+	INSERT INTO @sale (Id, OutletCode, ItemCode, Qty, Price, Total)
+	SELECT
+		Id,
+		OutletCode,
+		ItemCode,
+		Qty,
+		UnitPrice,
+		Total
+	FROM
+		PT.Sale
+	WHERE
+		SaleDate = @SaleDate
+	ORDER BY
+		ID
+
+	UPDATE @Sale
+	SET
+		LocationCode = o.LocationCode
+	FROM
+		@sale s
+		JOIN PT.Outlet o
+			ON s.OutletCode = o.OutletCode AND ISNULL(o.ItemCode,'')=''
+
+	UPDATE @Sale
+	SET
+		LocationCode = o.LocationCode
+	FROM
+		@sale s
+		JOIN PT.Outlet o
+			ON s.OutletCode = o.OutletCode AND s.ItemCode=o.ItemCode
+
+	UPDATE @sale
+	SET
+		RecipeCode = i.RcpCode
+	FROM
+		@sale s
+		JOIN PT.Item i
+			ON i.ItemCode=s.ItemCode
+
+	UPDATE 
+		PT.Sale
+	SET
+		LocationCode= s1.LocationCode,
+		RcpCode = s1.RecipeCode
+	FROM
+		@sale s1
+		JOIN PT.Sale s2
+			ON s2.ID=S1.ID
+
+
+	SELECT
+		s.*,
+		'' as DocNo,
+		o.OutletName,
+		i.ItemName,
+		l.LocationName,
+		r.RcpDesc1 as RecipeName1,
+		r.RcpDesc2 as RecipeName2
+	FROM
+		@sale s
+		LEFT JOIN PT.Outlet o
+			ON o.OutletCode=s.OutletCode AND ISNULL(o.ItemCode,'')=''
+		LEFT JOIN PT.Item i
+			ON i.ItemCode = s.ItemCode
+		LEFT JOIN [IN].StoreLocation l
+			ON l.LocationCode = s.LocationCode
+		LEFT JOIN PT.Rcp r
+			ON r.RcpCode=s.RecipeCode
+	ORDER BY
+		Id
+END
+ELSE
+BEGIN
+	SELECT
+		s.Id,
+		s.OutletCode,
+		s.ItemCode,
+		s.LocationCode,
+		s.RcpCode as RecipeCode,
+		s.Qty,
+		s.UnitPrice as Price,
+		s.Total,
+		s.DocNo,
+		o.OutletName,
+		i.ItemName,
+		l.LocationName,
+		r.RcpDesc1 as RecipeName1,
+		r.RcpDesc2 as RecipeName2
+	FROM
+		PT.Sale s
+		LEFT JOIN PT.Outlet o
+			ON o.OutletCode=s.OutletCode AND ISNULL(o.ItemCode,'')=''
+		LEFT JOIN PT.Item i
+			ON i.ItemCode = s.ItemCode
+		LEFT JOIN [IN].StoreLocation l
+			ON l.LocationCode = s.LocationCode
+		LEFT JOIN PT.Rcp r
+			ON r.RcpCode=s.RcpCode
+	WHERE
+		SaleDate = @SaleDate
+	ORDER BY
+		Id
+END", date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
 
             return bu.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
         }
@@ -950,7 +1224,7 @@ SELECT
 
         #endregion
 
-        #region -- Post to stock issue
+        #region -- Post to stock out
         protected void btn_Consumption_Click(object sender, EventArgs e)
         {
             var date = cal_Sale.SelectedDate;
@@ -980,10 +1254,9 @@ SELECT
                 return;
             }
 
-
-
-
             var dt = GetProductItems(date);
+
+            dtStockOut = dt;
 
             var locations = dt.AsEnumerable()
                 .Select(x => new
@@ -993,29 +1266,225 @@ SELECT
                 })
                 .Distinct()
                 .ToList();
+
             if (locations != null)
             {
-                listbox_Location.DataTextField = "Name";
-                listbox_Location.DataValueField = "Code";
-                listbox_Location.DataSource = locations;
-                listbox_Location.DataBind();
+                ddl_Consumption_Location.DataSource = locations;
+                ddl_Consumption_Location.DataValueField = "Code";
+                ddl_Consumption_Location.DataTextField = "Name";
+                ddl_Consumption_Location.DataBind();
+
+                var locationCode = ddl_Consumption_Location.SelectedItem.Value;
+
+                BindConsumption(locationCode);
+
+                BindStockOutType();
+
+            }
+
+            pop_Consumption.ShowOnPageLoad = true;
+        }
+
+        protected void btn_View_StockOut_Click(object sender, EventArgs e)
+        {
+            var query = @"
+;WITH
+l AS(
+	SELECT 
+		LocationCode, 
+		DocNo 
+	FROM 
+		PT.Sale 
+	WHERE 
+		SaleDate=@SaleDate 
+	GROUP BY 
+		LocationCode, 
+		DocNo
+)
+SELECT
+	l.*,
+	loc.LocationName
+FROM
+	l
+	LEFT JOIN [IN].StoreLocation loc
+		ON loc.LocationCode=l.LocationCode
+ORDER BY
+	DocNo";
+            var p = new DbParameter[] { new DbParameter("@SaleDate", _Date.ToString("yyyy-MM-dd"))};
+
+            var dt = bu.DbExecuteQuery(query, p, LoginInfo.ConnStr);
+
+            var messages = new List<string>();
+
+            messages.Add("These document(s) had been created.<br />");
+
+            foreach (DataRow dr in dt.Rows)
+            {
+                var docNo = dr["DocNo"].ToString();
+                var locationCode = dr["LocationCode"].ToString();
+                var locationName = dr["LocationName"].ToString();
+
+                messages.Add(string.Format("{0} - {1} : {2}", docNo, locationCode, locationName));
+            }
+
+            lbl_Alert.Text = string.Join("<br />", messages);
+            pop_Alert.ShowOnPageLoad = true;
+            
+        }
+
+        protected void ddl_Consumption_Location_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var item = sender as DropDownList;
+            var locationCode = item.SelectedValue.ToString();
+
+            BindConsumption(locationCode);
+        }
+
+        protected void btn_PostToStockOut_Click(object sender, EventArgs e)
+        {
+            var message = string.Format("These location(s) will be created as '{0}' of stock out.<br />", ddl_PostToStockOut.SelectedItem.Text);
+
+            foreach (ListItem item in ddl_Consumption_Location.Items)
+            {
+                message += string.Format("<br />{0}", item.Text);
+            }
+
+            message += "<br /><br />Do you want to continue?";
+
+            lbl_PostToStockOut.Text = message;
+            pop_PostToStockOut.ShowOnPageLoad = true;
+        }
+
+        protected void btn_PostToStockOut_Confirm_Click(object sender, EventArgs e)
+        {
+            var code = ddl_PostToStockOut.SelectedValue.ToString();
+            var docDate = _Date;
+            var dtSotckOut = dtStockOut;
+
+            SaveAdjustType(code);
+
+            var listStockOut = CreateStockOut(dtStockOut, docDate, code);
+
+            var messages = new List<string>();
+
+            messages.Add("These document(s) are created.<br />");
+
+            foreach (var item in listStockOut)
+            {
+                messages.Add(string.Format("{0} - {1} : {2}", item.DocNo, item.LocationCode, item.LocationName));
+
+                var query = string.Format("UPDATE PT.Sale SET DocNo='{0}' WHERE SaleDate='{1}' AND LocationCode='{2}'",
+                    item.DocNo,
+                    docDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                    item.LocationCode);
+                bu.DbExecuteQuery(query, null, LoginInfo.ConnStr);
+            }
+
+            pop_PostToStockOut.ShowOnPageLoad = false;
+            pop_Consumption.ShowOnPageLoad = false;
+
+            lbl_Alert.Text = string.Join("<br />", messages);
+            pop_Alert.ShowOnPageLoad = true;
+        }
+
+
+        // Private
+
+        //private void Update
+
+        private IEnumerable<StockOut> CreateStockOut(DataTable data, DateTime docDate, string adjCode)
+        {
+            var listDocNo = new List<StockOut>();
+
+            var locations = data.AsEnumerable()
+               .Select(x => new { locationCode = x.Field<string>("LocationCode"), locationName = x.Field<string>("LocationName") })
+               .Distinct()
+               .ToList();
+
+            var loginName = LoginInfo.LoginName;
+
+            foreach (var location in locations)
+            {
+                var locationCode = location.locationCode;
+                var locationName = location.locationName;
+
+                // [IN].StockOUt
+                var query = @"
+INSERT INTO [IN].StockOut(RefId, [Type], [Status], [Description], CommitDate, CreateBy, CreateDate, UpdateBy, UpdateDate)
+VALUES (@RefId, @Type, 'Committed', @Description, @CommitDate, @CreateBy, @CreateDate, @UpdateBy, @UpdateDate)";
+
+                var p = new List<Blue.DAL.DbParameter>();
+                var docNo = stockOut.GetNewID(docDate, LoginInfo.ConnStr);
+
+                p.Add(new Blue.DAL.DbParameter("@RefId", docNo));
+                p.Add(new Blue.DAL.DbParameter("@Type", adjCode));
+                p.Add(new Blue.DAL.DbParameter("@Description", "Posted from sale"));
+                p.Add(new Blue.DAL.DbParameter("@CommitDate", DateTime.Now.ToString("yyyy-MM-dd")));
+                p.Add(new Blue.DAL.DbParameter("@CreateBy", loginName));
+                p.Add(new Blue.DAL.DbParameter("@CreateDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff")));
+                p.Add(new Blue.DAL.DbParameter("@UpdateBy", loginName));
+                p.Add(new Blue.DAL.DbParameter("@UpdateDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff")));
+
+
+                bu.DbExecuteQuery(query, p.ToArray(), LoginInfo.ConnStr);
+
+                var details = data.Select(string.Format("LocationCode='{0}'", locationCode));
+
+                foreach (var dtl in details)
+                {
+                    var sku = dtl["ProductCode"].ToString();
+                    var unit = dtl["Unit"].ToString();
+                    var qty = Convert.ToDecimal(dtl["Qty"]);
+
+                    query = @"INSERT INTO [IN].StockOutDt (RefId, StoreId, SKU, Unit, Qty, UnitCost) OUTPUT Inserted.ID VALUES (@RefId, @StoreId, @SKU, @Unit, @Qty, @UnitCost)";
+
+                    var pdt = new List<Blue.DAL.DbParameter>();
+
+                    pdt.Add(new Blue.DAL.DbParameter("@RefId", docNo));
+                    pdt.Add(new Blue.DAL.DbParameter("@StoreId", locationCode));
+                    pdt.Add(new Blue.DAL.DbParameter("@SKU", sku));
+                    pdt.Add(new Blue.DAL.DbParameter("@Unit", unit));
+                    pdt.Add(new Blue.DAL.DbParameter("@Qty", qty.ToString()));
+                    pdt.Add(new Blue.DAL.DbParameter("@UnitCost", "0"));
+
+
+                    var dt = bu.DbExecuteQuery(query, pdt.ToArray(), LoginInfo.ConnStr);
+
+                    if (dt.Rows.Count > 0)
+                    {
+                        var docDtNo = dt.Rows[0][0].ToString();
+
+                        // Commit
+                        var dbParams = new DbParameter[5];
+
+                        dbParams[0] = new DbParameter("@DocNo", docNo);
+                        dbParams[1] = new DbParameter("@DocDtNo", docDtNo);
+                        dbParams[2] = new DbParameter("@LocationCode", locationCode);
+                        dbParams[3] = new DbParameter("@ProductCode", sku);
+                        dbParams[4] = new DbParameter("@QtyOut", qty.ToString());
+
+                        bu.DbExecuteQuery("EXEC [IN].[InsertInventorySO] @DocNo,@DocDtNo,@LocationCode,@ProductCode,@QtyOut", dbParams, LoginInfo.ConnStr);
+
+                    }
+
+
+                }
+
+
+                listDocNo.Add(new StockOut
+                {
+                    DocNo = docNo,
+                    LocationCode = locationCode,
+                    LocationName = locationName
+                });
             }
 
 
-            pop_Consumptioon.ShowOnPageLoad = true;
-
-            //var date = cal_Sale.SelectedDate;
-            //var url = string.Format("Consumption.aspx?date={0}", date.ToString("yyyy-MM-dd"));
-
-            //Response.Redirect(url);
+            return listDocNo;
         }
 
-        protected void listbox_Location_SelectedIndexChanged(object sender, EventArgs e)
+        private void BindConsumption(string locationCode)
         {
-            var listbox = sender as ListBox;
-            var locationCode = listbox.SelectedValue.ToString();
-
-
             var dt = GetProductItems(cal_Sale.SelectedDate).AsEnumerable()
                 .Where(x => x.Field<string>("LocationCode") == locationCode)
                 .Select(x => new
@@ -1030,59 +1499,102 @@ SELECT
 
             gv_Items.DataSource = dt;
             gv_Items.DataBind();
-
-
         }
-        protected void btn_PostToIssue_Click(object sender, EventArgs e)
+
+        private void BindStockOutType(string code = "")
         {
+            var dt = bu.DbExecuteQuery("SELECT AdjId, AdjCode, AdjName FROM [IN].AdjType WHERE AdjType='Stock Out' ORDER BY AdjCode", null, LoginInfo.ConnStr);
+
+            ddl_PostToStockOut.DataSource = dt;
+            ddl_PostToStockOut.DataTextField = "AdjName";
+            ddl_PostToStockOut.DataValueField = "AdjId";
+            ddl_PostToStockOut.DataBind();
+
+            dt = bu.DbExecuteQuery("SELECT [Value] FROM APP.Config WHERE Module='PT' AND SubModule='SALE' AND [Key]='AdjsutType'", null, LoginInfo.ConnStr);
+
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                var adjType = dt.Rows[0][0].ToString();
+
+                ddl_PostToStockOut.SelectedValue = adjType;
+            }
         }
 
+        private void SaveAdjustType(string code)
+        {
+            //bu.DbExecuteQuery("SELECT [Value] FROM APP.Config WHERE Module='PT' AND SubModule='SALE' AND [Key]='AdjsutType'", null, LoginInfo.ConnStr);
 
-        // Private
-        //private List<RecipeItem> GetProductItems(IEnumerable<SaleItem> saleItems)
+            bu.DbExecuteQuery("DELETE FROM APP.Config WHERE Module='PT' AND SubModule='SALE' AND [Key]='AdjsutType'", null, LoginInfo.ConnStr);
+            bu.DbExecuteQuery(string.Format("INSERT INTO APP.Config (Module, SubModule, [Key], [Value], UpdatedDate, UpdatedBy) VALUES('PT','SALE','AdjsutType','{0}',GETDATE(),'{1}')", code, LoginInfo.LoginName), null, LoginInfo.ConnStr);
+
+        }
 
         #endregion
 
         #region --Interface/Import--
 
         // Post from POS
+        protected void btn_SelectPeriod_Click(object sender, EventArgs e)
+        {
+            var selectMonth = Convert.ToInt32(ddl_Month.Text);
+            var selectYear = Convert.ToInt32(ddl_Year.Text);
+
+            var dateFrom = new DateTime(selectYear, selectMonth, 1);
+            var dateTo = dateFrom.AddMonths(1).AddDays(-1);
+            gv_POS.DataSource = QueryPosData(dateFrom, dateTo);
+            gv_POS.DataBind();
+
+            pop_POS.ShowOnPageLoad = true;
+        }
+
+        protected void btn_POS_Click(object sender, EventArgs e)
+        {
+            var today = DateTime.Today;
+
+            // period
+            var dtPeriod = bu.DbExecuteQuery(";WITH y as(SELECT DISTINCT YEAR(DocDate) as DocYear FROM [INTF].[Data]) SELECT YEAR(GETDATE()) DocYear UNION SELECT DocYear FROM y ORDER BY DocYear", null, LoginInfo.ConnStr);
+            ddl_Year.DataSource = dtPeriod;
+            ddl_Year.DataValueField = "DocYear";
+            ddl_Year.DataTextField = "DocYear";
+            ddl_Year.DataBind();
+
+            ddl_Year.SelectedValue = today.Year.ToString();
+            ddl_Month.SelectedValue = today.Month.ToString();
+
+            var dateFrom = new DateTime(today.Year, today.Month, 1);
+            var dateTo = dateFrom.AddMonths(1).AddDays(-1);
+
+            gv_POS.DataSource = QueryPosData(dateFrom, dateTo);
+            gv_POS.DataBind();
+
+
+            pop_POS.ShowOnPageLoad = true;
+        }
+
         protected void btn_PostFromPOS_Click(object sender, EventArgs e)
         {
-            var date = cal_Sale.Value == null ? DateTime.Today : cal_Sale.SelectedDate;
+            var gvr = (sender as Button).NamingContainer;
 
-            var data = PostInterfaceData(date);
+            var hf_DocDate = gvr.FindControl("hf_DocDate") as HiddenField;
+            var hf_ID = gvr.FindControl("hf_ID") as HiddenField;
+            var date = Convert.ToDateTime(hf_DocDate.Value);
+            var id = hf_ID.Value;
+            var data = PostInterfaceData(id);
+
+            var message = "";
 
             if (data.Count() > 0)
             {
-                var dt = GetSaleData(date);
-
-                if (dt != null)
-                {
-                    gv_Sale.DataSource = dt;
-                    gv_Sale.DataBind();
-
-
-                    var total = 0m;
-
-                    if (dt.Rows.Count > 0)
-                    {
-                        total = dt.AsEnumerable()
-                            .Select(x => x.Field<decimal>("Total"))
-                            .Sum();
-                    }
-
-                    lbl_SaleTotal.Text = string.Format("{0:N2}", total);
-                    lbl_SaleItems.Text = string.Format("{0:N0}", dt.Rows.Count);
-
-                    btn_Consumption.Visible = gv_Sale.Rows.Count > 0;
-                }
+                message = string.Format("POS on {0} is posted to sale.", date.ToString("dd/MM/yyyy"));
             }
             else
             {
-                lbl_Alert.Text = "No data";
-                pop_Alert.ShowOnPageLoad = true;
+                message = "No data";
             }
+            lbl_Alert.Text = message;
+            pop_Alert.ShowOnPageLoad = true;
         }
+
 
         protected void btn_Interface_Post_Click(object sender, EventArgs e)
         {
@@ -1401,6 +1913,16 @@ SELECT
         }
 
         // Private method(s)
+        private DataTable QueryPosData(DateTime dateFrom, DateTime dateTo)
+        {
+            var dt = bu.DbExecuteQuery(string.Format("SELECT * FROM [INTF].Data WHERE DocDate BETWEEN '{0}' AND '{1}' ORDER BY DocDate", dateFrom.ToString("yyyy-MM-dd"), dateTo.ToString("yyyy-MM-dd")),
+                null,
+                LoginInfo.ConnStr);
+
+            return dt;
+
+        }
+
         private void BindImportData()
         {
             ///Bind Sheet Data to GridView
@@ -1675,19 +2197,53 @@ SELECT
 
         protected DataTable GetLocation()
         {
-            string sql = "SELECT LocationCode, LocationName, LocationCode + ' : ' + LocationName as Location FROM [IN].StoreLocation WHERE EOP=1 ORDER BY LocationCode";
+            string sql = "SELECT '' as LocationCode, '' as LocationName, '' as Location UNION ALL ";
+            sql += " SELECT LocationCode, LocationName, LocationCode + ' : ' + LocationName as Location FROM [IN].StoreLocation WHERE EOP=1 ORDER BY LocationCode";
+
+            return bu.DbExecuteQuery(@sql, null, LoginInfo.ConnStr);
+        }
+
+        protected DataTable GetRecipe()
+        {
+            string sql = @"SELECT
+	'' as RcpCode,
+	'' as RcpDesc1,
+	'' as RcpDesc2,
+	'' as Recipe
+UNION ALL
+SELECT
+	RcpCode,
+	RcpDesc1,
+	RcpDesc2,
+	CONCAT(RcpCode, ' : ', RcpDesc1) as Recipe
+FROM
+	PT.Rcp
+WHERE
+	IsActived=1
+ORDER BY
+	RcpCode";
+
             return bu.DbExecuteQuery(@sql, null, LoginInfo.ConnStr);
         }
 
 
-        private IEnumerable<PT_Sale> PostInterfaceData(DateTime date)
+        private IEnumerable<PT_Sale> PostInterfaceData(string id)
         {
             var result = new List<PT_Sale>();
 
-            var sql = string.Format("SELECT * FROM [INTF].[Data] WHERE Provider='POS' AND [Type]='Sale' AND DocDate = '{0}'", date.ToString("yyyy-MM-dd"));
+            var sql = string.Format("SELECT * FROM [INTF].[Data] WHERE ID={0}", id);
             var dt = bu.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
 
-            var json = dt != null && dt.Rows.Count > 0 ? dt.Rows[0]["Data"].ToString() : null;
+            var json = string.Empty;
+            var docDate = DateTime.Today;
+
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                var dr = dt.Rows[0];
+
+                json = dr["Data"].ToString();
+                docDate = Convert.ToDateTime(dr["DocDate"]);
+            }
 
             if (!string.IsNullOrEmpty(json))
             {
@@ -1701,19 +2257,20 @@ SELECT
                     UpdateOutlet(outlets);
                 }
 
+                // new version
+                if (data["Item"] != null)
+                {
+                    var items = JsonConvert.DeserializeObject<List<ItemItem>>(data["Item"].ToString());
 
-                if (data["PLU"] != null) // Old version
+                    UpdateItem(items);
+                }
+                // Old Version
+                else if (data["PLU"] != null)
                 {
                     var items = JsonConvert.DeserializeObject<List<ItemItem>>(data["PLU"].ToString());
 
                     UpdateItem(items);
 
-                }
-                else if (data["Item"] != null) // new version
-                {
-                    var items = JsonConvert.DeserializeObject<List<ItemItem>>(data["Item"].ToString());
-
-                    UpdateItem(items);
                 }
 
 
@@ -1728,7 +2285,6 @@ SELECT
                     if (jsonSale != null)
                     {
                         sales = JsonConvert.DeserializeObject<List<SaleItem>>(jsonSale.ToString());
-                        sales.ForEach(x => x.PLU = x.ItemCode);
                     }
                 }
                 else if (data["POS"]["Sales"] != null)
@@ -1738,15 +2294,12 @@ SELECT
                     if (jsonSale != null)
                     {
                         sales = JsonConvert.DeserializeObject<List<SaleItem>>(jsonSale.ToString());
-                        sales.ForEach(x => x.ItemCode = x.PLU);
                     }
 
-                    var docDate = data["POS"]["Date"] == null ? "" : data["POS"]["Date"].ToString();
-
-                    date = Convert.ToDateTime(docDate);
+                    docDate = data["POS"]["Date"] != null ? Convert.ToDateTime(data["POS"]["Date"]) : docDate;
                 }
 
-                UpdateSale(date, sales);
+                UpdateSale(docDate, sales);
 
                 sql =
                     string.Format(@"SELECT
@@ -1760,7 +2313,7 @@ SELECT
 	                    LEFT JOIN PT.Item i
 		                    ON i.ItemCode = s.ItemCode
                     WHERE
-	                    s.SaleDate = '{0}'", date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+	                    s.SaleDate = '{0}'", docDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
 
                 var dtSale = bu.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
 
@@ -1768,7 +2321,7 @@ SELECT
                     .Select(x => new PT_Sale
                     {
                         Id = x.Field<int>("ID"),
-                        SaleDate = date,
+                        SaleDate = docDate,
                         OutletCode = x.Field<string>("OutletCode"),
                         OutletName = x.Field<string>("OutletName"),
                         ItemCode = x.Field<string>("ItemCode"),
@@ -1798,7 +2351,10 @@ SELECT
 
                 foreach (var item in outlets.Where(x => new_items.Contains(x.Code)))
                 {
-                    sql.Append(string.Format("('{0}','{1}'),", item.Code, item.Desc.Replace("'", "''")));
+                    var code = item.Code;
+                    var name = string.IsNullOrEmpty(item.Desc) ? item.Name : item.Desc;
+
+                    sql.Append(string.Format("('{0}','{1}'),", code, name.Replace("'", "''")));
                 }
 
                 bu.DbExecuteQuery(sql.ToString().Trim().TrimEnd(','), null, LoginInfo.ConnStr);
@@ -1819,7 +2375,9 @@ SELECT
                 sql.AppendLine("VALUES");
                 foreach (var item in items.Where(x => new_items.Contains(x.Code)))
                 {
-                    sql.Append(string.Format("('{0}','{1}'),", item.Code, item.Desc1.Replace("'", "''")));
+                    var code = item.Code;
+                    var name1 = string.IsNullOrEmpty(item.Desc1) ? item.Name1 : item.Desc1;
+                    sql.Append(string.Format("('{0}','{1}'),", code, name1.Replace("'", "''")));
                 }
 
                 bu.DbExecuteQuery(sql.ToString().Trim().TrimEnd(','), null, LoginInfo.ConnStr);
@@ -1839,14 +2397,16 @@ SELECT
 
             var sql = new StringBuilder();
 
-            sql.AppendLine("INSERT INTO PT.Sale (SaleDate, OutletCode, itemCode, Qty, UnitPrice, Total, Void)");
+            sql.AppendLine("INSERT INTO PT.Sale (SaleDate, OutletCode, itemCode, Qty, UnitPrice, Total, IsVoid)");
             sql.AppendLine("VALUES");
             foreach (var item in sales)
             {
+                var itemCode = string.IsNullOrEmpty(item.PLU) ? item.ItemCode : item.PLU;
+
                 sql.AppendFormat("('{0}','{1}','{2}',{3},{4},{5},0),",
                     saleDate,
                     item.Outlet,
-                    item.ItemCode,
+                    itemCode,
                     item.Qty,
                     item.UnitPrice,
                     item.Total);
@@ -1976,6 +2536,7 @@ WHERE
         {
             public string Code { get; set; }
             public string Desc { get; set; }
+            public string Name { get; set; }
         }
 
         [Serializable]
@@ -1984,6 +2545,8 @@ WHERE
             public string Code { get; set; }
             public string Desc1 { get; set; }
             public string Desc2 { get; set; }
+            public string Name1 { get; set; }
+            public string Name2 { get; set; }
         }
 
         [Serializable]
@@ -2013,6 +2576,13 @@ WHERE
             public decimal Qty { get; set; }
             public decimal Price { get; set; }
             public decimal Total { get; set; }
+        }
+
+        public class StockOut
+        {
+            public string DocNo { get; set; }
+            public string LocationCode { get; set; }
+            public string LocationName { get; set; }
         }
     }
 
