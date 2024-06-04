@@ -117,6 +117,10 @@
             background-color: #87CEFA;
             color: #fff;
         }
+        .top-most
+        {
+            z-index: 12101 !important;
+        }
     </style>
 </asp:Content>
 <asp:Content ID="Content2" runat="server" ContentPlaceHolderID="cph_Main">
@@ -148,7 +152,7 @@
                     <dx:MenuItem Name="Item" Text="Item/PLU">
                         <ItemStyle BackColor="DarkGray" ForeColor="White" />
                     </dx:MenuItem>
-                    <dx:MenuItem Name="Import" Text="Import" />
+                    <dx:MenuItem Name="Import" Text="Import" Visible="false" />
                 </Items>
             </dx:ASPxMenu>
         </div>
@@ -252,7 +256,8 @@
                     </td>
                 </tr>
             </table>
-            <dx:ASPxPopupControl ID="pop_SetOutlet" ClientInstanceName="pop_SetOutlet" runat="server" Style="z-index: 12101 !important;" HeaderText="Outlet and Item"
+            <!-- Popup SetOutlet -->
+            <dx:ASPxPopupControl ID="pop_SetOutlet" ClientInstanceName="pop_SetOutlet" runat="server" CssClass="top-most" HeaderText="Outlet and Item"
                 Width="320" CloseAction="CloseButton" Modal="True" ShowPageScrollbarWhenModal="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter">
                 <ContentCollection>
                     <dx:PopupControlContentControl ID="PopupControlContentControl4" runat="server">
@@ -304,7 +309,7 @@
         </ProgressTemplate>
     </asp:UpdateProgress>
     <!-- Popup-->
-    <dx:ASPxPopupControl ID="pop_Alert" ClientInstanceName="pop_Alert" runat="server" Width="320" HeaderText="Alert" ShowHeader="true" CloseAction="CloseButton"
+    <dx:ASPxPopupControl ID="pop_Alert" ClientInstanceName="pop_Alert" runat="server" CssClass="top-most" Width="320" HeaderText="Alert" ShowHeader="true" CloseAction="CloseButton"
         Modal="True" AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter" ShowPageScrollbarWhenModal="True">
         <ContentCollection>
             <dx:PopupControlContentControl ID="PopupControlContentControl_Alert" runat="server">
@@ -320,7 +325,7 @@
             </dx:PopupControlContentControl>
         </ContentCollection>
     </dx:ASPxPopupControl>
-    <dx:ASPxPopupControl ID="pop_ConfirmDelete" ClientInstanceName="pop_ConfirmDelete" runat="server" Width="320" HeaderText="Confirmation" ShowHeader="true"
+    <dx:ASPxPopupControl ID="pop_ConfirmDelete" ClientInstanceName="pop_ConfirmDelete" runat="server" CssClass="top-most"  Width="320" HeaderText="Confirmation" ShowHeader="true"
         CloseAction="CloseButton" Modal="True" AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter"
         ShowPageScrollbarWhenModal="True">
         <ContentCollection>
@@ -339,8 +344,8 @@
     </dx:ASPxPopupControl>
     <!-- Popup -->
     <!-- Setting -->
-    <dx:ASPxPopupControl ID="pop_Outlet" ClientInstanceName="pop_Outlet" Style="z-index: 12000 !important;" runat="server" HeaderText="Outlet" Width="640"
-        Height="480" CloseAction="CloseButton" Modal="True" AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter"
+    <dx:ASPxPopupControl ID="pop_Outlet" ClientInstanceName="pop_Outlet" runat="server" HeaderText="Outlet" Width="640"
+        Height="480" CloseAction="CloseButton" Modal="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter"
         ShowPageScrollbarWhenModal="True">
         <ContentCollection>
             <dx:PopupControlContentControl ID="PopupControlContentControl_Outlet" runat="server">

@@ -233,7 +233,11 @@ namespace BlueLedger.PL.PT.Sale
             var hf_LocationCode = row.FindControl("hf_LocationCode") as HiddenField;
 
             SetOutletItem(hf_OutletCode.Value, hf_ItemCode.Value, hf_LocationCode.Value);
+
+            pop_SetOutlet.CssClass = "top-most";
             pop_SetOutlet.ShowOnPageLoad = true;
+            pop_Outlet.CssClass = "top";
+            pop_Outlet.ShowOnPageLoad = true;
         }
 
         protected void btn_OutletItem_Delete_Click(object sender, EventArgs e)
@@ -287,6 +291,7 @@ namespace BlueLedger.PL.PT.Sale
             ddl_NewOutletLocation.DataTextField = "Location";
             ddl_NewOutletLocation.DataBind();
 
+            pop_SetOutlet.ShowOnPageLoad = false;
             pop_Outlet.ShowOnPageLoad = true;
         }
 
@@ -1310,7 +1315,7 @@ FROM
 		ON loc.LocationCode=l.LocationCode
 ORDER BY
 	DocNo";
-            var p = new DbParameter[] { new DbParameter("@SaleDate", _Date.ToString("yyyy-MM-dd"))};
+            var p = new DbParameter[] { new DbParameter("@SaleDate", _Date.ToString("yyyy-MM-dd")) };
 
             var dt = bu.DbExecuteQuery(query, p, LoginInfo.ConnStr);
 
@@ -1329,7 +1334,7 @@ ORDER BY
 
             lbl_Alert.Text = string.Join("<br />", messages);
             pop_Alert.ShowOnPageLoad = true;
-            
+
         }
 
         protected void ddl_Consumption_Location_SelectedIndexChanged(object sender, EventArgs e)
@@ -1411,7 +1416,7 @@ ORDER BY
                 // [IN].StockOUt
                 var query = @"
 INSERT INTO [IN].StockOut(RefId, [Type], [Status], [Description], CommitDate, CreateBy, CreateDate, UpdateBy, UpdateDate)
-VALUES (@RefId, @Type, 'Committed', @Description, @CommitDate, @CreateBy, @CreateDate, @UpdateBy, @UpdateDate)";
+VALUES (@RefId, @Type, 'Saved', @Description, @CommitDate, @CreateBy, @CreateDate, @UpdateBy, @UpdateDate)";
 
                 var p = new List<Blue.DAL.DbParameter>();
                 var docNo = stockOut.GetNewID(docDate, LoginInfo.ConnStr);
@@ -1450,22 +1455,22 @@ VALUES (@RefId, @Type, 'Committed', @Description, @CommitDate, @CreateBy, @Creat
 
                     var dt = bu.DbExecuteQuery(query, pdt.ToArray(), LoginInfo.ConnStr);
 
-                    if (dt.Rows.Count > 0)
-                    {
-                        var docDtNo = dt.Rows[0][0].ToString();
+                    //if (dt.Rows.Count > 0)
+                    //{
+                    //    var docDtNo = dt.Rows[0][0].ToString();
 
-                        // Commit
-                        var dbParams = new DbParameter[5];
+                    //    // Commit
+                    //    var dbParams = new DbParameter[5];
 
-                        dbParams[0] = new DbParameter("@DocNo", docNo);
-                        dbParams[1] = new DbParameter("@DocDtNo", docDtNo);
-                        dbParams[2] = new DbParameter("@LocationCode", locationCode);
-                        dbParams[3] = new DbParameter("@ProductCode", sku);
-                        dbParams[4] = new DbParameter("@QtyOut", qty.ToString());
+                    //    dbParams[0] = new DbParameter("@DocNo", docNo);
+                    //    dbParams[1] = new DbParameter("@DocDtNo", docDtNo);
+                    //    dbParams[2] = new DbParameter("@LocationCode", locationCode);
+                    //    dbParams[3] = new DbParameter("@ProductCode", sku);
+                    //    dbParams[4] = new DbParameter("@QtyOut", qty.ToString());
 
-                        bu.DbExecuteQuery("EXEC [IN].[InsertInventorySO] @DocNo,@DocDtNo,@LocationCode,@ProductCode,@QtyOut", dbParams, LoginInfo.ConnStr);
+                    //    bu.DbExecuteQuery("EXEC [IN].[InsertInventorySO] @DocNo,@DocDtNo,@LocationCode,@ProductCode,@QtyOut", dbParams, LoginInfo.ConnStr);
 
-                    }
+                    //}
 
 
                 }
