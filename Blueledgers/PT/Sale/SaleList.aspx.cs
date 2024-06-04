@@ -1385,11 +1385,13 @@ ORDER BY
                 bu.DbExecuteQuery(query, null, LoginInfo.ConnStr);
             }
 
+
             pop_PostToStockOut.ShowOnPageLoad = false;
             pop_Consumption.ShowOnPageLoad = false;
 
             lbl_Alert.Text = string.Join("<br />", messages);
             pop_Alert.ShowOnPageLoad = true;
+            BindSaleData(_Date);
         }
 
 
@@ -1416,7 +1418,7 @@ ORDER BY
                 // [IN].StockOUt
                 var query = @"
 INSERT INTO [IN].StockOut(RefId, [Type], [Status], [Description], CommitDate, CreateBy, CreateDate, UpdateBy, UpdateDate)
-VALUES (@RefId, @Type, 'Saved', @Description, @CommitDate, @CreateBy, @CreateDate, @UpdateBy, @UpdateDate)";
+VALUES (@RefId, @Type, 'Saved', @Description, NULL, @CreateBy, @CreateDate, @UpdateBy, @UpdateDate)";
 
                 var p = new List<Blue.DAL.DbParameter>();
                 var docNo = stockOut.GetNewID(docDate, LoginInfo.ConnStr);
@@ -1424,9 +1426,9 @@ VALUES (@RefId, @Type, 'Saved', @Description, @CommitDate, @CreateBy, @CreateDat
                 p.Add(new Blue.DAL.DbParameter("@RefId", docNo));
                 p.Add(new Blue.DAL.DbParameter("@Type", adjCode));
                 p.Add(new Blue.DAL.DbParameter("@Description", "Posted from sale"));
-                p.Add(new Blue.DAL.DbParameter("@CommitDate", DateTime.Now.ToString("yyyy-MM-dd")));
+                //p.Add(new Blue.DAL.DbParameter("@CommitDate", DateTime.Now.ToString("yyyy-MM-dd")));
                 p.Add(new Blue.DAL.DbParameter("@CreateBy", loginName));
-                p.Add(new Blue.DAL.DbParameter("@CreateDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff")));
+                p.Add(new Blue.DAL.DbParameter("@CreateDate", docDate.ToString("yyyy-MM-dd HH:mm:ss:fff")));
                 p.Add(new Blue.DAL.DbParameter("@UpdateBy", loginName));
                 p.Add(new Blue.DAL.DbParameter("@UpdateDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff")));
 
