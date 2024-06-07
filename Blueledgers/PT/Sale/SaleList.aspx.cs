@@ -234,10 +234,12 @@ namespace BlueLedger.PL.PT.Sale
 
             SetOutletItem(hf_OutletCode.Value, hf_ItemCode.Value, hf_LocationCode.Value);
 
+            pop_SetOutlet.AutoUpdatePosition = true;
             pop_SetOutlet.CssClass = "top-most";
             pop_SetOutlet.ShowOnPageLoad = true;
             pop_Outlet.CssClass = "top";
             pop_Outlet.ShowOnPageLoad = true;
+
         }
 
         protected void btn_OutletItem_Delete_Click(object sender, EventArgs e)
@@ -277,6 +279,14 @@ namespace BlueLedger.PL.PT.Sale
             gv.DataSource = GetLocation();
             gv.ValueField = "LocationCode";
             gv.DataBind();
+        }
+
+        protected void btn_SetOutlet_Save_Click(object sender, EventArgs e)
+        {
+            SaveOutletItem();
+            BindSaleData(_Date);
+
+            pop_SetOutlet.ShowOnPageLoad = false;
         }
 
         // Private method(s)
@@ -398,7 +408,6 @@ ELSE
             parameters.Add(new Blue.DAL.DbParameter("LocationCode", locationCode));
 
             bu.DbExecuteQuery(query, parameters.ToArray(), LoginInfo.ConnStr);
-
 
         }
         #endregion
@@ -939,13 +948,7 @@ ELSE
 
         }
 
-        protected void btn_SetOutlet_Save_Click(object sender, EventArgs e)
-        {
-            SaveOutletItem();
-            BindSaleData(_Date);
-
-            pop_SetOutlet.ShowOnPageLoad = false;
-        }
+       
 
         // Private method(s)
 

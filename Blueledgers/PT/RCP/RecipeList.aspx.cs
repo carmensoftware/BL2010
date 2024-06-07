@@ -15,24 +15,32 @@ namespace BlueLedger.PL.PT.RCP
 
         protected override void Page_Load(object sender, EventArgs e)
         {
+            var vid = Request.Cookies["[PT].[vRcpList]"] == null ? "0" : Request.Cookies["[PT].[vRcpList]"].Value;
+            
             if (!Page.IsPostBack)
             {
                 ListPage2.PrintItems.Items.Add(new DevExpress.Web.ASPxMenu.MenuItem("Recipe List", "SL"));
-                ListPage2.DataBind();
+                //ListPage2.DataBind();
 
-                ListPage2.CreateItems.NavigateUrl = "~/PT/RCP/RecipeEdit.aspx?MODE=new&BuCode=" + LoginInfo.BuInfo.BuCode + "&VID=" + Request.Cookies["[PT].[vRcpList]"].Value;
 
-                // Added on: 15/09/2017, By:Fon, For: Create update cost Option.
+                ListPage2.CreateItems.NavigateUrl =  "~/PT/RCP/RecipeEdit.aspx?MODE=new&BuCode=" + LoginInfo.BuInfo.BuCode + "&VID=" + vid;
+                //ListPage2.CreateItems.NavigateUrl = "~/PT/RCP/RecipeEdit.aspx?MODE=new&BuCode=" + LoginInfo.BuInfo.BuCode + "&VID=" + Request.Cookies["[PT].[vRcpList]"].Value;
+
                 ListPage2.menuItems.Add("Update Cost", "UC");
                 ListPage2.menuItems.FindByName("UC").ItemStyle.ForeColor = System.Drawing.Color.White;
                 ListPage2.menuItems.FindByName("UC").ItemStyle.HoverStyle.ForeColor = System.Drawing.ColorTranslator.FromHtml("#D8D8D8");
                 ListPage2.menuItems.FindByName("UC").ItemStyle.Font.Size = 7;
                 ListPage2.menuItems.FindByName("UC").ItemStyle.VerticalAlign = VerticalAlign.Bottom;
                 ListPage2.menuItems.FindByName("UC").VisibleIndex = 0;
+
+
+                ListPage2.DataBind();
                 // End Added.
             }
 
-            ListPage2.CreateItems.Menu.ItemClick += menu_ItemClick;
+            //ListPage2.CreateItems.NavigateUrl = "~/PT/RCP/RecipeEdit.aspx?MODE=new&BuCode=" + LoginInfo.BuInfo.BuCode + "&VID=" + Request.Cookies["[PT].[vRcpList]"].Value;
+            //ListPage2.CreateItems.Menu.ItemClick += menu_ItemClick;
+
             Control_HeaderMenuBar();
             base.Page_Load(sender, e);
         }

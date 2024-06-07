@@ -162,7 +162,7 @@
             height: 100%;
         }
     </style>
-    <asp:UpdatePanel ID="UpdnDetail" runat="server">
+    <asp:UpdatePanel ID="UpdnDetail" runat="server" UpdateMode="Always">
         <ContentTemplate>
             <!-- Hidden Field(s) -->
             <div>
@@ -596,9 +596,11 @@
                             <br />
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <dx:ASPxComboBox ID="ddl_Unit" runat="server" AutoPostBack="true" Width="95%" ValueField="UnitCode" TextField="UnitCode" IncrementalFilteringMode="Contains"
+                            <%--<dx:ASPxComboBox ID="ddl_Unit" runat="server" AutoPostBack="False" Width="95%" ValueField="UnitCode" TextField="UnitCode" IncrementalFilteringMode="Contains"
                                 OnSelectedIndexChanged="ddl_IngredientUnit_SelectedIndexChanged">
-                            </dx:ASPxComboBox>
+                            </dx:ASPxComboBox>--%>
+                            <asp:DropDownList runat="server" ID="ddl_Unit" Width="95%" Height="20" AutoPostBack="true" DataValueField="UnitCode" DataTextField="UnitCode"
+                            OnLoad="ddl_IngredientUnit_Load" OnSelectedIndexChanged="ddl_IngredientUnit_SelectedIndexChanged" />
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%--Base Cost (Receiving Cost)--%>
@@ -857,10 +859,12 @@
                     </dx:PopupControlContentControl>
                 </ContentCollection>
             </dx:ASPxPopupControl>
+
         </ContentTemplate>
         <Triggers>
             <asp:AsyncPostBackTrigger ControlID="menu_CmdBar" EventName="ItemClick" />
             <asp:AsyncPostBackTrigger ControlID="menu_CmdGrd" EventName="ItemClick" />
+            <asp:PostBackTrigger ControlID="grd_RecipeDt" />
         </Triggers>
     </asp:UpdatePanel>
     <asp:UpdateProgress ID="UpPgDetail" runat="server" AssociatedUpdatePanelID="UpdnDetail">

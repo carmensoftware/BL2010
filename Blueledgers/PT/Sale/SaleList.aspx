@@ -158,7 +158,7 @@
         </div>
     </div>
     <!-- Sale Data -->
-    <asp:UpdatePanel ID="UpdatePanel_Detail" runat="server">
+    <asp:UpdatePanel ID="UpdatePanel_Detail" runat="server" UpdateMode="Conditional">
         <ContentTemplate>
             <!-- Content -->
             <table class="w-100 mb-3">
@@ -256,51 +256,13 @@
                     </td>
                 </tr>
             </table>
-            <!-- Popup SetOutlet -->
-            <dx:ASPxPopupControl ID="pop_SetOutlet" ClientInstanceName="pop_SetOutlet" runat="server" CssClass="top-most" HeaderText="Outlet and Item"
-                Width="320" CloseAction="CloseButton" Modal="True" ShowPageScrollbarWhenModal="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter">
-                <ContentCollection>
-                    <dx:PopupControlContentControl ID="PopupControlContentControl4" runat="server">
-                        <asp:HiddenField runat="server" ID="hf_SetOutletCode" />
-                        <asp:HiddenField runat="server" ID="hf_SetOutletName" />
-                        <asp:HiddenField runat="server" ID="hf_SetItemCode" />
-                        <table style="border: none;">
-                            <tr>
-                                <th style="width: 80px">
-                                    <asp:Label ID="Label2" runat="server" Font-Bold="true" Text="Outlet " />
-                                </th>
-                                <td>
-                                    <asp:Label ID="lbl_SetOutlet" runat="server" Text="" />
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>
-                                    <asp:Label ID="Label3" runat="server" Font-Bold="true" Text="Item " />
-                                </th>
-                                <td>
-                                    <asp:Label ID="lbl_SetItem" runat="server" Text="" />
-                                </td>
-                            </tr>
-                        </table>
-                        <hr />
-                        <div class="d-flex flex-column">
-                            <asp:Label ID="Label6" runat="server" Text="Location" />
-                            <asp:DropDownList runat="server" ID="ddl_SetOutlet_Location">
-                            </asp:DropDownList>
-                        </div>
-                        <br />
-                        <div class="d-flex">
-                            <asp:Button runat="server" ID="btn_SetOutlet_Save" Text="Save" OnClick="btn_SetOutlet_Save_Click" />
-                        </div>
-                        <br />
-                    </dx:PopupControlContentControl>
-                </ContentCollection>
-            </dx:ASPxPopupControl>
+
         </ContentTemplate>
         <Triggers>
             <asp:PostBackTrigger ControlID="btn_POS" />
             <asp:PostBackTrigger ControlID="btn_Consumption" />
             <asp:PostBackTrigger ControlID="btn_View_StockOut" />
+            <asp:PostBackTrigger ControlID="gv_Sale" />
         </Triggers>
     </asp:UpdatePanel>
     <asp:UpdateProgress ID="UpdateProgress_Detail" runat="server" AssociatedUpdatePanelID="UpdatePanel_Detail">
@@ -308,9 +270,11 @@
             <uc:Spinner ID="spinner" runat="server" />
         </ProgressTemplate>
     </asp:UpdateProgress>
+   
     <!-- Popup-->
-    <dx:ASPxPopupControl ID="pop_Alert" ClientInstanceName="pop_Alert" runat="server" CssClass="top-most" Width="320" HeaderText="Alert" ShowHeader="true" CloseAction="CloseButton"
-        Modal="True" AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter" ShowPageScrollbarWhenModal="True">
+    <dx:ASPxPopupControl ID="pop_Alert" ClientInstanceName="pop_Alert" runat="server" CssClass="top-most" Width="320" HeaderText="Alert" ShowHeader="true"
+        CloseAction="CloseButton" Modal="True" AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter"
+        ShowPageScrollbarWhenModal="True">
         <ContentCollection>
             <dx:PopupControlContentControl ID="PopupControlContentControl_Alert" runat="server">
                 <div style="width: 100%; text-align: justify;">
@@ -325,8 +289,8 @@
             </dx:PopupControlContentControl>
         </ContentCollection>
     </dx:ASPxPopupControl>
-    <dx:ASPxPopupControl ID="pop_ConfirmDelete" ClientInstanceName="pop_ConfirmDelete" runat="server" CssClass="top-most"  Width="320" HeaderText="Confirmation" ShowHeader="true"
-        CloseAction="CloseButton" Modal="True" AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter"
+    <dx:ASPxPopupControl ID="pop_ConfirmDelete" ClientInstanceName="pop_ConfirmDelete" runat="server" CssClass="top-most" Width="320" HeaderText="Confirmation"
+        ShowHeader="true" CloseAction="CloseButton" Modal="True" AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter"
         ShowPageScrollbarWhenModal="True">
         <ContentCollection>
             <dx:PopupControlContentControl ID="PopupControlContentControl2" runat="server">
@@ -344,9 +308,8 @@
     </dx:ASPxPopupControl>
     <!-- Popup -->
     <!-- Setting -->
-    <dx:ASPxPopupControl ID="pop_Outlet" ClientInstanceName="pop_Outlet" runat="server" HeaderText="Outlet" Width="640"
-        Height="480" CloseAction="CloseButton" Modal="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter"
-        ShowPageScrollbarWhenModal="True">
+    <dx:ASPxPopupControl ID="pop_Outlet" ClientInstanceName="pop_Outlet" runat="server" HeaderText="Outlet" Width="640" Height="480" CloseAction="CloseButton"
+        Modal="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter" ShowPageScrollbarWhenModal="True" AutoUpdatePosition="True" AllowDragging="True">
         <ContentCollection>
             <dx:PopupControlContentControl ID="PopupControlContentControl_Outlet" runat="server">
                 <div style="padding: 10px; background-color: #F5F5F5;">
@@ -471,6 +434,47 @@
         </ContentCollection>
         <ClientSideEvents CloseUp="function(s, e) { s.PerformCallback(); }" />
     </dx:ASPxPopupControl>
+    <!-- Popup SetOutlet -->
+    <dx:ASPxPopupControl ID="pop_SetOutlet" ClientInstanceName="pop_SetOutlet" runat="server" CssClass="top-most" HeaderText="Outlet and Item" Width="320"
+        CloseAction="CloseButton" Modal="True" ShowPageScrollbarWhenModal="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter">
+        <ContentCollection>
+            <dx:PopupControlContentControl ID="PopupControlContentControl4" runat="server">
+                <asp:HiddenField runat="server" ID="hf_SetOutletCode" />
+                <asp:HiddenField runat="server" ID="hf_SetOutletName" />
+                <asp:HiddenField runat="server" ID="hf_SetItemCode" />
+                <table style="border: none;">
+                    <tr>
+                        <th style="width: 80px">
+                            <asp:Label ID="Label2" runat="server" Font-Bold="true" Text="Outlet " />
+                        </th>
+                        <td>
+                            <asp:Label ID="lbl_SetOutlet" runat="server" Text="" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <asp:Label ID="Label3" runat="server" Font-Bold="true" Text="Item " />
+                        </th>
+                        <td>
+                            <asp:Label ID="lbl_SetItem" runat="server" Text="" />
+                        </td>
+                    </tr>
+                </table>
+                <hr />
+                <div class="d-flex flex-column">
+                    <asp:Label ID="Label6" runat="server" Text="Location" />
+                    <asp:DropDownList runat="server" ID="ddl_SetOutlet_Location">
+                    </asp:DropDownList>
+                </div>
+                <br />
+                <div class="d-flex">
+                    <asp:Button runat="server" ID="btn_SetOutlet_Save" Text="Save" OnClick="btn_SetOutlet_Save_Click" />
+                </div>
+                <br />
+            </dx:PopupControlContentControl>
+        </ContentCollection>
+    </dx:ASPxPopupControl>
+
     <dx:ASPxPopupControl ID="pop_Department" ClientInstanceName="pop_Department" runat="server" HeaderText="Department" Width="640" Height="480" CloseAction="CloseButton"
         Modal="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter" ShowPageScrollbarWhenModal="True" AutoUpdatePosition="True" AllowDragging="True">
         <ContentCollection>
