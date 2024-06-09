@@ -264,6 +264,9 @@ namespace BlueLedger.PL.PT.RCP
             //Session["lastProductCode"] = string.Empty;
             lastProductCode = string.Empty;
 
+            //gv_Dtl.DataSource = dsRecipe.Tables[rcpDt.TableName];
+            //gv_Dtl.EditIndex = dsRecipe.Tables[rcpDt.TableName].Rows.Count - 1;
+            //gv_Dtl.DataBind();
 
         }
 
@@ -631,14 +634,61 @@ namespace BlueLedger.PL.PT.RCP
         protected void ddl_IngredientCode_Load(object sender, EventArgs e)
         {
             var ddl_ItemCode = sender as ASPxComboBox;
+            var rcpCode = txt_RcpCode.Text;
 
-            string rcpCode = txt_RcpCode.Text;
             ddl_ItemCode.DataSource = rcpDt.GetListItem(rcpCode, LoginInfo.ConnStr);
             ddl_ItemCode.ValueField = "IngredientCode";
             ddl_ItemCode.DataBind();
         }
 
         protected void ddl_IngredientCode_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var grd = (sender as ASPxComboBox).NamingContainer;
+
+            var ddl_Item = grd.FindControl("ddl_ItemCode") as ASPxComboBox;
+
+            if (ddl_Item.SelectedItem != null)
+            {
+                var itemCode = ddl_Item.SelectedItem.Value.ToString();
+
+                var ddl_Unit = grd.FindControl("ddl_Unit") as DropDownList;
+                var lbl_UnitRate = grd.FindControl("lbl_UnitRate") as Label;
+
+                ddl_Unit.DataSource = rcpDt.GetListUnit(itemCode, hf_ConnStr.Value);
+                ddl_Unit.DataBind();
+
+                if (!string.IsNullOrEmpty(ddl_Unit.SelectedValue))
+                {
+                    var untiCode = ddl_Unit.SelectedValue;
+
+                    //lbl_UnitRate.Text = string.Format("{0:N}", rcpDt.GetUnitConvRate(itemCode, untiCode, hf_ConnStr.Value));
+                }
+
+
+                var lbl_ItemType = grd.FindControl("lbl_ItemType") as Label;
+                var txt_Qty = grd.FindControl("txt_Qty") as ASPxSpinEdit;
+                var txt_BaseCost = grd.FindControl("txt_BaseCost") as ASPxSpinEdit;
+                var lbl_BaseUnit_Nm = grd.FindControl("lbl_BaseUnit_Nm") as Label;
+                var lbl_UnitRate_Nm = grd.FindControl("lbl_UnitRate_Nm") as Label;
+                var lbl_BaseCost_Nm = grd.FindControl("lbl_BaseCost_Nm") as Label;
+
+                string itemType = lbl_ItemType.Text[0].ToString();
+
+                lbl_BaseUnit_Nm.Text = rcpDt.GetBaseUnit(itemCode, hf_ConnStr.Value);
+
+                decimal unitRate = rcpDt.GetUnitConvRate(itemCode, ddl_Unit.Text, hf_ConnStr.Value);
+                decimal baseCost = rcpDt.GetLastCost(itemType, itemCode, DateTime.Now, LoginInfo.ConnStr);
+
+                lbl_UnitRate_Nm.Text = String.Format("{0:N3}", unitRate);
+
+
+                lastProductCode = itemCode;
+                lbl_ItemType.Text = ddl_Item.SelectedItem.GetValue("IngredientType").ToString().ToUpper() == "P" ? "Product" : "Recipe";
+                txt_Qty.Focus();
+            }
+        }
+
+        protected void ddl_IngredientCode1_SelectedIndexChanged(object sender, EventArgs e)
         {
             //string productCode = (grd_RecipeDt.Rows[grd_RecipeDt.EditIndex].FindControl("ddl_ItemCode") as ASPxComboBox).ClientValue.ToString();
             //if (productCode != lastProductCode)
@@ -714,58 +764,16 @@ namespace BlueLedger.PL.PT.RCP
 
         protected void ddl_IngredientUnit_Load(object sender, EventArgs e)
         {
-            //var grd = grd_RecipeDt.Rows[grd_RecipeDt.EditIndex];
-            var grd = (sender as DropDownList).NamingContainer;
-            var ddl_ItemCode = grd.FindControl("ddl_ItemCode") as ASPxComboBox;
-            //var ddl_Unit = grd.FindControl("ddl_Unit") as ASPxComboBox;
-            var ddl_Unit = grd.FindControl("ddl_Unit") as DropDownList;
-
-
-            //ddl_Unit.DataSource = rcpDt.GetListUnit(ddl_ItemCode.ClientValue, hf_ConnStr.Value);
-
-            if (ddl_ItemCode.SelectedItem != null)
-            {
-                var itemCode = ddl_ItemCode.SelectedItem.Value.ToString();
-
-                ddl_Unit.DataSource = rcpDt.GetListUnit(itemCode, hf_ConnStr.Value);
-                ddl_Unit.DataBind();
-
-                var lbl_UnitRate_Nm = grd.FindControl("lbl_UnitRate_Nm") as Label;
-
-                //if (ddl_Unit.Value != null)
-                if (!string.IsNullOrEmpty(ddl_Unit.SelectedValue))
-                {
-                    var untiCode = ddl_Unit.SelectedValue;
-
-                    lbl_UnitRate_Nm.Text = string.Format("{0:N}", rcpDt.GetUnitConvRate(itemCode, untiCode, hf_ConnStr.Value));
-                }
-            }
-
-
-            //var dt = rcpDt.GetListUnit(ddl_ItemCode.ClientValue, hf_ConnStr.Value);
-
-            //ddl_Unit.Items.Clear();
-            //foreach (DataRow dr in dt.Rows)
-            //{
-            //    var unitCode = dr["UnitCode"].ToString();
-            //    ddl_Unit.Items.Add(new ListEditItem { 
-            //       Value = unitCode,
-            //       Text = unitCode
-            //    });
-            //}
         }
 
         protected void ddl_IngredientUnit_SelectedIndexChanged(object sender, EventArgs e)
         {
-            //var grd = grd_RecipeDt.Rows[grd_RecipeDt.EditIndex];
-            var grd = (sender as DropDownList).NamingContainer;
+            var gv = (sender as DropDownList).NamingContainer;
 
-            var ddl_ItemCode = grd.FindControl("ddl_ItemCode") as ASPxComboBox;
-            //var ddl_Unit = grd.FindControl("ddl_Unit") as ASPxComboBox;
-            var ddl_Unit = grd.FindControl("ddl_Unit") as DropDownList;
-            var lbl_UnitRate_Nm = grd.FindControl("lbl_UnitRate_Nm") as Label;
+            var ddl_ItemCode = gv.FindControl("ddl_ItemCode") as ASPxComboBox;
+            var ddl_Unit = gv.FindControl("ddl_Unit") as DropDownList;
+            var lbl_UnitRate_Nm = gv.FindControl("lbl_UnitRate_Nm") as Label;
 
-            //if (ddl_Unit.Value != null)
             if (!string.IsNullOrEmpty(ddl_Unit.SelectedValue))
             {
                 var itemCode = ddl_ItemCode.SelectedItem.Value.ToString();
@@ -774,7 +782,6 @@ namespace BlueLedger.PL.PT.RCP
                 lbl_UnitRate_Nm.Text = string.Format("{0:N}", rcpDt.GetUnitConvRate(itemCode, untiCode, hf_ConnStr.Value));
             }
         }
-
 
         protected void btn_Saved_Click(object sender, EventArgs e)
         {
@@ -820,6 +827,7 @@ namespace BlueLedger.PL.PT.RCP
 
         #endregion
 
+      
 
         protected void grd_RecipeDt_RowDataBound(object sender, GridViewRowEventArgs e)
         {
