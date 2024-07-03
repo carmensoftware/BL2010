@@ -14,6 +14,7 @@ namespace Blue.BL.dbo
         /* 
             2025-05-31 = HotelSensai (Chiang Mai) = 3+8 = 11 ปรับเป็น 10 ตาม license (27052024_blueledgers.xlsx)
             2025-05-31 = chi = 2
+            2025-06-30 = floralcourthotel = 5+6 = 11
 
             2025-04-30 = bestwesternratchada = 10        
 
@@ -32,42 +33,41 @@ namespace Blue.BL.dbo
             2025-01-31 = urbanalangsuanbkk = 7
             2025-01-31 = legacysuites = 15 + 7 = 22
             2025-01-31 = brownstarling = 18
+            2025-01-31 = ramadadmabangkok = 19
+            2025-01-31 = maduzi = 20
+            2025-01-31 = boulevardhotelbangkok = 10 + 17 = 27
 
             2024-12-31 = sztowerthai = 13
 
             2024-11-30 = wyndhamgardennaithon = 21
             2024-11-30 = skyviewresortphuket = 11
-            2024-11-30 = maraleina = 22
+            2024-11-30 = maraleina = 23+1 = 24
             2024-11-30 = andalanta = 6+1 = 7
           
             2024-10-31 = rasahospitality = 73 + 17 = 90
             2024-10-31 = BlumonkeyKrabi = 6
-            2024-10-31 = maduzi = 20
 
             2024-09-30 = The Sarojin = 3
             2024-09-30 = varanahotel = 16
             2024-09-30 = MHRH = 3
             2024-09-30 = indochinephuket = 27
+            2024-09-30 = The Twin Lotus Hotel Co.,Ltd (on Permise) = 16
 
             2024-08-31 = bestwesternclicksathorn11 = 10
             2024-08-31 = Cafedelmar Phuket = 31+5=36
-            2024-08-31 = ramadadmabangkok = 14
 
          
             2024-07-31 = Nexen = 20
             2024-07-31 = Zeavola = 28
             2024-07-31 = bwsanctuary = 10
-            2024-07-31 = boulevardhotelbangkok = 10 + 17 = 27
             2024-07-31 = Diamond Cottage = 15+5=20
             2024-07-31 = Public House = 6
             2024-07-31 = wyndhamjomtienpattaya = 20
+            2024-07-31 = DeevanaPhuket = 65=> 69
+            2024-07-31 = BaanSamuiResort = 8
+            2024-07-31 = rxvwellness = 35
+            2024-07-31 = kappasensesubud = 17
 
-            2024-06-30 = floralcourthotel = 5+6 = 11
-            2024-06-30 = The Twin Lotus Hotel Co.,Ltd (on Permise) = 16
-            2024-06-30 = rxvwellness = 35
-            2024-06-30 = BaanSamuiResort = 8
-            2024-06-30 = kappasensesubud = 17
-            2024-06-30 = DeevanaPhuket = 65=> 69
 
           
             
@@ -84,8 +84,8 @@ namespace Blue.BL.dbo
             2023-01-31 = SPM = 20 
         
         */
-        private DateTime licenseExpiredDate = new DateTime(2024, 11, 30);
-        private int licenseActiveUser = 7;
+        private DateTime licenseExpiredDate = new DateTime(2025, 1, 31);
+        private int licenseActiveUser = 27;
 
         public User()
         {
