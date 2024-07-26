@@ -2304,15 +2304,8 @@ ORDER BY
                             {
                                 foreach (var outlet in outlets)
                                 {
-                                    outlet.Code = outlet.Code + "-" + source;
+                                    outlet.Code = source + "-" + outlet.Code;
                                 }
-                                //outlets = outlets.Select(x => new OutletItem
-                                //{
-                                //    Code = x.Code + "-" + source,
-                                //    Desc = x.Desc.Trim(),
-                                //    Name = x.Name.Trim()
-                                //})
-                                //.ToList();
                             }
                             UpdateOutlet(outlets);
                         }
@@ -2346,7 +2339,7 @@ ORDER BY
                                 {
                                     foreach (var item in items)
                                     {
-                                        item.Outlet = item.Outlet + "-" + source;
+                                        item.Outlet = source + "-" + item.Outlet;
                                     }
                                 }
                                 sales.AddRange(items);
@@ -2365,7 +2358,7 @@ ORDER BY
                                 {
                                     foreach (var item in items)
                                     {
-                                        item.Outlet = item.Outlet + "-" + source;
+                                        item.Outlet = source + "-" + item.Outlet;
                                     }
                                 }
 
