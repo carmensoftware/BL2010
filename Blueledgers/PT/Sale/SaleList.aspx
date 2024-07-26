@@ -256,7 +256,6 @@
                     </td>
                 </tr>
             </table>
-
         </ContentTemplate>
         <Triggers>
             <asp:PostBackTrigger ControlID="btn_POS" />
@@ -270,7 +269,6 @@
             <uc:Spinner ID="spinner" runat="server" />
         </ProgressTemplate>
     </asp:UpdateProgress>
-   
     <!-- Popup-->
     <dx:ASPxPopupControl ID="pop_Alert" ClientInstanceName="pop_Alert" runat="server" CssClass="top-most" Width="320" HeaderText="Alert" ShowHeader="true"
         CloseAction="CloseButton" Modal="True" AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter"
@@ -474,7 +472,6 @@
             </dx:PopupControlContentControl>
         </ContentCollection>
     </dx:ASPxPopupControl>
-
     <dx:ASPxPopupControl ID="pop_Department" ClientInstanceName="pop_Department" runat="server" HeaderText="Department" Width="640" Height="480" CloseAction="CloseButton"
         Modal="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter" ShowPageScrollbarWhenModal="True" AutoUpdatePosition="True" AllowDragging="True">
         <ContentCollection>
@@ -783,15 +780,8 @@
                     &nbsp;&nbsp;
                     <asp:Button runat="server" ID="btn_SelectPeriod" Text="Go" OnClick="btn_SelectPeriod_Click" />
                 </div>
-                <asp:GridView ID="gv_POS" runat="server" SkinID="GRD_V2" AutoGenerateColumns="false" Width="100%" ShowFooter="true">
+                <asp:GridView ID="gv_POS" runat="server" SkinID="GRD_V2" AutoGenerateColumns="false" Width="100%" ShowFooter="true" OnRowDataBound="gv_POS_RowDataBound">
                     <Columns>
-                        <asp:TemplateField>
-                            <ItemTemplate>
-                                <asp:Button ID="btn_PostFromPOS" runat="server" Text="Import" OnClick="btn_PostFromPOS_Click" />
-                                <asp:HiddenField runat="server" ID="hf_ID" Value='<%# Eval("ID") %>' />
-                                <asp:HiddenField runat="server" ID="hf_DocDate" Value='<%# Eval("DocDate") %>' />
-                            </ItemTemplate>
-                        </asp:TemplateField>
                         <asp:TemplateField>
                             <HeaderTemplate>
                                 Date
@@ -803,6 +793,14 @@
                         <asp:BoundField HeaderText="Description" DataField="Description" />
                         <asp:BoundField HeaderText="Source" DataField="Source" />
                         <asp:BoundField HeaderText="Update date" DataField="UpdatedDate" />
+                        <asp:TemplateField>
+                            <ItemTemplate>
+                                <asp:HiddenField runat="server" ID="hf_RowId" Value='<%# Eval("RowId") %>' />
+                                <asp:HiddenField runat="server" ID="hf_ID" Value='<%# Eval("ID") %>' />
+                                <asp:HiddenField runat="server" ID="hf_DocDate" Value='<%# Eval("DocDate") %>' />
+                                <asp:Button ID="btn_PostFromPOS" runat="server" Text="Import" OnClick="btn_PostFromPOS_Click" />
+                            </ItemTemplate>
+                        </asp:TemplateField>
                     </Columns>
                 </asp:GridView>
             </dx:PopupControlContentControl>

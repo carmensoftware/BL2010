@@ -948,7 +948,7 @@ ELSE
 
         }
 
-       
+
 
         // Private method(s)
 
@@ -1581,6 +1581,20 @@ VALUES (@RefId, @Type, 'Saved', @Description, NULL, @CreateBy, @CreateDate, @Upd
             pop_POS.ShowOnPageLoad = true;
         }
 
+        protected void gv_POS_RowDataBound(object sender, GridViewRowEventArgs e)
+        {
+            if (e.Row.RowType == DataControlRowType.DataRow)
+            {
+                var hf_RowId = e.Row.FindControl("hf_RowId") as HiddenField;
+                var btn_PostFromPOS = e.Row.FindControl("btn_PostFromPOS") as Button;
+                var isShown = hf_RowId.Value == "1";
+
+                btn_PostFromPOS.Visible = isShown;
+
+
+            }
+        }
+
         protected void btn_PostFromPOS_Click(object sender, EventArgs e)
         {
             var gvr = (sender as Button).NamingContainer;
@@ -1589,7 +1603,7 @@ VALUES (@RefId, @Type, 'Saved', @Description, NULL, @CreateBy, @CreateDate, @Upd
             var hf_ID = gvr.FindControl("hf_ID") as HiddenField;
             var date = Convert.ToDateTime(hf_DocDate.Value);
             var id = hf_ID.Value;
-            var data = PostInterfaceData(id);
+            var data = PostInterfaceData(date);
 
             var message = "";
 
@@ -1925,9 +1939,32 @@ VALUES (@RefId, @Type, 'Saved', @Description, NULL, @CreateBy, @CreateDate, @Upd
         // Private method(s)
         private DataTable QueryPosData(DateTime dateFrom, DateTime dateTo)
         {
-            var dt = bu.DbExecuteQuery(string.Format("SELECT * FROM [INTF].Data WHERE DocDate BETWEEN '{0}' AND '{1}' ORDER BY DocDate", dateFrom.ToString("yyyy-MM-dd"), dateTo.ToString("yyyy-MM-dd")),
-                null,
+            var query = @"
+SELECT 
+	ROW_NUMBER() OVER(PARTITION BY DocDate ORDER BY [Source]) as RowId,
+	ID,
+	DocDate,
+	[Description],
+	[Source],
+	UpdatedDate
+FROM 
+	[INTF].Data 
+WHERE 
+	Provider='POS'
+	AND [Type] = 'Sale'
+	AND DocDate BETWEEN @DateStart AND EOMONTH(@DateStart) 
+ORDER BY 
+	DocDate,
+	[Source]
+";
+
+            var dt = bu.DbExecuteQuery(
+                query,
+                new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@DateStart", dateFrom.ToString("yyyy-MM-dd")) },
                 LoginInfo.ConnStr);
+            //var dt = bu.DbExecuteQuery(string.Format("SELECT * FROM [INTF].Data WHERE DocDate BETWEEN '{0}' AND '{1}' ORDER BY DocDate", dateFrom.ToString("yyyy-MM-dd"), dateTo.ToString("yyyy-MM-dd")),
+            //    null,
+            //    LoginInfo.ConnStr);
 
             return dt;
 
@@ -2236,8 +2273,150 @@ ORDER BY
             return bu.DbExecuteQuery(@sql, null, LoginInfo.ConnStr);
         }
 
+        private IEnumerable<PT_Sale> PostInterfaceData(DateTime docDate)
+        {
+            var result = new List<PT_Sale>();
 
-        private IEnumerable<PT_Sale> PostInterfaceData(string id)
+            var sql = string.Format("SELECT [Data], ISNULL(Source,'') as Source FROM [INTF].[Data] WHERE Provider='POS' AND [Type] = 'Sale' AND DocDate = '{0}'", docDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+            var dt = bu.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
+
+
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                // Sale
+                var sales = new List<SaleItem>();
+
+                foreach (DataRow dr in dt.Rows)
+                {
+                    var json = dr["Data"].ToString();
+                    var source = dr["Source"].ToString().Trim();
+
+                    if (!string.IsNullOrEmpty(json))
+                    {
+                        var data = JObject.Parse(json);
+
+                        // Get outlet
+                        if (data["Outlet"] != null)
+                        {
+                            var outlets = JsonConvert.DeserializeObject<List<OutletItem>>(data["Outlet"].ToString());
+
+                            if (!string.IsNullOrEmpty(source))
+                            {
+                                foreach (var outlet in outlets)
+                                {
+                                    outlet.Code = outlet.Code + "-" + source;
+                                }
+                                //outlets = outlets.Select(x => new OutletItem
+                                //{
+                                //    Code = x.Code + "-" + source,
+                                //    Desc = x.Desc.Trim(),
+                                //    Name = x.Name.Trim()
+                                //})
+                                //.ToList();
+                            }
+                            UpdateOutlet(outlets);
+                        }
+
+                        // new version
+                        if (data["Item"] != null)
+                        {
+                            var items = JsonConvert.DeserializeObject<List<ItemItem>>(data["Item"].ToString());
+
+                            UpdateItem(items);
+                        }
+                        // Old Version
+                        else if (data["PLU"] != null)
+                        {
+                            var items = JsonConvert.DeserializeObject<List<ItemItem>>(data["PLU"].ToString());
+
+                            UpdateItem(items);
+
+                        }
+
+
+                        if (data["Sale"] != null) // new version
+                        {
+                            var jsonSale = data["Sale"];
+
+                            if (jsonSale != null)
+                            {
+                                var items  = JsonConvert.DeserializeObject<List<SaleItem>>(jsonSale.ToString());
+
+                                if (!string.IsNullOrEmpty(source))
+                                {
+                                    foreach (var item in items)
+                                    {
+                                        item.Outlet = item.Outlet + "-" + source;
+                                    }
+                                }
+                                sales.AddRange(items);
+
+                            }
+                        }
+                        else if (data["POS"]["Sales"] != null)
+                        {
+                            var jsonSale = data["POS"]["Sales"];
+
+                            if (jsonSale != null)
+                            {
+                                var items = JsonConvert.DeserializeObject<List<SaleItem>>(jsonSale.ToString());
+
+                                if (!string.IsNullOrEmpty(source))
+                                {
+                                    foreach (var item in items)
+                                    {
+                                        item.Outlet = item.Outlet + "-" + source;
+                                    }
+                                }
+
+                                sales.AddRange(items);
+                            }
+
+                            //docDate = data["POS"]["Date"] != null ? Convert.ToDateTime(data["POS"]["Date"]) : docDate;
+                        }
+
+                    }
+                }
+
+
+                UpdateSale(docDate, sales);
+
+                sql =
+                    string.Format(@"SELECT
+	                    s.*,
+	                    o.OutletName,
+	                    i.ItemName
+                    FROM
+	                    PT.Sale s
+	                    LEFT JOIN PT.Outlet o
+		                    ON o.OutletCode=s.OutletCode
+	                    LEFT JOIN PT.Item i
+		                    ON i.ItemCode = s.ItemCode
+                    WHERE
+	                    s.SaleDate = '{0}'", docDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+
+                var dtSale = bu.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
+
+                result = dtSale.AsEnumerable()
+                    .Select(x => new PT_Sale
+                    {
+                        Id = x.Field<int>("ID"),
+                        SaleDate = docDate,
+                        OutletCode = x.Field<string>("OutletCode"),
+                        OutletName = x.Field<string>("OutletName"),
+                        ItemCode = x.Field<string>("ItemCode"),
+                        ItemName = x.Field<string>("Itemname"),
+                        Qty = x.Field<decimal>("Qty"),
+                        UnitPrice = x.Field<decimal>("UnitPrice"),
+                        Total = x.Field<decimal>("Total")
+                    }).ToList();
+            }
+
+            return result;
+        }
+
+
+        private IEnumerable<PT_Sale> PostInterfaceData1(string id)
         {
             var result = new List<PT_Sale>();
 
