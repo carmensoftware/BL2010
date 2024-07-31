@@ -284,7 +284,8 @@ namespace BlueLedger.PL.PT.Sale
         protected void btn_SetOutlet_Save_Click(object sender, EventArgs e)
         {
             SaveOutletItem();
-            BindSaleData(_Date);
+            BindOutletData();
+            //BindSaleData(_Date);
 
             pop_SetOutlet.ShowOnPageLoad = false;
         }
@@ -298,7 +299,7 @@ namespace BlueLedger.PL.PT.Sale
             // Bind location
             ddl_NewOutletLocation.DataSource = GetLocation();
             ddl_NewOutletLocation.DataValueField = "LocationCode";
-            ddl_NewOutletLocation.DataTextField = "Location";
+            ddl_NewOutletLocation.DataTextField = "LocationName";
             ddl_NewOutletLocation.DataBind();
 
             pop_SetOutlet.ShowOnPageLoad = false;
@@ -396,8 +397,8 @@ ORDER BY
             var locationCode = ddl_SetOutlet_Location.SelectedValue.ToString();
 
             var query = @"
-IF EXISTS(SELECT * FROM PT.Outlet WHERE OutletCode=@OutletCode AND ItemCode=@ItemCode)
-	UPDATE PT.Outlet SET LocationCode=@LocationCode WHERE OutletCode=@OutletCode AND ItemCode=@ItemCode
+IF EXISTS(SELECT * FROM PT.Outlet WHERE OutletCode=@OutletCode AND ISNULL(ItemCode,'')=@ItemCode)
+	UPDATE PT.Outlet SET LocationCode=@LocationCode WHERE OutletCode=@OutletCode AND ISNULL(ItemCode,'')=@ItemCode
 ELSE
 	INSERT INTO PT.Outlet (OutletCode, OutletName, ItemCode, LocationCode) VALUES (@OutletCode, @OutletName, @ItemCode, @LocationCode)";
             var parameters = new List<Blue.DAL.DbParameter>();

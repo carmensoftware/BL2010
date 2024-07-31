@@ -61,11 +61,11 @@ namespace Blue.BL.dbo
             2024-08-31 = bestwesternclicksathorn11 = 10
             2024-08-31 = DeevanaPhuket = 65=> 69
             2024-08-31 = BaanSamuiResort = 8
+            2024-08-31 = bwsanctuary = 10
 
          
             2024-07-31 = Nexen = 20
             2024-07-31 = Zeavola = 28
-            2024-07-31 = bwsanctuary = 10
             2024-07-31 = Diamond Cottage = 15+5=20
             2024-07-31 = Public House = 6
             2024-07-31 = rxvwellness = 35
@@ -86,8 +86,8 @@ namespace Blue.BL.dbo
             2023-01-31 = SPM = 20 
         
         */
-        private DateTime licenseExpiredDate = new DateTime(2024, 09, 30);
-        private int licenseActiveUser = 17;
+        private DateTime licenseExpiredDate = new DateTime(2024, 08, 31);
+        private int licenseActiveUser = 10;
 
         public User()
         {
