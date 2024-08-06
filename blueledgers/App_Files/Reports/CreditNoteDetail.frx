@@ -1,0 +1,259 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" UseFileCache="true" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="06/14/2021 12:43:10" ReportInfo.CreatorVersion="2013.4.11.0">
+  <ScriptText>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Data;
+using FastReport;
+using FastReport.Data;
+using FastReport.Dialog;
+using FastReport.Barcode;
+using FastReport.Table;
+using FastReport.Utils;
+
+namespace FastReport
+{
+  public class ReportScript
+  {
+
+    private void _StartReport(object sender, EventArgs e)
+    {
+      // Initial values (For WebReport must set at here)
+      DateTime startOfMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+      TextDate1.Text = startOfMonth.ToShortDateString();
+      TextDate2.Text = DateTime.Today.ToShortDateString();
+
+      cb_OrderBy.SelectedIndex = 0;
+    }
+
+    private void btnOk_Click(object sender, EventArgs e)
+    {
+      
+      // Sample for assign parameter
+      Report.SetParameterValue(&quot;p_FDate&quot;,  Convert.ToDateTime(TextDate1.Text));
+      Report.SetParameterValue(&quot;p_TDate&quot;, Convert.ToDateTime(TextDate2.Text));
+
+      if (cb_FVendor.SelectedIndex == 0)
+        Report.SetParameterValue(&quot;p_FVendor&quot;, &quot;&quot;);
+      else
+        Report.SetParameterValue(&quot;p_FVendor&quot;, cb_FVendor.Text.Split(' ')[0].Trim());
+      
+      if (cb_TVendor.SelectedIndex == 0)
+        Report.SetParameterValue(&quot;p_TVendor&quot;, &quot;&quot;);
+      else
+        Report.SetParameterValue(&quot;p_TVendor&quot;, cb_TVendor.Text.Split(' ')[0].Trim());
+      
+      if (cb_DocStatus.SelectedIndex == 0)
+        Report.SetParameterValue(&quot;p_DocStatus&quot;, &quot;&quot;);
+      else
+        Report.SetParameterValue(&quot;p_DocStatus&quot;, cb_DocStatus.Text);
+
+      Report.SetParameterValue(&quot;p_OrderBy&quot;, cb_OrderBy.SelectedIndex.ToString() );
+
+    }
+
+  }
+}
+</ScriptText>
+  <Dictionary>
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqCvlJxRoS3oNe5N3zvkC4LuQMsx6CjlYnYWKeH8gmOi1vWbIAZrKBMJe16HXNtrcjQBJ0nB5CdAWSQCFglNzb70XoXUPNvxczJQ1TQmGSQz0=">
+      <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;">
+        <Column Name="BuCode" DataType="System.String"/>
+        <Column Name="Name" DataType="System.String"/>
+        <Column Name="NameBilling" DataType="System.String"/>
+        <Column Name="Address" DataType="System.String"/>
+        <Column Name="PostCode" DataType="System.String"/>
+        <Column Name="City" DataType="System.String"/>
+        <Column Name="Country" DataType="System.String"/>
+        <Column Name="Phone" DataType="System.String"/>
+        <Column Name="Fax" DataType="System.String"/>
+        <Column Name="Email" DataType="System.String"/>
+        <Column Name="DeliveryTerm" DataType="System.String"/>
+        <Column Name="POS" DataType="System.String"/>
+        <Column Name="POSModel" DataType="System.String"/>
+        <Column Name="BackOffice" DataType="System.String"/>
+        <Column Name="BackOfficeModel" DataType="System.String"/>
+        <Column Name="BuLogo" DataType="System.Byte[]" BindableControl="Picture"/>
+      </TableDataSource>
+      <TableDataSource Name="Table" Alias="Data" DataType="System.Int32" Enabled="true" SelectCommand="&#13;&#10;IF ISNULL(@FDate, '') = ''&#13;&#10;	SET @FDate=(SELECT MIN(CAST(CnDate AS DATE)) FROM PC.Cn)&#13;&#10;&#13;&#10;IF ISNULL(@TDate, '') = ''&#13;&#10;	SET @TDate=(SELECT MAX(CAST(CnDate AS DATE)) FROM PC.Cn)&#13;&#10;&#13;&#10;IF ISNULL(@FVendor, '') = ''&#13;&#10;	SET @FVendor=(SELECT MIN(VendorCode) FROM PC.Cn)&#13;&#10;&#13;&#10;IF ISNULL(@TVendor, '') = ''&#13;&#10;	SET @TVendor=(SELECT MAX(VendorCode) FROM PC.Cn)&#13;&#10;&#13;&#10;IF ISNULL(@DocStatus,'') = ''&#13;&#10;	SET @DocStatus = NULL&#13;&#10;&#13;&#10;SELECT&#13;&#10;	cn.*,&#13;&#10;	cndt.*,&#13;&#10;	v.[Name] AS VendorName,&#13;&#10;	p.ProductDesc1,&#13;&#10;	p.ProductDesc2,&#13;&#10;	l.LocationCode,&#13;&#10;	l.LocationName&#13;&#10;FROM&#13;&#10;	PC.Cn cn&#13;&#10;	JOIN PC.CnDt cndt &#13;&#10;		ON cndt.CnNo = cn.CnNo&#13;&#10;	LEFT JOIN AP.Vendor v &#13;&#10;		ON v.VendorCode = cn.VendorCode&#13;&#10;	LEFT JOIN [IN].Product p&#13;&#10;		ON p.ProductCode = cndt.ProductCode&#13;&#10;	LEFT JOIN [IN].StoreLocation l&#13;&#10;		ON l.LocationCode = cndt.Location&#13;&#10;WHERE&#13;&#10;	CAST(cn.CnDate AS DATE) BETWEEN @FDate AND @TDate&#13;&#10;	AND cn.VendorCode BETWEEN @FVendor AND @TVendor&#13;&#10;	AND DocStatus = CASE WHEN @DocStatus IS NULL THEN DocStatus ELSE @DocStatus END&#13;&#10;ORDER BY&#13;&#10;	CASE @OrderBy&#13;&#10;		WHEN 1 THEN cn.CnNo&#13;&#10;		WHEN 2 THEN FORMAT(CnDate, 'yyyy-MM-dd')&#13;&#10;		ELSE cn.CnNo&#13;&#10;	END&#13;&#10;">
+        <Column Name="CnNo" DataType="System.String"/>
+        <Column Name="CnDate" DataType="System.DateTime"/>
+        <Column Name="DocNo" DataType="System.String"/>
+        <Column Name="DocDate" DataType="System.DateTime"/>
+        <Column Name="RefNo" DataType="System.String"/>
+        <Column Name="VendorCode" DataType="System.String"/>
+        <Column Name="CurrencyCode" DataType="System.String"/>
+        <Column Name="ExRateAudit" DataType="System.Decimal"/>
+        <Column Name="ExRateMng" DataType="System.Decimal"/>
+        <Column Name="ExRateBank" DataType="System.Decimal"/>
+        <Column Name="Description" DataType="System.String"/>
+        <Column Name="DocStatus" DataType="System.String"/>
+        <Column Name="CreatedDate" DataType="System.DateTime"/>
+        <Column Name="CreatedBy" DataType="System.String"/>
+        <Column Name="UpdatedDate" DataType="System.DateTime"/>
+        <Column Name="UpdatedBy" DataType="System.String"/>
+        <Column Name="AddField1" DataType="System.String"/>
+        <Column Name="AddField2" DataType="System.String"/>
+        <Column Name="AddField3" DataType="System.String"/>
+        <Column Name="AddField4" DataType="System.String"/>
+        <Column Name="AddField5" DataType="System.String"/>
+        <Column Name="AddField6" DataType="System.String"/>
+        <Column Name="AddField7" DataType="System.String"/>
+        <Column Name="AddField8" DataType="System.String"/>
+        <Column Name="AddField9" DataType="System.String"/>
+        <Column Name="AddField10" DataType="System.String"/>
+        <Column Name="ExportStatus" DataType="System.Boolean" BindableControl="CheckBox"/>
+        <Column Name="CnNo1" DataType="System.String"/>
+        <Column Name="CnDtNo" DataType="System.Int32"/>
+        <Column Name="Location" DataType="System.String"/>
+        <Column Name="ProductCode" DataType="System.String"/>
+        <Column Name="UnitCode" DataType="System.String"/>
+        <Column Name="RecQty" DataType="System.Decimal"/>
+        <Column Name="FOCQty" DataType="System.Decimal"/>
+        <Column Name="Price" DataType="System.Decimal"/>
+        <Column Name="TaxType" DataType="System.String"/>
+        <Column Name="TaxRate" DataType="System.Decimal"/>
+        <Column Name="TaxAdj" DataType="System.Boolean" BindableControl="CheckBox"/>
+        <Column Name="NetAmt" DataType="System.Decimal"/>
+        <Column Name="TaxAmt" DataType="System.Decimal"/>
+        <Column Name="TotalAmt" DataType="System.Decimal"/>
+        <Column Name="PoNo" DataType="System.String"/>
+        <Column Name="PoDtNo" DataType="System.Int32"/>
+        <Column Name="NetCrAcc" DataType="System.String"/>
+        <Column Name="TaxCrAcc" DataType="System.String"/>
+        <Column Name="AddField11" DataType="System.String"/>
+        <Column Name="AddField21" DataType="System.String"/>
+        <Column Name="AddField31" DataType="System.String"/>
+        <Column Name="AddField41" DataType="System.String"/>
+        <Column Name="Descen" DataType="System.String"/>
+        <Column Name="Descll" DataType="System.String"/>
+        <Column Name="DiscPercent" DataType="System.Decimal"/>
+        <Column Name="DiscAmt" DataType="System.Decimal"/>
+        <Column Name="Comment" DataType="System.String"/>
+        <Column Name="DiscAdj" DataType="System.Boolean" BindableControl="CheckBox"/>
+        <Column Name="RecNo" DataType="System.String"/>
+        <Column Name="CnType" DataType="System.String"/>
+        <Column Name="VendorName" DataType="System.String"/>
+        <Column Name="ProductDesc1" DataType="System.String"/>
+        <Column Name="ProductDesc2" DataType="System.String"/>
+        <Column Name="LocationCode" DataType="System.String"/>
+        <Column Name="LocationName" DataType="System.String"/>
+        <CommandParameter Name="@FDate" DataType="31" Expression="[p_FDate]" DefaultValue="1/1/2019"/>
+        <CommandParameter Name="@TDate" DataType="31" Expression="[p_TDate]" DefaultValue="1/1/2030"/>
+        <CommandParameter Name="@FVendor" DataType="12" Expression="[p_FVendor]"/>
+        <CommandParameter Name="@TVendor" DataType="12" Expression="[p_TVendor]"/>
+        <CommandParameter Name="@DocStatus" DataType="12" Expression="[p_DocStatus]"/>
+        <CommandParameter Name="@OrderBy" DataType="8" Expression="[p_OrderBy]" DefaultValue="0"/>
+      </TableDataSource>
+      <TableDataSource Name="Table1" Alias="FVendor" DataType="System.Int32" Enabled="true" SelectCommand="SELECT ' ALL' as Item&#13;&#10;UNION&#13;&#10;SELECT &#13;&#10;	DISTINCT CONCAT(cn.VendorCode, ' : ', v.[Name])&#13;&#10;FROM &#13;&#10;	PC.Cn cn&#13;&#10;	LEFT JOIN AP.Vendor v &#13;&#10;		ON v.VendorCode = cn.VendorCode&#13;&#10;ORDER BY Item">
+        <Column Name="Item" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table2" Alias="TVendor" DataType="System.Int32" Enabled="true" SelectCommand="SELECT ' ALL' as Item&#13;&#10;UNION&#13;&#10;SELECT &#13;&#10;	DISTINCT CONCAT(cn.VendorCode, ' : ', v.[Name])&#13;&#10;FROM &#13;&#10;	PC.Cn cn&#13;&#10;	LEFT JOIN AP.Vendor v &#13;&#10;		ON v.VendorCode = cn.VendorCode&#13;&#10;&#13;&#10;ORDER BY Item">
+        <Column Name="Item" DataType="System.String"/>
+      </TableDataSource>
+      <TableDataSource Name="Table3" Alias="DocStatus" DataType="System.Int32" Enabled="true" SelectCommand="SELECT ' ALL' as Item&#13;&#10;UNION&#13;&#10;SELECT DISTINCT DocStatus&#13;&#10;FROM PC.Cn&#13;&#10;&#13;&#10;ORDER BY Item&#13;&#10;">
+        <Column Name="Item" DataType="System.String"/>
+      </TableDataSource>
+    </MsSqlDataConnection>
+    <Parameter Name="p_FDate" DataType="System.DateTime"/>
+    <Parameter Name="p_TDate" DataType="System.DateTime"/>
+    <Parameter Name="p_FVendor" DataType="System.String"/>
+    <Parameter Name="p_TVendor" DataType="System.String"/>
+    <Parameter Name="p_DocStatus" DataType="System.String"/>
+    <Parameter Name="p_OrderBy" DataType="System.String"/>
+    <Total Name="Total_RecQty" Expression="[Data.RecQty]" Evaluator="Data1" PrintOn="GroupFooter1"/>
+    <Total Name="Total_NetAmt" Expression="[Data.NetAmt]" Evaluator="Data1" PrintOn="GroupFooter1"/>
+    <Total Name="Total_TaxAmt" Expression="[Data.TaxAmt]" Evaluator="Data1" PrintOn="GroupFooter1"/>
+    <Total Name="Total_TotalAmt" Expression="[Data.TotalAmt]" Evaluator="Data1" PrintOn="GroupFooter1"/>
+    <Total Name="Sum_NetAmt" Expression="[Data.NetAmt]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+    <Total Name="Sum_TaxAmt" Expression="[Data.TaxAmt]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+    <Total Name="Sum_TotalAmt" Expression="[Data.TotalAmt]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+  </Dictionary>
+  <DialogPage Name="ReportDialog" Width="470" Height="298" AcceptButton="btnOk" CancelButton="btnCancel" LoadEvent="">
+    <ButtonControl Name="btnOk" Left="258" Top="234" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="0" Text="OK" ClickEvent="btnOk_Click" DialogResult="OK"/>
+    <ButtonControl Name="btnCancel" Left="341" Top="234" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="1" Text="Cancel" DialogResult="Cancel"/>
+    <LabelControl Name="Label1" Left="24" Top="10" Width="57" Height="13" Font="Tahoma, 8pt" TabIndex="0" Text="Date From"/>
+    <LabelControl Name="Label2" Left="24" Top="40" Width="45" Height="13" Font="Tahoma, 8pt" TabIndex="0" Text="Date To"/>
+    <LabelControl Name="Label3" Left="24" Top="70" Width="68" Height="13" Font="Tahoma, 8pt" TabIndex="0" Text="Vendor From"/>
+    <LabelControl Name="Label4" Left="24" Top="100" Width="56" Height="13" Font="Tahoma, 8pt" TabIndex="0" Text="Vendor To"/>
+    <LabelControl Name="Label5" Left="24" Top="130" Width="38" Height="13" Font="Tahoma, 8pt" TabIndex="13" Text="Status"/>
+    <LabelControl Name="Label6" Left="24" Top="160" Width="50" Height="13" Font="Tahoma, 8pt" TabIndex="13" Text="Order By"/>
+    <TextBoxControl Name="TextDate1" Left="130" Top="10" Width="300" Font="Tahoma, 8pt" TabIndex="1"/>
+    <TextBoxControl Name="TextDate2" Left="130" Top="40" Width="300" Font="Tahoma, 8pt" TabIndex="2"/>
+    <ComboBoxControl Name="cb_FVendor" Left="130" Top="70" Width="300" Font="Tahoma, 8pt" TabIndex="3" DataColumn="FVendor.Item" DropDownWidth="300" ItemHeight="13"/>
+    <ComboBoxControl Name="cb_TVendor" Left="130" Top="100" Width="300" Font="Tahoma, 8pt" TabIndex="4" DataColumn="TVendor.Item" DropDownWidth="300" ItemHeight="13"/>
+    <ComboBoxControl Name="cb_DocStatus" Left="130" Top="130" Width="300" Font="Tahoma, 8pt" TabIndex="5" DataColumn="DocStatus.Item" DropDownWidth="300" ItemHeight="13"/>
+    <ComboBoxControl Name="cb_OrderBy" Left="130" Top="160" Width="300" Font="Tahoma, 8pt" TabIndex="6" DropDownWidth="300" ItemHeight="13" ItemsText="CN Date&#13;&#10;CN No."/>
+  </DialogPage>
+  <ReportPage Name="Page1" Landscape="true" PaperWidth="297" PaperHeight="210" RawPaperSize="9">
+    <PageHeaderBand Name="PageHeader1" Width="1047.06" Height="98.28">
+      <PictureObject Name="Picture1" Top="2" Width="132.3" Height="94.5" DataColumn="ADMIN_Bu.BuLogo"/>
+      <TextObject Name="Text3" Left="348.71" Top="39.69" Width="349.65" Height="18.9" Text="Credit Note Detail" HorzAlign="Center" Font="Tahoma, 14pt"/>
+    </PageHeaderBand>
+    <GroupHeaderBand Name="GroupHeader1" Top="102.28" Width="1047.06" Height="86.94" Border.Lines="Bottom" Border.Style="Dash" Fill.Color="LightGray" CanGrow="true" Condition="[Data.CnNo]" SortOrder="None">
+      <TextObject Name="Text4" Top="9.56" Width="94.5" Height="18.9" Text="CN No." Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text5" Top="28.46" Width="94.5" Height="18.9" Text="Date" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text6" Top="49.14" Width="94.5" Height="18.9" Text="Vendor" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text7" Top="68.04" Width="94.5" Height="18.9" Text="Description" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text8" Left="94.5" Top="9.45" Width="113.4" Height="18.9" Text="[Data.CnNo]" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text9" Left="94.5" Top="28.35" Width="113.4" Height="18.9" Text="[Data.CnDate]" Format="Date" Format.Format="d" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text10" Left="94.5" Top="49.14" Width="737.1" Height="18.9" Text="[Data.VendorCode] - [Data.VendorName]" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text11" Left="94.5" Top="68.04" Width="737.1" Height="18.9" CanGrow="true" Text="[Data.Description]" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text12" Left="850.5" Top="9.56" Width="94.5" Height="18.9" Text="Status" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text13" Left="850.5" Top="28.46" Width="94.5" Height="18.9" Text="Document Date" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text14" Left="850.5" Top="49.14" Width="94.5" Height="18.9" Text="Document No." Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text15" Left="850.5" Top="68.04" Width="94.5" Height="18.9" Text="Currency" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text16" Left="945" Top="9.45" Width="94.5" Height="18.9" CanGrow="true" Text="[Data.DocStatus]" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text17" Left="945" Top="28.35" Width="94.5" Height="18.9" Text="[Data.DocDate]" Format="Date" Format.Format="d" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text18" Left="945" Top="49.14" Width="94.5" Height="18.9" Text="[Data.RefNo]" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text19" Left="945" Top="68.04" Width="94.5" Height="18.9" Text="[Data.CurrencyCode] @[Data.ExRateAudit]" WordWrap="false" Font="Tahoma, 8pt"/>
+      <ChildBand Name="Child1" Top="193.22" Width="1047.06" Height="22.68">
+        <TextObject Name="Text20" Top="3.78" Width="94.5" Height="18.9" Text="Rec No." Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text21" Left="94.5" Top="3.78" Width="189" Height="18.9" Text="Location" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text22" Left="283.5" Top="3.78" Width="245.7" Height="18.9" Text="Item" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text23" Left="567" Top="3.78" Width="37.8" Height="18.9" Text="Type" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text24" Left="529.2" Top="3.78" Width="37.8" Height="18.9" Text="Unit" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text25" Left="604.8" Top="3.78" Width="75.6" Height="18.9" Text="Qty" Format="Number" Format.UseLocale="true" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text26" Left="680.4" Top="3.78" Width="75.6" Height="18.9" Text="Price/Unit" Format="Number" Format.UseLocale="true" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text27" Left="756" Top="3.78" Width="94.5" Height="18.9" Text="Net Amt" Format="Number" Format.UseLocale="true" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text28" Left="850.5" Top="3.78" Width="94.5" Height="18.9" Text="Tax" Format="Number" Format.UseLocale="true" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text29" Left="945" Top="3.78" Width="94.5" Height="18.9" Text="Total" Format="Number" Format.UseLocale="true" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
+      </ChildBand>
+      <DataBand Name="Data1" Top="219.9" Width="1047.06" Height="20.79" CanGrow="true" BeforePrintEvent="Data1_BeforePrint" DataSource="Table">
+        <TextObject Name="Text30" Top="1.89" Width="94.5" Height="18.9" Text="[Data.RecNo]" WordWrap="false" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text31" Left="94.5" Top="1.89" Width="189" Height="18.9" CanGrow="true" Text="[Data.LocationCode] - [Data.LocationName]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text32" Left="283.5" Top="1.89" Width="245.7" Height="18.9" CanGrow="true" Text="[Data.ProductCode] - [Data.ProductDesc1]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text33" Left="567" Top="1.89" Width="37.8" Height="18.9" Text="[Data.CnType]" HorzAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text34" Left="529.2" Top="1.89" Width="37.8" Height="18.9" Text="[Data.UnitCode]" WordWrap="false" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text35" Left="604.8" Top="1.89" Width="75.6" Height="18.9" Text="[Data.RecQty]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text36" Left="680.4" Top="1.89" Width="75.6" Height="18.9" Text="[Data.Price]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text37" Left="756" Top="1.89" Width="94.5" Height="18.9" Text="[Data.NetAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text38" Left="850.5" Top="1.89" Width="94.5" Height="18.9" Text="[Data.TaxAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text39" Left="945" Top="1.89" Width="94.5" Height="18.9" Text="[Data.TotalAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt"/>
+      </DataBand>
+      <GroupFooterBand Name="GroupFooter1" Top="244.69" Width="1047.06" Height="30.24" Border.Lines="Top" Border.Style="Dash">
+        <TextObject Name="Text40" Left="756" Top="3.78" Width="94.5" Height="18.9" Text="[Total_NetAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text41" Left="850.5" Top="3.78" Width="94.5" Height="18.9" Text="[Total_TaxAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text42" Left="945" Top="3.78" Width="94.5" Height="18.9" Text="[Total_TotalAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text43" Left="604.8" Top="3.78" Width="75.6" Height="18.9" Text="[Total_RecQty]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text44" Left="283.5" Top="3.78" Width="245.7" Height="18.9" Text="Total" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
+      </GroupFooterBand>
+    </GroupHeaderBand>
+    <ReportSummaryBand Name="ReportSummary1" Top="278.93" Width="1047.06" Height="37.8" Border.Lines="All">
+      <TextObject Name="Text45" Left="756" Width="94.5" Height="18.9" Text="Net Amt" Format="Number" Format.UseLocale="true" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text46" Left="850.5" Width="94.5" Height="18.9" Text="Tax" Format="Number" Format.UseLocale="true" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text47" Left="945" Width="94.5" Height="18.9" Text="Total" Format="Number" Format.UseLocale="true" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text48" Left="756" Top="18.9" Width="94.5" Height="18.9" Border.Lines="Top" Text="[Sum_NetAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text49" Left="850.5" Top="18.9" Width="94.5" Height="18.9" Border.Lines="Top" Text="[Sum_TaxAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text50" Left="945" Top="18.9" Width="94.5" Height="18.9" Border.Lines="Top" Text="[Sum_TotalAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text51" Left="283.5" Top="18.9" Width="245.7" Height="18.9" Text="Grand Total" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
+    </ReportSummaryBand>
+    <PageFooterBand Name="PageFooter1" Top="320.73" Width="1047.06" Height="37.8">
+      <TextObject Name="Text1" Top="3.78" Width="132.3" Height="18.9" Text="[Date]" WordWrap="false" Font="Tahoma, 8pt, style=Italic"/>
+      <TextObject Name="Text2" Left="926.1" Top="3.78" Width="113.4" Height="18.9" Text="[Page#]/[TotalPages#]" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt"/>
+    </PageFooterBand>
+  </ReportPage>
+</Report>

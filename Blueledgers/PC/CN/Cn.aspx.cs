@@ -210,11 +210,7 @@ namespace BlueLedger.PL.PC.CN
             if (save)
             {
                 _transLog.Save("PC", "CN", cnNo, "VOIDED", string.Empty, LoginInfo.LoginName, hf_ConnStr.Value);
-
-                var vid = Request.QueryString["VID"].ToString();
-                var page = Request.QueryString["page"].ToString();
-
-                Response.Redirect(string.Format("~/PC/Cn/CnList.aspx?VID={0}&page={1}", vid, page));
+                Response.Redirect("~/PC/Cn/CnList.aspx");
             }
         }
 

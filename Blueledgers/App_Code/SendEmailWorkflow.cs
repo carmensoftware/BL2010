@@ -8,8 +8,6 @@ using BlueLedger.PL.BaseClass;
 using System.Data.SqlClient;
 using Blue.DAL;
 using System.Globalization;
-using System.Net;
-using Newtonsoft.Json;
 
 /// <summary>
 /// Summary description for SendEmailWorkflow
@@ -63,19 +61,19 @@ public static class SendEmailWorkflow
         if (dtPr.Rows.Count > 0) // Found
         {
             DataRow dr = dtPr.Rows[0];
-
-            var mailFrom = "";
-            var mailTo = "";
-            var toStep = int.Parse(dr["StepTo"].ToString());
-            var inboxNo = dr["InboxNo"].ToString();
-            var refNo = dr["RefNo"].ToString();
-            var subject = dr["Subject"].ToString();
-            var mailBody = dr["Message"].ToString();
+            string mailFrom = "", mailTo = "";
+            int toStep = int.Parse(dr["StepTo"].ToString());
+            string inboxNo = dr["InboxNo"].ToString();
+            string refNo = dr["RefNo"].ToString();
+            string subject = dr["Subject"].ToString();
+            //string mailBody = GnxLib.EnDecryptString(dr["Message"].ToString(), GnxLib.EnDeCryptor.DeCrypt);
+            string mailBody = dr["Message"].ToString();
 
             if (!mailBody.Contains('<')) // Encode
             {
                 mailBody = GnxLib.EnDecryptString(dr["Message"].ToString(), GnxLib.EnDeCryptor.DeCrypt);
             }
+
 
             try
             {
@@ -85,16 +83,6 @@ public static class SendEmailWorkflow
                 // Now: Reject 's ["receiver"] is LoginName
                 else if (approveCode.ToUpper() == "R" || approveCode.ToUpper() == "S")
                     mailTo = Get_InvolvedEmail(docNo, connectionString);
-
-                // Update Receiver to [IM].Inbox
-                sql = string.Format("UPDATE [IM].Inbox SET Reciever = @mailTo WHERE InboxNo = {0}", inboxNo);
-                var p = new Blue.DAL.DbParameter[]
-                {
-                    new DbParameter("@mailTo", mailTo)
-                };
-
-                DbExecuteQuery(sql, p, connectionString);
-
 
                 #region sending email
 
@@ -127,7 +115,15 @@ public static class SendEmailWorkflow
                     email.Subject = subject;
                     email.Body = mailBody;
 
+                    // Update Receiver to [IM].Inbox
+                    sql = string.Format("UPDATE [IM].Inbox SET Reciever = @mailTo WHERE InboxNo = {0}", inboxNo);
+                    var p = new Blue.DAL.DbParameter[1];
+                    p[0] = new DbParameter("@mailTo", mailTo);
 
+                    DbExecuteQuery(sql, p, connectionString);
+
+                    //sql = string.Format("UPDATE [IM].Inbox SET Reciever = '{0}' WHERE InboxNo = {1}", mailTo, inboxNo);
+                    //DbExecuteQuery(sql, null, connectionString);
 
                     errorMessage = email.Send();
                 }
@@ -140,6 +136,11 @@ public static class SendEmailWorkflow
                 errorMessage = ex.Message.ToString();
             }
 
+            //sql = string.Format("INSERT INTO [IM].MailLog(LogDate,InboxNo,RefNo,IsSent,Error) VALUES('{0}',{1},'{2}',{3},'{4}')",
+            //    DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), // LogDate
+            //    inboxNo, // InboxNo
+            //    refNo,  // RefNo
+            //    string.IsNullOrEmpty(errorMessage) ? 1 : 0, errorMessage);
             var p1 = new List<Blue.DAL.DbParameter>();
 
             sql = "INSERT INTO [IM].MailLog(LogDate,InboxNo,RefNo,IsSent,Error) VALUES(@LogDate, @InboxNo, @RefNo, @IsSent, @Error)";
@@ -149,7 +150,7 @@ public static class SendEmailWorkflow
             p1.Add(new DbParameter("@IsSent", string.IsNullOrEmpty(errorMessage) ? "1" : "0"));
             p1.Add(new DbParameter("@Error", errorMessage));
 
-            DbExecuteQuery(sql, p1.ToArray(), connectionString);
+            DbExecuteQuery(sql, p1.ToArray(),  connectionString);
 
         }
         else // not found
@@ -221,8 +222,6 @@ public static class SendEmailWorkflow
         DbExecuteQuery(sql, p1.ToArray(), connectionString);
 
     }
-
-
 
     // Private method(s)
 
@@ -375,7 +374,7 @@ SELECT * FROM @list");
         email.Port = Convert.ToInt16(smtpConfig.Value("port"));
         email.EnableSsl = smtpConfig.Value("enablessl").ToUpper() == "TRUE";
         email.IsAuthentication = smtpConfig.Value("authenticate").ToUpper() == "TRUE";
-
+        
         if (email.IsAuthentication)
         {
             email.Name = smtpConfig.Value("name");
@@ -489,7 +488,7 @@ SELECT * FROM @list");
         var vid = drView["ViewNo"].ToString();
 
 
-        var dtBu = DbExecuteQuery("SELECT TOP 1 * FROM [ADMIN].Bu", null, connectionString);
+        var dtBu = DbExecuteQuery("SELECT TOP 1 * FROM [ADMIN].Bu",null,connectionString);
         var dr = dtBu.Rows[0];
 
         var buCode = dr["BuCode"].ToString();
@@ -518,61 +517,6 @@ SELECT * FROM @list");
         return body;
     }
 
-    // API
-
-    private static void SendMailApi(string sysConnStr, string buConnStr, string buCode, int inboxId)
-    {
-        var query = "SELECT * FROM [dbo].[BuApi] WHERE AppName='CARMEN' AND BuCode=@BuCode";
-        var p = new DbParameter[] { new DbParameter("@BuCode", buCode) };
-        var dt = DbExecuteQuery(query, p, sysConnStr);
-
-
-        if (dt != null && dt.Rows.Count > 0)
-        {
-            var token = dt.Rows[0]["ClientId"].ToString();
-
-
-            query = @"
-DECLARE @Host nvarchar(255) = (SELECT RTRIM([Value]) FROM APP.Config WHERE Module='APP' AND SubModule='IM' AND [Key]='WebServer')
-DECLARE @BlueApi nvarchar(255) = 'blueledgers.api'
-SET @Host = CASE WHEN SUBSTRING(@Host, LEN(@Host), 1) = '/' THEN SUBSTRING(@Host, 1, LEN(@Host)-1) ELSE @Host END
-SELECT CONCAT(@Host,'/',@BlueApi) as EndPoint";
-
-            dt = DbExecuteQuery(query, null, buConnStr);
-
-            var host = dt.Rows[0][0].ToString().TrimEnd('/');
-            var action = "api/Notification/Mail/Inbox";
-            var endpoint = string.Format("{0}/{1}", host, action); ;
-
-
-
-            using (var client = new WebClient())
-            {
-                client.Headers.Add("Authorization", token);
-                client.Headers[HttpRequestHeader.ContentType] = "application/json; charset=utf-8";
-
-                var data = new MailInbox
-                {
-                    BuCode = buCode,
-                    Id = inboxId
-                };
-                var json = JsonConvert.SerializeObject(data);
-
-
-                var response = client.UploadString(endpoint, "POST", json);
-
-
-            }
-
-
-        }
-    }
-
-    internal class MailInbox
-    {
-        public string BuCode { get; set; }
-        public int Id { get; set; }
-    }
 
 
 

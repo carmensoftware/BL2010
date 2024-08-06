@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Report ScriptLanguage="CSharp" UseFileCache="true" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="08/29/2018 17:26:25" ReportInfo.CreatorVersion="2013.4.11.0">
+<Report ScriptLanguage="CSharp" UseFileCache="true" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="09/26/2023 15:21:04" ReportInfo.CreatorVersion="2013.4.11.0">
   <ScriptText>using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -21,43 +21,23 @@ namespace FastReport
 
     private void _StartReport(object sender, EventArgs e)
     {
-      // Initial values (For WebReport must set at here)
-      ComboBox1.SelectedIndex=0;
+      ComboBox1.SelectedIndex = 1;
     }
 
     private void btnOk_Click(object sender, EventArgs e)
     {
-
       Report.SetParameterValue(&quot;p_fproductcode&quot;,cfproductcode.Text.Split(' ')[0].ToString());
       Report.SetParameterValue(&quot;p_Tproductcode&quot;,ctproductcode.Text.Split(' ')[0].ToString());
       Report.SetParameterValue(&quot;p_Fcat&quot;,cfcategory.Text.Split(' ')[0].ToString());
       Report.SetParameterValue(&quot;p_Tcat&quot;,ctcategory.Text.Split(' ')[0].ToString());
-      if(ComboBox1.Text==&quot;Active&quot;)
-      {
-        Report.SetParameterValue(&quot;p_IsActive&quot;,1); 
-      }
-      else if(ComboBox1.Text==&quot;In Active&quot;)
-      {
-        Report.SetParameterValue(&quot;p_IsActive&quot;,0); 
-      }
- 
-      else if (ComboBox1.Text==&quot;All Product&quot;)
-      {
-        Report.SetParameterValue(&quot;p_IsActive&quot;,2); 
-      }
-      
-
+      Report.SetParameterValue(&quot;p_IsActive&quot;, ComboBox1.SelectedIndex); 
     }
-
-
-
-
-  
   }
+  
 }
 </ScriptText>
   <Dictionary>
-    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqCvlJxRoS3oNe5N3zvkC4LlmkTOi213q2PMFzU8HZZ4AhPg4pM82wbBECzXbZ3GOOtSWKFx0an2rGh8fMTfds5sftk8xWJFD48dgRfa5PIto=">
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlquQ+MGUuFmwCkhAb0ntbeLCVYpiuMguxDfPu6iCm/j+i8ArQZlDWCzzL3RQj5GMRBewLjm5CAZHh0PIaYphMYuD+naWrD+EgB1R4yBySEMG9hhuMp1Ul0e82GXVjJnoTeNyHtVoIatL2kaiiEiRQZlA==">
       <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;">
         <Column Name="BuCode" DataType="System.String"/>
         <Column Name="Name" DataType="System.String"/>
@@ -76,58 +56,48 @@ namespace FastReport
         <Column Name="BackOfficeModel" DataType="System.String"/>
         <Column Name="BuLogo" DataType="System.Byte[]" BindableControl="Picture"/>
       </TableDataSource>
-      <TableDataSource Name="Table" Alias="ProductList" DataType="System.Int32" Enabled="true" SelectCommand="EXECUTE rpt.rptProductList   @FProductCode=@p_fproductcode,&#13;&#10;		               @TProductCode=@p_tproductcode,&#13;&#10;                                              @FProductCate=@p_fproductcate,&#13;&#10;		               @TProductCate=@p_tproductcate,		                  &#13;&#10;                                               @IsActive=@p_Isactive">
+      <TableDataSource Name="Table" Alias="Data" DataType="System.Int32" Enabled="true" SelectCommand="EXECUTE rpt.rptProductList   &#13;&#10;  @FProductCode=@p_fproductcode,&#13;&#10;  @TProductCode=@p_tproductcode,&#13;&#10;  @FProductCate=@p_fproductcate,&#13;&#10;  @TProductCate=@p_tproductcate,		                  &#13;&#10;  @IsActive=@p_Isactive">
         <Column Name="ProductCode" DataType="System.String"/>
         <Column Name="ProductDesc1" DataType="System.String"/>
+        <Column Name="ProductDesc2" DataType="System.String"/>
+        <Column Name="CategoryCode" DataType="System.String"/>
+        <Column Name="CategoryName" DataType="System.String"/>
+        <Column Name="SubCategoryCode" DataType="System.String"/>
+        <Column Name="SubCategoryName" DataType="System.String"/>
+        <Column Name="ItemGroupCode" DataType="System.String"/>
         <Column Name="ItemGroupName" DataType="System.String"/>
-        <Column Name="RUName" DataType="System.String"/>
+        <Column Name="BarCode" DataType="System.String"/>
+        <Column Name="InventoryUnit" DataType="System.String"/>
+        <Column Name="OrderUnit" DataType="System.String"/>
+        <Column Name="RecipeUnit" DataType="System.String"/>
         <Column Name="IUName" DataType="System.String"/>
         <Column Name="OUName" DataType="System.String"/>
-        <Column Name="CreatedDate" DataType="System.DateTime"/>
-        <Column Name="CreatedBy" DataType="System.String"/>
-        <Column Name="PriceDeviation" DataType="System.Decimal"/>
-        <Column Name="BarCode" DataType="System.String"/>
-        <Column Name="ProductDesc2" DataType="System.String"/>
-        <Column Name="StandardCost" DataType="System.Decimal"/>
-        <Column Name="LastCost" DataType="System.Decimal"/>
-        <Column Name="ProductCate" DataType="System.String"/>
-        <Column Name="ProductSubCate" DataType="System.Int32"/>
-        <Column Name="RecipeUnit" DataType="System.String"/>
-        <Column Name="RecipeConvInvent" DataType="System.Decimal"/>
-        <Column Name="InventoryUnit" DataType="System.String"/>
-        <Column Name="InventoryConvOrder" DataType="System.Decimal"/>
-        <Column Name="OrderUnit" DataType="System.String"/>
+        <Column Name="RUName" DataType="System.String"/>
         <Column Name="TaxType" DataType="System.String"/>
         <Column Name="TaxRate" DataType="System.Decimal"/>
         <Column Name="TaxAccCode" DataType="System.String"/>
-        <Column Name="QuantityDeviation" DataType="System.Decimal"/>
-        <Column Name="ReqHQAppr" DataType="System.Boolean" BindableControl="CheckBox"/>
-        <Column Name="AccountCode" DataType="System.String"/>
-        <Column Name="IsRecipe" DataType="System.Boolean" BindableControl="CheckBox"/>
-        <Column Name="SaleItem" DataType="System.Boolean" BindableControl="CheckBox"/>
-        <Column Name="ApprovalLevel" DataType="System.Int32"/>
-        <Column Name="UpdatedDate" DataType="System.DateTime"/>
-        <Column Name="UpdatedBy" DataType="System.String"/>
-        <Column Name="CategoryCode" DataType="System.String"/>
-        <Column Name="CategoryName" DataType="System.String"/>
-        <Column Name="IsActives" DataType="System.String"/>
+        <Column Name="TaxTypeName" DataType="System.String"/>
+        <Column Name="LastCost" DataType="System.Decimal"/>
+        <Column Name="DocNo" DataType="System.String"/>
+        <Column Name="IsActive" DataType="System.Boolean" BindableControl="CheckBox"/>
+        <Column Name="Status" DataType="System.String"/>
         <CommandParameter Name="p_fproductcode" DataType="12" Expression="[p_fproductcode]"/>
         <CommandParameter Name="p_tproductcode" DataType="12" Expression="[p_Tproductcode]"/>
         <CommandParameter Name="p_fproductcate" DataType="12" Expression="[p_Fcat]"/>
         <CommandParameter Name="p_tproductcate" DataType="12" Expression="[p_Tcat]"/>
         <CommandParameter Name="p_Isactive" DataType="8" Expression="[p_IsActive]" DefaultValue="0"/>
       </TableDataSource>
-      <TableDataSource Name="Table2" Alias="Fproduct" DataType="System.Int32" Enabled="true" SelectCommand="SELECT ProductCode + ' : '+ ProductDesc1 AS ProdItem&#13;&#10;FROM [IN].Product&#13;&#10;Order By ProductCode">
-        <Column Name="ProdItem" DataType="System.String"/>
+      <TableDataSource Name="Table2" Alias="Fproduct" DataType="System.Int32" Enabled="true" SelectCommand="EXEC RPT.ListProduct">
+        <Column Name="Item" DataType="System.String"/>
       </TableDataSource>
-      <TableDataSource Name="Table3" Alias="Fcat" DataType="System.Int32" Enabled="true" SelectCommand="select CategoryCode+' '+CategoryName&#13;&#10;from [IN].ProductCategory&#13;&#10;where ParentNo='0'&#13;&#10;Order By CategoryCode">
-        <Column Name="Column1" DataType="System.String"/>
+      <TableDataSource Name="Table1" Alias="Tproduct" DataType="System.Int32" Enabled="true" SelectCommand="EXEC RPT.ListProduct">
+        <Column Name="Item" DataType="System.String"/>
       </TableDataSource>
-      <TableDataSource Name="Table1" Alias="Tproduct" DataType="System.Int32" Enabled="true" SelectCommand="SELECT ProductCode + ' : '+ ProductDesc1 AS ProdItem&#13;&#10;FROM [IN].Product&#13;&#10;Order By ProductCode">
-        <Column Name="ProdItem" DataType="System.String"/>
+      <TableDataSource Name="Table4" Alias="Fcat" DataType="System.Int32" Enabled="true" SelectCommand="EXEC RPT.ListCategory">
+        <Column Name="Item" DataType="System.String"/>
       </TableDataSource>
-      <TableDataSource Name="Table6" Alias="Tcat" DataType="System.Int32" Enabled="true" SelectCommand="select CategoryCode+' '+CategoryName&#13;&#10;from [IN].ProductCategory&#13;&#10;where ParentNo='0'&#13;&#10;Order By CategoryCode">
-        <Column Name="Column1" DataType="System.String"/>
+      <TableDataSource Name="Table5" Alias="Tcat" DataType="System.Int32" Enabled="true" SelectCommand="EXEC RPT.ListCategory">
+        <Column Name="Item" DataType="System.String"/>
       </TableDataSource>
     </MsSqlDataConnection>
     <Parameter Name="p_fproductcode" DataType="System.String"/>
@@ -135,7 +105,22 @@ namespace FastReport
     <Parameter Name="p_IsActive" DataType="System.Int32"/>
     <Parameter Name="p_Fcat" DataType="System.String"/>
     <Parameter Name="p_Tcat" DataType="System.String"/>
+    <Total Name="Total" TotalType="Count" Evaluator="Data1" PrintOn="ReportSummary1"/>
   </Dictionary>
+  <DialogPage Name="ReportDialog" Width="462" Height="318" AcceptButton="btnOk" CancelButton="btnCancel" Text="PRODUCT LIST" LoadEvent="Form1_Load">
+    <ButtonControl Name="btnOk" Left="257" Top="218" Width="71" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="0" Text="OK" ClickEvent="btnOk_Click" DialogResult="OK"/>
+    <ButtonControl Name="btnCancel" Left="356" Top="218" Width="71" Anchor="Bottom, Right" BackColor="Transparent" Font="Tahoma, 8pt" TabIndex="1" Text="Cancel" ClickEvent="btnCancel_Click" DialogResult="Cancel"/>
+    <ComboBoxControl Name="cfproductcode" Left="128" Top="20" Width="304" Font="Tahoma, 8pt" TabIndex="19" ClickEvent="" DataColumn="Fproduct.Item" DropDownWidth="185" ItemHeight="13" SelectedIndexChangedEvent="ComboBox1_SelectedIndexChanged"/>
+    <LabelControl Name="Label1" Left="8" Top="24" Width="81" Height="13" Font="Tahoma, 8.25pt, style=Bold" TabIndex="21" Text="Product from"/>
+    <LabelControl Name="Label2" Left="8" Top="54" Width="66" Height="13" Font="Tahoma, 8.25pt, style=Bold" TabIndex="21" Text="Product to"/>
+    <ComboBoxControl Name="ctproductcode" Left="128" Top="50" Width="304" Font="Tahoma, 8pt" TabIndex="22" ClickEvent="ComboBox2_Click" DataColumn="Tproduct.Item" DropDownWidth="305" ItemHeight="13"/>
+    <LabelControl Name="Label3" Left="8" Top="94" Width="91" Height="13" Font="Tahoma, 8.25pt, style=Bold" TabIndex="23" Text="Category From"/>
+    <LabelControl Name="Label4" Left="8" Top="124" Width="76" Height="13" Font="Tahoma, 8.25pt, style=Bold" TabIndex="23" Text="Category To"/>
+    <ComboBoxControl Name="cfcategory" Left="128" Top="90" Width="304" Font="Tahoma, 8pt" TabIndex="24" TextChangedEvent="cfcategory_TextChanged" DataColumn="Fcat.Item" DropDownWidth="305" ItemHeight="13"/>
+    <ComboBoxControl Name="ctcategory" Left="128" Top="120" Width="304" Font="Tahoma, 8pt" TabIndex="24" TextChangedEvent="ctcategory_TextChanged" DataColumn="Tcat.Item" DropDownWidth="305" ItemHeight="13"/>
+    <LabelControl Name="Label7" Left="8" Top="164" Width="44" Height="13" Font="Tahoma, 8.25pt, style=Bold" TabIndex="25" Text="Status"/>
+    <ComboBoxControl Name="ComboBox1" Left="128" Top="160" Width="305" Font="Tahoma, 8pt" TabIndex="29" DropDownWidth="309" ItemHeight="13" ItemsText="Inactive&#13;&#10;Active&#13;&#10;All"/>
+  </DialogPage>
   <ReportPage Name="Page1" Landscape="true" PaperWidth="297" PaperHeight="210" RawPaperSize="9" FirstPageSource="15" OtherPagesSource="15" Guides="75.6,321.3,585.9,699.3,774.9,850.5,922.32,979.02">
     <ReportTitleBand Name="ReportTitle1" Width="1047.06" Height="109.31">
       <PictureObject Name="Picture2" Width="151.2" Height="75.6" DataColumn="ADMIN_Bu.BuLogo"/>
@@ -143,51 +128,45 @@ namespace FastReport
       <TextObject Name="Text9" Top="90.41" Width="280.48" Height="18.9" Text="[ADMIN_Bu.Name]" AutoWidth="true" Font="Arial, 10pt, style=Bold"/>
     </ReportTitleBand>
     <PageHeaderBand Name="PageHeader1" Top="113.31" Width="1047.06"/>
-    <ColumnHeaderBand Name="ColumnHeader1" Top="117.31" Width="1047.06" Height="28.35" Border.Lines="Top, Bottom" Fill.Color="DarkGray" Guides="3.78">
-      <TextObject Name="Text2" Top="3.78" Width="75.6" Height="18.9" Text="Product" Font="Tahoma, 8pt, style=Bold"/>
-      <TextObject Name="Text3" Left="75.6" Top="3.78" Width="226.8" Height="18.9" Text="English Description" Font="Tahoma, 8pt, style=Bold"/>
-      <TextObject Name="Text4" Left="302.4" Top="3.78" Width="226.8" Height="18.9" Text="Local Description" Font="Tahoma, 8pt, style=Bold"/>
-      <TextObject Name="Text5" Left="538.65" Top="3.78" Width="83.16" Height="18.9" Text="Item Group" Font="Tahoma, 8pt, style=Bold"/>
-      <TextObject Name="Text6" Left="623.7" Top="3.78" Width="75.6" Height="18.9" Text="Invt. Unit&#13;&#10;" Font="Tahoma, 8pt, style=Bold"/>
-      <TextObject Name="Text7" Left="699.3" Top="3.78" Width="75.6" Height="18.9" Text="Order Unit" Font="Tahoma, 8pt, style=Bold"/>
-      <TextObject Name="Text8" Left="774.9" Top="3.78" Width="71.82" Height="18.9" Text="LastCost" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
-      <TextObject Name="Text11" Left="846.72" Top="3.78" Width="49.14" Height="18.9" Text="Tax" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
-      <TextObject Name="Text12" Left="979.57" Top="3.78" Width="56.7" Height="18.9" Text="Status" Font="Tahoma, 8pt, style=Bold"/>
-      <TextObject Name="Text26" Left="899.97" Top="3.78" Width="75.6" Height="18.9" Text="Tax Account" Font="Tahoma, 8pt, style=Bold"/>
+    <ColumnHeaderBand Name="ColumnHeader1" Top="117.31" Width="1047.06" Height="42.53" Border.Lines="Top, Bottom" Fill.Color="DarkGray" Guides="3.78">
+      <TextObject Name="Text2" Left="37.8" Top="4.73" Width="75.6" Height="18.9" Text="Code" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text3" Left="113.4" Top="4.73" Width="321.3" Height="18.9" Text="Description" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text5" Left="434.7" Top="4.73" Width="113.4" Height="18.9" Text="Category /" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text6" Left="661.5" Top="23.63" Width="75.6" Height="18.9" Text="Inventory&#13;&#10;" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text7" Left="737.1" Top="23.63" Width="75.6" Height="18.9" Text="Order" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text8" Left="969.57" Top="4.73" Width="75.6" Height="18.9" Text="Last Cost" HorzAlign="Right" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text28" Left="661.5" Top="4.73" Width="151.2" Height="18.9" Border.Lines="Bottom" Text="Unit" HorzAlign="Center" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text11" Left="812.7" Top="4.73" Width="94.5" Height="18.9" Border.Lines="Bottom" Text="Tax" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text26" Left="812.7" Top="23.63" Width="94.5" Height="18.9" Text="Account Code" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text12" Left="907.2" Top="4.73" Width="56.7" Height="18.9" Text="Active" HorzAlign="Center" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text35" Left="548.1" Top="4.73" Width="113.4" Height="18.9" Text="Item Group" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text37" Left="434.7" Top="23.63" Width="113.4" Height="18.9" Text="Sub-Category" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text38" Top="4.73" Width="37.8" Height="18.9" Text="#" Font="Tahoma, 8pt, style=Bold"/>
     </ColumnHeaderBand>
-    <DataBand Name="Data1" Top="149.66" Width="1047.06" Height="22.68" CanGrow="true" BeforePrintEvent="Data1_BeforePrint" Guides="3.78,22.68" DataSource="Table">
-      <TextObject Name="Text1" Top="3.78" Width="75.6" Height="18.9" Text="[ProductList.ProductCode]" WordWrap="false" Font="Tahoma, 8pt"/>
-      <TextObject Name="Text13" Left="75.6" Top="3.78" Width="226.8" Height="18.9" CanGrow="true" Text="[ProductList.ProductDesc1]" Font="Tahoma, 8pt"/>
-      <TextObject Name="Text16" Left="302.4" Top="3.78" Width="226.8" Height="18.9" CanGrow="true" Text="[ProductList.ProductDesc2]" Font="Tahoma, 8pt"/>
-      <TextObject Name="Text18" Left="538.65" Top="3.78" Width="83.16" Height="18.9" CanGrow="true" Text="[ProductList.CategoryName]" WordWrap="false" Font="Tahoma, 8pt"/>
-      <TextObject Name="Text20" Left="623.7" Top="3.78" Width="75.6" Height="18.9" CanGrow="true" Text="[ProductList.IUName]" WordWrap="false" Font="Tahoma, 8pt"/>
-      <TextObject Name="Text21" Left="699.3" Top="3.78" Width="75.6" Height="18.9" CanGrow="true" Text="[ProductList.OrderUnit]" WordWrap="false" Font="Tahoma, 8pt"/>
-      <TextObject Name="Text17" Left="774.9" Top="3.78" Width="71.82" Height="18.9" Text="[ProductList.LastCost]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
-      <TextObject Name="Text22" Left="846.72" Top="3.78" Width="49.14" Height="18.9" Text="[ProductList.TaxRate]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
-      <TextObject Name="Text19" Left="979.57" Top="3.78" Width="56.7" Height="18.9" Text="[ProductList.IsActives]" WordWrap="false" Font="Tahoma, 8pt"/>
-      <TextObject Name="Text27" Left="907.53" Top="3.78" Width="68.04" Height="18.9" CanGrow="true" Text="[ProductList.TaxAccCode]" WordWrap="false" Font="Tahoma, 8pt"/>
-      <Sort>
-        <Sort Expression="[ProductList.ProductCode]"/>
-      </Sort>
+    <DataBand Name="Data1" Top="163.84" Width="1047.06" Height="22.68" Border.Lines="Bottom" Border.Style="Dot" CanGrow="true" CanShrink="true" BeforePrintEvent="Data1_BeforePrint" Guides="3.78,22.68" DataSource="Table">
+      <TextObject Name="Text1" Left="37.8" Top="3.78" Width="75.6" Height="18.9" Text="[Data.ProductCode]" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text13" Left="113.4" Top="3.78" Width="321.3" Height="18.9" CanGrow="true" Text="[Data.ProductDesc1]&#13;&#10;[IIf([Data.ProductDesc2]==&quot;&quot;,&quot;&quot;,&quot;*&quot;)][Data.ProductDesc2]" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text18" Left="434.7" Top="3.78" Width="113.4" Height="18.9" CanGrow="true" Text="[Data.CategoryName] /&#13;&#10;[Data.SubCategoryName]" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text30" Left="661.5" Top="3.78" Width="75.6" Height="18.9" CanGrow="true" Text="[Data.IUName]" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text31" Left="737.1" Top="3.78" Width="75.6" Height="18.9" CanGrow="true" Text="[Data.OUName]" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text32" Left="812.7" Top="3.78" Width="94.5" Height="18.9" CanGrow="true" Text="[Data.TaxTypeName] [IIf([Data.TaxType]==&quot;N&quot;,&quot;&quot;,[Data.TaxRate] + &quot;%&quot;)]&#13;&#10;[Data.TaxAccCode]" Font="Tahoma, 8pt">
+        <Formats>
+          <GeneralFormat/>
+          <NumberFormat/>
+          <GeneralFormat/>
+        </Formats>
+      </TextObject>
+      <CheckBoxObject Name="CheckBox1" Left="926.1" Top="3.78" Width="18.9" Height="18.9" UncheckedSymbol="Cross" DataColumn="Data.IsActive"/>
+      <TextObject Name="Text33" Left="969.57" Top="3.78" Width="75.6" Height="18.9" Text="[Data.LastCost]" Format="Number" Format.UseLocale="true" HorzAlign="Right" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text36" Left="548.1" Top="3.78" Width="113.4" Height="18.9" CanGrow="true" Text="[Data.ItemGroupName]" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text10" Top="3.78" Width="37.8" Height="18.9" Text="[Row#]" Font="Tahoma, 8pt"/>
     </DataBand>
-    <ColumnFooterBand Name="ColumnFooter1" Top="176.34" Width="1047.06"/>
-    <PageFooterBand Name="PageFooter1" Top="180.34" Width="1047.06" Height="39.69" Exportable="false" Border.Lines="Top">
+    <ReportSummaryBand Name="ReportSummary1" Top="190.52" Width="1047.06" Height="28.35">
+      <TextObject Name="Text4" Top="9.45" Width="434.7" Height="18.9" Text="[Total] item(s)" Format="Number" Format.UseLocale="false" Format.DecimalDigits="0" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" WordWrap="false" Font="Tahoma, 8pt"/>
+    </ReportSummaryBand>
+    <PageFooterBand Name="PageFooter1" Top="222.87" Width="1047.06" Height="39.69" Exportable="false" Border.Lines="Top">
       <TextObject Name="Text24" Top="9.45" Width="141.75" Height="30.24" Text="Report Summary&#13;&#10;Print On [Date]" Format="Date" Format.Format="d" Font="Tahoma, 8pt"/>
       <TextObject Name="Text25" Left="872.16" Top="8.62" Width="170.1" Height="25.19" Text="Page[Page#] Of [TotalPages#]" HorzAlign="Right" Font="Arial, 8pt"/>
     </PageFooterBand>
   </ReportPage>
-  <DialogPage Name="ReportDialog" Width="462" Height="390" AcceptButton="btnOk" CancelButton="btnCancel" Text="PRODUCT LIST" LoadEvent="Form1_Load">
-    <ButtonControl Name="btnOk" Left="257" Top="290" Width="71" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="0" Text="OK" ClickEvent="btnOk_Click" DialogResult="OK"/>
-    <ButtonControl Name="btnCancel" Left="356" Top="290" Width="71" Anchor="Bottom, Right" BackColor="Transparent" Font="Tahoma, 8pt" TabIndex="1" Text="Cancel" ClickEvent="btnCancel_Click" DialogResult="Cancel"/>
-    <ComboBoxControl Name="cfproductcode" Left="128" Top="32" Width="304" Font="Tahoma, 8pt" TabIndex="19" ClickEvent="" DataColumn="Fproduct.ProdItem" DropDownWidth="185" ItemHeight="13" SelectedIndexChangedEvent="ComboBox1_SelectedIndexChanged"/>
-    <LabelControl Name="Label1" Left="8" Top="40" Width="81" Height="13" Font="Tahoma, 8.25pt, style=Bold" TabIndex="21" Text="Product from"/>
-    <LabelControl Name="Label2" Left="8" Top="72" Width="66" Height="13" Font="Tahoma, 8.25pt, style=Bold" TabIndex="21" Text="Product to"/>
-    <ComboBoxControl Name="ctproductcode" Left="128" Top="64" Width="304" Font="Tahoma, 8pt" TabIndex="22" ClickEvent="ComboBox2_Click" DataColumn="Tproduct.ProdItem" DropDownWidth="305" ItemHeight="13"/>
-    <LabelControl Name="Label3" Left="8" Top="112" Width="91" Height="13" Font="Tahoma, 8.25pt, style=Bold" TabIndex="23" Text="Category From"/>
-    <LabelControl Name="Label4" Left="8" Top="160" Width="76" Height="13" Font="Tahoma, 8.25pt, style=Bold" TabIndex="23" Text="Category To"/>
-    <ComboBoxControl Name="cfcategory" Left="128" Top="104" Width="304" Font="Tahoma, 8pt" TabIndex="24" TextChangedEvent="cfcategory_TextChanged" DataColumn="Fcat.Column1" DropDownWidth="305" ItemHeight="13"/>
-    <ComboBoxControl Name="ctcategory" Left="128" Top="152" Width="304" Font="Tahoma, 8pt" TabIndex="24" TextChangedEvent="ctcategory_TextChanged" DataColumn="Tcat.Column1" DropDownWidth="305" ItemHeight="13"/>
-    <LabelControl Name="Label7" Left="8" Top="204" Width="44" Height="13" Font="Tahoma, 8.25pt, style=Bold" TabIndex="25" Text="Status"/>
-    <ComboBoxControl Name="ComboBox1" Left="128" Top="204" Width="305" Font="Tahoma, 8pt" TabIndex="29" DropDownWidth="309" ItemHeight="13" ItemsText="Active&#13;&#10;In Active&#13;&#10;All Product"/>
-  </DialogPage>
 </Report>

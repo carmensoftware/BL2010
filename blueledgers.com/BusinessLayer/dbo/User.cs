@@ -12,9 +12,13 @@ namespace Blue.BL.dbo
         private readonly Blue.BL.ADMIN.UserStore userStore = new Blue.BL.ADMIN.UserStore();
 
         /* 
+            2025-07-31 = Zeavola = 28
+
+          
+            2025-06-30 = floralcourthotel = 5+6 = 11
+
             2025-05-31 = HotelSensai (Chiang Mai) = 3+8 = 11 ปรับเป็น 10 ตาม license (27052024_blueledgers.xlsx)
             2025-05-31 = chi = 2
-            2025-06-30 = floralcourthotel = 5+6 = 11
 
             2025-04-30 = bestwesternratchada = 10        
 
@@ -22,7 +26,7 @@ namespace Blue.BL.dbo
             2025-03-31 = wyndhamjomtienpattaya = 20
 
             2025-02-28 = G Nimman = 1
-            2025-02-28 = Cafedelmar Phuket = 31+5=36
+            2025-02-28 = Cafedelmar Phuket = 31+5+2=38
 
             2025-01-31 = siamese = 24+2 = 26 + 20 = 46
             2025-01-31 = BwChatuchak = 9
@@ -42,6 +46,8 @@ namespace Blue.BL.dbo
             2024-12-31 = sztowerthai = 13
             2024-12-31 = blumonkeybangsaen = 5
             2024-12-31 = waltonsuitessukhumvitbangkok = 5
+            2024-12-31 = surestaytheiconic = 4
+            2024-12-31 = celessamui = 25
 
             2024-11-30 = wyndhamgardennaithon = 21
             2024-11-30 = skyviewresortphuket = 11
@@ -62,11 +68,10 @@ namespace Blue.BL.dbo
             2024-08-31 = DeevanaPhuket = 65=> 69
             2024-08-31 = BaanSamuiResort = 8
             2024-08-31 = bwsanctuary = 10
+            2024-08-31 = Diamond Cottage = 15+5=20
 
          
             2024-07-31 = Nexen = 20
-            2024-07-31 = Zeavola = 28
-            2024-07-31 = Diamond Cottage = 15+5=20
             2024-07-31 = Public House = 6
             2024-07-31 = rxvwellness = 35
 
@@ -86,8 +91,8 @@ namespace Blue.BL.dbo
             2023-01-31 = SPM = 20 
         
         */
-        private DateTime licenseExpiredDate = new DateTime(2024, 08, 31);
-        private int licenseActiveUser = 10;
+        private DateTime licenseExpiredDate = new DateTime(2025, 2, 28);
+        private int licenseActiveUser = 38;
 
         public User()
         {

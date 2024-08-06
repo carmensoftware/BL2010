@@ -24,12 +24,20 @@ namespace BlueLedger.PL.Option.Inventory
 
                 ListPage.DataBind();
 
+
+
+				Page.Title = "!IsPostBack";
+				
+				//ListPage.AllowCreate = false;
             }
+			else
+			{
+			}
 
-            ListPage.CreateItems.Menu.ItemClick += menu_ItemClick;
+			ListPage.CreateItems.Menu.ItemClick += menu_ItemClick;
             base.Page_Load(sender, e);
-
             Control_HeaderMenuBar();
+
         }
 
         private void menu_ItemClick(object source, DevExpress.Web.ASPxMenu.MenuItemEventArgs e)
@@ -59,9 +67,8 @@ namespace BlueLedger.PL.Option.Inventory
         protected void Control_HeaderMenuBar()
         {
             int pagePermiss = rolePermiss.GetPagePermission(moduleID, LoginInfo.LoginName, LoginInfo.ConnStr);
-            //ListPage.CreateItems.Visible = (pagePermiss >= 3) ? ListPage.CreateItems.Visible : false;
-            ListPage.AllowCreate = (pagePermiss >= 3) ? true : false;
-
+            ListPage.CreateItems.Visible = (pagePermiss >= 3) ? ListPage.CreateItems.Visible : false;
+			ListPage.AllowCreate = (pagePermiss >= 3) ? true: false;
         }
 
 

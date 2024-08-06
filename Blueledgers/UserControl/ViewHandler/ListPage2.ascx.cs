@@ -10,70 +10,39 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using BlueLedger.PL.BaseClass;
 using DevExpress.Web.ASPxGridView;
-using Blue.DAL;
-using System.Text.RegularExpressions;
 
 namespace BlueLedger.PL.UserControls.ViewHandler
 {
     public partial class ListPage2 : BaseUserControl
     {
-        private readonly Blue.BL.APP.ViewHandler viewHandler = new Blue.BL.APP.ViewHandler();
-        private readonly Blue.BL.APP.ViewHandlerCrtr viewHandlerCrtr = new Blue.BL.APP.ViewHandlerCrtr();
-        private readonly Blue.BL.APP.ViewHandlerCols viewHandlerCols = new Blue.BL.APP.ViewHandlerCols();
-        private readonly Blue.BL.APP.ViewHandlerOrder viewHandlerOrder = new Blue.BL.APP.ViewHandlerOrder();
-        private readonly Blue.BL.APP.WF wf = new Blue.BL.APP.WF();
-        private readonly Blue.BL.APP.WFDt wfDt = new Blue.BL.APP.WFDt();
+        #region "Attributes"
 
-        private readonly Blue.BL.APP.Field field = new Blue.BL.APP.Field();
+        private Blue.BL.APP.ViewHandler viewHandler = new Blue.BL.APP.ViewHandler();
+        private Blue.BL.APP.ViewHandlerCrtr viewHandlerCrtr = new Blue.BL.APP.ViewHandlerCrtr();
+        private Blue.BL.APP.ViewHandlerCols viewHandlerCols = new Blue.BL.APP.ViewHandlerCols();
+        private Blue.BL.APP.WF workFlow = new Blue.BL.APP.WF();
+        private Blue.BL.APP.WFDt workFlowDt = new Blue.BL.APP.WFDt();
+        private Blue.BL.APP.Field field = new Blue.BL.APP.Field();
+        private Blue.BL.dbo.Bu bu = new Blue.BL.dbo.Bu();
+        private Blue.BL.dbo.BUUser buUser = new Blue.BL.dbo.BUUser();
 
-        private readonly Blue.BL.dbo.BUUser buUser = new Blue.BL.dbo.BUUser();
-        private readonly Blue.BL.dbo.Bu bu = new Blue.BL.dbo.Bu();
+        private DataSet dsActiveBU = new DataSet();
+        private DataSet dsEachBUTrans = new DataSet();
+        private const string ASCENDING = " ASC";
+        private const string DESCENDING = " DESC";
 
-        // ViewState variable(s)
+        private Blue.BL.APP.WF wf = new Blue.BL.APP.WF();
+        private Blue.BL.APP.WFDt wfDt = new Blue.BL.APP.WFDt();
 
+        private DataTable[] dtTransaction;
+        //private DataTable[] dtTranFull;
+        private DataSet dsForSearch = new DataSet();
+        private List<int> ExpandItem = new List<int>();
 
+        private int prevPageIndex = 0;
+        private string filterText = string.Empty;
+        private bool enableMultipleBU = true;
 
-        #region --Request.QueryString--
-
-        public string VID
-        {
-            get
-            {
-                var vid = string.Empty;
-
-                if (Request.QueryString["VID"] != null)
-                    vid = Request.QueryString["VID"].ToString();
-                else if (Request.Cookies[PageCode] != null)
-                {
-                    vid = Request.Cookies[PageCode].Value;
-                }
-
-                return  vid;
-            }
-        }
-
-        private int _page
-        {
-            get
-            {
-                var value = Request.QueryString["page"];
-
-                return string.IsNullOrEmpty(value) ? 1 : int.Parse(value);
-            }
-        }
-
-        private int _per_page
-        {
-            get
-            {
-                var value = Request.QueryString["per_page"];
-
-                return string.IsNullOrEmpty(value) ? 20 : int.Parse(value);
-            }
-        }
-
-
-        #endregion
 
         #region "Appearance"
 
@@ -110,7 +79,7 @@ namespace BlueLedger.PL.UserControls.ViewHandler
         {
             get
             {
-                return wf.GetIsActive(Module, SubModule, LoginInfo.ConnStr);
+                return workFlow.GetIsActive(Module, SubModule, LoginInfo.ConnStr);
             }
         }
 
@@ -283,7 +252,6 @@ namespace BlueLedger.PL.UserControls.ViewHandler
             set { this._keyFieldName = value; }
         }
 
-
         private string _detailPageURL = string.Empty;
         [Category("List-Behavior")]
         [Description("URL of detail page")]
@@ -346,10 +314,13 @@ namespace BlueLedger.PL.UserControls.ViewHandler
 
         #endregion
 
-        #region --Menu (AddOn)
+        //OP Create VID
+        public string VID { get; set; }
+        ////
 
         /// <summary>
         /// Adds or Removes Menu Header
+        /// Added on: 15/09/2017
         /// </summary>
         public DevExpress.Web.ASPxMenu.MenuItemCollection menuItems
         {
@@ -391,75 +362,231 @@ namespace BlueLedger.PL.UserControls.ViewHandler
             get { return this.menu_CmdBar.Items.FindByName("Export"); }
         }
 
-        #endregion
+        /// <summary>
+        /// Gets WFId from ViewhandlerID
+        /// </summary>
+        private int WFId
+        {
+            get { return viewHandler.GetWFId(int.Parse(ddl_View2.SelectedItem.Value), LoginInfo.ConnStr); }
+        }
 
-        #region --Not used but must have--
+        /// <summary>
+        /// Gets WFStep from ViewhandlerID
+        /// </summary>
+        private int WFStep
+        {
+            get { return viewHandler.GetWFStep(int.Parse(ddl_View2.SelectedItem.Value), LoginInfo.ConnStr); }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private DataTable dtViewCrtrAsking
+        {
+            get
+            {
+                return (DataTable)Session["dtViewCrtrAsking"];
+            }
+
+            set
+            {
+                Session["dtViewCrtrAsking"] = value;
+            }
+        }
+
+        private SortDirection GridViewSortDirection
+        {
+            get
+            {
+                if (ViewState["sortDirection"] == null)
+                {
+                    ViewState["sortDirection"] = SortDirection.Ascending;
+                }
+
+                return (SortDirection)ViewState["sortDirection"];
+            }
+            set
+            {
+                ViewState["sortDirection"] = value;
+            }
+        }
+
         public DataTable dtBuKeys
         {
-            get { return new DataTable(); }
+            get
+            {
+                string strFilter = string.Empty;
+                string strSearch = txt_FullTextSearch.Text.Trim();
+
+                //DataSet dsFind = new DataSet();
+                DataTable[] dtFind;
+
+                //--Create datatable with 'BUCode' & 'No.' column. 
+                DataTable dtReport = new DataTable();
+                DataColumn cl = new DataColumn("BUCode");
+                dtReport.Columns.Add(cl);
+
+                cl = new DataColumn("No");
+                dtReport.Columns.Add(cl);
+
+
+
+                if (Session["dtTransaction"] != null)
+                {
+                    dtFind = (DataTable[])Session["dtTransaction"];
+
+
+                    for (int i = 0; i < dtFind.Count(); i++)
+                    {
+                        if (dtFind[i] == null) continue;
+                        if (dtFind[i].Rows.Count > 0)
+                        {
+                            StringBuilder sb = new StringBuilder();
+                            for (int jj = 0; jj < dtFind[i].Rows.Count; jj++)
+                            {
+                                sb.Append("'" + dtFind[i].Rows[jj][0] + "',");
+                            }
+
+                            if (sb.Length > 0)
+                            {
+                                DataRow dr = dtReport.NewRow();
+                                dr[0] = dtFind[i].ToString();
+                                dr[1] = sb.ToString().Substring(0, sb.Length - 1);
+                                dtReport.Rows.Add(dr);
+                            }
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+
+                }
+
+                return dtReport;
+            }
         }
 
-        public void setViewMultipleBU(bool value)
+        public string ListKeys
         {
+            get
+            {
+                return string.Empty;
+            }
         }
+
+        #endregion
+
+        #region "Operations"
 
         public void setPage(int pageIndex)
         {
-            //prevPageIndex = pageIndex;
+            prevPageIndex = pageIndex;
         }
 
         public void setFilter(string value)
         {
-            //filterText = value;
+            filterText = value;
         }
 
-
-        #endregion
-
-
-
-        // Event(s)
-        #region --Event(s)--
+        public void setViewMultipleBU(bool value)
+        {
+            enableMultipleBU = value;
+        }
 
         public override void DataBind()
         {
             base.DataBind();
 
             this.Binding_ddl_View2();
-            //this.Page_Retrieve();
+            this.Page_Retrieve();
         }
 
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
-
+                if (dsActiveBU.Tables[bu.TableName] != null)
+                {
+                    //int test = prevPageIndex;
+                    grd_BU.DataSource = dsActiveBU.Tables[bu.TableName];
+                }
             }
             else
             {
+                dsActiveBU = (DataSet)Session["dsActiveBU"];
+                dtTransaction = (DataTable[])Session["dtTransaction"];
+
+                if (ViewState["ExpandItem"] != null)
+                {
+                    this.ExpandItem = (List<int>)ViewState["ExpandItem"];
+                }
+
+                this.Page_Setting();
             }
-
-            this.Page_Retrieve();
-
-
         }
-
 
         private void Page_Retrieve()
         {
-            Bind_Data();
+            bool getActiveBU = false;
 
-            this.Page_Setting();
+            // Clear all existing data.
+            dsActiveBU.Clear();
+
+            //If logged in BU is HQ the get all active bu data else get only the selected BU.
+            if (LoginInfo.BuInfo.IsHQ && enableMultipleBU)
+            {
+                enableMultipleBU = true;  // Reset to default
+                string msgError = string.Empty;
+                dsActiveBU.Reset();
+                getActiveBU = buUser.GetList(dsActiveBU, LoginInfo.LoginName, ref msgError);
+                if (dsActiveBU.Tables.Contains(buUser.TableName))
+                    dsActiveBU.Tables["BUUser"].TableName = bu.TableName;
+            }
+            else
+            {
+                getActiveBU = bu.Get(dsActiveBU, LoginInfo.BuInfo.BuCode);
+            }
+
+            if (getActiveBU)
+            {
+                dtTransaction = new DataTable[dsActiveBU.Tables[bu.TableName].Rows.Count];
+
+                Session["dsActiveBU"] = dsActiveBU;
+                Session["dtTransaction"] = dtTransaction;
+
+
+                this.Page_Setting();
+            }
         }
 
         private void Page_Setting()
         {
+            // Page title setting -----------------------------------------------------------------
             lbl_Title.Text = this.Title;
+
+            // View handler setting ---------------------------------------------------------------            
+            btn_ViewCreate2.Enabled = this.AllowViewCreate; // Allow/Not Allow to create new view            
+
+            // Not allow to edit standard 
+            if (ddl_View2.SelectedItem != null && ddl_View2.SelectedItem.Value != string.Empty)
+            {
+                btn_ViewModify2.Enabled = !viewHandler.GetIsStandard(int.Parse(ddl_View2.SelectedItem.Value), LoginInfo.ConnStr);
+            }
+
+            // Display transaction detail ---------------------------------------------------------
+            DataView dv = dsActiveBU.Tables[bu.TableName].DefaultView;
+            dv.Sort = "IsHQ DESC";
+            DataTable sortedDT = dv.ToTable();
+
+            //grd_BU.DataSource = dsActiveBU.Tables[bu.TableName];
+            grd_BU.DataSource = sortedDT;
+            grd_BU.DataBind();
+
+            // Always hide Expand/Collapse column if selected bu is not HQ
+            grd_BU.Columns[0].Visible = LoginInfo.BuInfo.IsHQ;
+
             // Menu setting -----------------------------------------------------------------------
-
-            var wfId = viewHandler.GetWFId(int.Parse(ddl_View2.SelectedItem.Value), LoginInfo.ConnStr);
-            var wfStep = viewHandler.GetWFStep(int.Parse(ddl_View2.SelectedItem.Value), LoginInfo.ConnStr);
-
             // Create
             menu_CmdBar.Items.FindByName("Create").Visible = this.AllowCreate;
 
@@ -469,11 +596,12 @@ namespace BlueLedger.PL.UserControls.ViewHandler
                 {
                     menu_CmdBar.Items.FindByName("Create").NavigateUrl = this.EditPageURL + "?MODE=new";
                 }
+
             }
 
             if (WorkFlowEnable)
             {
-                menu_CmdBar.Items.FindByName("Create").Visible = wfDt.GetAllowCreate(wfId, wfStep, LoginInfo.ConnStr);
+                menu_CmdBar.Items.FindByName("Create").Visible = workFlowDt.GetAllowCreate(WFId, WFStep, LoginInfo.ConnStr);
             }
 
             menu_CmdBar.Items.FindByName("Delete").Visible = this.AllowDelete;
@@ -490,30 +618,64 @@ namespace BlueLedger.PL.UserControls.ViewHandler
                 dl_ProcessStatus.DataSource = wfDt.GetList(wf.GetWFId(this.Module, this.SubModule, LoginInfo.ConnStr), LoginInfo.ConnStr);
                 dl_ProcessStatus.DataBind();
             }
-
-            SetPageNo();
-
-            Response.Cookies.Remove(PageCode);
-            Response.Cookies.Add(new HttpCookie(PageCode));
-            Response.Cookies[PageCode].Value = ddl_View2.SelectedItem.Value;
-            Response.Cookies[PageCode].Expires = DateTime.Now.AddHours(8);
-
         }
 
-        // -----------------------------------------
 
+        private void Binding_ddl_View2()
+        {
+            ddl_View2.DataSource = viewHandler.GetList(PageCode, LoginInfo.LoginName, LoginInfo.ConnStr);
+            ddl_View2.DataBind();
+
+            if (ddl_View2.Items.Count == 0)
+            {
+                btn_ViewGo2.Enabled = false;
+                btn_ViewModify2.Enabled = false;
+                return;
+            }
+
+            if (Request.Cookies[PageCode] != null)
+            {
+                if (Request.Cookies[PageCode].Value != string.Empty)
+                {
+                    ddl_View2.SelectedValue = Request.Cookies[PageCode].Value;
+                }
+                else
+                {
+                    Response.Cookies[PageCode].Value = ddl_View2.SelectedItem.Value;
+                    Response.Cookies[PageCode].Expires = DateTime.MaxValue;
+                }
+            }
+            else
+            {
+                Response.Cookies.Add(new HttpCookie(PageCode));
+                Response.Cookies[PageCode].Value = ddl_View2.SelectedItem.Value;
+                Response.Cookies[PageCode].Expires = DateTime.MaxValue;
+            }
+        }
+
+        /// <summary>
+        /// Refresh the data list. 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         protected void ddl_View2_SelectedIndexChanged(object sender, EventArgs e)
         {
-            txt_Search.Text = string.Empty;
+            Response.Cookies[PageCode].Value = ddl_View2.SelectedItem.Value;
+            Response.Cookies[PageCode].Expires = DateTime.MaxValue;
 
-            var viewId = ddl_View2.SelectedItem.Value;
-            RedirectView(viewId);
+            txt_FullTextSearch.Text = string.Empty;
 
+            VID = ddl_View2.SelectedItem.Value;
+
+            this.Page_Retrieve();
         }
 
         protected void btn_ViewGo2_Click(object sender, EventArgs e)
         {
-            Response.Redirect(Request.RawUrl);
+            //txt_FullTextSearch.Text = string.Empty;
+
+            //this.Page_Retrieve();
+            Page.Response.Redirect(Page.Request.Url.ToString(), true);
         }
 
         protected void btn_ViewModify2_Click(object sender, EventArgs e)
@@ -546,12 +708,211 @@ namespace BlueLedger.PL.UserControls.ViewHandler
             Response.Redirect(ListPageCuzURL);
         }
 
-        protected void btn_Search_Click(object sender, ImageClickEventArgs e)
+        /// <summary>
+        /// Display All BU
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        protected void grd_BU_RowDataBound(object sender, GridViewRowEventArgs e)
         {
+            if (e.Row.RowType == DataControlRowType.DataRow)
+            {
+                //int rowIndex = e.Row.RowIndex;
+                string buCode = DataBinder.Eval(e.Row.DataItem, "BuCode").ToString();
+
+                if (e.Row.FindControl("lbl_BU") != null)
+                {
+                    Label lbl_BU = e.Row.FindControl("lbl_BU") as Label;
+                    lbl_BU.Text = DataBinder.Eval(e.Row.DataItem, "BuName").ToString();
+                }
+
+                if (e.Row.FindControl("hf_BuCode") != null)
+                {
+                    HiddenField hf_BuCode = e.Row.FindControl("hf_BuCode") as HiddenField;
+                    hf_BuCode.Value = DataBinder.Eval(e.Row.DataItem, "BuCode").ToString();
+                }
+
+                // 2012-03-06: Receive issue want to show all property.
+                if (e.Row.FindControl("btn_Expand") != null)
+                {
+                    ImageButton btn_Expand = e.Row.FindControl("btn_Expand") as ImageButton;
+                    btn_Expand.ImageUrl = "~/App_Themes/Default/Images/master/in/Default/Minus.jpg";
+                }
+
+                if (e.Row.FindControl("grd_Trans") != null)
+                {
+                    GridView grd_Trans = e.Row.FindControl("grd_Trans") as GridView;
+
+                    string BUCodeHQ = string.Empty;
+
+                    if (LoginInfo.BuInfo.IsHQ)
+                    {
+                        BUCodeHQ = LoginInfo.BuInfo.BuCode;
+                    }
+
+                    // Get transaction detail data
+
+                    if (ddl_View2.SelectedItem != null)
+                    {
+                        dsEachBUTrans.Clear();
+
+                        bool getData = viewHandler.GetDataList(dsEachBUTrans, int.Parse(ddl_View2.SelectedItem.Value), PageCode, KeyFieldName, filterText, buCode, LoginInfo.LoginName, bu.GetConnectionString(buCode));
+
+                        if (getData)
+                        {
+                            // Find column index of start adding column
+                            int startColumnIndex = 0;
+
+                            if (viewHandler.GetIsWFEnable(int.Parse(ddl_View2.SelectedItem.Value), LoginInfo.ConnStr))
+                            {
+                                startColumnIndex = 4;
+                            }
+                            else
+                            {
+                                startColumnIndex = 3;
+                            }
+
+                            // Add Columns
+                            for (int i = startColumnIndex; i < dsEachBUTrans.Tables[PageCode].Columns.Count; i++)
+                            {
+                                BoundField column = new BoundField();
+                                string columnName = dsEachBUTrans.Tables[PageCode].Columns[i].ColumnName;
+                                column.HeaderText = (LoginInfo.BuFmtInfo.IsDefaultLangCode ?
+                                                                field.GetDesc(columnName, LoginInfo.ConnStr) : field.GetOthDesc(columnName, LoginInfo.ConnStr));
+                                column.DataField = columnName;
+                                column.SortExpression = columnName;
+                                //column.HeaderStyle.Width = Unit.Percentage(viewHandlerCols.GetColumnWidth(int.Parse(ddl_View2.SelectedItem.Value), columnName, LoginInfo.ConnStr));
+                                column.HeaderStyle.Width = Unit.Pixel(300);
+
+
+                                // Set column style
+                                switch (dsEachBUTrans.Tables[PageCode].Columns[i].DataType.ToString())
+                                {
+                                    case "System.Int16":
+                                    case "System.Int32":
+                                    case "System.Int64":
+                                        column.HeaderStyle.HorizontalAlign = HorizontalAlign.Right;
+                                        column.ItemStyle.HorizontalAlign = column.HeaderStyle.HorizontalAlign;
+                                        column.DataFormatString = "{0:D}";
+                                        column.HeaderStyle.Width = Unit.Pixel(120);
+                                        break;
+
+                                    case "System.Decimal":
+                                        string fmt = "{0:N2}";
+                                        DataTable dt = field.Get(columnName, LoginInfo.ConnStr);
+                                        if (dt != null)
+                                        {
+                                            string scale = dt.Rows[0]["Scale"].ToString();
+                                            fmt = "{0:N" + scale + "}";
+                                        }
+
+
+                                        column.HeaderStyle.HorizontalAlign = HorizontalAlign.Right;
+                                        column.ItemStyle.HorizontalAlign = column.HeaderStyle.HorizontalAlign;
+                                        //column.DataFormatString = "{0:#,0.00##}";
+                                        column.DataFormatString = fmt;
+                                        column.HeaderStyle.Width = Unit.Pixel(180);
+                                        break;
+
+                                    case "System.DateTime":
+                                        column.HeaderStyle.HorizontalAlign = HorizontalAlign.Left;
+                                        //column.HeaderStyle.Width            = 10%;
+                                        column.ItemStyle.HorizontalAlign = column.HeaderStyle.HorizontalAlign;
+                                        column.DataFormatString = "{0:dd/MM/yyyy}";
+                                        column.HeaderStyle.Width = Unit.Pixel(120);
+                                        break;
+
+                                    default:
+                                        column.HeaderStyle.HorizontalAlign = HorizontalAlign.Left;
+                                        column.ItemStyle.HorizontalAlign = column.HeaderStyle.HorizontalAlign;
+                                        break;
+                                }
+
+
+                                grd_Trans.Columns.Add(column);
+                            }
+
+                            // Add "Process Status" column if this view is related to workflow or thereis column ApprStatus
+                            if (WorkFlowEnable && dsEachBUTrans.Tables[PageCode].Columns.Contains("ApprStatus"))
+                            {
+                                BoundField wfColumn = new BoundField();
+                                wfColumn.HeaderText = "Process Status";
+                                wfColumn.DataField = "ApprStatus";
+                                wfColumn.HeaderStyle.HorizontalAlign = HorizontalAlign.Left;
+                                wfColumn.HeaderStyle.Width = Unit.Pixel(120);
+                                
+                                wfColumn.ItemStyle.HorizontalAlign = wfColumn.HeaderStyle.HorizontalAlign;
+                                grd_Trans.Columns.Add(wfColumn);
+                            }
+
+                            //---------------------------------------------------------------------
+
+                            GridViewRow selectedRow = grd_Trans.Parent.Parent as GridViewRow;
+
+                            //grd_Trans.DataSource = dtTransaction[selectedRow.RowIndex];
+
+
+                            grd_Trans.DataSource = SearchData(dsEachBUTrans.Tables[PageCode]).ToTable();
+                            grd_Trans.DataBind();
+
+                            dtTransaction[selectedRow.RowIndex] = dsEachBUTrans.Tables[PageCode];
+                            Session["dtTransaction"] = dtTransaction;
+
+                        }
+                    }
+                }
+            }
         }
 
-        protected void gv_Data_RowCreated(object sender, GridViewRowEventArgs e)
+
+        /// <summary>
+        /// Expand/Collapse the transaction detail of selected BU
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        protected void btn_Expand_Click(object sender, ImageClickEventArgs e)
         {
+            // Change Expand/Collapse Image
+            ImageButton btn_Expand = sender as ImageButton;
+            GridViewRow selectedRow = btn_Expand.Parent.Parent as GridViewRow;
+            GridView grd_Trans = selectedRow.FindControl("grd_Trans") as GridView;
+
+            // If grid view of transaction detail was display, hide it and change the image to expand
+            // otherwise display it and change image to collapse.
+            if (grd_Trans.Visible)
+            {
+                grd_Trans.Visible = false;
+                btn_Expand.ImageUrl = "~/App_Themes/Default/Images/master/in/Default/Plus.jpg";
+                this.ExpandItem.Add(selectedRow.RowIndex);
+            }
+            else
+            {
+                grd_Trans.Visible = true;
+                btn_Expand.ImageUrl = "~/App_Themes/Default/Images/master/in/Default/Minus.jpg";
+                this.ExpandItem.Remove(selectedRow.RowIndex);
+            }
+
+            ViewState["ExpandItem"] = this.ExpandItem;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        protected void grd_Trans_RowCreated(object sender, GridViewRowEventArgs e)
+        {
+            if (e.Row.RowType == DataControlRowType.Header)
+            {
+                GridView grd_Trans = sender as GridView;
+                int sortColumnIndex = GetSortColumnIndex(grd_Trans);
+
+                if (sortColumnIndex != -1)
+                {
+                    AddSortImage(sortColumnIndex, e.Row);
+                }
+            }
+
             if (e.Row.RowType == DataControlRowType.DataRow)
             {
                 e.Row.Attributes.Add("onmouseover", "OnGridRowMouseOver(this)");
@@ -559,44 +920,40 @@ namespace BlueLedger.PL.UserControls.ViewHandler
             }
         }
 
-        protected void gv_Data_RowDataBound(object sender, GridViewRowEventArgs e)
+
+        /// <summary>
+        /// Display Process Status column
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        protected void grd_Trans_RowDataBound(object sender, GridViewRowEventArgs e)
         {
-            var gv = sender as GridView;
-
-            if (e.Row.RowType == DataControlRowType.Header)
-            {
-            }
-
             if (e.Row.RowType == DataControlRowType.DataRow)
             {
-                var buCode = LoginInfo.BuInfo.BuCode;
-                var keyFieldValue = DataBinder.Eval(e.Row.DataItem, KeyFieldName).ToString();
-                var viewNo = ddl_View2.SelectedItem.Value;
-                var page = _page.ToString();
+                // Add event click to redirect to detail page.
+                //e.Row.Attributes.Add("onclick", "OnGridRowClick('" + DataBinder.Eval(e.Row.DataItem, "BuCode").ToString() +
+                //    "', '" + DataBinder.Eval(e.Row.DataItem, KeyFieldName).ToString() +
+                //    "', '" + ddl_View2.SelectedItem.Value + "')");
 
-                e.Row.Attributes.Add("key", keyFieldValue);
+                GridView grd_Trans = sender as GridView;
 
-                // Add event to cell
-                var startIndex = 0;
+                // Modified by Ake (2014-03-04)
+                string urlFilterText = filterText.Replace("'", "~");
 
-                for (int i = startIndex; i < e.Row.Cells.Count; i++)
+                e.Row.Attributes.Add("onclick", "OnGridRowClick('" + DataBinder.Eval(e.Row.DataItem, "BuCode").ToString() +
+                    "', '" + DataBinder.Eval(e.Row.DataItem, KeyFieldName).ToString() +
+                    "', '" + ddl_View2.SelectedItem.Value + "&Page=" + grd_Trans.PageIndex.ToString() + "&Filter=" + urlFilterText + "')");
+
+
+
+                if (WorkFlowEnable && grd_Trans.Columns[grd_Trans.Columns.Count - 1].HeaderText.ToUpper() == "PROCESS STATUS")
                 {
-                    e.Row.Cells[i].Attributes.Add("onclick", string.Format("GridCell_Click('{0}', '{1}', '{2}','{3}')", buCode, keyFieldValue, viewNo, page));
-                }
-
-                var lastColumnIndex = gv.Columns.Count - 1;
-                var lastColumn = gv.Columns[lastColumnIndex];
-
-                if (WorkFlowEnable && lastColumn.HeaderText.ToUpper() == "PROCESS STATUS")
-                {
-                    #region
                     BoundField apprStatus = new BoundField();
-
                     apprStatus.DataField = "ApprStatus";
 
                     string newStatus = string.Empty;
 
-                    foreach (char eachStep in e.Row.Cells[gv.Columns.Count - 1].Text)
+                    foreach (char eachStep in e.Row.Cells[grd_Trans.Columns.Count - 1].Text)
                     {
                         switch (eachStep)
                         {
@@ -618,459 +975,270 @@ namespace BlueLedger.PL.UserControls.ViewHandler
                         }
                     }
 
-                    e.Row.Cells[lastColumnIndex].Text = newStatus;
+                    e.Row.Cells[grd_Trans.Columns.Count - 1].Text = newStatus;
                 }
-                    #endregion
+            }
 
+
+
+        }
+
+        /// <summary>
+        /// Display transaction data of selected page.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        protected void grd_Trans_PageIndexChanging(object sender, GridViewPageEventArgs e)
+        {
+            GridView grd_Trans = sender as GridView;
+            GridViewRow selectedRow = grd_Trans.Parent.Parent as GridViewRow;
+
+            grd_Trans.PageIndex = e.NewPageIndex;
+
+
+            DataSet ds = new DataSet();
+            HiddenField hf_BuCode = selectedRow.FindControl("hf_BuCode") as HiddenField;
+            string buCode = hf_BuCode.Value.ToString();
+            bool getData = viewHandler.GetDataList(ds, int.Parse(ddl_View2.SelectedItem.Value), PageCode, KeyFieldName, filterText, buCode, LoginInfo.LoginName, bu.GetConnectionString(buCode));
+            if (getData)
+            {
+                grd_Trans.DataSource = SearchData(ds.Tables[0]);
+                grd_Trans.DataBind();
             }
         }
 
 
 
-        protected void btn_Page_Click(object sender, EventArgs e)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        protected void grd_Trans_Sorting(object sender, GridViewSortEventArgs e)
         {
-            var btn = sender as Button;
+            GridView grd_Trans = sender as GridView;
+            string sortExpression = e.SortExpression;
+            ViewState["SortExpression"] = sortExpression;
 
-
-            var page = btn.Text;
-            var per_page = "20";
-
-            switch (btn.ID.ToLower())
+            if (GridViewSortDirection == SortDirection.Ascending)
             {
-                case "btn_page_previous":
-                    var page1 = btn_P1.Text;
-                    if (page1 == "1")
-                        page = "1";
-                    else
-                        page = (int.Parse(page1) - 1).ToString();
-                    break;
-                case "btn_page_next":
-                    page = (int.Parse(btn_P10.Text) + 1).ToString();
-
-                    break;
-            }
-
-            RedirectPage(page, per_page);
-        }
-
-        #endregion
-
-        #region --Method(s)--
-
-
-        private void RedirectView(string viewId)
-        {
-            var key = "VID";
-            var value = viewId;
-            var url = Request.RawUrl;
-
-            if (Request.QueryString.Count == 0) // no query string
-            {
-                url = string.Format("{0}?{1}={2}", Request.Path, key, value);
+                GridViewSortDirection = SortDirection.Descending;
+                SortGridView(grd_Trans, sortExpression, DESCENDING);
             }
             else
             {
-                var query = HttpUtility.ParseQueryString(Request.Url.Query);
-
-                query.Remove(key);
-
-                if (query.Count == 0)
-                    url = string.Format("{0}?{1}={2}", Request.Path, key, value);
-                else
-                    url = string.Format("{0}?{1}&{2}={3}", Request.Path, query, key, value);
+                GridViewSortDirection = SortDirection.Ascending;
+                SortGridView(grd_Trans, sortExpression, ASCENDING);
             }
-
-            Response.Redirect(url);
         }
 
-        private void RedirectPage(string page, string per_page = "20")
+        private void SortGridView(GridView grd_Trans, string sortExpression, string direction)
         {
-            var url = string.Format("{0}?VID={1}&page={2}", Request.Path, VID, page);
+            DataSet dsTemp = new DataSet();
+            dtTransaction = (DataTable[])Session["dtTransaction"];
 
-            Response.Redirect(url);
+            // Get transaction data.
+            GridViewRow parentRow = grd_Trans.Parent.Parent as GridViewRow;
+            HiddenField hf_BuCode = parentRow.FindControl("hf_BuCode") as HiddenField;
+
+            DataView dv = new DataView(dtTransaction[parentRow.RowIndex]);
+            dv.Sort = sortExpression + direction;
+            grd_Trans.DataSource = dv;
         }
 
-        private void Binding_ddl_View2()
+        private int GetSortColumnIndex(GridView grd_Trans)
         {
-            ddl_View2.DataSource = viewHandler.GetList(PageCode, LoginInfo.LoginName, LoginInfo.ConnStr);
-            ddl_View2.DataBind();
-
-            if (ddl_View2.Items.Count == 0)
+            foreach (DataControlField field in grd_Trans.Columns)
             {
-                btn_ViewGo2.Enabled = false;
-                //btn_ViewModify2.Enabled = false;
-                return;
+                if (field.SortExpression == (string)ViewState["SortExpression"])
+                {
+                    return grd_Trans.Columns.IndexOf(field);
+                }
             }
 
+            return -1;
+        }
 
-            if (string.IsNullOrEmpty(VID))
+        private void AddSortImage(int columnIndex, GridViewRow headerRow)
+        {
+            Image sortImage = new Image();
+
+            if (GridViewSortDirection == SortDirection.Ascending)
             {
-                var viewId = ddl_View2.SelectedItem.Value;
-                RedirectView(viewId);
-
+                sortImage.ImageUrl = "~/App_Themes/Default/Images/master/in/Default/up.gif";
+                sortImage.AlternateText = "Ascending Order";
             }
             else
             {
-                ddl_View2.SelectedValue = VID;
+                sortImage.ImageUrl = "~/App_Themes/Default/Images/master/in/Default/down.gif";
+                sortImage.AlternateText = "Descending Order";
             }
+
+            headerRow.Cells[columnIndex].Controls.Add(sortImage);
         }
 
-        private DataTable GetData(int viewNo, string keyFieldName, string searchText)
+        private DataView SearchData(DataTable dtSearch)
         {
-            var buCode = LoginInfo.BuInfo.BuCode;
-            var connStr = bu.GetConnectionString(buCode);
-            var loginName = LoginInfo.LoginName;
+            string strFilter = string.Empty;
+            string strSearch = txt_FullTextSearch.Text.Trim();
 
-            var p = new DbParameter[1];
-            p[0] = new DbParameter("@ViewNo", viewNo.ToString());
+            DataView dvTable = dtSearch.DefaultView;
 
-            var dtView = viewHandler.DbExecuteQuery("EXEC APP.GetViewHandlerByViewNo @ViewNo", p, connStr);
-
-            if (dtView == null || dtView.Rows.Count == 0)
-                return null;
-
-            var drView = dtView.Rows[0];
-            var pageCode = drView["PageCode"].ToString();
-            var advOption = drView["AdvOpt"].ToString();
-            var wfId = string.IsNullOrEmpty(drView["WfId"].ToString()) ? 0 : int.Parse(drView["WfId"].ToString());
-            var wfStep = string.IsNullOrEmpty(drView["WfStep"].ToString()) ? 0 : int.Parse(drView["WfStep"].ToString());
-            var isHOD = drView["IsHOD"].ToString() == "1";
-
-            var sql = new StringBuilder();
-
-            sql.Append("SELECT " + keyFieldName + ", ");
-
-
-            // if it is workflow then adding ApprStatus
-            if (wfId > 0 && wfStep > 0)
+            if (strSearch.ToString() != string.Empty)
             {
-                sql.Append("ApprStatus, ");
-            }
-
-            // Get column list 
-            var columnList = viewHandlerCols.GetColumnList(viewNo, connStr);
-            sql.Append(columnList);
-            sql.AppendFormat(" FROM {0} ", pageCode);
-            sql.AppendFormat(" WHERE 1=1 ");
-
-
-            var dbParams = new DbParameter[0];
-            // Get criteria
-            var criteriaList = viewHandlerCrtr.GetCriteriaList(viewNo, advOption, ref dbParams, connStr);
-
-            //lbl_View.Text = criteriaList + " >> " + dbParams[0].ParameterName.ToString() + " = " + dbParams[0].ParameterValue.ToString();
-
-            // Assign Special Params to dbParams
-            for (int i = 0; i < dbParams.Length; i++)
-            {
-                if (dbParams[i].ParameterValue == "@UserDepartment")
+                if (dvTable.Table.Columns.Count > 0)
                 {
-                    DataTable dt = viewHandler.DbExecuteQuery(string.Format("SELECT TOP(1) DepCode FROM [ADMIN].UserDepartment WHERE LoginName='{0}'", loginName), null, connStr);
-                    if (dt.Rows.Count > 0)
+                    for (int x = 0; x < dvTable.Table.Columns.Count; x++)
                     {
-                        dbParams[i].ParameterValue = Regex.Replace(dbParams[i].ParameterValue.ToString(), "@UserDepartment", dt.Rows[0][0].ToString(), RegexOptions.IgnoreCase);
-                    }
-                }
-                else if (dbParams[i].ParameterValue == "@LoginName")
-                {
-                    dbParams[i].ParameterValue = Regex.Replace(dbParams[i].ParameterValue.ToString(), "@LoginName", loginName, RegexOptions.IgnoreCase);
-                }
-
-            }
-
-
-            // Always add work-flow criteria to query when work-flow was enable
-            #region
-            if (wfId > 0)
-            {
-
-                // Add Normal Criteria
-                string criteriaField = Regex.Replace(wfDt.GetCriteria(wfId, wfStep, connStr), "@LoginName", " '" + loginName + "' ", RegexOptions.IgnoreCase);
-
-                criteriaList += string.Format("{0} {1} ", (criteriaList != string.Empty ? " AND " : " "), criteriaField);
-
-                var userChkField = wfDt.GetUserChkField(wfId, wfStep, connStr);
-                if (userChkField != string.Empty)
-                {
-                    if (userChkField.Split(',').Length > 0)
-                    {
-                        string[] fields = userChkField.Split(',');
-
-                        criteriaList += string.Format(" {0} ({1} = '{2}'", (criteriaList.Trim() != string.Empty ? "AND" : " "), fields[0].Trim(), loginName);
-                        for (int i = 1; i <= fields.Length - 1; i++)
+                        if (x == 0)
                         {
-                            criteriaList += string.Format(" OR {0} = '{1}'", fields[i].Trim(), loginName);
+                            switch (dvTable.Table.Columns[x].DataType.Name.ToString())
+                            {
+                                case "DateTime":
+
+                                    DateTime dt;
+
+                                    if (DateTime.TryParse(strSearch, out dt))
+                                    {
+                                        strFilter += "[" + dvTable.Table.Columns[x].ColumnName.ToString() + "] = '" + dt.ToShortDateString() + "'";
+                                    }
+                                    break;
+
+                                case "Decimal":
+
+                                    Decimal decChk;
+
+                                    if (Decimal.TryParse(strSearch, out decChk))
+                                    {
+                                        strFilter += "[" + dvTable.Table.Columns[x].ColumnName.ToString() + "] = '" + decChk + "'";
+                                    }
+                                    break;
+
+                                case "Int32":
+                                    Int32 intChk;
+
+                                    if (Int32.TryParse(strSearch, out intChk))
+                                    {
+                                        strFilter += "[" + dvTable.Table.Columns[x].ColumnName.ToString() + "] = '" + intChk + "'";
+                                    }
+                                    break;
+
+                                case "Boolean":
+                                    break;
+
+                                case "Byte":
+                                    break;
+
+                                default:
+                                    strFilter = "[" + dvTable.Table.Columns[x].ColumnName.ToString() + "] LIKE '%" + strSearch + "%'";
+
+                                    break;
+                            }
                         }
+                        else
+                        {
+                            switch (dvTable.Table.Columns[x].DataType.Name.ToString())
+                            {
+                                case "DateTime":
 
-                        criteriaList += " ) ";
+                                    DateTime dt;
+
+                                    if (DateTime.TryParse(strSearch, out dt))
+                                    {
+                                        strFilter += " or [" + dvTable.Table.Columns[x].ColumnName.ToString() + "] = '" + dt.ToShortDateString() + "'";
+                                    }
+
+                                    break;
+
+                                case "Decimal":
+
+                                    Decimal decChk;
+
+                                    if (Decimal.TryParse(strSearch, out decChk))
+                                    {
+                                        strFilter += "or [" + dvTable.Table.Columns[x].ColumnName.ToString() + "] = '" + decChk + "'";
+                                    }
+                                    break;
+
+                                case "Int32":
+
+                                    Int32 intChk;
+
+                                    if (Int32.TryParse(strSearch, out intChk))
+                                    {
+                                        strFilter += " or [" + dvTable.Table.Columns[x].ColumnName.ToString() + "] = '" + intChk + "'";
+                                    }
+
+                                    break;
+
+                                case "Boolean":
+
+                                    break;
+
+                                case "Byte":
+
+                                    break;
+
+                                default:
+
+                                    if (strFilter.ToString() != String.Empty)
+                                    {
+                                        strFilter += " or [" + dvTable.Table.Columns[x].ColumnName.ToString() + "] LIKE '%" + strSearch + "%'";
+                                    }
+                                    else
+                                    {
+                                        strFilter += " [" + dvTable.Table.Columns[x].ColumnName.ToString() + "] LIKE '%" + strSearch + "%'";
+                                    }
+
+
+                                    break;
+                            }
+                        }
                     }
-                    else
-                        criteriaList += string.Format(" {0}  {1} = '{2}'", (criteriaList.Trim() != string.Empty ? "AND" : " "), userChkField, loginName);
                 }
 
-                // Add Addition Critera (User Permission Group)
-                var permissionGrp = wfDt.GetPermissionGrp(wfId, wfStep, connStr);
-                if (permissionGrp != string.Empty)
+                try
                 {
-                    criteriaList += string.Format("{0}'{1}' IN ({2})", (criteriaList != string.Empty ? " AND " : " "), loginName, permissionGrp);
+                    dvTable.RowFilter = strFilter;
                 }
-            }
-            #endregion
-
-            // Get sorting
-            var sortingList = viewHandlerOrder.GetSortingList(viewNo, connStr);
-
-            // Criteria Condition
-            if (criteriaList.Trim() != string.Empty)
-                sql.AppendFormat(" AND {0}", criteriaList);
-
-            // Filter Condition
-
-            if (!string.IsNullOrEmpty(searchText))
-            {
-                var filterText = new List<string>();
-                var columns = columnList.Split(',').Select(x => x.Trim()).ToArray();
-
-                foreach (var column in columns)
+                catch
                 {
-                    var fieldName = column.Split(' ')[0].Trim().TrimStart('[').TrimEnd(']');
-
-                    filterText.Add(string.Format(" [{0}] LIKE '%{1}%' ", fieldName, searchText));
                 }
-
-                var filterStatement = string.Join("OR", filterText);
-                //lbl_View.Text = filterStatement;
-                sql.AppendFormat(" AND ({0})", filterStatement);
-
-            }
-            // Head of Location Condition
-            if (isHOD)
-            {
-                sql.AppendFormat(" AND [HOD] IN (SELECT DepCode FROM [Admin].vHeadOfDepartment WHERE LoginName = '{0}')", loginName);
             }
 
-
-            if (sortingList.Trim() != string.Empty)
-            {
-                sql.AppendFormat(" ORDER BY {0}", sortingList);
-            }
-            else
-            {
-                sql.AppendFormat(" ORDER BY {0} DESC", keyFieldName);
-            }
-
-            var offset = (_page - 1) * _per_page;
-            var fetch = _per_page;
-
-            sql.AppendFormat(" OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY", offset, fetch);
-
-            //lbl_View.Text = sql.ToString()  ;
-
-            var dtData = viewHandler.DbExecuteQuery(sql.ToString(), dbParams, connStr);
-
-            return dtData == null ? new DataTable() : dtData;
+            return dvTable;
         }
 
-        private void Bind_Data()
+        private void Search()
         {
-            var viewNo = int.Parse(VID);
-
-            var gv = gv_Data;
-
-            var searchText = txt_Search.Text.Trim();
-            var dtData = GetData(viewNo, KeyFieldName, searchText);
-
-            // Find column index of start adding column
-            int startColumnIndex = 0;
-
-            if (viewHandler.GetIsWFEnable(viewNo, LoginInfo.ConnStr))
-            {
-                // Skip Columns
-                // 0 = [KeyFieldName]
-                // 1 = [ApprStatus]
-                startColumnIndex = 2;
-            }
-            else
-            {
-                // Skip Columns
-                // 0 = [KeyFieldName]
-                startColumnIndex = 1;
-            }
-
-            gv.Columns.Clear();
-
-
-            // Add Columns
-            for (int i = startColumnIndex; i < dtData.Columns.Count; i++)
-            {
-                var columnName = dtData.Columns[i].ColumnName;
-                var column = new BoundField();
-                #region
-
-                column.HeaderText = field.GetDesc(columnName, LoginInfo.ConnStr);
-                column.DataField = columnName;
-                column.HeaderStyle.Width = Unit.Pixel(300);
-
-                // Set column style
-                switch (dtData.Columns[i].DataType.ToString())
-                {
-                    case "System.Int16":
-                    case "System.Int32":
-                    case "System.Int64":
-                        column.HeaderStyle.HorizontalAlign = HorizontalAlign.Right;
-                        column.ItemStyle.HorizontalAlign = column.HeaderStyle.HorizontalAlign;
-                        column.DataFormatString = "{0:D}";
-                        column.HeaderStyle.Width = Unit.Pixel(120);
-                        break;
-
-                    case "System.Decimal":
-                        var fmt = "{0:N2}";
-
-                        column.HeaderStyle.HorizontalAlign = HorizontalAlign.Right;
-                        column.ItemStyle.HorizontalAlign = column.HeaderStyle.HorizontalAlign;
-                        //column.DataFormatString = "{0:#,0.00##}";
-                        column.DataFormatString = fmt;
-                        column.HeaderStyle.Width = Unit.Pixel(180);
-                        break;
-
-                    case "System.DateTime":
-                        column.HeaderStyle.HorizontalAlign = HorizontalAlign.Left;
-                        //column.HeaderStyle.Width            = 10%;
-                        column.ItemStyle.HorizontalAlign = column.HeaderStyle.HorizontalAlign;
-                        column.DataFormatString = "{0:dd/MM/yyyy}";
-                        column.HeaderStyle.Width = Unit.Pixel(120);
-                        break;
-
-                    default:
-                        column.HeaderStyle.HorizontalAlign = HorizontalAlign.Left;
-                        column.ItemStyle.HorizontalAlign = column.HeaderStyle.HorizontalAlign;
-                        break;
-                }
-
-                #endregion
-
-                gv.Columns.Add(column);
-            }
-
-            // Add "Process Status" column if this view is related to workflow or thereis column ApprStatus
-            if (WorkFlowEnable && dtData.Columns.Contains("ApprStatus"))
-            {
-                BoundField wfColumn = new BoundField();
-                wfColumn.HeaderText = "Process Status";
-                wfColumn.DataField = "ApprStatus";
-                wfColumn.HeaderStyle.HorizontalAlign = HorizontalAlign.Left;
-                wfColumn.HeaderStyle.Width = Unit.Pixel(120);
-
-                wfColumn.ItemStyle.HorizontalAlign = wfColumn.HeaderStyle.HorizontalAlign;
-
-                gv_Data.Columns.Add(wfColumn);
-            }
-            gv.DataSource = dtData;
-            gv.DataBind();
+            Page_Load(null, null);
         }
 
-        private void SetPageNo()
+        protected void btn_Search_Click(object sender, ImageClickEventArgs e)
         {
-            var page = _page <= 0 ? 1 : _page;
-            var per_page = _per_page;
-
-            var digit = page % 10;
-            digit = digit == 0 ? 10 : digit;
-            var start = page < 11 ? 1 : page - digit + 1;
-
-            btn_P1.Text = start++.ToString();
-            btn_P2.Text = start++.ToString();
-            btn_P3.Text = start++.ToString();
-            btn_P4.Text = start++.ToString();
-            btn_P5.Text = start++.ToString();
-            btn_P6.Text = start++.ToString();
-            btn_P7.Text = start++.ToString();
-            btn_P8.Text = start++.ToString();
-            btn_P9.Text = start++.ToString();
-            btn_P10.Text = start++.ToString();
-
-
-            // Reset button colors
-
-            var backColor = default(System.Drawing.Color);
-            var foreColor = default(System.Drawing.Color);
-
-            btn_P1.BackColor = backColor;
-            btn_P1.ForeColor = foreColor;
-            btn_P2.BackColor = backColor;
-            btn_P2.ForeColor = foreColor;
-            btn_P3.BackColor = backColor;
-            btn_P3.ForeColor = foreColor;
-            btn_P4.BackColor = backColor;
-            btn_P4.ForeColor = foreColor;
-            btn_P5.BackColor = backColor;
-            btn_P5.ForeColor = foreColor;
-            btn_P6.BackColor = backColor;
-            btn_P6.ForeColor = foreColor;
-            btn_P7.BackColor = backColor;
-            btn_P7.ForeColor = foreColor;
-            btn_P8.BackColor = backColor;
-            btn_P8.ForeColor = foreColor;
-            btn_P9.BackColor = backColor;
-            btn_P9.ForeColor = foreColor;
-            btn_P10.BackColor = backColor;
-            btn_P10.ForeColor = foreColor;
-
-            backColor = System.Drawing.Color.Black;
-            foreColor = System.Drawing.Color.White;
-
-            var index = digit == 0 ? 10 : digit;
-            switch (index)
-            {
-                case 1:
-                    btn_P1.BackColor = backColor;
-                    btn_P1.ForeColor = foreColor;
-                    break;
-                case 2:
-                    btn_P2.BackColor = backColor;
-                    btn_P2.ForeColor = foreColor;
-                    break;
-                case 3:
-                    btn_P3.BackColor = backColor;
-                    btn_P3.ForeColor = foreColor;
-                    break;
-                case 4:
-                    btn_P4.BackColor = backColor;
-                    btn_P4.ForeColor = foreColor;
-                    break;
-                case 5:
-                    btn_P5.BackColor = backColor;
-                    btn_P5.ForeColor = foreColor;
-                    break;
-                case 6:
-                    btn_P6.BackColor = backColor;
-                    btn_P6.ForeColor = foreColor;
-                    break;
-                case 7:
-                    btn_P7.BackColor = backColor;
-                    btn_P7.ForeColor = foreColor;
-                    break;
-                case 8:
-                    btn_P8.BackColor = backColor;
-                    btn_P8.ForeColor = foreColor;
-                    break;
-                case 9:
-                    btn_P9.BackColor = backColor;
-                    btn_P9.ForeColor = foreColor;
-                    break;
-                case 10:
-                    btn_P10.BackColor = backColor;
-                    btn_P10.ForeColor = foreColor;
-                    break;
-            }
-
-
+            Session.Remove("Search");
+            this.Search();
         }
+
 
 
 
 
 
         #endregion
+
+        #region Pages (Developping on 2016-12-09)
+
+
+        private void GetCustomersPageWise(int pageIndex)
+        {
+        }
+
+        private void PopulatePager(int recordCount, int currentPage)
+        {
+        }
+
+        #endregion
+
     }
 }

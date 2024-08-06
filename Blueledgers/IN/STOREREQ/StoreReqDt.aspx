@@ -73,7 +73,6 @@
                 top: 0;
             }
     </style>
-    <asp:Label runat="server" ID="lbl_Test" Font-Size="XX-Large" Text="TEST" Visible="false" />
     <dx:ASPxPanel ID="pnl_WFLegend" runat="server">
         <PanelCollection>
             <dx:PanelContent ID="PanelContent2" runat="server">

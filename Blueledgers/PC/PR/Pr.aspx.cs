@@ -19,6 +19,8 @@ namespace BlueLedger.PL.PC.PR
     {
         // Set Command Agrument for Image Button for Expand Grid.
         private int index = 0;
+        //private decimal Net = 0;
+        //private decimal Tax = 0;
         private decimal Total = 0;
 
         #region "Attributes"
@@ -387,16 +389,13 @@ namespace BlueLedger.PL.PC.PR
             // Controls
             // --------------------------------------------------------------------------------------------------------
 
-            var vid = Request.QueryString["VID"].ToString();
-            var page = Request.QueryString["page"]==null ? "1" : Request.QueryString["page"].ToString();
-
             // Modified on: 05/09/2017, By: Fon
             menu_CmdBar.Items.FindByName("Commit").ToolTip = "Commit";
             menu_CmdBar.Items.FindByName("Edit").ToolTip = "Edit";
             menu_CmdBar.Items.FindByName("Void").ToolTip = "Void";
             menu_CmdBar.Items.FindByName("Print").ToolTip = "Print";
             menu_CmdBar.Items.FindByName("Back").ToolTip = "Back";
-            menu_CmdBar.Items.FindByName("Back").NavigateUrl = string.Format("PrList.aspx?VID={0}&page={1}", vid, page);
+            menu_CmdBar.Items.FindByName("Back").NavigateUrl = "PrList.aspx";
 
             bool visibleCommit = false;
             bool visibleEdit = false;
@@ -712,15 +711,18 @@ namespace BlueLedger.PL.PC.PR
         /// <param name="e"></param>
         protected void pc_Prdt_Load(object sender, EventArgs e)
         {
-            //if (viewHandler.GetWFStep(int.Parse(Request.Cookies["[PC].[vPrList]"].Value.ToString()), hf_ConnStr.Value) < 2)
-            //{
-            //    pc_Prdt.TabPages[1].Enabled = false; // Hide Allocate Buyer
-            //}
+            // Display/Hide Edit TabPage in Edit Form
+            // if (viewHandler.GetWFStep(int.Parse(Request.Cookies["[PC].[vPrList]"].Value.ToString()), hf_ConnStr.Value) <
+                // 2)
+            // {
+                // pc_Prdt.TabPages[1].Enabled = false; // Hide Allocate Buyer
+            // }
 
-            //if (viewHandler.GetWFStep(int.Parse(Request.Cookies["[PC].[vPrList]"].Value.ToString()), hf_ConnStr.Value) < 3)
-            //{
-            //    pc_Prdt.TabPages[2].Enabled = false; // Hide Allocate Vendor
-            //}
+            // if (viewHandler.GetWFStep(int.Parse(Request.Cookies["[PC].[vPrList]"].Value.ToString()), hf_ConnStr.Value) <
+                // 3)
+            // {
+                // pc_Prdt.TabPages[2].Enabled = false; // Hide Allocate Vendor
+            // }
         }
 
         /// <summary>
@@ -1205,6 +1207,7 @@ namespace BlueLedger.PL.PC.PR
                     lbl_hide_action.Text = "Redirect".ToUpper();
                     lbl_hide_value.Text = rejectItemCount == dsPR.Tables[prDt.TableName].Rows.Count ? "true" : "false";
 
+                    //sentComplete = SendEmail("R");
                     sentComplete = SendEmailWorkflow.Send("R", prNo, wfId, wfStep, LoginInfo.LoginName, hf_ConnStr.Value);
                 }
 
@@ -1750,8 +1753,6 @@ namespace BlueLedger.PL.PC.PR
                 // ********** Display Button. **********
                 var status = DataBinder.Eval(e.Row.DataItem, "ApprStatus");
                 var j = wfStep;
-
-
                 if (wfStep < 1) j = 1;
 
                 if (status.ToString() != string.Empty)
@@ -2281,6 +2282,23 @@ namespace BlueLedger.PL.PC.PR
             Response.Redirect("PrList.aspx");
         }
 
+        //protected void grd_PRDt2_RowDataBound(object sender, GridViewRowEventArgs e)
+        //{
+        //    var lbl_ProductCode = e.Row.FindControl("lbl_ProductCode") as Label;
+
+        //    if (lbl_ProductCode != null)
+        //    {
+        //        lbl_ProductCode.Text = DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString();
+        //    }
+
+        //    var lbl_Descen = e.Row.FindControl("lbl_Descen") as Label;
+
+        //    if (lbl_Descen != null)
+        //    {
+        //        lbl_Descen.Text = DataBinder.Eval(e.Row.DataItem, "Descen").ToString();
+        //    }
+        //}
+
         protected void btn_PopupAlert_Click(object sender, EventArgs e)
         {
             pop_Alert.ShowOnPageLoad = false;
@@ -2295,6 +2313,9 @@ namespace BlueLedger.PL.PC.PR
             }
         }
 
+
+
+
         protected void chk_Approve_NoShowMessage_CheckedChanged(object sender, EventArgs e)
         {
             CheckBox chk_Approve_NoShowResult = (sender as CheckBox);
@@ -2304,5 +2325,408 @@ namespace BlueLedger.PL.PC.PR
             aCookie.Expires = DateTime.Now.AddDays(3650);
             Response.Cookies.Add(aCookie);
         }
+        /*
+        #region Email
+        protected bool SendEmail1(string approveCode)
+        {
+            //string errorMessage = SentMail(approveCode.ToUpper());
+
+            //if (errorMessage != string.Empty)
+            //{
+            //    lbl_PopupAlert.Text = "Mail server is not configured.";
+            //    lbl_PopupAlert.Text += "<br/>(code: " + errorMessage + ")";
+
+            //    pop_Alert.ShowOnPageLoad = true;
+            //    return false;
+            //}
+            return true;
+        }
+
+        //protected string SentMail(string approveCode)
+        private bool SendEmail(string approveCode)
+        {
+            string errorMessage = string.Empty;
+
+            approveCode = approveCode.ToUpper();
+
+            // Get recent record from [IM].Inbox (After WF Stored update to IM.Inbox)
+            string sql = string.Format("SELECT TOP(1) * FROM [IM].[Inbox] WHERE [RefNo]='{0}' AND [Sender]='{1}' AND StepFrom = {2} ORDER BY [InboxNo] DESC", prNo, LoginInfo.LoginName, wfStep);
+			
+            var dtPr = pr.DbExecuteQuery(sql, null, hf_ConnStr.Value);
+
+            if (dtPr.Rows.Count > 0) // Found
+            {
+                DataRow dr = dtPr.Rows[0];
+                string mailFrom = "", mailTo = "";
+
+                int toStep = int.Parse(dr["StepTo"].ToString());
+                string inboxNo = dr["InboxNo"].ToString();
+                string refNo = dr["RefNo"].ToString();
+                string subject = dr["Subject"].ToString();
+                string mailBody = GnxLib.EnDecryptString(dr["Message"].ToString(), GnxLib.EnDeCryptor.DeCrypt);
+
+                try
+                {
+                    // Now: SendBack & Approve 's ["receiver"] is @email  // Test: PR17050002
+                    if (approveCode.ToUpper() == "A")
+                        mailTo = Get_InvolvedLoginFromApprovals(toStep);
+                    // Now: Reject 's ["receiver"] is LoginName
+                    else if (approveCode.ToUpper() == "R" || approveCode.ToUpper() == "S")
+                        mailTo = Get_InvolvedEmail();
+
+                    #region sending email
+
+                    var email = new Mail();
+                    string encryptSMTP = config.GetValue("SYS", "Mail", "ServerString", LoginInfo.ConnStr);
+                    var smtpConfig = new KeyValues();
+
+                    smtpConfig.Text = GnxLib.EnDecryptString(encryptSMTP, GnxLib.EnDeCryptor.DeCrypt);
+
+                    email.SmtpServer = smtpConfig.Value("smtp");
+                    email.Port = Convert.ToInt16(smtpConfig.Value("port"));
+                    email.EnableSsl = smtpConfig.Value("enablessl").ToLower() == "true";
+                    email.IsAuthentication = smtpConfig.Value("authenticate").ToLower() == "true";
+
+                    if (email.IsAuthentication)
+                    {
+                        email.Name = smtpConfig.Value("name");
+                        email.UserName = smtpConfig.Value("username");
+                        email.Password = smtpConfig.Value("password");
+                    }
+
+                    email.From = mailFrom;
+                    email.To = mailTo;
+                    email.Subject = subject;
+                    email.Body = mailBody;
+
+                    // Update Receiver to [IM].Inbox
+                    sql = string.Format("UPDATE [IM].Inbox SET Reciever = '{0}' WHERE InboxNo = {1}", mailTo, inboxNo);
+                    pr.DbParseQuery(sql, null, hf_ConnStr.Value);
+
+                    errorMessage = email.Send();
+
+                    #endregion
+                }
+                catch (Exception ex)
+                {
+                    errorMessage = ex.Message.ToString();
+                }
+
+                sql = string.Format("INSERT INTO [IM].MailLog(LogDate,InboxNo,RefNo,IsSent,Error) VALUES('{0}',{1},'{2}',{3},'{4}' )",
+                    DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), // LogDate
+                    inboxNo, // InboxNo
+                    refNo,  // RefNo
+                    string.IsNullOrEmpty(errorMessage)?1:0,
+                    errorMessage);
+                pr.DbParseQuery(sql, null, hf_ConnStr.Value);
+
+            }
+            else // not found
+            {
+                errorMessage = "Not found approval email.";
+            }
+
+
+            return string.IsNullOrEmpty(errorMessage);
+
+            //DataSet dsEmail = Get_LastInboxRecord();
+            //dsEmail.Tables[0].TableName = "dtLastInbox";
+
+            //if (dsEmail.Tables["dtLastInbox"].Rows.Count > 0)
+            //{
+            //    #region Found Inbox
+            //    string from = string.Empty;
+            //    string to = string.Empty;
+
+            //    try
+            //    {
+            //        int toStep = int.Parse(dsEmail.Tables["dtLastInbox"].Rows[0]["StepTo"].ToString());
+            //        string inboxNo = dsEmail.Tables["dtLastInbox"].Rows[0]["InboxNo"].ToString();
+            //        string subject = dsEmail.Tables["dtLastInbox"].Rows[0]["Subject"].ToString();
+            //        string body = GnxLib.EnDecryptString(dsEmail.Tables["dtLastInbox"].Rows[0]["Message"].ToString(), GnxLib.EnDeCryptor.DeCrypt);
+
+            //        // Now: SendBack & Approve 's ["receiver"] is @email  // Test: PR17050002
+            //        if (approveCode.ToUpper() == "A")
+            //        {
+            //            string receiver = Get_InvolvedLoginFromApprovals(toStep);
+
+            //            to = receiver;
+            //        }
+            //        // Now: Reject 's ["receiver"] is LoginName
+            //        else if (approveCode.ToUpper() == "R" || approveCode.ToUpper() == "S")
+            //        {
+            //            string receiver = Get_InvolvedEmail();
+
+            //            to = receiver;
+            //        }
+            //        string r = to;
+            //        //to = ConvertLoginName_ToEmail(to);
+
+
+            //        #region Use Email Calss
+            //        Mail email = new Mail();
+
+            //        //string serverValue = dsEmail.Tables["dtSMTP"].Rows[0]["Value"].ToString();
+            //        string encryptSMTP = config.GetValue("SYS", "Mail", "ServerString", LoginInfo.ConnStr);
+            //        KeyValues smtpConfig = new KeyValues();
+            //        smtpConfig.Text = GnxLib.EnDecryptString(encryptSMTP, GnxLib.EnDeCryptor.DeCrypt);
+
+
+            //        bool isAuth = smtpConfig.Value("authenticate").ToUpper() == "TRUE";
+
+            //        email.SmtpServer = smtpConfig.Value("smtp");
+            //        email.Port = Convert.ToInt16(smtpConfig.Value("port"));
+            //        email.EnableSsl = smtpConfig.Value("enablessl").ToUpper() == "TRUE";
+            //        email.IsAuthentication = isAuth;
+            //        if (isAuth)
+            //        {
+            //            email.Name = smtpConfig.Value("name");
+            //            email.UserName = smtpConfig.Value("username");
+            //            email.Password = smtpConfig.Value("password");
+            //        }
+
+            //        email.From = from;
+            //        email.To = to;
+            //        email.Subject = subject;
+            //        email.Body = body;
+
+            //        // Update Receiver to [IM].Inbox
+            //        string sql = string.Format("UPDATE [IM].Inbox SET Reciever = '{0}' WHERE InboxNo = {1}", to.ToString(), inboxNo.ToString());
+            //        pr.DbParseQuery(sql, null, hf_ConnStr.Value.ToString());
+
+            //        string error = email.Send();
+
+            //        if (error != string.Empty)
+            //            errorMessage = "InboxNo: " + inboxNo + " has error '" + error + "'";
+
+            //        #endregion
+
+            //        return errorMessage;
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        return ex.Message.ToString();
+            //    }
+            //}
+            //#endregion
+            //else
+            //{
+            //    return errorMessage;
+            //}
+        }
+
+        //protected DataSet Get_LastInboxRecord()
+        //{
+        //    string cmdStr = "DECLARE @Email nvarchar(100)";
+        //    cmdStr += " SET @Email = (SELECT Email FROM [ADMIN].[vUser]";
+        //    cmdStr += string.Format(" WHERE [LoginName] = '{0}')", LoginInfo.LoginName);
+        //    cmdStr += " ;WITH rs AS (";
+        //    cmdStr += " SELECT TOP(1) * FROM [IM].[Inbox]";
+        //    cmdStr += string.Format(" WHERE [RefNo] = '{0}'", prNo);
+        //    cmdStr += " AND [Sender] = CASE ";
+
+        //    cmdStr += string.Format(" WHEN ([Sender] = 'demo@blueledgers.com') THEN '{0}'", LoginInfo.LoginName);
+
+        //    cmdStr += " WHEN ([Sender] LIKE '%@%' + '%.com%') THEN @Email";
+        //    cmdStr += string.Format(" ELSE '{0}' END", LoginInfo.LoginName);
+        //    cmdStr += " ORDER BY [InboxNo] DESC)";
+        //    cmdStr += " SELECT * FROM rs";
+
+        //    DataSet dsInbox = new DataSet();
+        //    SqlConnection con = new SqlConnection(LoginInfo.ConnStr);
+        //    con.Open();
+
+        //    SqlCommand cmd = new SqlCommand(cmdStr, con);
+        //    SqlDataAdapter da = new SqlDataAdapter(cmd);
+        //    da.Fill(dsInbox);
+        //    con.Close();
+
+        //    return dsInbox;
+        //}
+
+        protected string ConvertLoginName_ToEmail(string strLogin)
+        {
+            string strEmail = string.Empty;
+            if (strLogin != null)
+            {
+
+
+                List<string> login = strLogin.Split(';').ToList();
+
+                foreach (string l in login)
+                {
+                    string strCmd = "SELECT [Email] FROM [ADMIN].[vUser]";
+                    strCmd += string.Format(" WHERE [LoginName] = '{0}'", l);
+
+                    DataTable dt = new DataTable();
+                    SqlConnection con = new SqlConnection(LoginInfo.ConnStr);
+
+                    con.Open();
+                    SqlCommand cmd = new SqlCommand(strCmd, con);
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    da.Fill(dt);
+
+                    if (dt.Rows.Count > 0)
+                        strEmail += dt.Rows[0][0].ToString() + ";";
+                    else
+                        strEmail += l + ";";
+                    con.Close();
+                }
+            }
+
+
+            //string strCmd = "SELECT [Email] FROM [ADMIN].[vUser]";
+            //strCmd += string.Format(" WHERE [LoginName] = '{0}'", LoginInfo.LoginName);
+
+            //DataTable dt = new DataTable();
+            //SqlConnection con = new SqlConnection(LoginInfo.ConnStr);
+
+            //for (int i = 0; i < login.Count; i++)
+            //{
+            //    con.Open();
+            //    SqlCommand cmd = new SqlCommand(strCmd, con);
+            //    SqlDataAdapter da = new SqlDataAdapter(cmd);
+            //    da.Fill(dt);
+            //    con.Close();
+
+            //    if (dt.Rows.Count > 0)
+            //        strEmail += dt.Rows[0][0].ToString() + ";";
+            //}
+
+            return strEmail;
+        }
+
+        protected string Get_InvolvedEmail()
+        {
+            // Should alert the relevant.
+            string email = string.Empty;
+            string cmdStr = "SELECT DISTINCT h.ProcessBy, u.Email";
+            cmdStr += " FROM [APP].[WFHis] AS h";
+            cmdStr += " LEFT JOIN [ADMIN].[vUser] AS u ON h.ProcessBy COLLATE Latin1_General_CI_AS = u.LoginName COLLATE Latin1_General_CI_AS";
+            cmdStr += string.Format(" WHERE RefNo = '{0}'", prNo);
+
+            DataTable dt = new DataTable();
+            SqlConnection con = new SqlConnection(LoginInfo.ConnStr);
+            con.Open();
+
+            SqlCommand cmd = new SqlCommand(cmdStr, con);
+            SqlDataAdapter da = new SqlDataAdapter(cmd);
+            da.Fill(dt);
+            con.Close();
+
+            foreach (DataRow dr in dt.Rows)
+            {
+                email += dr["Email"].ToString() + ";";
+            }
+            return email;
+        }
+
+        protected string Get_InvolvedLoginFromApprovals(int toStep)
+        {
+            string prNo = Request.Params["ID"];
+
+            #region
+            string sql = string.Format(
+
+@"DECLARE @list TABLE ( [LoginName] NVARCHAR(100), [Email] NVARCHAR(MAX) )
+DECLARE @approvals NVARCHAR(MAX) = ( SELECT [Approvals] FROM [APP].[WFDt]  WHERE [WFId] = @wfId AND [Step] = @wfStep )
+               
+IF ISNULL((SELECT IsHOD FROM [APP].[WFDt] WHERE [WFId] = @wfId AND [Step] = @wfStep), 0) = 1
+BEGIN
+	DECLARE @CreateBy NVARCHAR(20) = (SELECT CreatedBy FROM PC.PR WHERE PrNo = '" + prNo + @"');
+	DECLARE @DeptCode NVARCHAR(20) = (SELECT DepartmentCode FROM [ADMIN].vUser WHERE LoginName = @CreateBy)
+
+    INSERT INTO @list ( [LoginName], Email )
+    SELECT LoginName, Email FROM  [ADMIN].vHeadOfDepartment WHERE DepCode = @DeptCode
+	
+END
+ELSE
+BEGIN
+    WHILE LEN(@approvals) > 0
+    BEGIN
+	    DECLARE @subAppr NVARCHAR(100) = SUBSTRING(@approvals, 1, CHARINDEX(',', @approvals) - 1)
+	    IF(@subAppr LIKE '#%')
+	    BEGIN
+		    INSERT INTO @list ( [LoginName], Email )
+		    SELECT vU.[LoginName], vU.[Email]
+		    FROM [ADMIN].[vUser] AS vU 
+		    LEFT JOIN @list AS l ON l.LoginName COLLATE Latin1_General_CI_AS = vU.[LoginName] COLLATE Latin1_General_CI_AS
+		    WHERE vU.[LoginName] = REPLACE(@subAppr, '#', '') AND l.LoginName IS NULL 
+	    END
+	    ELSE
+	    BEGIN
+		    INSERT INTO @list ( [LoginName], Email )
+		    SELECT ur.[LoginName], vU.[Email]
+		    FROM [ADMIN].[UserRole] AS ur
+		    LEFT JOIN @list AS l ON l.[LoginName] COLLATE Latin1_General_CI_AS = ur.[LoginName] COLLATE Latin1_General_CI_AS
+            JOIN [ADMIN].[vUser] AS vU ON vU.[LoginName] COLLATE Latin1_General_CI_AS= ur.[LoginName] COLLATE Latin1_General_CI_AS
+		    WHERE ur.[RoleName] = @subAppr AND ur.[IsActive] = 1 AND l.LoginName IS NULL
+	    END
+	
+	    SET @approvals = STUFF(@approvals, 1, LEN(@subAppr)+1, '')
+    END
+END
+SELECT * FROM @list
+
+");
+
+            //@"DECLARE @list TABLE ( [LoginName] NVARCHAR(100), [Email] NVARCHAR(MAX) )
+            //  DECLARE @approvals NVARCHAR(MAX) = ( SELECT [Approvals] FROM [APP].[WFDt] 
+            //                                      WHERE [WFId] = @wfId AND [Step] = @wfStep )
+            //	
+            //              WHILE LEN(@approvals) > 0
+            //                BEGIN
+            //	                DECLARE @subAppr NVARCHAR(100) = SUBSTRING(@approvals, 1, CHARINDEX(',', @approvals) - 1)
+            //	                IF(@subAppr LIKE '#%')
+            //	                BEGIN
+            //		                INSERT INTO @list ( [LoginName], Email )
+            //		                SELECT l.[LoginName], vU.[Email]
+            //		                FROM [ADMIN].[vUser] AS vU 
+            //		                LEFT JOIN @list AS l ON l.LoginName = vU.[LoginName]
+            //		                WHERE vU.[LoginName] = REPLACE(@subAppr, ',', '') AND l.LoginName IS NULL 
+            //	                END
+            //	                ELSE
+            //	                BEGIN
+            //		                INSERT INTO @list ( [LoginName], Email )
+            //		                SELECT ur.[LoginName], vU.[Email]
+            //		                FROM [ADMIN].[UserRole] AS ur
+            //		                LEFT JOIN @list AS l ON l.[LoginName] = ur.[LoginName]
+            //		                JOIN [ADMIN].[vUser] AS vU ON vU.[LoginName] = ur.[LoginName]
+            //		                WHERE ur.[RoleName] = @subAppr AND ur.[IsActive] = 1 AND l.LoginName IS NULL
+            //	                END
+            //	
+            //	                select * from @list
+            //	                SET @approvals = STUFF(@approvals, 1, LEN(@subAppr)+1, '')
+            //                END");
+            #endregion
+            string login = string.Empty;
+            SqlConnection con = new SqlConnection(LoginInfo.ConnStr);
+            DataTable dt = new DataTable();
+            try
+            {
+                con.Open();
+                SqlCommand cmd = new SqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("@wfId", wfId);
+                cmd.Parameters.AddWithValue("@wfStep", toStep);
+
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                da.Fill(dt);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+            con.Close();
+
+            foreach (DataRow dr in dt.Rows)
+            {
+                //login += dr["LoginName"].ToString() + ";";
+                login += dr["Email"].ToString() + ";";
+            }
+            return login;
+        }
+        #endregion
+        */
     }
 }

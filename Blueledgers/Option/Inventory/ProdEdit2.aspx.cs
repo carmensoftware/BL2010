@@ -19,7 +19,6 @@ namespace BlueLedger.PL.Option.Inventory
         const string TABLE_ORDER_UNIT = "OrderUnit";
         const string TABLE_RECIPE_UNIT = "RecipeUnit";
 
-
         private readonly Blue.BL.Option.Inventory.Product product = new Blue.BL.Option.Inventory.Product();
 
         private readonly Blue.BL.ADMIN.TransLog _transLog = new Blue.BL.ADMIN.TransLog();
@@ -789,9 +788,9 @@ namespace BlueLedger.PL.Option.Inventory
             var reqHQAppr = 0;
             var accountCode = "";
             var taxAccCode = "";
-            //var lastCost = 0m;
-            //var min = 0;
-            //var max = 0;
+            var lastCost = 0m;
+            var min = 0;
+            var max = 0;
 
             #endregion
 
@@ -1447,7 +1446,7 @@ FROM
 	JOIN [In].StoreRequisitionDetail d
 		ON h.RefId = d.DocumentId
 WHERE
-	h.[DocStatus] NOT IN ('Committed', 'Voided', 'Complete','Rejected')
+	h.[DocStatus] NOT IN ('Committed', 'Voided')
 	AND d.ProductCode = @ProductCode
 
 

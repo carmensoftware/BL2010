@@ -208,14 +208,14 @@
                                                                     <asp:Label ID="lbl_PoNo" runat="server" SkinID="LBL_NR_GRD"></asp:Label>
                                                                 </ItemTemplate>
                                                             </asp:TemplateField>
-                                                            <asp:TemplateField HeaderText="<%$ Resources:PC_REC_RecLst, lbl_QtyOrd_Nm %>" Visible="false">
+                                                            <asp:TemplateField HeaderText="<%$ Resources:PC_REC_RecLst, lbl_QtyOrd_Nm %>">
                                                                 <HeaderStyle HorizontalAlign="Right" />
                                                                 <ItemStyle HorizontalAlign="Right" />
                                                                 <ItemTemplate>
                                                                     <asp:Label ID="lbl_QtyOrd" runat="server" SkinID="LBL_NR_GRD"></asp:Label>
                                                                 </ItemTemplate>
                                                             </asp:TemplateField>
-                                                            <asp:TemplateField HeaderText="<%$ Resources:PC_REC_RecLst, lbl_QtyRec_Nm %>" Visible="false">
+                                                            <asp:TemplateField HeaderText="<%$ Resources:PC_REC_RecLst, lbl_QtyRec_Nm %>">
                                                                 <HeaderStyle HorizontalAlign="Right" />
                                                                 <ItemStyle HorizontalAlign="Right" />
                                                                 <ItemTemplate>

@@ -453,8 +453,7 @@ namespace BlueLedger.PL.Option.ProdCat
             string errMsg = CheckBeforeSave();
             if (errMsg == string.Empty)
             {
-                return
-                saveToDataBase(tableIndex, ref errMsg);
+                return saveToDataBase(tableIndex, ref errMsg);
             }
             else
             {
@@ -538,8 +537,7 @@ namespace BlueLedger.PL.Option.ProdCat
                 {
                     strsql = sqlInsertString(1);
                 }
-
-
+				
 
                 SqlCommand cmd = new SqlCommand(strsql, cnn);
                 cmd.Parameters.Clear();
@@ -548,7 +546,8 @@ namespace BlueLedger.PL.Option.ProdCat
                 cmd.Parameters.AddWithValue("@CategoryType", (Convert.ToInt32(categoryType) < 0) ? null : categoryType);
                 cmd.Parameters.AddWithValue("@IsActive", cbTActive.Checked ? 1 : 0);
                 cmd.Parameters.AddWithValue("@TaxAccCode", txtAccCode.Text);
-                cmd.Parameters.AddWithValue("@AuthRules", cbAuthRules.Checked);
+                //cmd.Parameters.AddWithValue("@AuthRules", cbAuthRules.Checked);
+				cmd.Parameters.AddWithValue("@AuthRules", false);
                 cmd.Parameters.AddWithValue("@ApprovalLevel", DBNull.Value); //<-- have 2 & 3 ?
                 if (string.IsNullOrEmpty(se_PriceDeviation.Text))
                     cmd.Parameters.AddWithValue("@PriceDeviation", DBNull.Value);
@@ -579,22 +578,40 @@ namespace BlueLedger.PL.Option.ProdCat
                 {
                     cnn.Close();
                     errMsg = ex.Message;
+					//lbl_Test.Text = errMsg;
+					
+					
                     return false;
                 }
 
                 // Update all if it's parent.
+
                 List<string> cateCodeList = GetChildFromCategory(tview);
                 if (txtParent.Text == "0" || cateCodeList.Count > 0)
                 {
                     string whereCateCode = string.Format("IN ('{0}')", string.Join("', '", cateCodeList.ToArray()));
-                    strsql = string.Format(@"UPDATE [IN].[ProductCategory] SET [CategoryType] = @CategoryType
-                        WHERE [CategoryCode] {0}", whereCateCode);
+                    strsql = string.Format("UPDATE [IN].[ProductCategory] SET [CategoryType] = @CategoryType WHERE [CategoryCode] {0}", whereCateCode);
+					
+					//lbl_Test.Text = strsql + " >> " + ((Convert.ToInt32(categoryType) < 0) ? null : categoryType).ToString();
 
                     cmd = new SqlCommand(strsql, cnn);
                     cmd.Parameters.Clear();
                     cmd.Parameters.AddWithValue("@CategoryType", (Convert.ToInt32(categoryType) < 0) ? null : categoryType);
-                    cmd.ExecuteNonQuery();
+					try
+					{
+						cmd.ExecuteNonQuery();
+						
+					}
+					catch(Exception ex)
+					{
+					
+						lbl_Test.Text = ex.Message;
+					}
+					
                 }
+				
+				//lbl_Test.Text = "OK1";
+
 
             }
             catch (Exception ex)

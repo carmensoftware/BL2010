@@ -2272,17 +2272,8 @@ namespace BlueLedger.PL.PC.PO
         protected DataTable RateChanged(DataTable dtPoDt)
         {
             string taxType = string.Empty;
-            decimal
-                price = 0,
-                ordQty = 0,
-                taxRate = 0,
-                currDiscAmt = 0,
-                currRate = 0;
-            decimal 
-                netAmt = 0, 
-                discAmt = 0, 
-                taxAmt = 0, 
-                totalAmt = 0;
+            decimal price = 0, ordQty = 0, taxRate = 0, currDiscAmt = 0, currRate = 0;
+            decimal netAmt = 0, discAmt = 0, taxAmt = 0, totalAmt = 0;
 
             foreach (DataRow dr in dtPoDt.Rows)
             {
@@ -2294,19 +2285,11 @@ namespace BlueLedger.PL.PC.PO
                 decimal.TryParse(txt_CurrRate.Text, out currRate);
                 taxType = Convert.ToString(dr["TaxType"]);
 
-
-                var currNetAmt = Convert.ToDecimal(dr["CurrNetAmt"]);
-                var currTaxAmt = Convert.ToDecimal(dr["CurrTaxAmt"]);
-                var currTotalAmt = Convert.ToDecimal(dr["CurrTotalAmt"]);
-
-
+                // Set value
                 discAmt = RoundAmt(currDiscAmt * currRate);
-                //netAmt = NetAmt(taxType, taxRate, (price * currRate) * ordQty, discAmt, 1);
-                //taxAmt = TaxAmt(taxType, taxRate, (price * currRate) * ordQty, discAmt, 1);
-                //totalAmt = Amount(taxType, taxRate, (price * currRate) * ordQty, discAmt, 1);
-                netAmt = RoundAmt(currNetAmt * currRate);
-                taxAmt = RoundAmt(currTaxAmt * currRate);
-                totalAmt = RoundAmt(currTotalAmt * currRate);
+                netAmt = NetAmt(taxType, taxRate, (price * currRate) * ordQty, discAmt, 1);
+                taxAmt = TaxAmt(taxType, taxRate, (price * currRate) * ordQty, discAmt, 1);
+                totalAmt = Amount(taxType, taxRate, (price * currRate) * ordQty, discAmt, 1);
 
                 dr["NetAmt"] = netAmt;
                 dr["DisCountAmt"] = discAmt;

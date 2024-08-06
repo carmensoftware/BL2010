@@ -210,11 +210,9 @@ namespace BlueLedger.PL.PC.PO
             // If cmbBar has 'ClosePO'.
             menu_CmdBar.Items.FindByName("Mail").ToolTip = "Send email to vendor";
 
-            var vid = Request.QueryString["VID"].ToString();
-            var page = Request.QueryString["page"].ToString();
 
             menu_CmdBar.Items.FindByName("Back").ToolTip = "Back";
-            menu_CmdBar.Items.FindByName("Back").NavigateUrl = string.Format("PoList.aspx?VID={0}&page={1}", vid, page); 
+            menu_CmdBar.Items.FindByName("Back").NavigateUrl = "PoList.aspx";
             //menu_CmdBar.Items[3].ToolTip     = "Back";
             //menu_CmdBar.Items[3].NavigateUrl = "PoList.aspx";
 

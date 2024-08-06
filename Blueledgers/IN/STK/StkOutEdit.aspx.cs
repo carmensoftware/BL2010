@@ -668,15 +668,11 @@ namespace BlueLedger.PL.IN.STK
                     {
                         lbl_Warning.Text = "Please select <b>Type</b> for create item.";
                         pop_Warning.ShowOnPageLoad = true;
-                        
-                        return;
                     }
                     if (grd_StkOutEdit1.Rows.Count == 0)
                     {
                         lbl_Warning.Text = "Please clicks <b>Create</b> button to add item.";
                         pop_Warning.ShowOnPageLoad = true;
-
-                        return;
                     }
                     pop_ConfrimSave.ShowOnPageLoad = true;
 
@@ -776,7 +772,7 @@ namespace BlueLedger.PL.IN.STK
             string hdrNo = string.Empty;
             string _action = string.Empty;
 
-            if (Request.Params["MODE"].ToUpper() == "NEW" || Request.Params["MODE"].ToUpper() == "SDR")
+            if (Request.Params["MODE"].ToUpper() == "NEW")
             {
                 var drStkOut = dsStockOut.Tables[stockOut.TableName].NewRow();
                 if (MODE.ToUpper() == "NEW" || MODE.ToUpper() == "SDR") // ?
@@ -811,7 +807,6 @@ namespace BlueLedger.PL.IN.STK
             else
             {
                 var drStkOut = dsStockOut.Tables[stockOut.TableName].Rows[0];
-
 
                 if (MODE.ToUpper() == "EDIT")
                 {

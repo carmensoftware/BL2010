@@ -2,7 +2,6 @@
 using System.Data;
 using System.Web.UI.WebControls;
 using BlueLedger.PL.BaseClass;
-using System.Linq;
 
 namespace BlueLedger.PL.IN.RE
 {
@@ -235,6 +234,9 @@ namespace BlueLedger.PL.IN.RE
                         }
 
 
+
+
+
                         if (grd_ProductRestock.Rows.Count > 0)
                         {
                             #region
@@ -268,7 +270,6 @@ namespace BlueLedger.PL.IN.RE
 
                             // Create PR Detail
                             var prDtCount = 1;
-                            var currencyCode = config.GetConfigValue("APP", "BU", "DefaultCurrency", LoginInfo.ConnStr); 
 
                             for (var i = 0; i < grd_ProductRestock.Rows.Count; i++)
                             {
@@ -279,36 +280,18 @@ namespace BlueLedger.PL.IN.RE
                                 {
                                     continue;
                                 }
-                                var restock = decimal.Parse(txt_ReStock.Text);
 
-                                if (chk_Select.Checked && restock > 0)
+                                if (chk_Select.Checked && decimal.Parse(txt_ReStock.Text) > 0)
                                 {
                                     var drPrDt = dsPr.Tables[prDt.TableName].NewRow();
 
-                                    var productCode = dsProductRestock.Tables[product.TableName].Rows[grd_ProductRestock.Rows[i].DataItemIndex]["ProductCode"].ToString();
-
-                                    var item = dsProductRestock.Tables[product.TableName].AsEnumerable().FirstOrDefault(x => x.Field<string>("ProductCode") == productCode);
-
-                                    var unitRate = item.Field<decimal>("UnitRate");
-                                    var orderUnit = item.Field<string>("OrderUnit");
-                                    var reqQty =  Math.Truncate(restock / unitRate);
-
-                                    if (reqQty < reqQty * unitRate)
-                                    {
-                                        reqQty = reqQty + 1;
-                                    }
-
-
                                     drPrDt["PRNo"] = drPr["PRNo"];
                                     drPrDt["PRDtNo"] = prDtCount;
+                                    drPrDt["ProductCode"] = dsProductRestock.Tables[product.TableName].Rows[grd_ProductRestock.Rows[i].DataItemIndex]["ProductCode"].ToString();
+                                    drPrDt["ReqQty"] = txt_ReStock.Text.Trim();
+                                    drPrDt["HOD"] = string.Empty; // drPr["HOD"].ToString();
                                     drPrDt["BuCode"] = LoginInfo.BuInfo.BuCode;
-                                    drPrDt["LocationCode"] = dsProductRestock.Tables[product.TableName].Rows[grd_ProductRestock.Rows[i].DataItemIndex]["LocationCode"].ToString();
-                                    drPrDt["ProductCode"] = productCode;
-                                    drPrDt["OrderUnit"] = orderUnit;
-                                    drPrDt["ReqQty"] = reqQty;
-                                    drPrDt["HOD"] = LoginInfo.DepartmentCode;
                                     drPrDt["Reqdate"] = DateTime.Now.AddDays(1).ToString("dd/MM/yyyy");
-
                                     drPrDt["OrderQty"] = 0;
                                     drPrDt["ApprQty"] = 0;
                                     drPrDt["FOCQty"] = 0;
@@ -325,12 +308,14 @@ namespace BlueLedger.PL.IN.RE
                                     drPrDt["CurrNetAmt"] = 0;
                                     drPrDt["CurrTotalAmt"] = 0;
 
-                                    drPrDt["CurrencyCode"] = currencyCode;
+                                    drPrDt["CurrencyCode"] = config.GetConfigValue("APP", "BU", "DefaultCurrency", LoginInfo.ConnStr);
                                     drPrDt["CurrencyRate"] = 1;
 
                                     drPrDt["TaxType"] = product.GetTaxType(drPrDt["ProductCode"].ToString(), LoginInfo.ConnStr);
                                     drPrDt["TaxRate"] = product.GetTaxRate(drPrDt["ProductCode"].ToString(), LoginInfo.ConnStr);
                                     drPrDt["Price"] = 0;
+                                    drPrDt["OrderUnit"] = dsProductRestock.Tables[product.TableName].Rows[grd_ProductRestock.Rows[i].DataItemIndex]["InventoryUnit"].ToString();
+                                    drPrDt["LocationCode"] = dsProductRestock.Tables[product.TableName].Rows[grd_ProductRestock.Rows[i].DataItemIndex]["LocationCode"].ToString();
                                     drPrDt["DeliPoint"] = store.GetDeliveryPoint(drPrDt["LocationCode"].ToString(), LoginInfo.ConnStr);
                                     drPrDt["Descen"] = product.GetName(drPrDt["ProductCode"].ToString(), LoginInfo.ConnStr);
                                     drPrDt["Descll"] = product.GetName2(drPrDt["ProductCode"].ToString(), LoginInfo.ConnStr);

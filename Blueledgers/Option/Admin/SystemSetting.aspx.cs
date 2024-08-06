@@ -3,8 +3,6 @@ using System.Data;
 using BlueLedger.PL.BaseClass;
 using System.Web;
 using System.Data.SqlClient;
-using System.Net.Mail;
-using System.Net;
 
 namespace BlueLedger.PL.Option.Admin
 {
@@ -448,8 +446,6 @@ namespace BlueLedger.PL.Option.Admin
             {
                 Mail email = new Mail();
 
-                
-
                 email.SmtpServer = txt_ServerName.Text;
                 email.Port = Convert.ToInt16(txt_Port.Text);
                 email.EnableSsl = check_SSL.Checked;
@@ -464,35 +460,14 @@ namespace BlueLedger.PL.Option.Admin
                     else
                         email.Password = txt_Password.Text;
                 }
-                
+
                 email.From = txt_Username.Text;
                 email.To = txt_TestReceiver.Text;
                 email.Subject = string.Format("Test sending mail from Blueledgers ({0}) at {1}", LoginInfo.BuInfo.BuCode, DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"));
                 email.Body = string.Format("This is testing to send email from '{0} : {1}'.", LoginInfo.BuInfo.BuCode, LoginInfo.BuInfo.BuName);
+                email.Send();
 
-                try
-                {
-                    var error = email.Send();
-
-                    if (string.IsNullOrEmpty(error))
-                    {
-                        lbl_TestReceiver.Text = "Mail sent.";
-                        lbl_TestReceiver.ForeColor = System.Drawing.Color.DarkGreen;
-                    }
-                    else
-                    {
-
-                        lbl_TestReceiver.Text = error;
-                        lbl_TestReceiver.ForeColor = System.Drawing.Color.Red;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    lbl_TestReceiver.Text = ex.Message;
-                }
-
-                lbl_TestReceiver.ToolTip = lbl_TestReceiver.Text;
-
+                lbl_TestReceiver.Text = "Mail sent.";
             }
         }
 

@@ -24,7 +24,7 @@ public partial class Option_Admin_Security_User_UserProfile : BasePage //System.
     private static List<string> _buDel = new List<string>();
     private static string _mode = string.Empty;
     private static string _loginName = string.Empty;
-    //private static string _buCode;
+    private static string _buCode;
 
     private DataSet dsUserDepartment = null;
 
@@ -586,7 +586,7 @@ public partial class Option_Admin_Security_User_UserProfile : BasePage //System.
             if (ActiveUser.Checked)
             {
                 int activeUserLicense = _user.GetActiveUserLicense();
-                int activeUserCurrent = _user.GetActiveUser() ;
+                int activeUserCurrent = _user.GetActiveUser() + 1;
                 if (activeUserCurrent > activeUserLicense)
                 {
                     message = "Active users are exceed than license. This user will be inactived.";
@@ -1248,7 +1248,7 @@ public partial class Option_Admin_Security_User_UserProfile : BasePage //System.
         catch (Exception ex)
         {
             cnn.Close();
-            LogManager.Error(ex);
+            //LabelUserName.Text = string.Format("{0}", ex.Message);
             return null;
         }
         // End Modified.

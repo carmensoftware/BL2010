@@ -149,18 +149,6 @@
                     </td>
                     <td>
                         <dx:ASPxDateEdit ID="de_InvDate" runat="server" DisplayFormatString="dd/MM/yyyy" EditFormat="Custom" EditFormatString="dd/MM/yyyy" ShowShadow="False" Font-Names="Arial"
-                            Font-Size="8pt" ForeColor="#4D4D4D" Width="100px" AutoPostBack="true">
-                            <ValidationSettings Display="Dynamic">
-                                <ErrorFrameStyle>
-                                    <ErrorTextPaddings PaddingLeft="4px" />
-                                </ErrorFrameStyle>
-                            </ValidationSettings>
-                            <CalendarProperties>
-                                <HeaderStyle Spacing="1px" />
-                                <FooterStyle Spacing="17px" />
-                            </CalendarProperties>
-                        </dx:ASPxDateEdit>
-                        <%--<dx:ASPxDateEdit ID="de_InvDate" runat="server" DisplayFormatString="dd/MM/yyyy" EditFormat="Custom" EditFormatString="dd/MM/yyyy" ShowShadow="False" Font-Names="Arial"
                             Font-Size="8pt" ForeColor="#4D4D4D" Width="100px" AutoPostBack="true" OnDateChanged="ddl_Currency_SelectedIndexChanged">
                             <ValidationSettings Display="Dynamic">
                                 <ErrorFrameStyle>
@@ -171,7 +159,7 @@
                                 <HeaderStyle Spacing="1px" />
                                 <FooterStyle Spacing="17px" />
                             </CalendarProperties>
-                        </dx:ASPxDateEdit>--%>
+                        </dx:ASPxDateEdit>
                     </td>
                     <td>
                         <asp:Label ID="lbl_InvNo_Nm0" runat="server" Text="<%$ Resources:PC_REC_RecEdit, lbl_InvNo_Nm0 %>" SkinID="LBL_HD"></asp:Label>
@@ -477,8 +465,8 @@
                                     </td>
                                     <td width="8%" align="right" style="padding-right: 5px;">
                                         <%--50px--%>
-                                        <dx:ASPxSpinEdit ID="se_PriceEdit" runat="server" AutoPostBack="true" DisplayFormatString="#,###.#####" HorizontalAlign="Right" NullText="0" Number="0"
-                                            Width="90%" OnNumberChanged="se_PriceEdit_OnNumberChanged">
+                                        <dx:ASPxSpinEdit ID="se_PriceEdit" runat="server" AutoPostBack="true" DecimalPlaces="4" DisplayFormatString="#,###.####" HorizontalAlign="Right" NullText="0"
+                                            Number="0" Width="90%" OnNumberChanged="se_PriceEdit_OnNumberChanged" Height="17px">
                                             <SpinButtons ShowIncrementButtons="False">
                                             </SpinButtons>
                                         </dx:ASPxSpinEdit>
@@ -1210,7 +1198,7 @@
                 </ContentCollection>
             </dx:ASPxPopupControl>
             <dx:ASPxPopupControl ID="pop_ConfirmDelete" ClientInstanceName="pop_ConfirmDelete" runat="server" Width="300px" CloseAction="CloseButton" HeaderText="<%$ Resources:PC_REC_RecEdit, Confirm %>"
-                Modal="True" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowCloseButton="False" ShowPageScrollbarWhenModal="True">
+                Modal="True" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowCloseButton="False"  ShowPageScrollbarWhenModal="True">
                 <ContentStyle VerticalAlign="Top">
                 </ContentStyle>
                 <ContentCollection>
@@ -1235,7 +1223,7 @@
                 </ContentCollection>
             </dx:ASPxPopupControl>
             <dx:ASPxPopupControl ID="pop_WarningDelete" ClientInstanceName="pop_WarningDelete" runat="server" Width="300px" CloseAction="CloseButton" HeaderText="<%$ Resources:PC_REC_RecEdit, Warning %>"
-                Modal="True" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowCloseButton="False" ShowPageScrollbarWhenModal="True">
+                Modal="True" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowCloseButton="False"  ShowPageScrollbarWhenModal="True">
                 <ContentStyle VerticalAlign="Top">
                 </ContentStyle>
                 <ContentCollection>
@@ -1397,7 +1385,7 @@
                 </ContentCollection>
             </dx:ASPxPopupControl>
             <dx:ASPxPopupControl ID="pop_LocationList" runat="server" ClientInstanceName="pop_LocationList" CloseAction="CloseButton" Modal="True" HeaderText="<%$ Resources:PC_REC_RecEdit, StoreLocationList %>"
-                PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" Height="150px" Width="400px" ShowPageScrollbarWhenModal="True">
+                PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" Height="150px" Width="400px"  ShowPageScrollbarWhenModal="True">
                 <ContentStyle VerticalAlign="Top">
                 </ContentStyle>
                 <ContentCollection>

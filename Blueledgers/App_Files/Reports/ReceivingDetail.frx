@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Report ScriptLanguage="CSharp" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="06/16/2021 16:51:51" ReportInfo.CreatorVersion="2013.4.11.0">
+<Report ScriptLanguage="CSharp" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="12/08/2023 13:58:35" ReportInfo.CreatorVersion="2013.4.11.0">
   <ScriptText>using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -92,7 +92,7 @@ namespace FastReport
 }
 </ScriptText>
   <Dictionary>
-    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqRgePnmZIiKXD6OKoZg2zBuduta/lM8JEx1ssAceFcXg0X9Afspye+RQpkebWn78TTfz1WQQFKMYNognBA5WpKkekLWyJMetpfjVygaHJi/I=">
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlquQ+MGUuFmwCkhAb0ntbeLCVYpiuMguxDfPu6iCm/j+i8ArQZlDWCzzL3RQj5GMRB21B4R19mAB6a4NfoCZp7WL/cKiAd/DwtZuiOKievAS5oIR3yj1QLp7Z2W8UqjS2r5VsyVu0ewAFk/arAVOtToQ==">
       <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;">
         <Column Name="BuCode" DataType="System.String"/>
         <Column Name="Name" DataType="System.String"/>
@@ -143,8 +143,12 @@ namespace FastReport
         <Column Name="NetAmt" DataType="System.Decimal"/>
         <Column Name="TaxAmt" DataType="System.Decimal"/>
         <Column Name="TotalAmt" DataType="System.Decimal"/>
-        <CommandParameter Name="p_FDate" DataType="4" Expression="[p_FDate]" DefaultValue="10/10/13"/>
-        <CommandParameter Name="p_TDate" DataType="4" Expression="[p_TDate]" DefaultValue="10/10/13"/>
+        <Column Name="Price" DataType="System.Decimal"/>
+        <Column Name="AccCode" DataType="System.String"/>
+        <Column Name="AccDesc1" DataType="System.String"/>
+        <Column Name="AccDesc2" DataType="System.String"/>
+        <CommandParameter Name="p_FDate" DataType="4" Expression="[p_FDate]" DefaultValue="1/11/2023"/>
+        <CommandParameter Name="p_TDate" DataType="4" Expression="[p_TDate]" DefaultValue="30/11/2023"/>
         <CommandParameter Name="p_Fcat" DataType="22" Expression="[p_Fcat]"/>
         <CommandParameter Name="p_Tcat" DataType="22" Expression="[p_Tcat]"/>
         <CommandParameter Name="p_Fproductcode" DataType="12" Expression="[p_Fproductcode]"/>
@@ -263,42 +267,48 @@ namespace FastReport
         <TextObject Name="Text58" Left="233.04" Top="26.4" Width="102.87" Height="18.9" CanBreak="false" Text="Invoice. Date " Font="Tahoma, 8pt, style=Bold"/>
         <TextObject Name="Text59" Left="336.55" Top="26.4" Width="174.88" Height="18.9" CanBreak="false" Text="[rpd.InvoiceDate]" Format="Date" Format.Format="d" Font="Tahoma, 8pt"/>
         <ChildBand Name="Child1" Top="243.21" Width="718.2" Height="22.68" Border.Lines="Bottom" Border.Style="Dash">
-          <TextObject Name="Text21" Top="3.78" Width="75.6" Height="18.9" Text="Product" Font="Tahoma, 8pt, style=Bold"/>
-          <TextObject Name="Text22" Left="226.8" Top="3.78" Width="56.7" Height="18.9" Text="Unit" Font="Tahoma, 8pt, style=Bold"/>
-          <TextObject Name="Text23" Left="283.5" Top="3.78" Width="47.25" Height="18.9" Text="Ord." HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
-          <TextObject Name="Text24" Left="330.75" Top="3.78" Width="47.25" Height="18.9" Text="Rcv." HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
-          <TextObject Name="Text25" Left="378" Top="3.78" Width="37.8" Height="18.9" Text="FOC" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
-          <TextObject Name="Text26" Left="415.8" Top="3.78" Width="75.6" Height="18.9" Text="Discount" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
+          <TextObject Name="Text21" Top="3.78" Width="66.15" Height="18.9" Text="Product" Font="Tahoma, 8pt, style=Bold"/>
+          <TextObject Name="Text22" Left="189" Top="3.78" Width="47.25" Height="18.9" Text="Unit" Font="Tahoma, 8pt, style=Bold"/>
+          <TextObject Name="Text23" Left="236.25" Top="3.78" Width="47.25" Height="18.9" Text="Ord." HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
+          <TextObject Name="Text24" Left="283.5" Top="3.78" Width="47.25" Height="18.9" Text="Rcv." HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
+          <TextObject Name="Text25" Left="330.75" Top="3.78" Width="37.8" Height="18.9" Text="FOC" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
+          <TextObject Name="Text26" Left="434.7" Top="3.78" Width="56.7" Height="18.9" Text="Discount" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
           <TextObject Name="Text27" Left="491.4" Top="3.78" Width="75.6" Height="18.9" Text="Net&#13;&#10;" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
           <TextObject Name="Text28" Left="567" Top="3.78" Width="56.7" Height="18.9" Text="Tax" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
           <TextObject Name="Text29" Left="623.7" Top="3.78" Width="90.65" Height="18.9" Text="Total" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
+          <TextObject Name="Text60" Left="368.55" Top="3.78" Width="66.15" Height="18.9" Text="Price/Unit" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
         </ChildBand>
         <GroupHeaderBand Name="GroupHeader4" Top="269.89" Width="718.2" Height="22.68" Condition="[rpd.LocationCode]" SortOrder="None">
           <TextObject Name="Text56" Left="77.49" Top="3.78" Width="546.21" Height="18.9" Text="[rpd.LocationCode] [rpd.LocationName]" Font="Tahoma, 8pt, style=Bold"/>
           <TextObject Name="Text20" Top="3.78" Width="75.6" Height="18.9" Text="Location :" Font="Tahoma, 8pt, style=Bold"/>
           <DataBand Name="Data1" Top="296.57" Width="718.2" Height="28.35" Border.Lines="Bottom" Border.Style="Dot" CanGrow="true" BeforePrintEvent="Data1_BeforePrint" CanBreak="true" DataSource="Table">
-            <TextObject Name="Text30" Top="9.45" Width="75.6" Height="18.9" CanBreak="false" Text="[rpd.ProductCode]" WordWrap="false" Font="Tahoma, 8pt"/>
-            <TextObject Name="Text31" Left="226.8" Top="9.45" Width="56.7" Height="18.9" CanBreak="false" Text="[rpd.UnitCode]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" WordWrap="false" Font="Tahoma, 8pt"/>
-            <TextObject Name="Text32" Left="283.5" Top="9.45" Width="47.25" Height="18.9" CanBreak="false" Text="[rpd.OrderQty]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt" Trimming="EllipsisCharacter"/>
-            <TextObject Name="Text33" Left="330.75" Top="9.45" Width="47.25" Height="18.9" CanBreak="false" Text="[rpd.RecQty]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt" Trimming="EllipsisCharacter"/>
-            <TextObject Name="Text34" Left="378" Top="9.45" Width="37.8" Height="18.9" CanBreak="false" Text="[rpd.FOCQty]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt" Trimming="EllipsisCharacter"/>
+            <TextObject Name="Text30" Top="9.45" Width="66.15" Height="18.9" CanBreak="false" Text="[rpd.ProductCode]" WordWrap="false" Font="Tahoma, 8pt"/>
+            <TextObject Name="Text31" Left="189" Top="9.45" Width="47.25" Height="18.9" CanBreak="false" Text="[rpd.UnitCode]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" WordWrap="false" Font="Tahoma, 8pt"/>
+            <TextObject Name="Text32" Left="236.25" Top="9.45" Width="47.25" Height="18.9" CanBreak="false" Text="[rpd.OrderQty]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt" Trimming="EllipsisCharacter"/>
+            <TextObject Name="Text33" Left="283.5" Top="9.45" Width="47.25" Height="18.9" CanBreak="false" Text="[rpd.RecQty]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt" Trimming="EllipsisCharacter"/>
+            <TextObject Name="Text34" Left="330.75" Top="9.45" Width="37.8" Height="18.9" CanBreak="false" Text="[rpd.FOCQty]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt" Trimming="EllipsisCharacter"/>
             <TextObject Name="Text36" Left="491.4" Top="9.45" Width="75.6" Height="18.9" CanBreak="false" Text="[rpd.NetAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt" Trimming="EllipsisCharacter"/>
             <TextObject Name="Text37" Left="567" Top="9.45" Width="56.7" Height="18.9" CanBreak="false" Text="[rpd.TaxAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt" Trimming="EllipsisCharacter"/>
             <TextObject Name="Text39" Left="623.7" Top="9.45" Width="93.68" Height="18.9" CanBreak="false" Text="[rpd.TotalAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt" Trimming="EllipsisCharacter"/>
-            <TextObject Name="Text35" Left="415.8" Top="9.45" Width="75.6" Height="18.9" CanBreak="false" Text="[rpd.DiccountAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt" Trimming="EllipsisCharacter"/>
-            <TextObject Name="Text57" Left="75.6" Top="9.45" Width="151.2" Height="18.9" CanGrow="true" CanBreak="false" Text="[rpd.ProductDesc2] - [rpd.ProductDesc1]" Font="Tahoma, 8pt"/>
+            <TextObject Name="Text35" Left="434.7" Top="9.45" Width="56.7" Height="18.9" CanBreak="false" Text="[rpd.DiccountAmt]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt" Trimming="EllipsisCharacter"/>
+            <TextObject Name="Text57" Left="66.15" Top="9.45" Width="122.85" Height="18.9" CanGrow="true" CanBreak="false" Text="[rpd.ProductDesc2] - [rpd.ProductDesc1]" Font="Tahoma, 8pt"/>
+            <TextObject Name="Text61" Left="368.55" Top="9.45" Width="66.15" Height="18.9" CanBreak="false" Text="[rpd.Price]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt" Trimming="EllipsisCharacter"/>
+            <ChildBand Name="Child4" Top="328.92" Width="718.2" Height="18.9" Visible="false" CanGrow="true">
+              <TextObject Name="Text5" Left="66.15" Width="122.85" Height="18.9" Text="[rpd.AccCode]" Font="Tahoma, 8pt"/>
+              <TextObject Name="Text62" Left="189" Width="302.4" Height="18.9" CanGrow="true" Text="[rpd.AccCode]" WordWrap="false" Font="Tahoma, 8pt"/>
+            </ChildBand>
           </DataBand>
         </GroupHeaderBand>
-        <GroupFooterBand Name="GroupFooter2" Top="328.92" Width="718.2" Height="37.8">
+        <GroupFooterBand Name="GroupFooter2" Top="351.82" Width="718.2" Height="37.8">
           <TextObject Name="Text41" Top="9.45" Width="334.7" Height="18.9" CanBreak="false" Text="Total #[rpd.RecNo] / Invoice No: [rpd.InvoiceNo]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
           <TextObject Name="Text43" Left="481.95" Top="9.45" Width="85.05" Height="18.9" CanBreak="false" Text="[suminnet]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Tahoma, 7pt, style=Bold"/>
           <TextObject Name="Text44" Left="567" Top="9.45" Width="66.15" Height="18.9" CanBreak="false" Text="[sumintax]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Tahoma, 7pt, style=Bold"/>
           <TextObject Name="Text45" Left="633.15" Top="9.45" Width="85.05" Height="18.9" CanBreak="false" Text="[sumintotal]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Tahoma, 7pt, style=Bold"/>
           <TextObject Name="Text42" Left="397" Top="9.45" Width="84.95" Height="18.9" CanBreak="false" Text="[sumindis]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Tahoma, 7pt, style=Bold"/>
-          <ChildBand Name="Child2" Top="370.72" Width="718.2" Height="9.45"/>
+          <ChildBand Name="Child2" Top="393.62" Width="718.2" Height="9.45"/>
         </GroupFooterBand>
       </GroupHeaderBand>
-      <GroupFooterBand Name="GroupFooter1" Top="384.17" Width="718.2" Height="28.35" Border.Lines="Bottom">
+      <GroupFooterBand Name="GroupFooter1" Top="407.07" Width="718.2" Height="28.35" Border.Lines="Bottom">
         <TextObject Name="Text46" Top="9.45" Width="202.9" Height="18.9" CanBreak="false" Text="Total - [rpd.DocStatus]" Font="Tahoma, 8pt, style=Bold"/>
         <TextObject Name="Text38" Left="481.95" Top="9.45" Width="85.05" Height="18.9" CanBreak="false" Text="[sumdocnet]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Tahoma, 7pt, style=Bold"/>
         <TextObject Name="Text48" Left="567" Top="9.45" Width="66.15" Height="18.9" CanBreak="false" Text="[sumdoctax]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Tahoma, 7pt, style=Bold"/>
@@ -306,14 +316,14 @@ namespace FastReport
         <TextObject Name="Text47" Left="396.9" Top="9.45" Width="85.05" Height="18.9" CanBreak="false" Text="[sumdocdis]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Tahoma, 7pt, style=Bold"/>
       </GroupFooterBand>
     </GroupHeaderBand>
-    <ReportSummaryBand Name="ReportSummary1" Top="416.52" Width="718.2" Height="28.36" Border.Lines="All" Fill.Color="WhiteSmoke">
+    <ReportSummaryBand Name="ReportSummary1" Top="439.42" Width="718.2" Height="28.36" Border.Lines="All" Fill.Color="WhiteSmoke">
       <TextObject Name="Text50" Top="9.46" Width="201.7" Height="18.9" Text="Summary: Total" Font="Tahoma, 8pt, style=Bold"/>
       <TextObject Name="Text52" Left="481.95" Top="9.45" Width="85.05" Height="18.9" Text="[sumnet]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Tahoma, 7pt, style=Bold"/>
       <TextObject Name="Text53" Left="567" Top="9.45" Width="66.15" Height="18.9" Text="[sumtax]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Tahoma, 7pt, style=Bold"/>
       <TextObject Name="Text54" Left="633.15" Top="9.45" Width="85.05" Height="18.9" Text="[sumtotal]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Tahoma, 7pt, style=Bold"/>
       <TextObject Name="Text51" Left="396.9" Top="9.45" Width="85.05" Height="18.9" Text="[sumdis]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Tahoma, 7pt, style=Bold"/>
     </ReportSummaryBand>
-    <PageFooterBand Name="PageFooter1" Top="448.88" Width="718.2" Height="37.8">
+    <PageFooterBand Name="PageFooter1" Top="471.78" Width="718.2" Height="37.8">
       <TextObject Name="Text1" Top="9.45" Width="160.65" Height="18.9" Text="Print on [Date]" Font="Arial, 8pt" TextFill.Color="Gray"/>
       <TextObject Name="Text2" Left="510.3" Top="9.45" Width="198.45" Height="18.9" Text="Page [Page#] of [TotalPages#]" HorzAlign="Right" Font="Arial, 8pt" TextFill.Color="Gray"/>
     </PageFooterBand>

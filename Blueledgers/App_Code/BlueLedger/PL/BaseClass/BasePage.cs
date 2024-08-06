@@ -602,37 +602,6 @@ namespace BlueLedger.PL.BaseClass
             return ds;
         }
 
-        #region "Format"
-
-
-        public string FormatAmt(decimal value)
-        {
-            return string.Format("{0:N" + DefaultAmtDigit.ToString() + "}", value);
-        }
-
-        public string FormatQty(decimal value)
-        {
-            return string.Format("{0:N" + DefaultQtyDigit.ToString() + "}", value);
-        }
-
-        //public string StringOrZero(object value)
-        //{
-        //    return value == null || value == DBNull.Value ? "0.00" : StringOrZero(value.ToString());
-        //}
-
-        //public decimal DecimalOrZero(object value)
-        //{
-        //    return Convert.ToDecimal(StringOrZero(value));
-        //}
-
-        public decimal RoundNumber(object value, int digits)
-        {
-            return Math.Round(Convert.ToDecimal(value), digits, MidpointRounding.AwayFromZero);
-        }
-
-
-        #endregion
-
     }
 
 

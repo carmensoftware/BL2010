@@ -1,0 +1,6 @@
+﻿SKU#,Description,Local Description,Unit,Qty From,QtyTo,Quote Price,Foc,Discount Percent,Discount Amount,TaxType,TaxRate,Vendor SKU#,Comment
+20000001,COKE CAN 325 ML.(1x24)/(358579)==,โค้ก(กระป๋อง) 325มล.(1x24)/(358579),TRAY,,,230,,,,A,7,,
+'20000002,COKE LIGHT CAN 325 ML.(1x24)/(100512),โค้กไลท์(กระป๋อง) 325มล.(1x24)/(100512),TRAY,,,230,,,,A,7,,
+'20000003,COKE PLASTIC BTL 1.25 L. (1x12)/(358891),โค้ก(ขวด) 1.25ล.(1x12)/(358891),PACK,,,350,,,,A,7,,
+'20000004,ORANGE FANTA CAN 325 ML.(1x24)/(358657),น้ำส้มแฟนต้า(กระป๋อง) 325มล.(1x24)/(358657),TRAY,,,230,,,,A,7,,
+'20000005,ORANGE FANTA PLASTIC BTL 1.25L.(1x12)/(359151),น้ำส้มแฟนต้า(ขวด) 1.25ล.(1x12)/(359151),PACK,,,350,,,,A,7,,

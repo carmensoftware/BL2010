@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Report ScriptLanguage="CSharp" UseFileCache="true" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="06/14/2021 14:04:50" ReportInfo.CreatorVersion="2013.4.11.0">
+<Report ScriptLanguage="CSharp" UseFileCache="true" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="02/28/2024 16:11:44" ReportInfo.CreatorVersion="2013.4.11.0">
   <ScriptText>using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -99,7 +99,7 @@ namespace FastReport
 }
 </ScriptText>
   <Dictionary>
-    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqCvlJxRoS3oNe5N3zvkC4LuQMsx6CjlYnYWKeH8gmOi1vWbIAZrKBMJe16HXNtrcjQBJ0nB5CdAWSQCFglNzb71cDSNaRFjvc21efw1xNpvc=">
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlquQ+MGUuFmwCkhAb0ntbeLCVYpiuMguxDfPu6iCm/j+i8ArQZlDWCzzL3RQj5GMRB21B4R19mAB6a4NfoCZp7WL/cKiAd/DwtZuiOKievAS5oIR3yj1QLp7Z2W8UqjS2rOu1anVc9BeBWBNfpZlJGdQ==">
       <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;">
         <Column Name="BuCode" DataType="System.String"/>
         <Column Name="Name" DataType="System.String"/>
@@ -118,7 +118,7 @@ namespace FastReport
         <Column Name="BackOfficeModel" DataType="System.String"/>
         <Column Name="BuLogo" DataType="System.Byte[]" BindableControl="Picture"/>
       </TableDataSource>
-      <TableDataSource Name="Table" Alias="rpd" DataType="System.Int32" Enabled="true" SelectCommand="DECLARE&#13;&#10;	@FDATE DATE = @p_FDate,&#13;&#10;	@TDATE DATE = @p_TDate,&#13;&#10;	@FCat NVARCHAR(20) = @p_FCat,&#13;&#10;	@TCat NVARCHAR(20) = @p_TCat,&#13;&#10;	@FSCat nvarchar(20) = @p_FSCat,&#13;&#10;	@TSCat nvarchar(20) = @p_TSCat,&#13;&#10;	@FIG nvarchar(20) = @p_FIG,&#13;&#10;	@TIG nvarchar(20) = @p_TIG,&#13;&#10;	@FProduct  NVARCHAR(20)=@p_FProduct,&#13;&#10;	@TProduct  NVARCHAR(20)=@p_TProduct,&#13;&#10;	@FLocation NVARCHAR(20)=@p_FLocation,&#13;&#10;	@TLocation NVARCHAR(20)=@p_TLocation,&#13;&#10;	@Status NVARCHAR(20)=@p_Status&#13;&#10;&#13;&#10;&#13;&#10;IF ISNULL(@FDATE, '') = ''&#13;&#10;	SET @FDATE = (SELECT MIN (CreateDate) FROM [IN].StockIn)&#13;&#10;&#13;&#10;IF ISNULL(@TDATE, '') = ''&#13;&#10;	SET @TDATE = (SELECT MAX (CreateDate) FROM [IN].StockIn)&#13;&#10;&#13;&#10;IF ISNULL(@FCAT, '') = ''&#13;&#10;	SET @FCAT = (SELECT	MIN (CategoryCode) FROM [IN].vProdCatList)&#13;&#10;&#13;&#10;IF ISNULL(@TCAT, '') = ''&#13;&#10;	SET @TCAT = (SELECT	MAX (CategoryCode) FROM	[IN].vProdCatList)&#13;&#10;&#13;&#10;IF ISNULL(@FSCAT, '') = ''&#13;&#10;	SET @FSCAT = (SELECT	MIN (SubCategoryCode) FROM [IN].vProdCatList)&#13;&#10;&#13;&#10;IF ISNULL(@TSCAT, '') = ''&#13;&#10;	SET @TSCAT = (SELECT	MAX (SubCategoryCode) FROM	[IN].vProdCatList)&#13;&#10;&#13;&#10;IF ISNULL(@FIG, '') = ''&#13;&#10;	SET @FIG = (SELECT	MIN (ItemGroupCode) FROM [IN].vProdCatList)&#13;&#10;&#13;&#10;IF ISNULL(@TIG, '') = ''&#13;&#10;	SET @TIG = (SELECT	MAX (ItemGroupCode) FROM [IN].vProdCatList)&#13;&#10;&#13;&#10;IF ISNULL(@FProduct, '') = ''&#13;&#10;	SET @FProduct = (SELECT	MIN (SKU) FROM [IN].StockIn si, [IN].StockInDt sidt WHERE si.RefId = sidt.Id AND CAST(CreateDate AS DATE) &lt;= @TDATE)&#13;&#10;	&#13;&#10;IF ISNULL(@TProduct, '')  = ''&#13;&#10;	SET @TProduct = (SELECT	MAX (SKU) FROM [IN].StockIn si, [IN].StockInDt sidt WHERE si.RefId = sidt.Id AND CAST(CreateDate AS DATE) &lt;= @TDATE)&#13;&#10;&#13;&#10;&#13;&#10;IF ISNULL(@FLOCATION, '') = ''&#13;&#10;	SET @FLOCATION = (SELECT MIN (StoreId)	FROM [IN].StockIn si, [IN].StockInDt sidt WHERE si.RefId = sidt.Id AND CAST(CreateDate AS DATE) &lt;= @TDATE)&#13;&#10;&#13;&#10;IF ISNULL(@TLOCATION, '') = ''&#13;&#10;	SET @TLOCATION = (SELECT MAX (StoreId) FROM [IN].StockIn si, [IN].StockInDt sidt WHERE si.RefId = sidt.Id AND CAST(CreateDate AS DATE) &lt;= @TDATE)&#13;&#10;&#13;&#10;-- Filter product by Category, Sub-Category and Item-Group&#13;&#10;SELECT &#13;&#10;	@FProduct = MIN(ProductCode),&#13;&#10;	@TProduct = MAX(ProductCode)&#13;&#10;FROM &#13;&#10;	[IN].vProdCatList pcl&#13;&#10;	JOIN [IN].Product p &#13;&#10;		ON p.ProductCate = pcl.ItemGroupCode&#13;&#10;WHERE&#13;&#10;	CategoryCode BETWEEN @FCat AND @TCat&#13;&#10;	AND SubCategoryCode BETWEEN @FSCat AND @TSCat&#13;&#10;	AND ItemGroupCode BETWEEN @FIG AND @TIG&#13;&#10;	AND p.ProductCode BETWEEN @FPRODUCT AND @TPRODUCT&#13;&#10;&#13;&#10;&#13;&#10;SELECT &#13;&#10;	so.*,&#13;&#10;	sodt.Id,&#13;&#10;	sodt.StoreId,&#13;&#10;	sodt.SKU,&#13;&#10;	sodt.Qty,&#13;&#10;	sodt.Unit,&#13;&#10;	sodt.Qty,&#13;&#10;	sodt.Comment,&#13;&#10;	sodt.DebitAcc,&#13;&#10;	sodt.CreditAcc,&#13;&#10;	CASE &#13;&#10;		WHEN so.[Status] = 'Saved' THEN (SELECT TOP(1) Amount FROM [IN].Inventory WHERE ProductCode = sodt.SKU ORDER BY CommittedDate DESC)&#13;&#10;		ELSE i.Amount &#13;&#10;	END as UnitCost,&#13;&#10;	l.LocationCode,&#13;&#10;	l.LocationName,&#13;&#10;	p.ProductCode,&#13;&#10;	p.ProductDesc1,&#13;&#10;	p.ProductDesc2,&#13;&#10;	adj.AdjCode,&#13;&#10;	adj.AdjName&#13;&#10;&#13;&#10;FROM &#13;&#10;	[IN].StockOut so&#13;&#10;	JOIN [IN].StockOutDt sodt &#13;&#10;		ON sodt.RefId = so.RefId&#13;&#10;	LEFT JOIN [IN].StoreLocation l&#13;&#10;		ON l.LocationCode = sodt.StoreId&#13;&#10;	LEFT JOIN [IN].Product p&#13;&#10;		ON p.ProductCode = sodt.SKU&#13;&#10;	LEFT JOIN [IN].AdjType adj&#13;&#10;		ON AdjId = so.[Type]&#13;&#10;	LEFT JOIN [IN].Inventory i&#13;&#10;		ON i.HdrNo = sodt.RefId AND i.DtNo = sodt.Id&#13;&#10;WHERE&#13;&#10;	CAST(so.CreateDate AS DATE) BETWEEN @FDate AND @TDate&#13;&#10;	AND sodt.SKU BETWEEN @FProduct AND @TProduct&#13;&#10;	AND sodt.StoreId BETWEEN @FLocation AND @TLocation&#13;&#10;	AND so.[Status] =  (CASE WHEN ISNULL(@Status, '') = '' THEN so.[Status]	ELSE @Status END)&#13;&#10;ORDER BY&#13;&#10;	so.RefId,&#13;&#10;	sodt.Id">
+      <TableDataSource Name="Table" Alias="rpd" DataType="System.Int32" Enabled="true" SelectCommand="DECLARE&#13;&#10;	@FDATE DATE = @p_FDate,&#13;&#10;	@TDATE DATE = @p_TDate,&#13;&#10;	@FCat NVARCHAR(20) = @p_FCat,&#13;&#10;	@TCat NVARCHAR(20) = @p_TCat,&#13;&#10;	@FSCat nvarchar(20) = @p_FSCat,&#13;&#10;	@TSCat nvarchar(20) = @p_TSCat,&#13;&#10;	@FIG nvarchar(20) = @p_FIG,&#13;&#10;	@TIG nvarchar(20) = @p_TIG,&#13;&#10;	@FProduct  NVARCHAR(20)=@p_FProduct,&#13;&#10;	@TProduct  NVARCHAR(20)=@p_TProduct,&#13;&#10;	@FLocation NVARCHAR(20)=@p_FLocation,&#13;&#10;	@TLocation NVARCHAR(20)=@p_TLocation,&#13;&#10;	@Status NVARCHAR(20)=@p_Status&#13;&#10;&#13;&#10;&#13;&#10;IF ISNULL(@FDATE, '') = ''&#13;&#10;	SET @FDATE = (SELECT MIN (CreateDate) FROM [IN].StockIn)&#13;&#10;&#13;&#10;IF ISNULL(@TDATE, '') = ''&#13;&#10;	SET @TDATE = (SELECT MAX (CreateDate) FROM [IN].StockIn)&#13;&#10;&#13;&#10;IF ISNULL(@FCAT, '') = ''&#13;&#10;	SET @FCAT = (SELECT	MIN (CategoryCode) FROM [IN].vProdCatList)&#13;&#10;&#13;&#10;IF ISNULL(@TCAT, '') = ''&#13;&#10;	SET @TCAT = (SELECT	MAX (CategoryCode) FROM	[IN].vProdCatList)&#13;&#10;&#13;&#10;IF ISNULL(@FSCAT, '') = ''&#13;&#10;	SET @FSCAT = (SELECT	MIN (SubCategoryCode) FROM [IN].vProdCatList)&#13;&#10;&#13;&#10;IF ISNULL(@TSCAT, '') = ''&#13;&#10;	SET @TSCAT = (SELECT	MAX (SubCategoryCode) FROM	[IN].vProdCatList)&#13;&#10;&#13;&#10;IF ISNULL(@FIG, '') = ''&#13;&#10;	SET @FIG = (SELECT	MIN (ItemGroupCode) FROM [IN].vProdCatList)&#13;&#10;&#13;&#10;IF ISNULL(@TIG, '') = ''&#13;&#10;	SET @TIG = (SELECT	MAX (ItemGroupCode) FROM [IN].vProdCatList)&#13;&#10;&#13;&#10;IF ISNULL(@FProduct, '') = ''&#13;&#10;	SET @FProduct = (SELECT MIN(SKU) FROM [IN].StockOutDt)&#13;&#10;	&#13;&#10;IF ISNULL(@TProduct, '')  = ''&#13;&#10;	SET @TProduct = (SELECT MAX(SKU) FROM [IN].StockOutDt)&#13;&#10;&#13;&#10;IF ISNULL(@FLOCATION, '') = ''&#13;&#10;	SET @FLOCATION = (SELECT MIN(StoreId) FROM [IN].StockOutDt)&#13;&#10;&#13;&#10;IF ISNULL(@TLOCATION, '') = ''&#13;&#10;	SET @TLOCATION = (SELECT MAX(StoreId) FROM [IN].StockOutDt)&#13;&#10;&#13;&#10;-- ------------------------------------------------------------------&#13;&#10;;WITH&#13;&#10;p AS(&#13;&#10;	SELECT &#13;&#10;		ProductCode&#13;&#10;	FROM &#13;&#10;		[IN].vProdCatList pcl&#13;&#10;		JOIN [IN].Product p &#13;&#10;			ON p.ProductCate = pcl.ItemGroupCode&#13;&#10;	WHERE&#13;&#10;		CategoryCode BETWEEN @FCat AND @TCat&#13;&#10;		AND SubCategoryCode BETWEEN @FSCat AND @TSCat&#13;&#10;		AND ItemGroupCode BETWEEN @FIG AND @TIG&#13;&#10;		AND p.ProductCode BETWEEN @FPRODUCT AND @TPRODUCT&#13;&#10;),&#13;&#10;i AS(&#13;&#10;	SELECT&#13;&#10;		sodt.RefId,&#13;&#10;		sodt.Id,&#13;&#10;		ISNULL(i.Amount,0) as UnitCost,&#13;&#10;		SUM(ISNULL(i.[OUT], Qty)) as Qty,&#13;&#10;		MIN(i.InvNo) as InvNo&#13;&#10;	FROM&#13;&#10;		[IN].StockOut so&#13;&#10;		JOIN [IN].StockOutDt sodt&#13;&#10;			ON so.RefId=sodt.RefId&#13;&#10;		LEFT JOIN [IN].Inventory i&#13;&#10;			ON i.HdrNo=so.RefId AND i.DtNo=sodt.Id		&#13;&#10;	WHERE&#13;&#10;		CAST(so.CreateDate AS DATE) BETWEEN @FDATE AND @TDATE&#13;&#10;		AND StoreId BETWEEN @FLOCATION AND @TLOCATION&#13;&#10;		AND SKU IN (SELECT ProductCode FROM p)&#13;&#10;		AND [Status] = CASE WHEN @Status='' THEN [Status] ELSE @Status END&#13;&#10;	GROUP BY&#13;&#10;		sodt.RefId,&#13;&#10;		sodt.Id,&#13;&#10;		i.Amount&#13;&#10;),&#13;&#10;so AS(&#13;&#10;	SELECT&#13;&#10;		so.RefId,&#13;&#10;		so.[Type],&#13;&#10;		so.[Status],&#13;&#10;		so.[Description],&#13;&#10;		so.[CommitDate],&#13;&#10;		so.CreateDate,&#13;&#10;		so.CreateBy,&#13;&#10;		so.UpdateDate,&#13;&#10;		so.UpdateBy,&#13;&#10;&#13;&#10;		sodt.Id,&#13;&#10;		sodt.StoreId,&#13;&#10;		sodt.SKU,&#13;&#10;		sodt.Unit,&#13;&#10;		i.Qty,&#13;&#10;		i.UnitCost,&#13;&#10;		i.InvNo,&#13;&#10;&#13;&#10;&#13;&#10;		sodt.Comment&#13;&#10;&#13;&#10;	FROM&#13;&#10;		[IN].StockOut so&#13;&#10;		JOIN [IN].StockOutDt sodt&#13;&#10;			ON so.RefId=sodt.RefId&#13;&#10;		JOIN i &#13;&#10;			ON i.Id = sodt.Id&#13;&#10;)&#13;&#10;SELECT&#13;&#10;	RefId,&#13;&#10;	so.[Type],&#13;&#10;	[Status],&#13;&#10;	so.[Description],&#13;&#10;	CommitDate,&#13;&#10;	CreateBy,&#13;&#10;	CreateDate,&#13;&#10;	UpdateBy,&#13;&#10;	UpdateDate,&#13;&#10;	Id,&#13;&#10;	StoreId,&#13;&#10;	SKU,&#13;&#10;	Unit,&#13;&#10;	Comment,&#13;&#10;	Qty,&#13;&#10;	UnitCost,&#13;&#10;	InvNo,&#13;&#10;&#13;&#10;	LocationCode,&#13;&#10;	LocationName,&#13;&#10;	ProductCode,&#13;&#10;	ProductDesc1,&#13;&#10;	ProductDesc2,&#13;&#10;	adj.AdjCode,&#13;&#10;	adj.AdjName&#13;&#10;	&#13;&#10;FROM&#13;&#10;	so&#13;&#10;	LEFT JOIN [IN].AdjType adj&#13;&#10;		ON adj.AdjId=so.[Type]&#13;&#10;	LEFT JOIN [IN].StoreLocation l&#13;&#10;		ON l.LocationCode=so.StoreId&#13;&#10;	LEFT JOIN [IN].Product p&#13;&#10;		ON p.ProductCode=so.SKU&#13;&#10;&#13;&#10;ORDER BY&#13;&#10;	RefId,&#13;&#10;	Id,&#13;&#10;	InvNo">
         <Column Name="RefId" DataType="System.String"/>
         <Column Name="Type" DataType="System.String"/>
         <Column Name="Status" DataType="System.String"/>
@@ -134,17 +134,15 @@ namespace FastReport
         <Column Name="Unit" DataType="System.String"/>
         <Column Name="Qty" DataType="System.Decimal"/>
         <Column Name="UnitCost" DataType="System.Decimal"/>
-        <Column Name="DebitAcc" DataType="System.String"/>
-        <Column Name="CreditAcc" DataType="System.String"/>
         <Column Name="Comment" DataType="System.String"/>
         <Column Name="LocationCode" DataType="System.String"/>
         <Column Name="LocationName" DataType="System.String"/>
         <Column Name="ProductCode" DataType="System.String"/>
         <Column Name="ProductDesc1" DataType="System.String"/>
         <Column Name="ProductDesc2" DataType="System.String"/>
+        <Column Name="InvNo" DataType="System.Int32"/>
         <Column Name="AdjCode" DataType="System.String"/>
         <Column Name="AdjName" DataType="System.String"/>
-        <Column Name="Qty1" DataType="System.Decimal"/>
         <CommandParameter Name="p_FDate" DataType="4" Expression="[p_FDate]" DefaultValue="10/10/13"/>
         <CommandParameter Name="p_TDate" DataType="4" Expression="[p_TDate]" DefaultValue="10/10/19"/>
         <CommandParameter Name="p_FCat" DataType="12" Expression="[p_FCat]"/>
@@ -209,60 +207,6 @@ namespace FastReport
     <Total Name="Total_Qty" Expression="[rpd.Qty]" Evaluator="Data1" PrintOn="GroupFooter1"/>
     <Total Name="Total_Amount" Expression="[rpd.UnitCost] * [rpd.Qty]" Evaluator="Data1" PrintOn="GroupFooter1"/>
   </Dictionary>
-  <ReportPage Name="Page1" RawPaperSize="9" FirstPageSource="15" OtherPagesSource="15">
-    <PageHeaderBand Name="PageHeader1" Width="718.2" Height="117.28" Border.Lines="Bottom" Border.Style="Dash" Guides="18.9">
-      <PictureObject Name="Picture1" Width="151.2" Height="75.6" DataColumn="ADMIN_Bu.BuLogo"/>
-      <TextObject Name="Text3" Left="160.65" Top="1.89" Width="302.4" Height="28.35" Text="Stock Out Detail" HorzAlign="Center" Font="Tahoma, 14pt, style=Bold"/>
-      <TextObject Name="Text4" Top="85.05" Width="151.2" Height="18.9" CanGrow="true" Text="[ADMIN_Bu.Name]" AutoWidth="true" HorzAlign="Center" WordWrap="false" Font="Tahoma, 9pt"/>
-      <TextObject Name="Text55" Left="415.81" Top="37" Width="302.4" Height="80.28" Text="Category From [p_FCat] To [p_TCat]&#13;&#10;Sub-Category From [p_FSCat]  To [p_TSCat]&#13;&#10;Product From [p_FProduct] To [p_TProduct]&#13;&#10;Location From  [p_FLocation] To [p_TLocation]&#13;&#10;Status [ComboBox13.Text]" HorzAlign="Right" Font="Tahoma, 8pt"/>
-      <TextObject Name="Text113" Left="160.65" Top="37.8" Width="302.4" Height="18.9" Text="Date From [TextDate1.Text]  To [TextDate2.Text]" HorzAlign="Center" Font="Tahoma, 10pt, style=Bold"/>
-      <ChildBand Name="Child2" Top="121.28" Width="718.2" Height="3.78"/>
-    </PageHeaderBand>
-    <GroupHeaderBand Name="GroupHeader2" Top="129.06" Width="718.2" Height="60.48" Fill.Color="Gainsboro" CanGrow="true" KeepWithData="true" RepeatOnEveryPage="true" Condition="[rpd.RefId]">
-      <TextObject Name="Text10" Top="22.68" Width="94.5" Height="18.9" Text="Type" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
-      <TextObject Name="Text17" Left="94.5" Top="22.68" Width="113.4" Height="18.9" Text="[rpd.AdjName]" WordWrap="false" Font="Tahoma, 8pt"/>
-      <TextObject Name="Text18" Left="94.5" Top="3.78" Width="113.4" Height="18.9" Text="[rpd.RefId]" WordWrap="false" Font="Tahoma, 8pt"/>
-      <TextObject Name="Text11" Top="3.78" Width="94.5" Height="18.9" Text="Ref#" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
-      <TextObject Name="Text59" Left="538.65" Top="3.78" Width="94.5" Height="18.9" Text="Document Date" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
-      <TextObject Name="Text60" Left="633.15" Top="3.78" Width="85.05" Height="18.9" Text="[rpd.CreateDate]" Format="Date" Format.Format="d" WordWrap="false" Font="Tahoma, 8pt"/>
-      <TextObject Name="Text61" Left="538.65" Top="22.68" Width="94.5" Height="18.9" Text="Commit Date" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
-      <TextObject Name="Text62" Left="633.15" Top="22.68" Width="85.05" Height="18.9" Text="[rpd.CommitDate]" Format="Date" Format.Format="d" WordWrap="false" Font="Tahoma, 8pt"/>
-      <TextObject Name="Text63" Left="538.65" Top="41.58" Width="94.5" Height="18.9" Text="Status" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
-      <TextObject Name="Text64" Left="633.15" Top="41.58" Width="85.05" Height="18.9" Text="[rpd.Status]" WordWrap="false" Font="Tahoma, 8pt"/>
-      <TextObject Name="Text65" Top="41.58" Width="94.5" Height="18.9" Text="Description" Font="Tahoma, 8pt, style=Bold"/>
-      <TextObject Name="Text66" Left="94.5" Top="41.58" Width="406.35" Height="18.9" CanGrow="true" Text="[rpd.Description]" Font="Tahoma, 8pt"/>
-      <ChildBand Name="Child1" Top="193.54" Width="718.2" Height="18.9" Border.Lines="Bottom">
-        <TextObject Name="Text5" Width="189" Height="18.9" Text="Store Name" Font="Tahoma, 8pt, style=Bold"/>
-        <TextObject Name="Text114" Left="189" Width="226.8" Height="18.9" Text="Item Description" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
-        <TextObject Name="Text115" Left="415.8" Width="56.7" Height="18.9" Text="Unit" Font="Tahoma, 8pt, style=Bold"/>
-        <TextObject Name="Text116" Left="472.5" Width="66.15" Height="18.9" Text="Qty" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
-        <TextObject Name="Text118" Left="623.7" Width="94.5" Height="18.9" Text="Amount" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
-        <TextObject Name="Text117" Left="538.65" Width="85.05" Height="18.9" Text="Cost/Unit" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
-      </ChildBand>
-      <DataBand Name="Data1" Top="216.44" Width="718.2" Height="18.9" CanGrow="true" BeforePrintEvent="Data1_BeforePrint" DataSource="Table">
-        <TextObject Name="Text6" Width="189" Height="18.9" CanGrow="true" Text="&lt;b&gt;[rpd.StoreId]&lt;/b&gt; [rpd.LocationName]" VertAlign="Center" Font="Tahoma, 8pt" HtmlTags="true"/>
-        <TextObject Name="Text119" Left="189" Width="226.8" Height="18.9" CanGrow="true" Text="&lt;b&gt;[rpd.SKU]&lt;/b&gt; [rpd.ProductDesc1]" VertAlign="Center" Font="Tahoma, 8pt" HtmlTags="true"/>
-        <TextObject Name="Text7" Left="415.8" Width="56.7" Height="18.9" Text="[rpd.Unit]" VertAlign="Center" Font="Tahoma, 8pt"/>
-        <TextObject Name="Text8" Left="472.5" Width="66.15" Height="18.9" Text="[rpd.Qty]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
-        <TextObject Name="Text12" Left="538.65" Width="85.05" Height="18.9" Text="[rpd.UnitCost]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
-        <TextObject Name="Text13" Left="623.7" Width="94.5" Height="18.9" Text="[[rpd.UnitCost] * [rpd.Qty]]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
-        <Sort>
-          <Sort Expression="[rpd.ProductCode]"/>
-        </Sort>
-      </DataBand>
-      <GroupFooterBand Name="GroupFooter1" Top="239.34" Width="718.2" Height="18.9" Border.Lines="Top">
-        <TextObject Name="Text120" Left="189" Width="226.8" Height="18.9" Text="Total" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
-        <TextObject Name="Text121" Left="472.5" Width="66.15" Height="18.9" Text="[Total_Qty]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
-        <TextObject Name="Text122" Left="623.7" Width="94.5" Height="18.9" Border.Lines="Bottom" Border.Style="Double" Text="[Total_Amount]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
-        <ChildBand Name="Child3" Top="262.24" Width="718.2" Height="7.56"/>
-      </GroupFooterBand>
-    </GroupHeaderBand>
-    <ReportSummaryBand Name="ReportSummary1" Top="273.8" Width="718.2" Height="18.9"/>
-    <PageFooterBand Name="PageFooter1" Top="296.7" Width="718.2" Height="37.8" Border.Lines="Top" Border.Style="Dash">
-      <TextObject Name="Text1" Top="7.56" Width="226.8" Height="18.9" CanBreak="false" Text="Print on [Date]" WordWrap="false" Font="Arial, 8pt" TextFill.Color="Gray"/>
-      <TextObject Name="Text2" Left="633.15" Top="7.56" Width="198.45" Height="18.9" CanBreak="false" Text="Page [Page#] of [TotalPages#]" HorzAlign="Right" WordWrap="false" Font="Arial, 8pt" TextFill.Color="Gray"/>
-    </PageFooterBand>
-  </ReportPage>
   <DialogPage Name="ReportDialog" Width="454" Height="450" AcceptButton="btnOk" CancelButton="btnCancel" Text="Stock Out Detail" LoadEvent="">
     <ButtonControl Name="btnOk" Left="242" Top="386" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="0" Text="OK" ClickEvent="btnOk_Click" DialogResult="OK"/>
     <ButtonControl Name="btnCancel" Left="347" Top="386" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="1" Text="Cancel" DialogResult="Cancel"/>
@@ -293,4 +237,56 @@ namespace FastReport
     <ComboBoxControl Name="ComboBox12" Left="122" Top="282" Width="300" Font="Tahoma, 8pt" TabIndex="14" DataColumn="Tlocation.Item" DropDownWidth="300" ItemHeight="13"/>
     <ComboBoxControl Name="ComboBox13" Left="122" Top="312" Width="300" Font="Tahoma, 8pt" TabIndex="15" DataColumn="DocStatus.Item" DropDownWidth="300" ItemHeight="13"/>
   </DialogPage>
+  <ReportPage Name="Page1" RawPaperSize="9" FirstPageSource="15" OtherPagesSource="15">
+    <PageHeaderBand Name="PageHeader1" Width="718.2" Height="117.28" Border.Lines="Bottom" Border.Style="Dash" Guides="18.9">
+      <PictureObject Name="Picture1" Width="151.2" Height="75.6" DataColumn="ADMIN_Bu.BuLogo"/>
+      <TextObject Name="Text3" Left="160.65" Top="1.89" Width="302.4" Height="28.35" Text="Stock Out Detail" HorzAlign="Center" Font="Tahoma, 14pt, style=Bold"/>
+      <TextObject Name="Text4" Top="85.05" Width="151.2" Height="18.9" CanGrow="true" Text="[ADMIN_Bu.Name]" AutoWidth="true" HorzAlign="Center" WordWrap="false" Font="Tahoma, 9pt"/>
+      <TextObject Name="Text55" Left="415.81" Top="37" Width="302.4" Height="80.28" Text="Category From [p_FCat] To [p_TCat]&#13;&#10;Sub-Category From [p_FSCat]  To [p_TSCat]&#13;&#10;Product From [p_FProduct] To [p_TProduct]&#13;&#10;Location From  [p_FLocation] To [p_TLocation]&#13;&#10;Status [ComboBox13.Text]" HorzAlign="Right" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text113" Left="160.65" Top="37.8" Width="302.4" Height="18.9" Text="Date From [TextDate1.Text]  To [TextDate2.Text]" HorzAlign="Center" Font="Tahoma, 10pt, style=Bold"/>
+      <ChildBand Name="Child2" Top="121.28" Width="718.2" Height="3.78"/>
+    </PageHeaderBand>
+    <GroupHeaderBand Name="GroupHeader2" Top="129.06" Width="718.2" Height="60.48" Fill.Color="Gainsboro" CanGrow="true" KeepWithData="true" RepeatOnEveryPage="true" Condition="[rpd.RefId]" SortOrder="None">
+      <TextObject Name="Text10" Top="22.68" Width="94.5" Height="18.9" Text="Type" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text17" Left="94.5" Top="22.68" Width="113.4" Height="18.9" Text="[rpd.AdjName]" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text18" Left="94.5" Top="3.78" Width="113.4" Height="18.9" Text="[rpd.RefId]" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text11" Top="3.78" Width="94.5" Height="18.9" Text="Ref#" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text59" Left="538.65" Top="3.78" Width="94.5" Height="18.9" Text="Document Date" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text60" Left="633.15" Top="3.78" Width="85.05" Height="18.9" Text="[rpd.CreateDate]" Format="Date" Format.Format="d" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text61" Left="538.65" Top="22.68" Width="94.5" Height="18.9" Text="Commit Date" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text62" Left="633.15" Top="22.68" Width="85.05" Height="18.9" Text="[rpd.CommitDate]" Format="Date" Format.Format="d" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text63" Left="538.65" Top="41.58" Width="94.5" Height="18.9" Text="Status" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text64" Left="633.15" Top="41.58" Width="85.05" Height="18.9" Text="[rpd.Status]" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text65" Top="41.58" Width="94.5" Height="18.9" Text="Description" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text66" Left="94.5" Top="41.58" Width="406.35" Height="18.9" CanGrow="true" Text="[rpd.Description]" Font="Tahoma, 8pt"/>
+      <ChildBand Name="Child1" Top="193.54" Width="718.2" Height="22.68" Border.Lines="Bottom">
+        <TextObject Name="Text5" Top="3.78" Width="189" Height="18.9" Text="Store Name" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text114" Left="189" Top="3.78" Width="226.8" Height="18.9" Text="Item Description" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text115" Left="415.8" Top="3.78" Width="56.7" Height="18.9" Text="Unit" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text116" Left="472.5" Top="3.78" Width="66.15" Height="18.9" Text="Qty" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text118" Left="623.7" Top="3.78" Width="94.5" Height="18.9" Text="Amount" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text117" Left="538.65" Top="3.78" Width="85.05" Height="18.9" Text="Cost/Unit" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
+      </ChildBand>
+      <GroupHeaderBand Name="GroupHeader1" Top="220.22" Width="718.2" Height="3.78" Condition="[rpd.Id]" SortOrder="None">
+        <DataBand Name="Data1" Top="228" Width="718.2" Height="18.9" CanGrow="true" BeforePrintEvent="Data1_BeforePrint" DataSource="Table">
+          <TextObject Name="Text6" Width="189" Height="18.9" CanGrow="true" Text="&lt;b&gt;[rpd.StoreId]&lt;/b&gt; [rpd.LocationName]" VertAlign="Center" Font="Tahoma, 8pt" HtmlTags="true"/>
+          <TextObject Name="Text119" Left="189" Width="226.8" Height="18.9" CanGrow="true" Text="&lt;b&gt;[rpd.SKU]&lt;/b&gt; [rpd.ProductDesc1]" VertAlign="Center" Font="Tahoma, 8pt" HtmlTags="true"/>
+          <TextObject Name="Text7" Left="415.8" Width="56.7" Height="18.9" Text="[rpd.Unit]" VertAlign="Center" Font="Tahoma, 8pt"/>
+          <TextObject Name="Text8" Left="472.5" Width="66.15" Height="18.9" Text="[rpd.Qty]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
+          <TextObject Name="Text12" Left="538.65" Width="85.05" Height="18.9" Text="[rpd.UnitCost]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
+          <TextObject Name="Text13" Left="623.7" Width="94.5" Height="18.9" Text="[[rpd.UnitCost] * [rpd.Qty]]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
+        </DataBand>
+        <GroupFooterBand Name="GroupFooter2" Top="250.9" Width="718.2" Border.Lines="Top" Border.Style="Dot"/>
+      </GroupHeaderBand>
+      <GroupFooterBand Name="GroupFooter1" Top="254.9" Width="718.2" Height="18.9" Border.Lines="Top">
+        <TextObject Name="Text120" Left="189" Width="226.8" Height="18.9" Text="Total" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text121" Left="472.5" Width="66.15" Height="18.9" Text="[Total_Qty]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
+        <TextObject Name="Text122" Left="623.7" Width="94.5" Height="18.9" Border.Lines="Bottom" Border.Style="Double" Text="[Total_Amount]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
+      </GroupFooterBand>
+    </GroupHeaderBand>
+    <PageFooterBand Name="PageFooter1" Top="277.8" Width="718.2" Height="37.8" Border.Lines="Top" Border.Style="Dash">
+      <TextObject Name="Text1" Top="7.56" Width="226.8" Height="18.9" CanBreak="false" Text="Print on [Date]" WordWrap="false" Font="Arial, 8pt" TextFill.Color="Gray"/>
+      <TextObject Name="Text2" Left="633.15" Top="7.56" Width="198.45" Height="18.9" CanBreak="false" Text="Page [Page#] of [TotalPages#]" HorzAlign="Right" WordWrap="false" Font="Arial, 8pt" TextFill.Color="Gray"/>
+    </PageFooterBand>
+  </ReportPage>
 </Report>

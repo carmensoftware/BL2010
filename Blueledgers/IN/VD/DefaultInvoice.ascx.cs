@@ -20,7 +20,7 @@ namespace BlueLedger.PL.IN
         private bool _readOnly;
 
 
-//       private bool _readonly = false;
+        private bool _readonly = false;
         private int _seqNo;
 
         /// <summary>

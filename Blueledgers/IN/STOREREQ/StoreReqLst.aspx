@@ -2,7 +2,7 @@
 
 <%@ MasterType VirtualPath="~/master/In/SkinDefault.master" %>
 <%@ Register Assembly="DevExpress.Web.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Web.ASPxPopupControl" TagPrefix="dx" %>
-<%--<%@ Reference Control="~/UserControl/ViewHandler/ListPageStdReq.ascx" %>--%>
+<%@ Reference Control="~/UserControl/ViewHandler/ListPageStdReq.ascx" %>
 <%@ Register Src="../../UserControl/ViewHandler/ListPage2.ascx" TagName="ListPage2" TagPrefix="uc2" %>
 <%@ Register assembly="DevExpress.Web.v10.1" namespace="DevExpress.Web.ASPxPopupControl" tagprefix="dx" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="cph_Main" runat="Server">
@@ -17,7 +17,35 @@
                 <table width="780px" border="0" cellpadding="0" cellspacing="1">
                     <tr>
                         <td align="center">
-                            
+                            <%--<dx:ASPxGridView ID="grd_Template" runat="server" SkinID="Default2" AutoGenerateColumns="False"
+                                Width="780px" KeyFieldName="RefId">
+                                <Columns>
+                                    <dx:GridViewCommandColumn ShowSelectCheckbox="True" VisibleIndex="0" Width="30px">
+                                        <ClearFilterButton Visible="True">
+                                        </ClearFilterButton>
+                                    </dx:GridViewCommandColumn>
+                                    <dx:GridViewDataTextColumn Caption="Store Code" FieldName="LocationCode" VisibleIndex="1"
+                                        Width="150px">
+                                    </dx:GridViewDataTextColumn>me
+                                    <dx:GridViewDataTextColumn Caption="Name" FieldName="LocationName" VisibleIndex="2"
+                                        Width="250px">
+                                    </dx:GridViewDataTextColumn>
+                                    <dx:GridViewDataTextColumn Caption="Description" FieldName="Description" VisibleIndex="3"
+                                        Width="350px">
+                                    </dx:GridViewDataTextColumn>
+                                </Columns>
+                                <SettingsPager Mode="ShowAllRecords">
+                                </SettingsPager>
+                                <Settings ShowVerticalScrollBar="True" VerticalScrollableHeight="300" />
+                                <Styles Row-HorizontalAlign="Left" Header-HorizontalAlign="Left" CommandColumn-HorizontalAlign="Left">
+                                    <Header HorizontalAlign="Left">
+                                    </Header>
+                                    <Row HorizontalAlign="Left">
+                                    </Row>
+                                    <CommandColumn HorizontalAlign="Left">
+                                    </CommandColumn>
+                                </Styles>
+                            </dx:ASPxGridView>--%>
                             <div style="height: 300px; overflow: auto;">
                                 <asp:GridView ID="grd_Template" runat="server" AutoGenerateColumns="False" SkinID="GRD_V1" Width="100%" DataKeyNames="RefId">
                                     <Columns>

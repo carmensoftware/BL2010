@@ -391,8 +391,7 @@ namespace BlueLedger.PL.IN.PM
 
                 return dt;
             }
-            //catch (Exception ex)
-            catch
+            catch (Exception ex)
             {
                 con.Close();
                 return null;

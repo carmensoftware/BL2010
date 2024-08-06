@@ -29,7 +29,7 @@ namespace BlueLedger.PL.IN
         private Guid _profileCode;
 
         private bool _readOnly;
-//       private bool _readonly = false;
+        private bool _readonly = false;
 
         /// <summary>
         ///     Get or Set Control DataSource.

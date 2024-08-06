@@ -417,7 +417,6 @@
                 </asp:Panel>
                 <asp:GridView ID="gvAccountMap" runat="server" AutoGenerateColumns="false" AllowPaging="True" AllowSorting="true" PageSize="40" Width="100%" GridLines="Horizontal"
                     BackColor="White" BorderColor="#DDDDDD" OnRowDataBound="gvAccountMap_OnRowDataBound" OnPageIndexChanging="gvAccountMap_PageIndexChanging" OnSorting="gvAccountMap_Sorting">
-
                     <HeaderStyle Height="40px" BackColor="#F4F4F5" Font-Bold="True" ForeColor="#444444" HorizontalAlign="Left" />
                     <PagerStyle BackColor="#4D4D4D" ForeColor="White" HorizontalAlign="Center" BorderColor="#DDDDDD" CssClass="pagination" />
                     <RowStyle Height="50px" BackColor="White" ForeColor="#333333" BorderColor="#DDDDDD" />

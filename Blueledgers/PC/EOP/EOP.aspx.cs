@@ -239,11 +239,9 @@ namespace BlueLedger.PL.PC.EOP
             Response.ContentType = "text/csv";
 
             // Output with CharSet
-            //Response.Charset = "ISO-8859-11";
-            //Response.Charset = "TIS620";
+            Response.Charset = "ISO-8859-11";
             //Response.Write(csvText);
-            //byte[] buffer = System.Text.Encoding.Default.GetBytes(csvText);
-            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(csvText);
+            byte[] buffer = System.Text.Encoding.Default.GetBytes(csvText);
             Response.BinaryWrite(buffer);
             Response.Flush();
             Response.End();

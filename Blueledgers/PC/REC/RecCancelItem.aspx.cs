@@ -612,7 +612,7 @@ namespace BlueLedger.PL.IN.REC
                     //}
                     //else
                     //{
-                    lbl_QtyCancel.Text = String.Format("{0:N3}", DataBinder.Eval(e.Row.DataItem, "QtyCancel"));
+                    lbl_QtyCancel.Text = String.Format("{0:N}", DataBinder.Eval(e.Row.DataItem, "QtyCancel"));
                     qtycancel = Convert.ToDecimal(DataBinder.Eval(e.Row.DataItem, "QtyCancel"));
                     //}
                 }
@@ -627,7 +627,7 @@ namespace BlueLedger.PL.IN.REC
                     //}
                     //else
                     //{
-                    se_CancelQtyEdit.Text = String.Format("{0:N3}", DataBinder.Eval(e.Row.DataItem, "QtyCancel"));
+                    se_CancelQtyEdit.Text = String.Format("{0:N}", DataBinder.Eval(e.Row.DataItem, "QtyCancel"));
                     qtycancel = Convert.ToDecimal(DataBinder.Eval(e.Row.DataItem, "QtyCancel"));
                     //}
                 }

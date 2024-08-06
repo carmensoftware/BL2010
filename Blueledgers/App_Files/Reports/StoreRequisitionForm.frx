@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Report ScriptLanguage="CSharp" UseFileCache="true" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="09/29/2022 14:39:11" ReportInfo.CreatorVersion="2013.4.11.0">
+<Report ScriptLanguage="CSharp" UseFileCache="true" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="10/02/2023 18:01:06" ReportInfo.CreatorVersion="2013.4.11.0">
   <ScriptText>using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -38,7 +38,7 @@ namespace FastReport
 }
 </ScriptText>
   <Dictionary>
-    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqfNQ7ch3Qaafl4+f8lCKgOdIGCjGYOhX+w6MhvsI6PvbbJHEHMQBjSRIWvC08b1jGdLehZMpbSYMBBNoFEpjDZ8HcdcKrJ7EsrIRWVGweQZo=">
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlquQ+MGUuFmwCkhAb0ntbeLCVYpiuMguxDfPu6iCm/j+iNBH4W+L+OJiutFMizcAIoQeI80RaHqB91iIgCBsLjof0sc9MbtQTvQY0KjHfB+jpggCTALXKhA7ryvYDCRuwgDnPEPQ4tOAe1zkmpdsOJow==">
       <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;">
         <Column Name="BuCode" DataType="System.String"/>
         <Column Name="Name" DataType="System.String"/>
@@ -56,6 +56,7 @@ namespace FastReport
         <Column Name="BackOffice" DataType="System.String"/>
         <Column Name="BackOfficeModel" DataType="System.String"/>
         <Column Name="BuLogo" DataType="System.Byte[]" BindableControl="Picture"/>
+        <Column Name="TaxId" DataType="System.String"/>
       </TableDataSource>
       <TableDataSource Name="Table" Alias="SR_H" DataType="System.Int32" Enabled="true" SelectCommand="select srH.*, sto.LocationName&#13;&#10;from [IN].[StoreRequisition] as srH&#13;&#10;join [IN].[StoreLocation] as sto on srH.LocationCode = sto.LocationCode&#13;&#10;where srH.[RefId] = @ID">
         <Column Name="RefId" DataType="System.Int32"/>
@@ -78,7 +79,7 @@ namespace FastReport
         <Column Name="VoidComment" DataType="System.String"/>
         <Column Name="IssueBy" DataType="System.String"/>
         <Column Name="LocationName" DataType="System.String"/>
-        <CommandParameter Name="ID" DataType="8" Size="50" Expression="[ID]" DefaultValue="15"/>
+        <CommandParameter Name="ID" DataType="8" Size="50" Expression="[ID]" DefaultValue="1"/>
       </TableDataSource>
       <TableDataSource Name="Table1" Alias="SR_Dt" DataType="System.Int32" Enabled="true" SelectCommand="DECLARE @SrNo nvarchar(20) = (SELECT RequestCode FROM [IN].StoreRequisition WHERE RefId = @ID)&#13;&#10;DECLARE @IsComplete TINYINT = (SELECT CASE WHEN DocStatus='Complete' THEN 1 ELSE 0 END FROM [IN].StoreRequisition WHERE RefId = @ID)&#13;&#10;&#13;&#10;IF @IsComplete = 1&#13;&#10;BEGIN&#13;&#10;	;WITH inv AS(&#13;&#10;		SELECT&#13;&#10;			HdrNo,&#13;&#10;			DtNo,&#13;&#10;			Location,&#13;&#10;			ProductCode,&#13;&#10;			SUM([IN]) as [IN],&#13;&#10;			SUM([OUT]) as [OUT],&#13;&#10;			Amount,&#13;&#10;			[Type],&#13;&#10;			CAST(CommittedDate AS DATE) CommittedDate&#13;&#10;		FROM&#13;&#10;			[IN].Inventory&#13;&#10;		WHERE&#13;&#10;			HdrNo = @SrNo&#13;&#10;			AND [OUT] &gt; 0&#13;&#10;		GROUP BY&#13;&#10;			HdrNo,&#13;&#10;			DtNo,&#13;&#10;			Location,&#13;&#10;			ProductCode,&#13;&#10;			Amount,&#13;&#10;			[Type],&#13;&#10;			CAST(CommittedDate AS DATE)&#13;&#10;	)&#13;&#10;	SELECT&#13;&#10;		h.RequestCode, &#13;&#10;		p.ProductDesc1, &#13;&#10;		p.ProductDesc2,&#13;&#10;		d.ToLocationCode, &#13;&#10;		l.LocationName, &#13;&#10;		d.ProductCode, &#13;&#10;		d.DeliveryDate, &#13;&#10;		d.RequestUnit,&#13;&#10;		d.RequestQty,&#13;&#10;		ISNULL([OUT], 0) as [Out], &#13;&#10;		ISNULL(i.Amount, 0 ) as [Cost/Unit],&#13;&#10;		ISNULL(i.Amount, 0) as [Amount], &#13;&#10;		i.[Type], &#13;&#10;		i.[CommittedDate]&#13;&#10;	FROM&#13;&#10;		inv i&#13;&#10;		JOIN [IN].StoreRequisitionDetail d&#13;&#10;			ON d.RefId = i.DtNo&#13;&#10;		JOIN [IN].StoreRequisition h&#13;&#10;			ON h.RefId = d.DocumentId&#13;&#10;		LEFT JOIN [IN].Product p&#13;&#10;			ON p.ProductCode = d.ProductCode&#13;&#10;		LEFT JOIN [IN].StoreLocation l&#13;&#10;			ON l.LocationCode = d.ToLocationCode&#13;&#10;	WHERE&#13;&#10;		h.RefId = @ID&#13;&#10;END&#13;&#10;ELSE&#13;&#10;BEGIN&#13;&#10;	SELECT&#13;&#10;		h.RequestCode, &#13;&#10;		p.ProductDesc1, &#13;&#10;		p.ProductDesc2,&#13;&#10;		d.ToLocationCode, &#13;&#10;		l.LocationName, &#13;&#10;		d.ProductCode, &#13;&#10;		d.DeliveryDate, &#13;&#10;		d.RequestUnit,&#13;&#10;		d.RequestQty,&#13;&#10;		0.00 as [Out], &#13;&#10;		0.00 as [Cost/Unit],&#13;&#10;		0.00 as [Amount], &#13;&#10;		'' as [Type], &#13;&#10;		h.DeliveryDate as [CommittedDate]&#13;&#10;	FROM&#13;&#10;		[IN].StoreRequisition h&#13;&#10;		JOIN [IN].StoreRequisitionDetail d&#13;&#10;			ON h.RefId = d.DocumentId&#13;&#10;		LEFT JOIN [IN].Product p&#13;&#10;			ON p.ProductCode = d.ProductCode&#13;&#10;		LEFT JOIN [IN].StoreLocation l&#13;&#10;			ON l.LocationCode = d.ToLocationCode&#13;&#10;	WHERE&#13;&#10;		h.RefId = @ID&#13;&#10;END">
         <Column Name="ToLocationCode" DataType="System.String"/>
@@ -95,7 +96,7 @@ namespace FastReport
         <Column Name="Cost/Unit" DataType="System.Decimal"/>
         <Column Name="DeliveryDate" DataType="System.DateTime"/>
         <Column Name="RequestQty" DataType="System.Decimal"/>
-        <CommandParameter Name="ID" DataType="8" Expression="[SR_H.RefId]" DefaultValue="15"/>
+        <CommandParameter Name="ID" DataType="8" Expression="[SR_H.RefId]" DefaultValue="1"/>
       </TableDataSource>
       <TableDataSource Name="Table2" Alias="Appr1" DataType="System.Int32" Enabled="true" SelectCommand=";with last1 as ( select Top(1) * from [APP].[WFHis] &#13;&#10;where [SubModule] = 'SR' and [RefNo] = @ID and [Step] = 1&#13;&#10;order by [ProcessDate] desc ) &#13;&#10;&#13;&#10;select last1.[ProcessBy], last1.[ProcessDate],  u1.[Signature]&#13;&#10;from last1 &#13;&#10;join [ADMIN].[vUser] as u1 on u1.[LoginName] COLLATE DATABASE_DEFAULT = last1.[ProcessBy] COLLATE DATABASE_DEFAULT">
         <Column Name="ProcessBy" DataType="System.String"/>
@@ -125,12 +126,13 @@ namespace FastReport
     <Total Name="GrandTotal" Expression="[SR_Dt.Amount]*[SR_Dt.OUT]" Evaluator="Data1" PrintOn="ReportSummary1"/>
   </Dictionary>
   <ReportPage Name="Page1" RawPaperSize="9" FirstPageSource="15" OtherPagesSource="15" Guides="359.1">
-    <PageHeaderBand Name="PageHeader1" Width="718.2" Height="103.95">
-      <PictureObject Name="Picture1" Width="179.55" Height="85.05" DataColumn="ADMIN_Bu.BuLogo"/>
-      <TextObject Name="Text3" Left="184.28" Top="37.8" Width="349.65" Height="28.35" Text="Store Requistion" HorzAlign="Center" VertAlign="Center" Font="Tahoma, 14pt"/>
-      <TextObject Name="Text4" Top="85.05" Width="179.55" Height="18.9" Text="[ADMIN_Bu.Name]" HorzAlign="Center" VertAlign="Center" Font="Arial, 8pt"/>
+    <PageHeaderBand Name="PageHeader1" Width="718.2" Height="100.17">
+      <TextObject Name="Text63" Left="255.15" Top="69.93" Width="207.9" Height="22.68" Text="Store Requisition" HorzAlign="Center" Font="Tahoma, 11pt, style=Bold"/>
+      <PictureObject Name="Picture5" Left="292.95" Width="132.3" Height="56.7" DataColumn="ADMIN_Bu.BuLogo"/>
+      <TextObject Name="Text62" Width="181.44" Height="100.17" CanGrow="true" Text="&lt;b&gt;[ADMIN_Bu.Name]&lt;/b&gt;&#13;&#10;[ADMIN_Bu.Address] [ADMIN_Bu.PostCode]&#13;&#10;Tel: [ADMIN_Bu.Phone] Fax: [ADMIN_Bu.Fax]&#13;&#10;Tax ID: [ADMIN_Bu.TaxId]" Font="Tahoma, 8pt" HtmlTags="true"/>
+      <TextObject Name="Text_Page" Left="604.8" Width="113.4" Height="18.9" Text="[Page#]/[TotalPages#]" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt"/>
     </PageHeaderBand>
-    <ColumnHeaderBand Name="ColumnHeader1" Top="107.95" Width="718.2" Height="75.6" Border.Lines="All" Fill.Color="LightGray" CanGrow="true">
+    <ColumnHeaderBand Name="ColumnHeader1" Top="104.17" Width="718.2" Height="75.6" Border.Lines="All" Fill.Color="LightGray" CanGrow="true">
       <TextObject Name="Text6" Top="28.35" Width="94.5" Height="18.9" Text="Location From :" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
       <TextObject Name="Text9" Top="47.25" Width="94.5" Height="18.9" Text="Remark :" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
       <TextObject Name="Text10" Left="491.4" Top="28.35" Width="113.4" Height="18.9" Text="Status :" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
@@ -142,7 +144,7 @@ namespace FastReport
       <TextObject Name="Text43" Left="94.5" Top="9.45" Width="387.45" Height="18.9" Text="[SR_H.RequestCode]" VertAlign="Center" Font="Tahoma, 10pt"/>
       <TextObject Name="Text5" Left="604.8" Top="9.45" Width="113.4" Height="18.9" Text="[SR_H.DeliveryDate]" Format="Date" Format.Format="d" WordWrap="false"/>
     </ColumnHeaderBand>
-    <GroupHeaderBand Name="GroupHeader1" Top="187.55" Width="718.2" Height="37.8" Border.Lines="Top, Bottom" Condition="[SR_Dt.ToLocationCode]">
+    <GroupHeaderBand Name="GroupHeader1" Top="183.77" Width="718.2" Height="37.8" Border.Lines="Top, Bottom" Condition="[SR_Dt.ToLocationCode]">
       <TextObject Name="Text7" Width="85.05" Height="18.9" Text="To Location :" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
       <TextObject Name="Text25" Top="18.9" Width="85.05" Height="18.9" Text="ProductID" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
       <TextObject Name="Text26" Left="85.05" Top="18.9" Width="207.9" Height="18.9" Text="Description" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
@@ -153,7 +155,7 @@ namespace FastReport
       <TextObject Name="Text38" Left="85.05" Width="633.15" Height="18.9" Text="[SR_Dt.ToLocationCode] - [SR_Dt.LocationName]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
       <TextObject Name="Text45" Left="292.95" Top="18.9" Width="75.6" Height="18.9" Text="Req. Date" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
       <TextObject Name="Text48" Left="368.56" Top="18.9" Width="66.15" Height="18.9" Text="Req. Qty" HorzAlign="Right" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
-      <DataBand Name="Data1" Top="229.35" Width="718.2" Height="22.9" CanGrow="true" BeforePrintEvent="Data1_BeforePrint" DataSource="Table1">
+      <DataBand Name="Data1" Top="225.57" Width="718.2" Height="22.9" Border.Lines="Bottom" Border.Style="Dot" CanGrow="true" BeforePrintEvent="Data1_BeforePrint" DataSource="Table1">
         <TextObject Name="Text16" Left="434.7" Width="66.15" Height="18.9" Text="[SR_Dt.OUT]" Padding="2, 2, 2, 0" Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
         <TextObject Name="Text18" Left="501.47" Width="47.25" Height="18.9" Text="[SR_Dt.RequestUnit]" Padding="2, 2, 2, 0" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
         <TextObject Name="Text20" Left="623.7" Width="94.5" Height="18.9" Text="[[SR_Dt.Amount] * [SR_Dt.OUT]]" Padding="2, 2, 2, 0" Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
@@ -163,34 +165,37 @@ namespace FastReport
         <TextObject Name="Text46" Left="292.96" Width="75.6" Height="18.9" Text="[SR_Dt.DeliveryDate]" Padding="2, 2, 2, 0" Format="Date" Format.Format="d" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
         <TextObject Name="Text49" Left="368.55" Width="66.15" Height="18.9" Text="[SR_Dt.RequestQty]" Padding="2, 2, 2, 0" Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
       </DataBand>
-      <GroupFooterBand Name="GroupFooter1" Top="256.25" Width="718.2" Height="24.06" Border.Lines="Top">
+      <GroupFooterBand Name="GroupFooter1" Top="252.47" Width="718.2" Height="24.06" Border.Lines="Top">
         <TextObject Name="Text24" Left="434.7" Top="5.16" Width="66.15" Height="18.9" Visible="false" Text="[TotalQty]" Format="Number" Format.UseLocale="true" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
         <TextObject Name="Text39" Left="623.7" Top="5.16" Width="94.5" Height="18.9" Border.Lines="Bottom" Border.Style="Double" Text="[TotalTotal]" Format="Number" Format.UseLocale="true" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
         <TextObject Name="Text47" Left="85.05" Top="5.16" Width="207.9" Height="18.9" Text="Total [SR_Dt.ToLocationCode] - [SR_Dt.LocationName]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
       </GroupFooterBand>
     </GroupHeaderBand>
-    <ReportSummaryBand Name="ReportSummary1" Top="284.31" Width="718.2" Height="33.52" Border.Lines="Top" PrintOnBottom="true">
+    <ReportSummaryBand Name="ReportSummary1" Top="280.53" Width="718.2" Height="33.52" Border.Lines="Top" PrintOnBottom="true">
       <TextObject Name="Text40" Left="434.7" Top="5.17" Width="66.15" Height="18.9" Visible="false" Text="[GrandQty]" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
       <TextObject Name="Text41" Left="623.7" Top="5.17" Width="94.5" Height="18.9" Text="[GrandTotal]" Format="Number" Format.UseLocale="true" HorzAlign="Right" Font="Tahoma, 8pt, style=Bold"/>
       <TextObject Name="Text42" Left="103.95" Top="5.17" Width="264.6" Height="18.9" Text="Grand Total :" HorzAlign="Right" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
-      <ChildBand Name="Child2" Top="321.83" Width="718.2" Height="122.85" Border.Lines="All">
-        <TextObject Name="Text32" Left="312.59" Top="7.4" Width="94.5" Height="18.9" Text="Approved By" HorzAlign="Center" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
-        <TextObject Name="Text33" Left="66.89" Top="7.4" Width="94.5" Height="18.9" Text="Request By" HorzAlign="Center" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
-        <TextObject Name="Text34" Left="558.29" Top="7.4" Width="94.5" Height="18.9" Text="Issue By" HorzAlign="Center" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
-        <TextObject Name="Text17" Left="302.4" Top="85.05" Width="113.4" Height="18.9" Text="[Appr2.ProcessBy]" HorzAlign="Center" VertAlign="Center" Font="Arial, 8pt"/>
-        <PictureObject Name="Picture2" Left="302.4" Top="28.35" Width="113.4" Height="56.7" DataColumn="Appr2.Signature"/>
-        <PictureObject Name="Picture3" Left="56.7" Top="28.35" Width="113.4" Height="56.7" DataColumn="Appr1.Signature"/>
-        <TextObject Name="Text19" Left="56.7" Top="85.05" Width="113.4" Height="18.9" Text="[Appr1.ProcessBy]" HorzAlign="Center" VertAlign="Center" Font="Tahoma, 8pt"/>
-        <PictureObject Name="Picture4" Left="548.1" Top="28.35" Width="113.4" Height="56.7" DataColumn="Appr3.Signature"/>
-        <TextObject Name="Text21" Left="548.1" Top="85.05" Width="113.4" Height="18.9" Text="[Appr3.ProcessBy]" HorzAlign="Center" VertAlign="Center" Font="Arial, 8pt"/>
-        <TextObject Name="Text36" Left="548.1" Top="103.95" Width="113.4" Height="18.9" Text="[Appr3.ProcessDate]" Format="Date" Format.Format="d" HorzAlign="Center" VertAlign="Center" Font="Arial, 8pt"/>
-        <TextObject Name="Text37" Left="302.4" Top="103.95" Width="113.4" Height="18.9" Text="[Appr2.ProcessDate]" Format="Date" Format.Format="d" HorzAlign="Center" VertAlign="Center" Font="Arial, 8pt"/>
-        <TextObject Name="Text44" Left="56.7" Top="103.95" Width="113.4" Height="18.9" Text="[Appr1.ProcessDate]" Format="Date" Format.Format="d" HorzAlign="Center" VertAlign="Center" Font="Arial, 8pt"/>
+      <ChildBand Name="Child2" Top="318.05" Width="718.2" Height="132.3" Border.Lines="All">
+        <TextObject Name="Text32" Left="205.24" Top="7.4" Width="113.4" Height="18.9" Text="Approved By" HorzAlign="Center" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text33" Left="10.19" Top="7.4" Width="113.4" Height="18.9" Text="Request By" HorzAlign="Center" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text34" Left="400.29" Top="7.4" Width="113.4" Height="18.9" Text="Issue By" HorzAlign="Center" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text17" Left="205.24" Top="85.05" Width="113.4" Height="18.9" Text="[Appr2.ProcessBy]" HorzAlign="Center" VertAlign="Center" Font="Arial, 8pt"/>
+        <PictureObject Name="Picture2" Left="205.24" Top="28.35" Width="113.4" Height="56.7" DataColumn="Appr2.Signature"/>
+        <PictureObject Name="Picture3" Left="10.19" Top="28.35" Width="113.4" Height="56.7" DataColumn="Appr1.Signature"/>
+        <TextObject Name="Text19" Left="10.19" Top="85.05" Width="113.4" Height="18.9" Text="[Appr1.ProcessBy]" HorzAlign="Center" VertAlign="Center" Font="Tahoma, 8pt"/>
+        <PictureObject Name="Picture4" Left="400.29" Top="28.35" Width="113.4" Height="56.7" DataColumn="Appr3.Signature"/>
+        <TextObject Name="Text21" Left="400.29" Top="85.05" Width="113.4" Height="18.9" Text="[Appr3.ProcessBy]" HorzAlign="Center" VertAlign="Center" Font="Arial, 8pt"/>
+        <TextObject Name="Text36" Left="400.29" Top="113.4" Width="113.4" Height="18.9" Text="[Appr3.ProcessDate]" Format="Date" Format.Format="d" HorzAlign="Center" VertAlign="Center" Font="Arial, 8pt"/>
+        <TextObject Name="Text37" Left="205.24" Top="113.4" Width="113.4" Height="18.9" Text="[Appr2.ProcessDate]" Format="Date" Format.Format="d" HorzAlign="Center" VertAlign="Center" Font="Arial, 8pt"/>
+        <TextObject Name="Text44" Left="10.19" Top="113.4" Width="113.4" Height="18.9" Text="[Appr1.ProcessDate]" Format="Date" Format.Format="d" HorzAlign="Center" VertAlign="Center" Font="Arial, 8pt"/>
+        <TextObject Name="Text64" Left="595.35" Width="113.4" Height="18.9" Text="Received By" HorzAlign="Center" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text65" Left="595.35" Top="85.05" Width="113.4" Height="18.9" Border.Lines="Bottom" Border.Style="Dot" HorzAlign="Center" VertAlign="Center" Font="Arial, 8pt"/>
+        <TextObject Name="Text66" Left="595.35" Top="113.4" Width="113.4" Height="18.9" Text="........./........ /........" Format="Date" Format.Format="d" HorzAlign="Center" VertAlign="Center" Font="Arial, 8pt"/>
+        <LineObject Name="Line1" Left="160.65" Top="9.45" Height="122.85" Border.Style="Dash"/>
+        <LineObject Name="Line2" Left="359.1" Top="9.45" Height="122.85" Border.Style="Dash"/>
+        <LineObject Name="Line3" Left="557.55" Top="9.45" Height="122.85" Border.Style="Dash"/>
       </ChildBand>
     </ReportSummaryBand>
-    <PageFooterBand Name="PageFooter1" Top="448.68" Width="718.2" Height="37.8">
-      <TextObject Name="Text1" Left="9.44" Top="9.34" Width="132.3" Height="18.9" Text="[Date]" Font="Arial, 8pt, style=Italic"/>
-      <TextObject Name="Text2" Left="548.1" Top="9.45" Width="160.65" Height="18.9" Text="[Page#]/[TotalPages#]" HorzAlign="Right" Font="Arial, 8pt"/>
-    </PageFooterBand>
+    <PageFooterBand Name="PageFooter1" Top="454.35" Width="718.2" Height="18.9"/>
   </ReportPage>
 </Report>

@@ -364,7 +364,8 @@ namespace BlueLedger.PL.IN.REC
             {
                 dsPoListCancel.Clear();
 
-                poDt.GetListByStatusAndVendor(dsPoListCancel, statusPrint, statusPartial, ddl_VendorCancel.Value.ToString(), LoginInfo.BuInfo.BuCode, LoginInfo.ConnStr);
+                poDt.GetListByStatusAndVendor(dsPoListCancel, statusPrint, statusPartial,
+                    ddl_VendorCancel.Value.ToString(), LoginInfo.BuInfo.BuCode, LoginInfo.ConnStr);
                 grd_CancelItemList.DataSource = dsPoListCancel.Tables[poDt.TableName];
                 grd_CancelItemList.DataBind();
 
@@ -558,13 +559,13 @@ namespace BlueLedger.PL.IN.REC
                 if (e.Row.FindControl("lbl_QtyOrd") != null)
                 {
                     var lbl_QtyOrd = e.Row.FindControl("lbl_QtyOrd") as Label;
-                    //lbl_QtyOrd.Text = DataBinder.Eval(e.Row.DataItem, "OrdQty").ToString();
+                    lbl_QtyOrd.Text = DataBinder.Eval(e.Row.DataItem, "OrdQty").ToString();
                 }
 
                 if (e.Row.FindControl("lbl_QtyRec") != null)
                 {
                     var lbl_QtyRec = e.Row.FindControl("lbl_QtyRec") as Label;
-                    //lbl_QtyRec.Text = DataBinder.Eval(e.Row.DataItem, "RcvQty").ToString();
+                    lbl_QtyRec.Text = DataBinder.Eval(e.Row.DataItem, "RcvQty").ToString();
                 }
 
                 if (e.Row.FindControl("lbl_Status") != null)
@@ -1125,10 +1126,10 @@ namespace BlueLedger.PL.IN.REC
                 var drRec = dsRec.Tables[rec.TableName].NewRow();
                 drRec["RecNo"] = rec.GetNewID(ServerDateTime, LoginInfo.ConnStr);
                 drRec["RecDate"] = ServerDateTime;
-                drRec["DeliPoint"] = drPo["DeliPoint"];
-                //Convert.ToInt32(drPo["DeliPoint"] == DBNull.Value
-                //    ? 1
-                //    : Convert.ToInt32(drPo["DeliPoint"].ToString()));
+                drRec["DeliPoint"] =
+                    Convert.ToInt32(drPo["DeliPoint"] == DBNull.Value
+                        ? 1
+                        : Convert.ToInt32(drPo["DeliPoint"].ToString()));
                 drRec["VendorCode"] = drPo["Vendor"].ToString();
                 drRec["CreatedDate"] = ServerDateTime;
                 drRec["CreatedBy"] = LoginInfo.LoginName;
@@ -1163,11 +1164,6 @@ namespace BlueLedger.PL.IN.REC
                 {
                     poDt.GetPoDtByPoNoForReceiving(dsPo, ref MsError, values[i], LoginInfo.BuInfo.BuCode, location, LoginInfo.ConnStr);
                     poDt.GetListByPoNo(dsRec, ref MsError, values[i], LoginInfo.ConnStr);
-                }
-
-                if (dsPo.Tables[poDt.TableName].Rows.Count > 0)
-                {
-                    drRec["DeliPoint"] = dsPo.Tables[poDt.TableName].Rows[0]["DeliveryPoint"].ToString();
                 }
 
                 // Insert to RecDt (For HQ multiple PO(s)
@@ -1235,7 +1231,7 @@ namespace BlueLedger.PL.IN.REC
                             drRecDt["RecQty"] = recQty;
 
 
-                            decimal amount = RoundAmt(recQty * price);
+                            decimal amount = RoundAmt( recQty * price);
                             decimal discAmt = RoundAmt(discRate == 0 ? 0 : amount * discRate / 100);
 
                             currDiscAmt = discAmt;

@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using BlueLedger.PL.BaseClass;
 using System.Text;
 using DevExpress.Web.ASPxEditors;
-using System.Data.SqlClient;
 
 namespace BlueLedger.PL.PC.PO
 {
@@ -112,6 +111,33 @@ namespace BlueLedger.PL.PC.PO
             Control_HeaderMenuBar();
             base.Page_Load(sender, e);
         }
+
+        //private void menu_ItemClick(object source, DevExpress.Web.ASPxMenu.MenuItemEventArgs e)
+        //{
+        //    switch (e.Item.Name.ToUpper())
+        //    {
+        //        case "PR":
+        //            DisplayPrList();
+        //            break;
+
+        //        case "PODT":
+        //            const string reportLink3 = "../../RPT/ReportCriteria.aspx?category=001&reportid=109";
+        //            ClientScript.RegisterStartupScript(GetType(), "newWindow",
+        //                "<script>window.open('" + reportLink3 + "','_blank')</script>");
+        //            break;
+
+        //        case "POSM":
+        //            //Session["dtBuKeys"] = ListPage.dtBuKeys;
+        //            const string reportLink1 = "../../RPT/ReportCriteria.aspx?category=001&reportid=124";
+        //            ClientScript.RegisterStartupScript(GetType(), "newWindow",
+        //                "<script>window.open('" + reportLink1 + "','_blank')</script>");
+        //            break;
+
+        //        case "CLOSEPO":
+        //            DisplayClosePO();
+        //            break;
+        //    }
+        //}
 
         protected void btn_SuccessOk_Click(object sender, EventArgs e)
         {
@@ -877,7 +903,7 @@ namespace BlueLedger.PL.PC.PO
             var frVendor = ddl_Print_VendorFrom.SelectedItem.Value.ToString();
             var toVendor = ddl_Print_VendorTo.SelectedItem.Value.ToString();
 
-            sql.AppendFormat(" AND Vendor BETWEEN '{0}' AND '{1}' ", frVendor, toVendor);
+            sql.AppendFormat(" AND Vendor BETWEEN '{0}' AND '{1}' ",  frVendor, toVendor);
 
             var docStatusList = new List<string>();
 
@@ -1092,7 +1118,7 @@ namespace BlueLedger.PL.PC.PO
         {
             var strVendor = ddl_Vendor.SelectedItem.Value;
             var dteDeliDate = dte_DeliDate.Date;
-              
+
             if ((strVendor != string.Empty) & (dteDeliDate.ToString() != DateTime.MinValue.ToString()))
             {
                 var result = _po.GetListByClosePO(_dsPo, strVendor, dteDeliDate, LoginInfo.ConnStr);
@@ -1505,7 +1531,7 @@ namespace BlueLedger.PL.PC.PO
             }
         }
 
-        private DataTable GenPOFromPR0(string prList, string strDesc, string loginName, string connStr, ref string errorMessage)
+        private DataTable GenPOFromPR(string prList, string strDesc, string loginName, string connStr, ref string errorMessage)
         {
             var currCode = ddl_CurrCode.SelectedValue;
             var currRate = currency.GetLastCurrencyRate(currCode, DateTime.Now, LoginInfo.ConnStr);
@@ -1521,13 +1547,13 @@ namespace BlueLedger.PL.PC.PO
                 // Get all pr detail which are ready ot generate po
                 string cmdPrDt = string.Format(
                     @"SELECT PrDt.* 
-                              FROM PC.PrDt 
-                              LEFT JOIN PC.Pr ON Pr.PRNo = PrDt.PRNo 
-                              WHERE PrDt.PRNo IN ({0})
-                                AND (CHARINDEX('R', PrDt.ApprStatus) = 0)
-                                AND (CHARINDEX('_', PrDt.ApprStatus) = 0)
-                                AND CurrencyCode = '{1}'
-                              ORDER BY PrDt.VendorCode, PrDt.ReqDate,PrDt.BuCode, PrDt.LocationCode, PrDt.DeliPoint, PrDt.ProductCode"
+                      FROM PC.PrDt 
+                      LEFT JOIN PC.Pr ON Pr.PRNo = PrDt.PRNo 
+                      WHERE PrDt.PRNo IN ({0})
+                        AND (CHARINDEX('R', PrDt.ApprStatus) = 0)
+                        AND (CHARINDEX('_', PrDt.ApprStatus) = 0)
+                        AND CurrencyCode = '{1}'
+                      ORDER BY PrDt.VendorCode, PrDt.ReqDate,PrDt.BuCode, PrDt.LocationCode, PrDt.DeliPoint, PrDt.ProductCode"
                     , prList, currCode);
 
                 dtPrDt = _dbHandler.DbExecuteQuery(cmdPrDt, null, connStr);
@@ -1558,12 +1584,12 @@ namespace BlueLedger.PL.PC.PO
                             for (var i = 0; i < dtPrDt.Rows.Count; i++)
                             {
                                 var cmdUpdPrDt = @" UPDATE  PC.PrDt 
-                                                            SET     PONo = @PoNo, 
-                                                                    PoDtNo = @PoDtNo 
-                                                            WHERE   PRNo = @PrNo 
-                                                                    AND PrDtNo = @PrDtNo 
-                                                                    AND PrDt.ApprStatus not LIKE '%R%' 
-                                                                    AND CHARINDEX('_', PrDt.ApprStatus) = 0 ";
+                                                    SET     PONo = @PoNo, 
+                                                            PoDtNo = @PoDtNo 
+                                                    WHERE   PRNo = @PrNo 
+                                                            AND PrDtNo = @PrDtNo 
+                                                            AND PrDt.ApprStatus not LIKE '%R%' 
+                                                            AND CHARINDEX('_', PrDt.ApprStatus) = 0 ";
                                 var dbParamsUpdPrDt = new Blue.DAL.DbParameter[4];
 
                                 // Define Parameter
@@ -1654,34 +1680,34 @@ namespace BlueLedger.PL.PC.PO
 
                         var cmdInsPoHdr = string.Format(
                             @"  INSERT INTO [PC].[Po] ( [PoNo], [PoDate], [Description], [DeliDate], [Vendor], [Buyer], [Currency], [ExchageRate],
-                                                                [CreditTerm], [DocStatus], [IsVoid], [CreatedDate], [CreatedBy], [UpdatedDate], [UpdatedBy],
-                                                                [CurrencyCode], [CurrencyRate] ) 
-                                                                                    
-                                        SELECT 
-                                            DISTINCT(prdt.PoNo), 
-                                            GETDATE() AS [PoDate], 
-                                            (SELECT TOP(1) h.[Description] FROM PC.PrDt d JOIN PC.Pr h on h.PRNo = d.PRNo WHERE d.PONo = prdt.PONo) AS [Description], 
-                                            prdt.ReqDate, 
-                                            prdt.VendorCode, 
-                                            NULL AS [Buyer], 
-                                            '{1}' as Currency,
-                                            Ref.GetLastCurrencyRate( GETDATE(), prdt.CurrencyCode) as [ExchageRate],
-                                            Vendor.CreditTerm, 
-                                            'Approved' AS DocStatus, 
-                                            'False' AS [IsVoid], 
-                                            GETDATE() AS [CreatedDate], 
-                                            @LoginName AS [CreatedBy], 
-                                            GETDATE() AS [UpdatedDate], 
-                                            @LoginName AS [UpdatedBy], 
-                                            '{1}' as CurrencyCode, 
-                                            Ref.GetLastCurrencyRate( prdt.ReqDate, prdt.CurrencyCode) AS [CurrencyRate]
-                                        FROM PC.PrDt prdt 
-                                        LEFT JOIN PC.Pr ON (Pr.PRNo = PrDt.PRNo) 
-                                        LEFT JOIN AP.Vendor ON (Vendor.VendorCode = PrDt.VendorCode) 
-                                        WHERE prdt.PRNo IN ({0})
-                                            AND prdt.CurrencyCode = '{1}'
-                                            AND (CHARINDEX('R', PrDt.ApprStatus) = 0 )
-                                            AND (CHARINDEX('_', PrDt.ApprStatus) = 0 )"
+                                                        [CreditTerm], [DocStatus], [IsVoid], [CreatedDate], [CreatedBy], [UpdatedDate], [UpdatedBy],
+                                                        [CurrencyCode], [CurrencyRate] ) 
+                                                                            
+                                SELECT 
+                                    DISTINCT(prdt.PoNo), 
+                                    GETDATE() AS [PoDate], 
+                                    (SELECT TOP(1) h.[Description] FROM PC.PrDt d JOIN PC.Pr h on h.PRNo = d.PRNo WHERE d.PONo = prdt.PONo) AS [Description], 
+                                    prdt.ReqDate, 
+                                    prdt.VendorCode, 
+                                    NULL AS [Buyer], 
+                                    '{1}' as Currency,
+                                    Ref.GetLastCurrencyRate( GETDATE(), prdt.CurrencyCode) as [ExchageRate],
+                                    Vendor.CreditTerm, 
+                                    'Approved' AS DocStatus, 
+                                    'False' AS [IsVoid], 
+                                    GETDATE() AS [CreatedDate], 
+                                    @LoginName AS [CreatedBy], 
+                                    GETDATE() AS [UpdatedDate], 
+                                    @LoginName AS [UpdatedBy], 
+                                    '{1}' as CurrencyCode, 
+                                    Ref.GetLastCurrencyRate( prdt.ReqDate, prdt.CurrencyCode) AS [CurrencyRate]
+                                FROM PC.PrDt prdt 
+                                LEFT JOIN PC.Pr ON (Pr.PRNo = PrDt.PRNo) 
+                                LEFT JOIN AP.Vendor ON (Vendor.VendorCode = PrDt.VendorCode) 
+                                WHERE prdt.PRNo IN ({0})
+                                    AND prdt.CurrencyCode = '{1}'
+                                    AND (CHARINDEX('R', PrDt.ApprStatus) = 0 )
+                                    AND (CHARINDEX('_', PrDt.ApprStatus) = 0 )"
                                 , prList, currCode); // End Modified.
 
                         var dbParamsInsPoHdr = new Blue.DAL.DbParameter[1];
@@ -1693,44 +1719,44 @@ namespace BlueLedger.PL.PC.PO
 
                         string cmdInsPoDt = string.Format(
                                             @"  DECLARE @DigitAmt INT = APP.DigitAmt()
-        
-                                                        INSERT INTO [PC].[PoDt] (
-                                                              [PoNo], [PoDt], [BuCode], [Location], [Product]
-                                                            , [Descen], [Descll], [DeliveryPoint], [OrdQty], [Unit]
-                                                            , [FOCQty], [RcvQty], [CancelQty], [Price], [Discount]
-                                                            , [DiscountAmt] 
-                                                            , [TaxType], [TaxRate], [IsAdj]
-                                                            , [NetAmt]
-                                                            , [TaxAmt]
-                                                            , [TotalAmt]
-                                                            , [CurrNetAmt], [CurrDiscAmt], [CurrTaxAmt], [CurrTotalAmt] 
-                                                            , [Buyer]
-                                                            , [Comment]
-                                                        )
-                                                        SELECT  prdt.PoNo, prdt.PoDtNo, prdt.BuCode, prdt.LocationCode, prdt.ProductCode 
-                                                                , prdt.Descen, prdt.Descll, prdt.DeliPoint, SUM(prdt.ApprQty) AS OrdQty, prdt.OrderUnit 
-                                                                , SUM(prdt.FOCQty) AS FOCQty, 0 AS RcvQty, 0 AS CancelQty, prdt.Price, prdt.DiscPercent
-                                                                , SUM(ROUND( prdt.DiscAmt * Ref.GetLastCurrencyRate( prdt.ReqDate, prdt.CurrencyCode), @DigitAmt) ) AS DiscAmt
-                                                                , prdt.TaxType, prdt.TaxRate, 'false' AS IsAdj
-                                                                , SUM(ROUND( prdt.CurrNetAmt * Ref.GetLastCurrencyRate( prdt.ReqDate, prdt.CurrencyCode), @DigitAmt)) AS NetAmt
-                                                                , SUM(ROUND( prdt.CurrTaxAmt * Ref.GetLastCurrencyRate( prdt.ReqDate, prdt.CurrencyCode), @DigitAmt)) AS TaxAmt
-                                                                , SUM(ROUND( prdt.CurrTotalAmt * Ref.GetLastCurrencyRate( prdt.ReqDate, prdt.CurrencyCode), @DigitAmt)) AS TotalAmt
-                                                                , SUM(prdt.CurrNetAmt) AS CurrNetAmt, SUM(prdt.CurrDiscAmt) AS CurrDiscAmt, SUM(prdt.CurrTaxAmt) AS CurrTaxAmt, SUM(prdt.CurrTotalAmt) AS CurrTotalAmt
-                                                                , NULL AS Buyer
-                                                                , prdt.Comment
-                                                                -- , CAST(STUFF((  SELECT CASE WHEN t.Comment IS NOT NULL AND RTRIM(LTRIM(t.Comment)) <> '' THEN '; ' + t.Comment ELSE '' END 
-                                                                --                FROM PC.PrDt t WHERE t.VendorCode = prdt.VendorCode AND t.ReqDate = prdt.ReqDate AND t.BuCode = prdt.BuCode 
-                                                                --                AND t.LocationCode = prdt.LocationCode AND t.DeliPoint = prdt.DeliPoint AND t.ProductCode = prdt.ProductCode 
-                                                                --                AND t.OrderUnit = prdt.OrderUnit AND t.Price = prdt.Price AND t.DiscPercent = prdt.DiscPercent 
-                                                                --                AND t.TaxType = prdt.TaxType AND t.TaxRate = prdt.TaxRate FOR XML PATH ('')), 1, 2, '') AS NVARCHAR(300)) AS Comment 
-                                                            
-                                                        FROM [PC].PrDt 
-                                                        WHERE prdt.PRNo IN ({0}) 
-                                                            AND (CHARINDEX('R', prdt.ApprStatus) = 0 )
-                                                            AND (CHARINDEX('_', prdt.ApprStatus) = 0 ) 
-                                                            AND [CurrencyCode] = @CurrCode                       
-                                                        GROUP BY    prdt.VendorCode, prdt.PoNo, prdt.PoDtNo, prdt.BuCode, prdt.LocationCode, prdt.ProductCode, prdt.Descen, 
-                                                                    prdt.Descll, prdt.ReqDate, prdt.DeliPoint, prdt.OrderUnit, prdt.Price, prdt.DiscPercent, prdt.TaxType, prdt.TaxRate, prdt.Comment ", prList);
+
+                                                INSERT INTO [PC].[PoDt] (
+                                                      [PoNo], [PoDt], [BuCode], [Location], [Product]
+                                                    , [Descen], [Descll], [DeliveryPoint], [OrdQty], [Unit]
+                                                    , [FOCQty], [RcvQty], [CancelQty], [Price], [Discount]
+                                                    , [DiscountAmt] 
+                                                    , [TaxType], [TaxRate], [IsAdj]
+                                                    , [NetAmt]
+                                                    , [TaxAmt]
+                                                    , [TotalAmt]
+                                                    , [CurrNetAmt], [CurrDiscAmt], [CurrTaxAmt], [CurrTotalAmt] 
+                                                    , [Buyer]
+                                                    , [Comment]
+                                                )
+                                                SELECT  prdt.PoNo, prdt.PoDtNo, prdt.BuCode, prdt.LocationCode, prdt.ProductCode 
+                                                        , prdt.Descen, prdt.Descll, prdt.DeliPoint, SUM(prdt.ApprQty) AS OrdQty, prdt.OrderUnit 
+                                                        , SUM(prdt.FOCQty) AS FOCQty, 0 AS RcvQty, 0 AS CancelQty, prdt.Price, prdt.DiscPercent
+                                                        , SUM(ROUND( prdt.DiscAmt * Ref.GetLastCurrencyRate( prdt.ReqDate, prdt.CurrencyCode), @DigitAmt) ) AS DiscAmt
+                                                        , prdt.TaxType, prdt.TaxRate, 'false' AS IsAdj
+                                                        , SUM(ROUND( prdt.CurrNetAmt * Ref.GetLastCurrencyRate( prdt.ReqDate, prdt.CurrencyCode), @DigitAmt)) AS NetAmt
+                                                        , SUM(ROUND( prdt.CurrTaxAmt * Ref.GetLastCurrencyRate( prdt.ReqDate, prdt.CurrencyCode), @DigitAmt)) AS TaxAmt
+                                                        , SUM(ROUND( prdt.CurrTotalAmt * Ref.GetLastCurrencyRate( prdt.ReqDate, prdt.CurrencyCode), @DigitAmt)) AS TotalAmt
+                                                        , SUM(prdt.CurrNetAmt) AS CurrNetAmt, SUM(prdt.CurrDiscAmt) AS CurrDiscAmt, SUM(prdt.CurrTaxAmt) AS CurrTaxAmt, SUM(prdt.CurrTotalAmt) AS CurrTotalAmt
+                                                        , NULL AS Buyer
+                                                        , prdt.Comment
+                                                        -- , CAST(STUFF((  SELECT CASE WHEN t.Comment IS NOT NULL AND RTRIM(LTRIM(t.Comment)) <> '' THEN '; ' + t.Comment ELSE '' END 
+                                                        --                FROM PC.PrDt t WHERE t.VendorCode = prdt.VendorCode AND t.ReqDate = prdt.ReqDate AND t.BuCode = prdt.BuCode 
+                                                        --                AND t.LocationCode = prdt.LocationCode AND t.DeliPoint = prdt.DeliPoint AND t.ProductCode = prdt.ProductCode 
+                                                        --                AND t.OrderUnit = prdt.OrderUnit AND t.Price = prdt.Price AND t.DiscPercent = prdt.DiscPercent 
+                                                        --                AND t.TaxType = prdt.TaxType AND t.TaxRate = prdt.TaxRate FOR XML PATH ('')), 1, 2, '') AS NVARCHAR(300)) AS Comment 
+                                                    
+                                                FROM [PC].PrDt 
+                                                WHERE prdt.PRNo IN ({0}) 
+                                                    AND (CHARINDEX('R', prdt.ApprStatus) = 0 )
+                                                    AND (CHARINDEX('_', prdt.ApprStatus) = 0 ) 
+                                                    AND [CurrencyCode] = @CurrCode                       
+                                                GROUP BY    prdt.VendorCode, prdt.PoNo, prdt.PoDtNo, prdt.BuCode, prdt.LocationCode, prdt.ProductCode, prdt.Descen, 
+                                                            prdt.Descll, prdt.ReqDate, prdt.DeliPoint, prdt.OrderUnit, prdt.Price, prdt.DiscPercent, prdt.TaxType, prdt.TaxRate, prdt.Comment ", prList);
 
 
                         var dbParamsInsPoDt = new Blue.DAL.DbParameter[1];
@@ -1747,24 +1773,24 @@ namespace BlueLedger.PL.PC.PO
 
                             var cmdSelPoHdr = string.Format(
                                 @"  SELECT h.[PoNo], h.[PoDate], h.[Description], h.[Vendor], h.[Currency], h.[Buyer], h.[ExchageRate]
-                                                    , h.[CreditTerm], h.[DocStatus], h.[ApprStatus], h.[IsVoid], h.[CreatedDate], h.[CreatedBy]
-                                                    , h.[UpdatedDate], h.[UpdatedBy]
-                                                    , SUM(d.NetAmt) AS NetAmt, SUM(d.TaxAmt) AS TaxAmt, SUM(d.TotalAmt) AS TotalAmt 
-                                                    , h.CurrencyCode, h.CurrencyRate
-                                                    , SUM(d.CurrNetAmt) AS CurrNetAmt, SUM(d.CurrTaxAmt) AS CurrTaxAmt, SUM(d.CurrTotalAmt) AS  CurrTotalAmt
-                                                    , a.Address6 as VendorEmail
-                    
-                                            FROM PC.Po h 
-                                            LEFT JOIN PC.PoDt d ON (d.PoNo = h.PoNo)
-                                            LEFT JOIN AP.Vendor v ON v.VendorCode = h.Vendor
-                                            LEFT JOIN [Profile].[Address] a ON a.ProfileCode = v.ProfileCode
-        
-                                            WHERE h.PoNo IN (SELECT DISTINCT(PoNo) FROM PC.PrDt WHERE PRNo IN ({0})) 
-                                              AND h.CurrencyCode = '{1}'
-                                            GROUP BY h.[PoNo], h.[PoDate], h.[Description], h.[Vendor], h.[Currency], h.[Buyer], h.[ExchageRate], h.[CreditTerm]
-                                                    , h.[DocStatus], h.[ApprStatus], h.[IsVoid], h.[CreatedDate], h.[CreatedBy], h.[UpdatedDate], h.[UpdatedBy]
-                                                    , h.[CurrencyCode], h.[CurrencyRate]
-                                                    , a.Address6"
+                                            , h.[CreditTerm], h.[DocStatus], h.[ApprStatus], h.[IsVoid], h.[CreatedDate], h.[CreatedBy]
+                                            , h.[UpdatedDate], h.[UpdatedBy]
+                                            , SUM(d.NetAmt) AS NetAmt, SUM(d.TaxAmt) AS TaxAmt, SUM(d.TotalAmt) AS TotalAmt 
+                                            , h.CurrencyCode, h.CurrencyRate
+                                            , SUM(d.CurrNetAmt) AS CurrNetAmt, SUM(d.CurrTaxAmt) AS CurrTaxAmt, SUM(d.CurrTotalAmt) AS  CurrTotalAmt
+                                            , a.Address6 as VendorEmail
+            
+                                    FROM PC.Po h 
+                                    LEFT JOIN PC.PoDt d ON (d.PoNo = h.PoNo)
+                                    LEFT JOIN AP.Vendor v ON v.VendorCode = h.Vendor
+                                    LEFT JOIN [Profile].[Address] a ON a.ProfileCode = v.ProfileCode
+
+                                    WHERE h.PoNo IN (SELECT DISTINCT(PoNo) FROM PC.PrDt WHERE PRNo IN ({0})) 
+                                      AND h.CurrencyCode = '{1}'
+                                    GROUP BY h.[PoNo], h.[PoDate], h.[Description], h.[Vendor], h.[Currency], h.[Buyer], h.[ExchageRate], h.[CreditTerm]
+                                            , h.[DocStatus], h.[ApprStatus], h.[IsVoid], h.[CreatedDate], h.[CreatedBy], h.[UpdatedDate], h.[UpdatedBy]
+                                            , h.[CurrencyCode], h.[CurrencyRate]
+                                            , a.Address6"
                                 , prList, currCode);
                             // End Modified.
 
@@ -1806,397 +1832,6 @@ namespace BlueLedger.PL.PC.PO
             return null;
         }
 
-        private DataTable GenPOFromPR(string prList, string strDesc, string loginName, string connStr, ref string errorMessage)
-        {
-            var result = new DataTable();
-            errorMessage = string.Empty;
-
-            var currCode = ddl_CurrCode.SelectedValue;
-            var currRate = currency.GetLastCurrencyRate(currCode, DateTime.Now, LoginInfo.ConnStr);
-
-
-            var query = new StringBuilder();
-
-            query.AppendFormat("DECLARE @CurrCode nvarchar(10)='{0}',  @LoginName nvarchar(100)='{0}' ", currCode, loginName);
-            query.AppendLine();
-            query.AppendLine(
-@"DECLARE @DigitAmt INT = APP.DigitAmt()
-DECLARE @Error TABLE(
-	DeliveryDate DATE,
-	VendorCode nvarchar(20),
-	Error nvarchar(max)
-)
-
-DECLARE @pr TABLE(
-	PrNo nvarchar(20) NOT NULL,
-	PRIMARY KEY (PrNo)
-)
-
-DECLARE @Po TABLE ( 
-	PoNo nvarchar(20) 
-)");
-            query.AppendFormat("INSERT INTO @pr (PrNo) SELECT PrNo FROM PC.Pr WHERE PrNo IN ({0}) ORDER BY PrNo", prList);
-            query.AppendLine();
-            query.AppendLine(
-@"DECLARE @DefaultCurrCode nvarchar(10)= (SELECT [Value] FROM APP.Config WHERE [Module]='APP' AND [SubModule]='BU' AND [Key]='DefaultCurrency')
-DECLARE @CurrRate decimal(18,6) = 1
-
-
--- Query new PO from PR by ReqDate, VendorCode, CreditTerm, The first of PR Description
-DECLARE 
-	@ReqDate DATE,
-	@VendorCode nvarchar(20),
-	@CreditTerm INT,
-	@Desc nvarchar(255)
-
-DECLARE pr_cursor CURSOR FOR
-SELECT 
-	prdt.ReqDate,
-	prdt.VendorCode,
-	v.CreditTerm,
-	MIN(pr.[Description]) as [Description]
-FROM 
-	PC.Pr
-	JOIN PC.PrDt
-		ON pr.PRNo = prdt.PRNo 
-	LEFT JOIN AP.Vendor v
-		ON v.VendorCode=prdt.VendorCode
-WHERE 
-	prdt.PRNo IN (SELECT PrNo FROM @pr)
-	AND CHARINDEX('R', PrDt.ApprStatus) = 0
-    AND CHARINDEX('_', PrDt.ApprStatus) = 0
-	AND CurrencyCode = @CurrCode
-	
-GROUP BY 
-	prdt.ReqDate,
-	prdt.VendorCode,
-	v.CreditTerm
-
-OPEN pr_cursor
-FETCH NEXT FROM pr_cursor INTO @ReqDate, @VendorCode, @CreditTerm, @Desc
-
-WHILE @@FETCH_STATUS = 0
-BEGIN
-	IF @CurrCode <> @DefaultCurrCode
-	BEGIN
-		SET @CurrRate = ISNULL(Ref.GetLastCurrencyRate( @ReqDate, @CurrCode), 1);
-	END
-
-	BEGIN TRANSACTION
-	BEGIN TRY
-		-- Get new PoNo
-		DELETE FROM @Po
-		INSERT INTO @Po EXEC [PC].[POGetNewID]
-		DECLARE @PoNo nvarchar(20) = (SELECT TOP(1) PoNo FROM @Po)
-
-		PRINT CONCAT(@PoNo, ' - ' , @ReqDate,' - ', @VendorCode)
-		
-		-- Create PO
-		INSERT INTO [PC].[Po] ([PoNo], [PoDate], [Description], [DeliDate], [Vendor], [CreditTerm], [Currency], [ExchageRate], [CurrencyCode], [CurrencyRate], [DocStatus], [IsVoid], [CreatedDate], [CreatedBy], [UpdatedDate], [UpdatedBy])
-		VALUES (@PoNo, CAST(GETDATE() AS DATE), @Desc, @ReqDate, @VendorCode, @CreditTerm, @CurrCode, @CurrRate, @CurrCode, @CurrRate, 'Approved', 'false', GETDATE(), @LoginName, GETDATE(), @LoginName)
-	
-		-- Create PoDt
-		DECLARE @prdt TABLE(
-			BuCode nvarchar(20),
-			LocationCode nvarchar(20),
-			ProductCode nvarchar(20),
-			OrderUnit nvarchar(20),
-			Price decimal(18,4),
-			DiscPercent decimal(18,2),
-			TaxType nvarchar(1),
-			TaxRate decimal(18,2),
-			DeliPoint INT,
-
-			ApprQty decimal(18,4),
-			FocQty decimal(18,4),
-
-			CurrDiscAmt decimal(18,4),
-			CurrNetAmt decimal(18,4),
-			CurrTaxAmt decimal(18,4),
-			CurrTotalAmt decimal(18,4),
-
-			Comment nvarchar(255),
-
-			PrNo nvarchar(20),
-			PrDtNo INT,
-			PoDtNo INT
-		)
-
-		DELETE FROM @prdt
-
-		INSERT INTO @prdt
-		SELECT
-			BuCode,
-			LocationCode,
-			ProductCode,
-			OrderUnit,
-			Price,
-			DiscPercent,
-			TaxType,
-			TaxRate,
-			DeliPoint,
-
-			ApprQty,
-			FOCQty,
-
-			CurrDiscAmt,
-			CurrNetAmt,
-			CurrTaxAmt,
-			CurrTotalAmt,
-
-			Comment,
-
-			PrNo,
-			PrDtNo,
-			0
-		FROM
-			PC.PrDt
-		WHERE 
-			PrNo IN (SELECT PrNo FROM @Pr)
-			AND CAST(ReqDate AS DATE) = @ReqDate
-			AND VendorCode = @VendorCode
-		ORDER BY
-			BuCode,
-			LocationCode,
-			ProductCode,
-			OrderUnit,
-			Price,
-			DiscPercent,
-			TaxType,
-			TaxRate,
-			DeliPoint
-
-		;with
-		d AS(
-			SELECT
-				TOP 10000
-				ROW_NUMBER() OVER(ORDER BY BuCode) as PoDtNo, 
-				BuCode,
-				LocationCode,
-				ProductCode,
-				OrderUnit,
-				Price,
-				DiscPercent,
-				TaxType,
-				TaxRate,
-				DeliPoint
-			FROM
-				PC.PrDt
-			WHERE 
-				PrNo IN (SELECT PrNo FROM @Pr)
-				AND CAST(ReqDate AS DATE) = @ReqDate
-				AND VendorCode = @VendorCode
-			GROUP BY
-				BuCode,
-				LocationCode,
-				ProductCode,
-				OrderUnit,
-				Price,
-				DiscPercent,
-				TaxType,
-				TaxRate,
-				DeliPoint
-		)
-		UPDATE
-			@prdt
-		SET
-			PoDtNo = d.PoDtNo
-		FROM
-			@prdt pr
-			JOIN d
-				ON d.BuCode=pr.BuCode
-				AND d.LocationCode=pr.LocationCode
-				AND d.ProductCode=pr.ProductCode
-				AND d.OrderUnit=pr.OrderUnit
-				AND d.Price=pr.Price
-				AND d.DiscPercent=pr.DiscPercent
-				AND d.TaxType=pr.TaxType
-				AND d.TaxRate=pr.TaxRate
-				AND d.DeliPoint=pr.DeliPoint
-
-		UPDATE
-			PC.PrDt
-		SET
-			PoNo = @PoNo,
-			PoDtNo = t.PoDtNo 
-		FROM
-			PC.PrDt 
-			JOIN @prdt t ON t.PrNo=prdt.PrNo AND t.PrDtNo=prdt.PrDtNo
-
-	
-		INSERT INTO [PC].[PoDt] (
-			[PoNo], 
-			[PoDt], 
-			[BuCode], 
-			[Location], 
-			[Product],
-			[Unit], 
-			[Price], 
-			[Discount], 
-			[TaxType], 
-			[TaxRate], 
-			[DeliveryPoint], 
-
-			[OrdQty], 
-			[FOCQty], 
-			[RcvQty], 
-			[CancelQty], 
-			[IsAdj], 
-			
-			[CurrDiscAmt], 
-			[CurrNetAmt], 
-			[CurrTaxAmt], 
-			[CurrTotalAmt], 
-			
-			[DiscountAmt], 
-			[NetAmt], 
-			[TaxAmt], 
-			[TotalAmt], 
-			
-			[Comment]
-		)
-		SELECT
-			@PoNo as PoNo,
-			PoDtNo,
-			
-			BuCode,
-			LocationCode,
-			ProductCode,
-			OrderUnit,
-			Price,
-			DiscPercent,
-			TaxType,
-			TaxRate,
-			DeliPoint,
-
-			SUM(ApprQty) as OrdQty,
-			SUM(FocQty) as FocQty,
-			0 as RcvQty,
-			0 as CancelQty,
-			0 as IsAdj,
-
-			SUM(CurrDiscAmt) as CurrDiscAmt,
-			SUM(CurrNetAmt) as CurrNetAmt,
-			SUM(CurrTaxAmt) as CurrTaxAmt,
-			SUM(CurrTotalAmt) as CurrTotalAmt,
-
-			SUM(ROUND(CurrDiscAmt * @CurrRate, @DigitAmt)) as DiscAmt,
-			SUM(ROUND(CurrNetAmt * @CurrRate, @DigitAmt)) as NetAmt,
-			SUM(ROUND(CurrTaxAmt * @CurrRate, @DigitAmt)) as TaxAmt,
-			SUM(ROUND(CurrTotalAmt * @CurrRate, @DigitAmt)) as TotalAmt,
-
-			MAX(Comment) as Comment
-
-		FROM
-			@prdt
-		GROUP BY
-			PoDtNo,
-			BuCode,
-			LocationCode,
-			ProductCode,
-			OrderUnit,
-			Price,
-			DiscPercent,
-			TaxType,
-			TaxRate,
-			DeliPoint
-
-		COMMIT
-	END TRY
-	BEGIN CATCH
-		INSERT INTO @Error(DeliveryDate, VendorCode, Error) VALUES (@ReqDate, @VendorCode, ERROR_MESSAGE())
-		ROLLBACK
-	END CATCH
-
-	FETCH NEXT FROM pr_cursor INTO @ReqDate, @VendorCode, @CreditTerm, @Desc
-END
-
-CLOSE pr_cursor
-DEALLOCATE pr_cursor
-");
-
-            try
-            {
-                var dt = ExecuteQuery(connStr, query.ToString());
-
-                
-            }
-            catch (Exception ex)
-            {
-                errorMessage = ex.Message.ToString();
-
-            }
-
-
-
-
-
-
-
-            return result;
-        }
-
-
         #endregion
-
-        private int ExecuteNoneQuery(string connectionString, string query, IEnumerable<SqlParameter> parameters = null)
-        {
-
-            try
-            {
-                using (var conn = new SqlConnection(connectionString))
-                {
-                    conn.Open();
-
-                    var cmd = new SqlCommand(query, conn);
-
-                    if (parameters != null)
-                        cmd.Parameters.AddRange(parameters.ToArray());
-
-                    var affetced = cmd.ExecuteNonQuery();
-
-                    conn.Close();
-
-                    return affetced;
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-
-        }
-
-        private DataTable ExecuteQuery(string connectionString, string query, IEnumerable<SqlParameter> parameters = null)
-        {
-
-            try
-            {
-                using (var conn = new SqlConnection(connectionString))
-                {
-                    conn.Open();
-
-                    var cmd = new SqlCommand(query, conn);
-
-                    if (parameters != null)
-                        cmd.Parameters.AddRange(parameters.ToArray());
-
-                    var dt = new DataTable();
-                    using (var da = new SqlDataAdapter(cmd))
-                    {
-                        da.Fill(dt);
-                    }
-
-                    conn.Close();
-
-                    return dt;
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-
-        }
     }
 }

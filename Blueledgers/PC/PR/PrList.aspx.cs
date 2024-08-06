@@ -32,8 +32,7 @@ namespace BlueLedger.PL.PC.PR
         {
             if (!IsPostBack)
             {
-                //var vid = Request.Cookies["[PC].[vPrList]"] == null ? "" : Request.Cookies["[PC].[vPrList]"].Value;
-                var vid = Request.QueryString["vid"] == null ? "" : Request.QueryString["vid"].ToString();
+                var vid = Request.Cookies["[PC].[vPrList]"] == null ? "" : Request.Cookies["[PC].[vPrList]"].Value;
 
                 ListPage.CreateItems.Items.Add(new DevExpress.Web.ASPxMenu.MenuItem("Create Manually", "MC"));
                 ListPage.CreateItems.Items.FindByName("MC").NavigateUrl = "~/PC/PR/PrEdit.aspx?BuCode=" + LoginInfo.BuInfo.BuCode + "&MODE=new" + "&VID=" + vid + "&Type=C";
@@ -43,7 +42,6 @@ namespace BlueLedger.PL.PC.PR
 
                 ListPage.CreateItems.Items.Add(new DevExpress.Web.ASPxMenu.MenuItem("From Standard Order", "SO"));
                 ListPage.CreateItems.Items.FindByName("SO").NavigateUrl = "~/PC/PR/PrList.aspx?MODE=SO";
-
                 ListPage.DataBind();
 
             }

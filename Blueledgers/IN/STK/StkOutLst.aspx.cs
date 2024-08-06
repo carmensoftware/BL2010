@@ -28,11 +28,8 @@ namespace BlueLedger.PL.IN.STK
                 ListPage2.PrintItems.Items.Add(new DevExpress.Web.ASPxMenu.MenuItem("Stock Out List", "SL"));
                 ListPage2.DataBind();
 
-                var cookie = Request.Cookies["[IN].[vStockOut]"];
-                var vid = cookie == null ? "" : cookie.Value;
 
-                string urlCreate = "~/IN/STK/StkOutEdit.aspx?BuCode=" + LoginInfo.BuInfo.BuCode + "&MODE={0}&VID=" + vid;
-                //string urlCreate = "~/IN/STK/StkOutEdit.aspx?BuCode=" + LoginInfo.BuInfo.BuCode + "&MODE={0}&VID=" + Request.Cookies["[IN].[vStockOut]"].Value;
+                string urlCreate = "~/IN/STK/StkOutEdit.aspx?BuCode=" + LoginInfo.BuInfo.BuCode + "&MODE={0}&VID=" + Request.Cookies["[IN].[vStockOut]"].Value;
                 ListPage2.CreateItems.NavigateUrl = string.Format(urlCreate, "NEW");
 
                 ListPage2.CreateItems.Items.Add(new DevExpress.Web.ASPxMenu.MenuItem("From Standard Requisition", "SDR", "", string.Format(urlCreate, "SDR")));

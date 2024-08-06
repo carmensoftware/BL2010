@@ -15,7 +15,7 @@
 <%@ Register Src="~/UserControl/Log2.ascx" TagName="Log2" TagPrefix="uc4" %>
 <%@ Register Src="~/UserControl/workflow/ProcessStatusDt.ascx" TagName="ProcessStatusDt" TagPrefix="uc7" %>
 <%@ Register Src="~/UserControl/TotalSummary.ascx" TagName="TotalSummary" TagPrefix="uc" %>
-<%@ Reference Control="~/UserControl/Comment2.ascx" %>
+<%@ Reference Control="~/UserControl/Comment.ascx" %>
 <asp:Content ID="Content2" ContentPlaceHolderID="cph_Main" runat="Server">
     <script type="text/javascript">
         function OnVendorChanged(cmbVendor) {

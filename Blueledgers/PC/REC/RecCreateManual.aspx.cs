@@ -219,12 +219,11 @@ namespace BlueLedger.PL.IN.REC
 
         #region Save Commit Back
 
-        private string CheckRequiredBeforeSave()
+        protected void btn_Save_Click(object sender, EventArgs e)
         {
-            string errorMessage = string.Empty;
-
             if (grd_RecEdit.Rows.Count > 0)
             {
+                string errorMessage = string.Empty;
 
                 if (de_RecDate.Date.Date > DateTime.Today.Date)
                     errorMessage = "Receiving date does not allow in advance.";
@@ -244,7 +243,7 @@ namespace BlueLedger.PL.IN.REC
                 {
                     string recNo = txt_RecNo.Text.Trim();
                     string invoiceNo = txt_InvNo.Text.Trim();
-                    string vendorCode = ddl_Vendor.Visible ? ddl_Vendor.Text.Split(':')[0].ToString() : lbl_VendorCode.Text.Split(':')[0].ToString().Trim();
+                    string vendorCode = lbl_VendorCode.Text.Split(':')[0].ToString().Trim();
 
                     var sql = "SELECT COUNT(*) as RecordCount FROM PC.REC WHERE VendorCode=@VendorCode AND InvoiceNo=@InvoiceNo AND RecNo<>@RecNo AND DocStatus<>'Voided'";
                     var p = new Blue.DAL.DbParameter[]{
@@ -259,85 +258,24 @@ namespace BlueLedger.PL.IN.REC
                         errorMessage = string.Format("Invoice No '{0}' already exists.", invoiceNo); ;
                 }
 
-            }
-            else
-            {
-                errorMessage = "Cannot save because receiving have no details.";
-            }
 
+                if (errorMessage != string.Empty)
+                {
+                    lbl_WarningOth.Text = errorMessage;
+                    pop_Warning.ShowOnPageLoad = true;
+                    return;
 
-            return errorMessage;
-        }
+                }
 
+                // --------------------------------------------------------
 
-        protected void btn_Save_Click(object sender, EventArgs e)
-        {
-            var errorMessage = CheckRequiredBeforeSave();
-
-            if (errorMessage != string.Empty)
-            {
-                lbl_WarningOth.Text = errorMessage;
-                pop_Warning.ShowOnPageLoad = true;
-            }
-            else
                 pop_ConfirmSave.ShowOnPageLoad = true;
-
-
-            //if (grd_RecEdit.Rows.Count > 0)
-            //{
-            //    string errorMessage = string.Empty;
-
-            //    if (de_RecDate.Date.Date > DateTime.Today.Date)
-            //        errorMessage = "Receiving date does not allow in advance.";
-
-            //    // Check Invoice Date
-            //    if (de_InvDate.Text == string.Empty)
-            //        errorMessage = "Invoice date is required.";
-
-            //    if (de_InvDate.Date.Date > DateTime.Today.Date)
-            //        errorMessage = "Invoice date does not allow in advance.";
-
-
-            //    // Check duplicate Invoice No (by Vendor)
-            //    if (txt_InvNo.Text == string.Empty)
-            //        errorMessage = "Invoice no is required.";
-            //    else
-            //    {
-            //        string recNo = txt_RecNo.Text.Trim();
-            //        string invoiceNo = txt_InvNo.Text.Trim();
-            //        string vendorCode = ddl_Vendor.Visible ? ddl_Vendor.Text.Split(':')[0].ToString() : lbl_VendorCode.Text.Split(':')[0].ToString().Trim();
-
-            //        var sql = "SELECT COUNT(*) as RecordCount FROM PC.REC WHERE VendorCode=@VendorCode AND InvoiceNo=@InvoiceNo AND RecNo<>@RecNo AND DocStatus<>'Voided'";
-            //        var p = new Blue.DAL.DbParameter[]{
-            //            new Blue.DAL.DbParameter("@VendorCode",vendorCode),
-            //            new Blue.DAL.DbParameter("@InvoiceNo", invoiceNo),
-            //            new Blue.DAL.DbParameter("@RecNo", recNo),
-            //        };
-
-            //        DataTable dt = Po.DbExecuteQuery(sql, p, LoginInfo.ConnStr);
-
-            //        if (Convert.ToInt32(dt.Rows[0]["RecordCount"]) > 0) // duplicate
-            //            errorMessage = string.Format("Invoice No '{0}' already exists.", invoiceNo); ;
-            //    }
-
-
-            //    if (errorMessage != string.Empty)
-            //    {
-            //        lbl_WarningOth.Text = errorMessage;
-            //        pop_Warning.ShowOnPageLoad = true;
-            //        return;
-
-            //    }
-
-            //    // --------------------------------------------------------
-
-            //    pop_ConfirmSave.ShowOnPageLoad = true;
-            //}
-            //else
-            //{
-            //    lbl_WarningDelete.Text = "Cannot save because receiving have no details.";
-            //    pop_WarningDelete.ShowOnPageLoad = true;
-            //}
+            }
+            else
+            {
+                lbl_WarningDelete.Text = "Cannot save because receiving have no details.";
+                pop_WarningDelete.ShowOnPageLoad = true;
+            }
 
 
 
@@ -354,33 +292,22 @@ namespace BlueLedger.PL.IN.REC
 
         protected void btn_Commit_Click(object sender, EventArgs e)
         {
-            var errorMessage = CheckRequiredBeforeSave();
-
-            if (errorMessage != string.Empty)
+            if (txt_InvNo.Text == string.Empty || de_InvDate.Text == string.Empty)
             {
-                lbl_WarningOth.Text = errorMessage;
-                pop_Warning.ShowOnPageLoad = true;
+                lbl_WarningDelete.Text = "Please insert invoice number and invoice date";
+                pop_WarningDelete.ShowOnPageLoad = true;
+                return;
+            }
+
+            if (grd_RecEdit.Rows.Count > 0)
+            {
+                pop_ConfirmCommit.ShowOnPageLoad = true;
             }
             else
-                pop_ConfirmCommit.ShowOnPageLoad = true;
-
-
-            //if (txt_InvNo.Text == string.Empty || de_InvDate.Text == string.Empty)
-            //{
-            //    lbl_WarningDelete.Text = "Please insert invoice number and invoice date";
-            //    pop_WarningDelete.ShowOnPageLoad = true;
-            //    return;
-            //}
-
-            //if (grd_RecEdit.Rows.Count > 0)
-            //{
-            //    pop_ConfirmCommit.ShowOnPageLoad = true;
-            //}
-            //else
-            //{
-            //    lbl_WarningDelete.Text = "Cannot commit because receiving have no details.";
-            //    pop_WarningDelete.ShowOnPageLoad = true;
-            //}
+            {
+                lbl_WarningDelete.Text = "Cannot commit because receiving have no details.";
+                pop_WarningDelete.ShowOnPageLoad = true;
+            }
         }
 
         protected void btn_Back_Click(object sender, EventArgs e)
@@ -612,15 +539,12 @@ namespace BlueLedger.PL.IN.REC
             {
                 decimal recQtyEdit;
                 decimal.TryParse(seRecQtyEdit.Text, out recQtyEdit);
-                var oldUnit = ddlRcvUnit.Value == null ? "" : ddlRcvUnit.Value.ToString();
-
                 lblBaseQty.Text = String.Format(DefaultQtyFmt,
                     ProdUnit.GetQtyAfterChangeUnit(
                         productCode,
-                        ProdUnit.GetInvenUnit(productCode, hf_ConnStr.Value),
-                        oldUnit,
-                        recQtyEdit,
-                        hf_ConnStr.Value));
+                        ProdUnit.GetInvenUnit(productCode, hf_ConnStr.Value)
+                        , ddlRcvUnit.Value.ToString(), recQtyEdit, hf_ConnStr.Value));
+
                 lblBaseQty.ToolTip = lblBaseQty.Text;
                 var lblReceive = o.FindControl("lbl_Receive") as Label;
                 if (lblReceive != null)
@@ -1487,44 +1411,43 @@ as st where st.[rn] between @startIndex and @endIndex";
 
         protected void grd_RecEdit_RowUpdating(object sender, GridViewUpdateEventArgs e)
         {
-            if (!ValidateItem())
-                return;
+            RecEditMode = string.Empty;
+            //validate Item
+            var ddlProduct = grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("ddl_Product") as ASPxComboBox;
+            var seRecQtyEdit = grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("se_RecQtyEdit") as ASPxSpinEdit;
+            var sePriceEdit = grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("se_PriceEdit") as ASPxSpinEdit;
+
+            if (!ValidateItem()) return;
 
             // When click save on grid
             btn_AddItem.Enabled = true;
             ddl_Currency.Enabled = true;
             txt_ExRateAu.Enabled = true;
 
-            RecEditMode = string.Empty;
 
+            var o = grd_RecEdit.Rows[grd_RecEdit.EditIndex];
             var drUpdating = DsRecEdit.Tables[RecDt.TableName].Rows[grd_RecEdit.EditIndex];
+            var ddlTaxType = o.FindControl("ddl_TaxType") as DropDownList;
 
-            var row = grd_RecEdit.Rows[grd_RecEdit.EditIndex];
-
-            var ddlProduct = row.FindControl("ddl_Product") as ASPxComboBox;
-            var seRecQtyEdit =row.FindControl("se_RecQtyEdit") as ASPxSpinEdit;
-            var sePriceEdit = row.FindControl("se_PriceEdit") as ASPxSpinEdit;
-
-            var ddlTaxType = row.FindControl("ddl_TaxType") as DropDownList;
-            var txtTaxAmt = row.FindControl("txt_TaxAmt") as TextBox;
-            var txtTaxRate = row.FindControl("txt_TaxRate") as TextBox;
-            var txtDisc = row.FindControl("txt_Disc") as TextBox;
-            var txtDiscAmt = row.FindControl("txt_DiscAmt") as TextBox;
-            var txtNetAmt = row.FindControl("txt_NetAmt") as TextBox;
-            var txtDtrComment = row.FindControl("txt_DtrComment") as TextBox;
-            var seFocEdit = row.FindControl("se_FocEdit") as ASPxSpinEdit;
-            var chkTaxAdj = row.FindControl("chk_TaxAdj") as CheckBox;
-            var chkDiscAdj = row.FindControl("chk_DiscAdj") as CheckBox;
-            var seTotalAmt = row.FindControl("se_TotalAmt") as ASPxSpinEdit;
+            var txtTaxAmt = o.FindControl("txt_TaxAmt") as TextBox;
+            var txtTaxRate = o.FindControl("txt_TaxRate") as TextBox;
+            var txtDisc = o.FindControl("txt_Disc") as TextBox;
+            var txtDiscAmt = o.FindControl("txt_DiscAmt") as TextBox;
+            var txtNetAmt = o.FindControl("txt_NetAmt") as TextBox;
+            var txtDtrComment = o.FindControl("txt_DtrComment") as TextBox;
+            var seFocEdit = o.FindControl("se_FocEdit") as ASPxSpinEdit;
+            var chkTaxAdj = o.FindControl("chk_TaxAdj") as CheckBox;
+            var chkDiscAdj = o.FindControl("chk_DiscAdj") as CheckBox;
+            var seTotalAmt = o.FindControl("se_TotalAmt") as ASPxSpinEdit;
             var lblPoNo = grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("lbl_PoNo") as Label;
-            var lblBaseQty = row.FindControl("lbl_BaseQty") as Label;
+            var lblBaseQty = o.FindControl("lbl_BaseQty") as Label;
 
             // Added on: 24/08/2017, By: Fon
-            TextBox txt_CurrNetAmt = (TextBox)row.FindControl("txt_CurrNetAmt");
-            TextBox txt_CurrDiscAmt = (TextBox)row.FindControl("txt_CurrDiscAmt");
-            TextBox txt_CurrTaxAmt = (TextBox)row.FindControl("txt_CurrTaxAmt");
-            Label lbl_CurrTotalAmtDt = (Label)row.FindControl("lbl_CurrTotalAmtDt");
-            Label lbl_TotalAmtDt = (Label)row.FindControl("lbl_TotalAmtDt");
+            TextBox txt_CurrNetAmt = (TextBox)o.FindControl("txt_CurrNetAmt");
+            TextBox txt_CurrDiscAmt = (TextBox)o.FindControl("txt_CurrDiscAmt");
+            TextBox txt_CurrTaxAmt = (TextBox)o.FindControl("txt_CurrTaxAmt");
+            Label lbl_CurrTotalAmtDt = (Label)o.FindControl("lbl_CurrTotalAmtDt");
+            Label lbl_TotalAmtDt = (Label)o.FindControl("lbl_TotalAmtDt");
             // End Added.
 
             ASPxDateEdit de_ExpiryDate = (ASPxDateEdit)grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("de_ExpiryDate");
@@ -2624,14 +2547,14 @@ as st where st.[rn] between @startIndex and @endIndex";
         {
             if (DsRecEdit != null)
             {
-                var rowId = DsRecEdit.Tables[RecDt.TableName].Rows.Count;
-                var recDtNo = (rowId == 0) ? 1 : Convert.ToInt32(DsRecEdit.Tables[RecDt.TableName].Rows[rowId - 1]["RecDtNo"].ToString()) + 1;
+				var rowId = DsRecEdit.Tables[RecDt.TableName].Rows.Count;
+				var recDtNo = (rowId==0)? 1 : Convert.ToInt32(DsRecEdit.Tables[RecDt.TableName].Rows[rowId-1]["RecDtNo"].ToString()) + 1;
 
                 DsRecEdit.Tables[Rec.TableName].NewRow();
                 var drRecDt = DsRecEdit.Tables[RecDt.TableName].NewRow();
                 drRecDt["RecNo"] = RecNo;
                 //drRecDt["RecDtNo"] = DsRecEdit.Tables[RecDt.TableName].Rows.Count + 1;
-                drRecDt["RecDtNo"] = recDtNo;
+				drRecDt["RecDtNo"] = recDtNo;
                 drRecDt["LocationCode"] = LocationStamp;
                 drRecDt["ProductCode"] = string.Empty;
                 drRecDt["UnitCode"] = string.Empty;
@@ -3142,15 +3065,10 @@ as st where st.[rn] between @startIndex and @endIndex";
 
             if (Page.IsValid)
             {
+                string _action = string.Empty;
+
                 var mode = Request.Params["MODE"];
-                var _action = string.Empty;
-
-                var OpenPeriod = period.GetLatestOpenEndDate(LoginInfo.ConnStr);
-                var InvCommittedDate = de_RecDate.Date.Date <= OpenPeriod.Date ? OpenPeriod : DateTime.Now;
-                var deliPoint = cmb_DeliPoint.Value.ToString().Split(':')[0];
-                var currencyRate = Convert.ToDecimal(txt_ExRateAu.Text);
-                bool isAVCO = config.GetValue("IN", "SYS", "COST", hf_ConnStr.Value).ToUpper() == "AVCO";
-
+                var value = cmb_DeliPoint.Value.ToString().Split(':');
 
 
                 // Re-Calculation Extra Cost
@@ -3168,9 +3086,9 @@ as st where st.[rn] between @startIndex and @endIndex";
 
                     //drSave["RecNo"] = txt_RecNo.Text;
 
-                    drSave["Description"] = txt_Desc.Text.Trim();
-                    drSave["DeliPoint"] = deliPoint;
-                    drSave["InvoiceNo"] = txt_InvNo.Text.Trim();
+                    drSave["Description"] = (txt_Desc.Text ?? string.Empty);
+                    drSave["DeliPoint"] = value[0];
+                    drSave["InvoiceNo"] = (txt_InvNo.Text ?? string.Empty);
                     drSave["VendorCode"] = (ddl_Vendor.SelectedItem != null)
                         ? ddl_Vendor.SelectedItem.Value.ToString()
                         : ddl_Vendor.Value.ToString();
@@ -3179,8 +3097,8 @@ as st where st.[rn] between @startIndex and @endIndex";
                     //drSave["CurrencyCode"] = lbl_Currency.Text;
                     //drSave["ExRateAudit"] = Convert.ToDecimal(lbl_ExRateAu.Text);
                     drSave["CurrencyCode"] = ddl_Currency.Value.ToString();
-                    drSave["ExRateAudit"] = currencyRate;
-                    drSave["CurrencyRate"] = currencyRate;
+                    drSave["ExRateAudit"] = Convert.ToDecimal(txt_ExRateAu.Text);
+                    drSave["CurrencyRate"] = Convert.ToDecimal(txt_ExRateAu.Text);
                     // End Modified.
 
                     drSave["IsCashConsign"] = Convert.ToBoolean(chk_CashConsign.Checked);
@@ -3191,7 +3109,7 @@ as st where st.[rn] between @startIndex and @endIndex";
                     if (strAction == "Committed")
                     {
                         drSave["DocStatus"] = "Committed";
-                        drSave["CommitDate"] = ServerDateTime;
+                        drSave["CommitDate"] = DateTime.Now;
                     }
                     else
                     {
@@ -3200,7 +3118,8 @@ as st where st.[rn] between @startIndex and @endIndex";
 
                     if (de_InvDate.Value != null)
                     {
-                        drSave["InvoiceDate"] = de_InvDate.Date.Date;
+                        drSave["InvoiceDate"] = de_InvDate.Date;
+                        //DateTime.Parse(de_InvDate.Date.ToString(CultureInfo.InvariantCulture));
                     }
                     else
                     {
@@ -3238,14 +3157,21 @@ as st where st.[rn] between @startIndex and @endIndex";
                     // For new
                     string recNo = Rec.GetNewID(DateTime.Parse(de_RecDate.Text), hf_ConnStr.Value);
                     drSaveNew["RecNo"] = recNo;
-                    drSaveNew["RecDate"] = de_RecDate.Date.Date; //DateTime.Parse(de_RecDate.Date.ToShortDateString() + " " + ServerDateTime.TimeOfDay);
-                    drSaveNew["Description"] = txt_Desc.Text.Trim();
-                    drSaveNew["DeliPoint"] = deliPoint;
-                    drSaveNew["InvoiceNo"] = txt_InvNo.Text.Trim();
+                    drSaveNew["RecDate"] = de_RecDate.Date; //DateTime.Parse(de_RecDate.Date.ToShortDateString() + " " + ServerDateTime.TimeOfDay);
+                    drSaveNew["Description"] = (txt_Desc.Text ?? string.Empty);
+                    drSaveNew["DeliPoint"] = value[0];
+                    drSaveNew["InvoiceNo"] = (txt_InvNo.Text ?? string.Empty);
                     drSaveNew["VendorCode"] = ddl_Vendor.Value.ToString().Split(new[] { ":" }, StringSplitOptions.None)[0].Trim(); //ddl_Vendor.Value;
+
+                    decimal exRateAu;
+                    // Modified on: 05/09/2017
+                    //drSaveNew["CurrencyCode"] = lbl_Currency.Text;
+                    //drSaveNew["ExRateAudit"] = (decimal.TryParse(lbl_ExRateAu.Text, out exRateAu)) ? exRateAu : exRateAu;
                     drSaveNew["CurrencyCode"] = ddl_Currency.Value.ToString();
-                    drSaveNew["ExRateAudit"] = currencyRate;
-                    drSaveNew["CurrencyRate"] = currencyRate;
+                    drSaveNew["ExRateAudit"] = (decimal.TryParse(txt_ExRateAu.Text, out exRateAu)) ? exRateAu : exRateAu;
+                    drSaveNew["CurrencyRate"] = (decimal.TryParse(txt_ExRateAu.Text, out exRateAu)) ? exRateAu : exRateAu;
+                    // End Modified.
+
                     drSaveNew["IsCashConsign"] = Convert.ToBoolean(chk_CashConsign.Checked);
                     drSaveNew["CreatedDate"] = ServerDateTime;
                     drSaveNew["CreatedBy"] = LoginInfo.LoginName;
@@ -3257,6 +3183,7 @@ as st where st.[rn] between @startIndex and @endIndex";
                     if (de_InvDate.Value != null)
                     {
                         drSaveNew["InvoiceDate"] = de_InvDate.Date;
+                        //DateTime.Parse(de_InvDate.Date.ToString(CultureInfo.InvariantCulture));
                     }
                     else
                     {
@@ -3396,30 +3323,72 @@ as st where st.[rn] between @startIndex and @endIndex";
                 }
                 #endregion
 
+                // Added on: 01/02/2018, By: Fon, For: Check duplicate Invoice no.
+                if (dsSave.Tables[Rec.TableName].Rows.Count > 0)
+                {
+                    string currentRecNo = dsSave.Tables[Rec.TableName].Rows[0]["RecNo"].ToString();
+                    string invoiceNo = dsSave.Tables[Rec.TableName].Rows[0]["InvoiceNo"].ToString();
+                    string vendorCode = dsSave.Tables[Rec.TableName].Rows[0]["VendorCode"].ToString();
+
+                    bool isUsable = Check_DuplicateInvoiceNoByVendor(currentRecNo, invoiceNo, vendorCode);
+                    if (!isUsable)
+                    {
+                        lbl_WarningOth.Text = string.Format("Invoice No '{0}' already exists.", invoiceNo);
+                        pop_ConfirmSave.ShowOnPageLoad = false;
+                        pop_ConfirmCommit.ShowOnPageLoad = false;
+                        pop_Warning.ShowOnPageLoad = true;
+                        return;
+                    }
+                }
+                // End Added.
+
 
                 // Update Inventory Ledger ****************************************************
-                if (dsSave.Tables.Contains(inv.TableName))
-                    dsSave.Tables.Remove(inv.TableName);
+                if (dsSave.Tables[inv.TableName] == null)
+                {
+                    inv.GetListByHdrNo(dsSave, dsSave.Tables[Rec.TableName].Rows[0]["RecNo"].ToString(),
+                        hf_ConnStr.Value);
+                }
 
+                if (dsSave.Tables[inv.TableName].Rows.Count > 0)
+                {
 
-                var hdrno = dsSave.Tables[Rec.TableName].Rows[0]["RecNo"].ToString();
-                inv.GetListByHdrNo(dsSave, hdrno, hf_ConnStr.Value);
+                    dsSave.Tables[inv.TableName].Rows.Clear();
+                    dsSave.Tables[inv.TableName].AcceptChanges();
+                }
+                // End Modified.
 
-                //if (strAction == "Committed")
-                //{
-                //    Rec.DbExecuteQuery(string.Format("DELETE FROM [IN].Inventory WHERE [Type]='RC' AND HdrNo='{0}'", hdrno), null, hf_ConnStr.Value);
+                for (var i = dsSave.Tables[RecDt.TableName].Rows.Count - 1; i >= 0; i--)
+                {
+                    var drSelected = dsSave.Tables[RecDt.TableName].Rows[i];
 
-                //    foreach (DataRow dr in dsSave.Tables[RecDt.TableName].Rows)
-                //    {
-                //        if (dr.RowState != DataRowState.Deleted)
-                //        {
-                //            //dr["Status"] = "Committed";
-                //            UpdateInventoryForCommit(dr);
-                //        }
-                //    }
-                //}
+                    if (drSelected.RowState != DataRowState.Deleted)
+                    {
+                        if (Convert.ToDecimal(drSelected["RecQty"]) <= 0)
+                        {
+                            drSelected.Delete();
+                        }
+                        else // if (Convert.ToDecimal(drSelected["RecQty"]) > 0)
+                        {
+                            // insert when strAction = Committed
+                            if (strAction == "Committed")
+                            {
+                                drSelected["Status"] = "Committed";
+                                UpdateInventoryForCommit(drSelected);
 
+                            }
 
+                            drSelected["Status"] = strAction;
+                        }
+                        //else
+                        //{
+                        //    lbl_WarningDelete.Text = "Receiving is not complete";
+                        //    pop_WarningDelete.ShowOnPageLoad = true;
+
+                        //    return;
+                        //}
+                    }
+                }
 
                 // ********************************************************************************
 
@@ -3471,12 +3440,6 @@ as st where st.[rn] between @startIndex and @endIndex";
 
                     // ------------------------------
 
-                    if (strAction == "Committed")
-                    {
-                        var docNo = recNo;
-                        recFunc.InsertInventory(hf_ConnStr.Value, docNo, DateTime.Now);
-                    }
-
 
                     _transLog.Save("PC", "REC", recNo, _action, string.Empty, LoginInfo.LoginName, hf_ConnStr.Value);
 
@@ -3501,13 +3464,15 @@ as st where st.[rn] between @startIndex and @endIndex";
         private void CreateAccountMap(DataSet dsSave, string connStr)
         {
             return;
-
+            
         }
 
         private void UpdateInventoryForCommit(DataRow drRecDt)
         {
             recFunc.SetConnectionString(hf_ConnStr.Value);
             recFunc.UpdateInventoryForCommit(dsSave, drRecDt);
+
+
         }
 
         #endregion
@@ -3525,7 +3490,7 @@ as st where st.[rn] between @startIndex and @endIndex";
                 da.Fill(dt);
                 con.Close();
             }
-            catch
+            catch 
             {
                 con.Close();
             }
@@ -3697,23 +3662,23 @@ as st where st.[rn] between @startIndex and @endIndex";
         {
             CalculationForValueChanged(false, true);
 
-            //    TextBox txt_CurrTaxAmt = (TextBox)sender;
-            //    TextBox txt_CurrNetAmt = (TextBox)grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("txt_CurrNetAmt");
-            //    TextBox txt_CurrDiscAmt = (TextBox)grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("txt_CurrDiscAmt");
-            //    TextBox txt_TaxRate = (TextBox)grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("txt_TaxRate");
-            //    ASPxSpinEdit se_PriceEdit = (ASPxSpinEdit)grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("se_PriceEdit");
-            //    ASPxSpinEdit se_RecQtyEdit = (ASPxSpinEdit)grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("se_RecQtyEdit");
+        //    TextBox txt_CurrTaxAmt = (TextBox)sender;
+        //    TextBox txt_CurrNetAmt = (TextBox)grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("txt_CurrNetAmt");
+        //    TextBox txt_CurrDiscAmt = (TextBox)grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("txt_CurrDiscAmt");
+        //    TextBox txt_TaxRate = (TextBox)grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("txt_TaxRate");
+        //    ASPxSpinEdit se_PriceEdit = (ASPxSpinEdit)grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("se_PriceEdit");
+        //    ASPxSpinEdit se_RecQtyEdit = (ASPxSpinEdit)grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("se_RecQtyEdit");
 
-            //    if (txt_CurrTaxAmt.Text == string.Empty)
-            //        txt_CurrTaxAmt.Text = string.Format(DefaultAmtFmt, 0);
-            //    decimal price = decimal.Parse(se_PriceEdit.Text);
-            //    decimal recQty = decimal.Parse(se_RecQtyEdit.Text);
-            //    decimal discAmt = decimal.Parse(txt_CurrDiscAmt.Text);
-            //    decimal currTaxAmt = decimal.Parse(txt_CurrTaxAmt.Text);
-            //    decimal taxRate = Get_TaxRate(currTaxAmt, price * recQty, discAmt, 1);
+        //    if (txt_CurrTaxAmt.Text == string.Empty)
+        //        txt_CurrTaxAmt.Text = string.Format(DefaultAmtFmt, 0);
+        //    decimal price = decimal.Parse(se_PriceEdit.Text);
+        //    decimal recQty = decimal.Parse(se_RecQtyEdit.Text);
+        //    decimal discAmt = decimal.Parse(txt_CurrDiscAmt.Text);
+        //    decimal currTaxAmt = decimal.Parse(txt_CurrTaxAmt.Text);
+        //    decimal taxRate = Get_TaxRate(currTaxAmt, price * recQty, discAmt, 1);
 
-            //    txt_TaxRate.Text = string.Format("{0:N}", taxRate);
-            //    CalculateCost(grd_RecEdit.EditIndex);
+        //    txt_TaxRate.Text = string.Format("{0:N}", taxRate);
+        //    CalculateCost(grd_RecEdit.EditIndex);
         }
 
         protected decimal Get_TaxRate(decimal taxAmt, decimal price, decimal discPerUnit, decimal qty)
@@ -3793,14 +3758,5 @@ as st where st.[rn] between @startIndex and @endIndex";
             pop_Warning.ShowOnPageLoad = false;
         }
         // End Added.
-
-        private void DeleteInventory(string recNo)
-        {
-            var sql = string.Format("DELETE FROM [IN].Inventory WHERE [Type]='RC' AND HdrNo='{0}'", recNo);
-
-            inv.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
-
-        }
-
     }
 }

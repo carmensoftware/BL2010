@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Report ScriptLanguage="CSharp" UseFileCache="true" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="09/29/2022 12:36:54" ReportInfo.CreatorVersion="2013.4.11.0">
+<Report ScriptLanguage="CSharp" UseFileCache="true" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="10/26/2023 10:45:49" ReportInfo.CreatorVersion="2013.4.11.0">
   <ScriptText>
 using System;
 using System.Collections;
@@ -104,7 +104,7 @@ namespace FastReport
 }
 </ScriptText>
   <Dictionary>
-    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqfNQ7ch3Qaafl4+f8lCKgOdIGCjGYOhX+w6MhvsI6PvbbJHEHMQBjSRIWvC08b1jGdLehZMpbSYMBBNoFEpjDZ8HcdcKrJ7EsrIRWVGweQZo=">
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlquQ+MGUuFmwCkhAb0ntbeLCVYpiuMguxDfPu6iCm/j+i8ArQZlDWCzzL3RQj5GMRB21B4R19mAB6a4NfoCZp7WL/cKiAd/DwtZuiOKievAS5oIR3yj1QLp7Z2W8UqjS2rP60RoBlpzH5O92LExtC7Tw==">
       <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;">
         <Column Name="BuCode" DataType="System.String"/>
         <Column Name="Name" DataType="System.String"/>
@@ -224,14 +224,14 @@ namespace FastReport
       <PictureObject Name="Picture2" Width="151.2" Height="75.6" DataColumn="ADMIN_Bu.BuLogo"/>
       <ChildBand Name="Child2" Top="126.85" Width="1047.06" Height="7.56"/>
     </PageHeaderBand>
-    <GroupHeaderBand Name="GH1" Top="138.41" Width="1047.06" Height="26.46" Fill.Color="LightGray" Condition="[Stockcard.LocationCode]">
+    <GroupHeaderBand Name="GH1" Top="138.41" Width="1047.06" Height="26.46" Fill.Color="LightGray" Condition="[Stockcard.LocationCode]" SortOrder="None">
       <TextObject Name="GH1_lblTopic" Top="3.78" Width="66.15" Height="18.9" Text="Location:" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
       <TextObject Name="GH1_lblCode" Left="66.15" Top="3.78" Width="699.3" Height="18.9" Text="[Stockcard.LocationCode] : [Stockcard.LocationName]" AutoWidth="true" WordWrap="false" Font="Tahoma, 8pt"/>
       <ChildBand Name="GH1_Product" Top="168.87" Width="1047.06" Height="26.46" Fill.Color="LightGray">
         <TextObject Name="Text57" Top="3.78" Width="66.15" Height="18.9" Text="Product:" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
         <TextObject Name="Text58" Left="66.15" Top="3.78" Width="699.3" Height="18.9" Text="[Stockcard.ProductCode] : [Stockcard.ProductDesc1]" AutoWidth="true" WordWrap="false" Font="Tahoma, 8pt"/>
       </ChildBand>
-      <GroupHeaderBand Name="GH2" Top="199.33" Width="1047.06" Height="20.79" Border.Lines="Bottom" Condition="[Stockcard.ProductCode]">
+      <GroupHeaderBand Name="GH2" Top="199.33" Width="1047.06" Height="20.79" Border.Lines="Bottom" Condition="[Stockcard.ProductCode]" SortOrder="None">
         <TextObject Name="GH2_lblCode" Left="66.15" Top="1.89" Width="699.3" Height="18.9" Text="[Stockcard.ProductCode] : [Stockcard.ProductDesc1]" AutoWidth="true" WordWrap="false" Font="Tahoma, 8pt"/>
         <TextObject Name="GH2_lblTopic" Top="1.89" Width="66.15" Height="18.9" Text="Product:" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
         <TextObject Name="Text82" Left="793.8" Top="1.89" Width="255.15" Height="18.9" Text="Balance" HorzAlign="Center" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
@@ -271,10 +271,6 @@ namespace FastReport
           <TextObject Name="Text49" Left="541.65" Top="3.78" Width="69.93" Height="18.9" Text="[[CF]+[Stockcard.NetQty]]&#13;&#10;&#13;&#10;" Format="Number" Format.UseLocale="false" Format.DecimalDigits="4" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="0" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
           <TextObject Name="Text51" Left="323.75" Top="3.78" Width="69.93" Height="18.9" Text="[[CF]+[Stockcard.NetQty]+[Stockcard.OutQty]-[Stockcard.InQty]]&#13;&#10;&#13;&#10;" Format="Number" Format.UseLocale="false" Format.DecimalDigits="4" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="0" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
           <TextObject Name="Text1" Left="855.22" Top="3.78" Width="69.93" Height="18.9" Text="[Stockcard.UnitCost]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
-          <Sort>
-            <Sort Expression="[Stockcard.CommittedDate]"/>
-            <Sort Expression="[Stockcard.DocOrder]"/>
-          </Sort>
         </DataBand>
         <GroupFooterBand Name="GF2" Top="303.23" Width="1047.06" Height="22.68" Border.Lines="Top" Border.Style="Dot">
           <TextObject Name="GF_lblSum" Left="18.9" Top="3.78" Width="245.7" Height="18.9" Text="Sum of Product No. : [Stockcard.ProductCode]" AutoWidth="true" WordWrap="false" Font="Tahoma, 8pt, style=Italic"/>

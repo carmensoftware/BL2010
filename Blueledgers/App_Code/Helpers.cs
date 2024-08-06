@@ -1,9 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Web;
 using System.Data;
 using System.Data.SqlClient;
 using System.Text.RegularExpressions;
 
+/// <summary>
+/// Utility functions to help easy work.
+/// </summary>
 public class Helpers
 {
     public class SQL
@@ -20,6 +25,7 @@ public class Helpers
         }
 
         public string ConnectionString { set { _connStr = value; } }
+
 
         public DataTable ExecuteQuery(string query, SqlParameter[] parameters = null, string connectionString = null)
         {
@@ -84,6 +90,10 @@ public class Helpers
             }
         }
 
+
+
+
+
     }
 
     public class TextUtils
@@ -139,11 +149,11 @@ public class Helpers
             var sql = new SQL(connectionString);
             var query = string.Format("SELECT TOP 1 StartDate FROM [IN].Period WHERE IsClose=0 AND '{0}' >= StartDate", docDate.ToString("yyyy-MM-dd"));
             var dt = new DataTable();
-
+            
             dt = sql.ExecuteQuery(query);
             var isOpenPeriod = dt != null && dt.Rows.Count > 0;
 
-            dt = sql.ExecuteQuery("SELECT * FROM APP.Config WHERE Module='APP' AND SubModule='SYS' AND [Key]='EnableEditCommit' AND [Value]='1'");
+            dt = sql.ExecuteQuery("SELECT * FROM APP.Config WHERE Module='APP' AND SubModule='SYS' AND [Key]='EnableEditCommit' AND [Value]='1'"); 
             var enableEditCommit = dt != null && dt.Rows.Count > 0;
 
             dt = sql.ExecuteQuery("SELECT * FROM APP.Config WHERE Module='IN' AND SubModule='SYS' AND [Key]='COST' AND [Value]='AVCO'");
@@ -151,27 +161,8 @@ public class Helpers
 
             return isOpenPeriod && enableEditCommit && isAverage;
         }
-    }
 
 
-    public static class Utils
-    {
-        public static void ConsoleLog(System.Web.UI.Page page, string text)
-        {
-            page.Response.Write("<script>console.log(`" + text + "`);</script>");
-        }
-    }
-
-    public static string Base64Encode(string text)
-    {
-        var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(text);
-        return System.Convert.ToBase64String(plainTextBytes);
-    }
-
-    public static string Base64Decode(string base64EncodedData)
-    {
-        var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
-        return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
     }
 
 }

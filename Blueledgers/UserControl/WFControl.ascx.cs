@@ -6,7 +6,6 @@ using System.Text;
 using System.Web.UI.WebControls;
 using BlueLedger.PL.BaseClass;
 using Blue.BL;
-using System.Globalization;
 
 
 namespace BlueLedger.PL.UserControls
@@ -201,6 +200,7 @@ namespace BlueLedger.PL.UserControls
             }
         }
 
+
         public bool CountAppr
         {
             get { return ViewState["CountAppr"] == null ? _countAppr : bool.Parse(ViewState["CountAppr"].ToString()); }
@@ -210,6 +210,23 @@ namespace BlueLedger.PL.UserControls
                 ViewState["CountAppr"] = _countAppr;
             }
         }
+
+        //public int[] AutoApprStep
+        //{
+        //    get
+        //    {
+        //        if (ViewState["AutoApprStep"] == null)
+        //        {
+        //            return this._autoApprStep;
+        //        }
+        //        return (int[])ViewState["AutoApprStep"];
+        //    }
+        //    set
+        //    {
+        //        this._autoApprStep = value;
+        //        ViewState["AutoApprStep"] = this._autoApprStep;
+        //    }
+        //}
 
         public string ViewNo
         {
@@ -249,15 +266,38 @@ namespace BlueLedger.PL.UserControls
             Visible = CheckWFenable();
         }
 
+        //private DateTime GetEndDateTimeOfOpenPeriod()
+        //{
+        //    SqlConnection conn = new SqlConnection(LoginInfo.ConnStr);
+        //    conn.Open();
+
+        //    string sql;
+        //    sql = "SELECT DATEADD(DAY, DATEDIFF(DAY, 1, CAST(EndDate  AS DATE)), '23:55:00:000') as OpenPeriod ";
+        //    sql = sql + " FROM [IN].Period";
+        //    sql = sql + " WHERE IsClose='false' or IsClose IS NULL";
+        //    sql = sql + " ORDER BY [Year] ASC, PeriodNumber ASC";
+
+        //    var cmd = new SqlCommand(sql, conn);
+
+        //    cmd.ExecuteScalar();
+
+        //    SqlDataReader reader = cmd.ExecuteReader();
+        //    reader.Read();
+
+        //    return DateTime.Parse(reader["OpenPeriod"].ToString());
+
+        //}
+
+
 
         protected void btn_Appr_Click(object sender, EventArgs e)
         {
+            //ASPxGridView grd_PrDt = (ASPxGridView)this.Parent.FindControl(this.ControlID.ToString());
+            //List<object> columnValues = grd_PrDt.GetSelectedFieldValues(this.ColumnName.ToString());
+
+
             var grdPrDt = Parent.FindControl(ControlID) as GridView;
-
-
-            var isSelected = false;
-            //var columnValues = new List<object>();
-
+            var columnValues = new List<object>();
 
             if (grdPrDt != null)
                 foreach (GridViewRow grdRow in grdPrDt.Rows)
@@ -266,15 +306,11 @@ namespace BlueLedger.PL.UserControls
 
                     if (chkItem != null && chkItem.Checked)
                     {
-                        isSelected = true;
-                        break;
-
-                        //columnValues.Add(Ds.Tables[TableDtSchema].Rows[grdRow.RowIndex][ColumnName]);
+                        columnValues.Add(Ds.Tables[TableDtSchema].Rows[grdRow.RowIndex][ColumnName]);
                     }
                 }
 
-            //if (columnValues.Count == 0)
-            if (!isSelected)
+            if (columnValues.Count == 0)
             {
                 // return;
                 pop_ReqVendor.ShowOnPageLoad = true;
@@ -285,10 +321,7 @@ namespace BlueLedger.PL.UserControls
                 pop_ConfirmApprove.ShowOnPageLoad = true;
             }
 
-            var dtStepNo = _workFlow.DbExecuteQuery("SELECT StepNo FROM [APP].WF WHERE WFId=2", null, LoginInfo.ConnStr);
-            var maxStepNo = dtStepNo != null && dtStepNo.Rows.Count > 0 ? Convert.ToInt32(dtStepNo.Rows[0][0]) : 0;
-
-            if (TableSchema == "StoreRequisition" && WfStep == maxStepNo) // Check Period Date for CommittedDate (Before Issue)
+            if (TableSchema == "StoreRequisition" && WfStep == 3) // Check Period Date for CommittedDate (Before Issue)
             {
                 DateTime OpenPeriod = period.GetLatestOpenEndDate(LoginInfo.ConnStr).AddHours(23).AddMinutes(57);
                 DateTime InvCommittedDate;
@@ -351,79 +384,119 @@ namespace BlueLedger.PL.UserControls
 
         protected void btn_ConfirmApprove_Click(object sender, EventArgs e)
         {
-            var ds = new DataSet();
+            int wfStepCount;
+            DataSet ds = new DataSet();
+            _workFlow.Get(ds, "IN", "SR", LoginInfo.ConnStr);
+            wfStepCount = Convert.ToInt32(ds.Tables[0].Rows[0]["StepNo"]);
 
             pop_ConfirmApprove.ShowOnPageLoad = false;
 
-            var gv = Parent.FindControl(ControlID) as GridView; // ControlID = grd_StoreReqDt (Detail)
-            var list_SelectRefId = new List<object>();
+            lbl_WarningApprQty.Text = string.Empty;
 
-            if (gv != null)
-                foreach (GridViewRow row in gv.Rows)
+            var grdPrDt = Parent.FindControl(ControlID) as GridView;
+            var columnValues = new List<object>();
+
+            if (grdPrDt != null)
+                foreach (GridViewRow grdRow in grdPrDt.Rows)
                 {
-                    var chkItem = row.FindControl("chk_Item") as CheckBox;
+                    var chkItem = grdRow.FindControl("chk_Item") as CheckBox;
 
                     if (chkItem != null && chkItem.Checked)
                     {
-                        list_SelectRefId.Add(Ds.Tables[TableDtSchema].Rows[row.RowIndex][ColumnName]);
+                        columnValues.Add(Ds.Tables[TableDtSchema].Rows[grdRow.RowIndex][ColumnName]);
                     }
                 }
 
-            if (list_SelectRefId.Count == 0)
+            if (columnValues.Count == 0)
             {
+                pop_ConfirmApprove.ShowOnPageLoad = false;
                 return;
             }
 
-            _workFlow.Get(ds, "IN", "SR", LoginInfo.ConnStr);
 
-            var wfStepCount = Convert.ToInt32(ds.Tables[0].Rows[0]["StepNo"]);
-            var issueDate = DateTime.Today.Date;
-
-            // Check Onhand at issue step (last step)
-            if (WfStep == wfStepCount)
+            for (var i = 0; i < columnValues.Count; i++)
             {
-                foreach (var refId in list_SelectRefId)
+                if (Ds.Tables[_prDt.TableName] != null)
                 {
-                    var dr = Ds.Tables[TableDtSchema].AsEnumerable().FirstOrDefault(x => x.Field<Int32>("RefId") == Convert.ToInt32(refId));
+                    Ds.Tables[_prDt.TableName].Clear();
+                }
 
-                    if (dr == null)
-                        continue;
+                for (var j = 0; j < Ds.Tables[TableDtSchema].Rows.Count; j++)
+                {
+                    var dtSchema = Ds.Tables[TableDtSchema].Rows;
+                    if (dtSchema[j]["RefId"].ToString() != columnValues[i].ToString()) continue;
 
-                    var locationCode = Ds.Tables[TableSchema].Rows[0]["LocationCode"].ToString();
-                    var productCode = dr["ProductCode"].ToString().Trim();
-                    var queryDate = issueDate.AddDays(1);
+                    string sDate;
+                    try
+                    {
+                        sDate = Ds.Tables[TableSchema].Rows[0]["PRDate"].ToString();
+                    }
+                    catch
+                    {
+                        try
+                        {
+                            sDate = Ds.Tables[TableSchema].Rows[0]["CreatedDate"].ToString();
+                        }
+                        catch
+                        {
+                            try
+                            {
+                                //sDate = Ds.Tables[TableSchema].Rows[0]["CreateDate"].ToString();
+                                sDate = DateTime.Today.ToString("yyyy-MM-dd");
+                            }
+                            catch (Exception)
+                            {
+                                throw;
+                            }
+                        }
+                    }
 
-                    var sql = string.Format("SELECT ISNULL(SUM([IN]-[OUT]),0) as Onhand FROM [IN].Inventory WHERE [Location] = '{0}' AND ProductCode = '{1}' AND CommittedDate < '{2}'", locationCode, productCode, queryDate);
-                    var dtOnhand = _workFlow.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
-                    var onHand = Convert.ToDecimal(dtOnhand.Rows[0][0]);
+                    // Check Onhand
+                    if (WfStep < wfStepCount) continue;
+
+                    var get = _prDt.GetStockSummary(Ds, dtSchema[j]["ProductCode"].ToString()
+                        , Ds.Tables[TableSchema].Rows[0]["LocationCode"].ToString(), sDate, ConnStr);
+                    var onHand = decimal.Parse(Ds.Tables[_prDt.TableName].Rows[0]["OnHand"].ToString() == string.Empty
+                        ? "0"
+                        : Ds.Tables[_prDt.TableName].Rows[0]["OnHand"].ToString());
 
                     // Check null Approve qty
-                    if (dr["AllocateQty"] == DBNull.Value)
+                    if (string.IsNullOrEmpty(dtSchema[j]["allocateQty"].ToString()))
                     {
-                        dr["AllocateQty"] = dr["ApprQty"] == DBNull.Value ? dr["ReqestQty"] : dr["ApprQTy"];
+                        if (string.IsNullOrEmpty(dtSchema[j]["ApprQty"].ToString()))
+                        {
+                            dtSchema[j]["allocateQty"] = dtSchema[j]["RequestQty"].ToString();
+                            dtSchema[j]["ApprQty"] = dtSchema[j]["RequestQty"].ToString();
+                        }
+                        else
+                        {
+                            dtSchema[j]["allocateQty"] = dtSchema[j]["ApprQty"].ToString();
+                        }
                     }
 
-                    var qty = Convert.ToDecimal(dr["AllocateQty"]);
+                    var qty = decimal.Parse(dtSchema[j]["allocateQty"].ToString());
 
-                    if (onHand < qty)
-                    {
-                        var dtProduct = _workFlow.DbExecuteQuery(string.Format("SELECT ProductDesc1, ProductDesc2 FROM [IN].Product WHERE ProductCode='{0}'", productCode), null, LoginInfo.ConnStr);
-                        var productDesc1 = dtProduct == null || dtProduct.Rows.Count == 0 ? "" : dtProduct.Rows[0]["ProductDesc1"].ToString();
-                        var productDesc2 = dtProduct == null || dtProduct.Rows.Count == 0 ? "" : dtProduct.Rows[0]["ProductDesc2"].ToString();
-
-
-                        lbl_Warning.Text = string.Format(@"Approve quantity of product {0} : {1} : {2}  must be less than remain quantity."
-                                , productCode
-                                , productDesc1
-                                , productDesc2);
-                        pop_Warning.ShowOnPageLoad = true;
-
-                        return;
-                    }
+                    if (onHand - qty >= 0) continue;
+                    lbl_Warning.Text = string.Format(@"Approve quantity of product {0} : {1} : {2}  must be less than on hand."
+                            , dtSchema[j]["ProductCode"]
+                            , _prod.GetName(dtSchema[j]["ProductCode"].ToString(), ConnStr)
+                            , _prod.GetName2(dtSchema[j]["ProductCode"].ToString(), ConnStr));
+                    pop_Warning.ShowOnPageLoad = true;
+                    return;
                 }
             }
 
-            ExcAppr(list_SelectRefId);
+            if (lbl_WarningApprQty.Text == string.Empty)
+            {
+                ExcAppr(columnValues);
+            }
+            else
+            {
+                lbl_WarningApprQty.Text = lbl_WarningApprQty.Text +
+                                          @"<br>These product cannot approve all request quantity.<br>Do you want to approve max quantity <br>that you can approve?";
+                pop_WarningApprQty.Width = Unit.Pixel(350);
+                pop_WarningApprQty.ShowOnPageLoad = true;
+            }
         }
 
         protected void btn_ApprQty_Yes_Click(object sender, EventArgs e)
@@ -452,24 +525,27 @@ namespace BlueLedger.PL.UserControls
             pop_ConfirmApprove.ShowOnPageLoad = false;
         }
 
-        private bool ExcAppr(List<object> columnValues)
+        private void ExcAppr(List<object> columnValues)
         {
-            var result = false;
             var approve = 0;
             var notApprove = 0;
 
             var grdPrDt = Parent.FindControl(ControlID) as GridView;
 
+            //foreach (int prDtNo in columnValues)
             for (var index = 0; index < columnValues.Count; index++)
             {
                 if (CountAppr)
                 {
+                    //if (grd_PrDt.GetRowValuesByKeyValue(prDtNo, "ApprStatus").ToString().Contains('R'))
                     if (grdPrDt != null && grdPrDt.Rows[index].Cells[grdPrDt.Columns.Count - 1].Text.Contains('R'))
                     {
                         continue;
                     }
 
-                    if (grdPrDt != null && !grdPrDt.Rows[index].Cells[grdPrDt.Columns.Count - 1].Text.Substring(WfStep * 10, 10).Contains('_'))
+                    if (grdPrDt != null &&
+                        !grdPrDt.Rows[index].Cells[grdPrDt.Columns.Count - 1].Text.Substring(WfStep * 10, 10)
+                            .Contains('_'))
                     {
                         continue;
                     }
@@ -481,9 +557,26 @@ namespace BlueLedger.PL.UserControls
                     }
                     approve++;
 
+                    //if (!grd_PrDt.GetRowValuesByKeyValue(prDtNo, "ApprStatus").ToString().Substring(WFStep * 10, 10).Contains('_'))
+                    //if (grd_PrDt.GetRowValuesByKeyValue(prDtNo, "VendorCode").ToString() == "")
                 }
 
                 ExecuteApprove(columnValues[index].ToString(), WfStep);
+
+                // *************************** ไม่รู้ว่าเอาไว้ทำอะไร ****************************
+                //if (AutoApprStep == null)
+                //{
+                //    if (Bu != string.Empty)
+                //    {
+                //        if (bu.IsHQ(Bu))
+                //        {
+                //            for (int i = 0; i < AutoApprStep.Length; i++)
+                //            {
+                //                this.ExecuteApprove(columnValues[index].ToString(), int.Parse(AutoApprStep[i].ToString()));
+                //            }
+                //        }
+                //    }
+                //}
             }
 
             if (approve == 0 && notApprove > 0)
@@ -495,34 +588,25 @@ namespace BlueLedger.PL.UserControls
                 if (approve > 0 && notApprove == 0)
                 {
                     lbl_Approve_Chk.Text = @"Approved item(s) are successful";
-
-                    result = true;
                 }
                 else if (approve > 0 && notApprove > 0)
                 {
-                    lbl_Approve_Chk.Text = string.Format("{0} item(s) are approved.<br> {1} item(s) are not approved.", approve, notApprove);
+                    lbl_Approve_Chk.Text = string.Format("{0} item(s) are approved.<br> {1} item(s) are not approved.", approve,
+                        notApprove);
                 }
                 else
                 {
                     lbl_Approve_Chk.Text = @"Approved item(s) are successful";
                 }
 
-                var requestCode = Ds.Tables[TableSchema].Rows[0]["RequestCode"].ToString();
-                var fromStepNo = WfStep; //Convert.ToInt32(Ds.Tables[TableSchema].Rows[0]["WFStep"]);
-
-                SendEmailWorkflow.Sen_SR_Approve(requestCode, fromStepNo, LoginInfo.LoginName, LoginInfo.ConnStr);
-
-
-
                 _transLog.Save(_module, _subModule, _refNo, "APPROVE", string.Empty, LoginInfo.LoginName, ConnStr);
             }
 
             pop_ConfirmApprove.ShowOnPageLoad = false;
+            //pop_Approve.ShowOnPageLoad = true;
 
             Page_Retrieve();
             pop_Approve.ShowOnPageLoad = true;
-
-            return result;
         }
 
         protected void btn_CancelApprove_Click(object sender, EventArgs e)
@@ -789,6 +873,11 @@ namespace BlueLedger.PL.UserControls
                 _workFlowDt.ExecuteRule(apprRule, dbParams, ConnStr);
             }
 
+            /* DbParameter[] dbParams = new DbParameter[3];
+             dbParams[0] = new DbParameter(this.DBParam[0], this.Ds.Tables[pr.TableName].Rows[0][ColumnName.ToString()].ToString());
+             dbParams[1] = new DbParameter(this.DBParam[1], PrDrNo.ToString());
+             dbParams[2] = new DbParameter("@LoginName", LoginInfo.LoginName);
+             workFlowDt.ExcecuteApprRule(StorePrefix.ToString() + "_APPR_STEP_" + Step.ToString(), dbParams, ConnStr);*/
         }
 
         private bool CheckWFenable()
@@ -857,15 +946,7 @@ namespace BlueLedger.PL.UserControls
             email.Subject = subject;
             email.Body = body;
 
-            try
-            {
-
-                return email.Send();
-            }
-            catch (Exception ex)
-            {
-                return ex.Message;
-            }
+            return email.Send();
 
             #endregion
 
@@ -893,7 +974,7 @@ namespace BlueLedger.PL.UserControls
 
                 string sql = @"SELECT ISNULL(u.Email, '') email, RefId, RequestCode, LocationCode, [Description], CreateDate
                             FROM [IN].StoreRequisition sr
-                            LEFT JOIN [Admin].vUser u ON u.LoginName COLLATE DATABASE_DEFAULT = sr.CreateBy COLLATE DATABASE_DEFAULT
+                            LEFT JOIN [Admin].vUser u ON u.LoginName = sr.CreateBy
                             WHERE RefId = '{0}'";
 
                 DataTable dt = config.DbExecuteQuery(string.Format(sql, refId), null, LoginInfo.ConnStr);
@@ -996,177 +1077,6 @@ namespace BlueLedger.PL.UserControls
 
             }
         }
-
-        //private void SendMail_Approve(int refId, int fromStepNo)
-        //{
-
-        //    // Send email if available.
-        //    var dtFromStep = _workFlowDt.DbExecuteQuery("SELECT SentEmail, Approvals FROM [APP].WFDt WHERE WFId=2 AND Step=" + fromStepNo.ToString(), null, LoginInfo.ConnStr);
-
-        //    if (dtFromStep == null || dtFromStep.Rows.Count == 0 || dtFromStep.Rows[0]["SentEmail"].ToString() == "0")
-        //    {
-        //        return;
-        //    }
-
-        //    var dtSr = _workFlow.DbExecuteQuery("SELECT RequestCode FROM [IN].StoreRequisition WHERE RefId=" + refId.ToString(), null, LoginInfo.ConnStr);
-        //    var requestCode = dtSr.Rows[0]["RequestCode"].ToString();
-
-
-        //    var sql = string.Format("SELECT TOP(1) * FROM [IM].Inbox WHERE RefNo='{0}' AND StepFrom={1} AND [Sender]='{2}' ORDER BY [Date] Desc", requestCode, fromStepNo, LoginInfo.LoginName);
-        //    var dtInbox = _workFlow.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
-
-        //    var toStepNo = dtInbox == null || dtInbox.Rows.Count == 0 ? 0 : Convert.ToInt32(dtInbox.Rows[0]["StepTo"]);
-        //    var inboxNo = dtInbox == null || dtInbox.Rows.Count == 0 ? 0 : Convert.ToInt32(dtInbox.Rows[0]["InboxNo"]);
-
-
-        //    var dtToStep = _workFlowDt.DbExecuteQuery("SELECT SentEmail, Approvals FROM [APP].WFDt WHERE WFId=2 AND Step=" + toStepNo.ToString(), null, LoginInfo.ConnStr);
-
-        //    var approvals = dtToStep.Rows[0]["Approvals"].ToString();
-
-        //    var fromMail = "";
-        //    var toMail = GetEmails(approvals);
-        //    var cc = "";
-        //    var subject = string.Format("{0} is awaiting for approval.", requestCode);
-        //    var body = GetBody_Approval(refId, toStepNo);
-
-
-        //    var p = new List<Blue.DAL.DbParameter>();
-
-        //    p.Add(new Blue.DAL.DbParameter("@Receiver", toMail));
-        //    p.Add(new Blue.DAL.DbParameter("@Subject", subject));
-        //    p.Add(new Blue.DAL.DbParameter("@Message", @body));
-
-        //    _workFlow.DbExecuteQuery("UPDATE [IM].Inbox SET [Reciever]=@Reciever, [Subject]=@Subject, [Message]=@Message WHERE InboxNo=" + inboxNo.ToString(), p.ToArray(), LoginInfo.ConnStr);
-
-
-        //    var message = SendMail(fromMail, toMail, cc, subject, body);
-
-        //    sql = "INSERT INTO [IM].MailLog(LogDate, InboxNo, RefNo, IsSent, Error) VALUES(GETDATE(), @InboxNo, @RefNo, @IsSent, @error)";
-        //    var p1 = new List<Blue.DAL.DbParameter>();
-
-        //    p1.Add(new Blue.DAL.DbParameter("@InboxNo", inboxNo.ToString()));
-        //    p1.Add(new Blue.DAL.DbParameter("@RefNo", requestCode));
-        //    p1.Add(new Blue.DAL.DbParameter("IsSent", string.IsNullOrEmpty(message) ? "1" : "0"));
-        //    p1.Add(new Blue.DAL.DbParameter("@error", message));
-
-        //    _workFlow.DbExecuteQuery(sql, p.ToArray(), LoginInfo.ConnStr);
-
-        //}
-
-//        private string GetEmails(string value)
-//        {
-//            var userList = new List<string>();
-
-//            var items = value.Trim().TrimEnd(',').Split(',').Select(x => x.Trim());
-//            var roles = items.Where(x => !x.StartsWith("#"));
-//            var users = items.Where(x => x.StartsWith("#")).Select(x => x.Substring(1, x.Length - 1));
-
-//            var roleExpression = "'" + string.Join("','", roles) + "'";
-//            var dtRole = _workFlow.DbExecuteQuery(string.Format("SELECT DISTINCT LoginName FROM [ADMIN].[UserRole] WHERE ISActive=1 AND RoleName IN ({0})", roleExpression), null, LoginInfo.ConnStr);
-
-//            if (dtRole != null && dtRole.Rows.Count > 0)
-//            {
-//                userList.AddRange(dtRole.AsEnumerable().Select(x => x.Field<string>("LoginName")));
-//            }
-
-//            userList.AddRange(users);
-
-//            var userExpression = "'" + string.Join("','", userList) + "'";
-//            var sql = string.Format("SELECT DISTINCT Email FROM [ADMIN].vUser WHERE LoginName IN ({0})", userExpression);
-//            var dtEmail = _workFlow.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
-
-//            var emails = new List<string>();
-
-//            if (dtEmail != null && dtEmail.Rows.Count > 0)
-//            {
-//                emails.AddRange(dtEmail.AsEnumerable().Select(x => x.Field<string>("Email")));
-//            }
-
-
-//            return string.Join(";", emails);
-
-//        }
-
-//        private string GetBody_Approval(int refId, int stepNo)
-//        {
-//            var dtSr = _workFlow.DbExecuteQuery("SELECT sr.*, l.LocationName FROM [IN].StoreRequisition sr JOIN [IN].StoreLocation l ON sr.LocationCode=l.LocationCode WHERE RefId=" + refId.ToString(), null, LoginInfo.ConnStr);
-
-
-//            if (dtSr == null || dtSr.Rows.Count == 0)
-//            {
-//                return "";
-//            }
-
-//            string body = @"
-//<div style='font-family:Tahoma, Arial, Helvetica, sans-serif;'>
-//    <h2 style='color:#4285F4;'>{0}</h2>
-//    <h3>Store Requisition</h3>
-//    <h4 style='padding:10px; background-color:#4285F4;color:#fff;'>{1}</h4>
-//    <table>
-//        <tr>
-//            <td style='width:120px;'><b>#</b></td>
-//            <td>{2}</td>
-//        </tr>
-//        <tr>
-//            <td><b>Date</b></td>
-//            <td>{3}</td>
-//        </tr>
-//        <tr>
-//            <td><b>Description</b></td>
-//            <td>{4}</td>
-//        </tr>
-//        <tr>
-//            <td><b>Location</b></td>
-//            <td>{5}</td>
-//        </tr>
-//    </table>
-//    <br />
-//    <hr />
-//    <br />
-//    <a href='{6}' target='_blank' style='cursor:pointer;padding:10 15;background-color:#4285F4;color:white; text-align:center; text-decoration:none;'>View Detail</a>
-//</div>".Trim();
-
-//            var dtHost = _workFlow.DbExecuteQuery("SELECT [Value] FROM [APP].Config WHERE [Module]='APP' AND [SubModule]='IM' AND [Key]='WebServer'", null, LoginInfo.ConnStr);
-//            var dtApp = _workFlow.DbExecuteQuery("SELECT [Value] FROM [APP].Config WHERE [Module]='APP' AND [SubModule]='IM' AND [Key]='WebName'", null, LoginInfo.ConnStr);
-//            var dtView = _workFlow.DbExecuteQuery("SELECT * FROM [APP].ViewHandler WHERE WfId=2 AND WFStep=" + stepNo.ToString(), null, LoginInfo.ConnStr);
-
-
-//            var drSr = dtSr.Rows[0];
-//            var drView = dtView.Rows[0];
-
-//            var host = dtHost.Rows[0].ToString().TrimEnd('/');
-//            var app = dtApp.Rows[0].ToString().TrimEnd('/');
-
-//            var vdesc = drView["Desc"].ToString();
-//            var vid = drView["ViewNo"].ToString();
-
-
-
-//            var bu = LoginInfo.BuInfo.BuName;
-//            var step = vdesc;
-//            var docNo = drSr["RequestCode"].ToString();
-//            var docDate = Convert.ToDateTime(drSr["DeliveryDate"]).ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
-//            var docDesc = dtSr.Rows[0]["Description"].ToString();
-//            var location = string.Format("{0} : {1}", drSr["LocationCode"].ToString(), drSr["LocationName"].ToString());
-//            var url = string.Format("{0}/{1}/IN/STOREREQ/StoreReqDt.aspx?BuCode={2}&ID={3}&VID={4}",
-//                host,
-//                app,
-//                LoginInfo.BuInfo.BuCode,
-//                drSr["RefId"].ToString(),
-//                vid);
-
-//            body = string.Format(body,
-//                bu,
-//                step,
-//                docNo,
-//                docDate,
-//                docDesc,
-//                location,
-//                url);
-
-//            return body;
-//        }
-
 
 
 

@@ -260,7 +260,7 @@ namespace BlueLedger.PL.Option.StockLevel
                             //int onhand = int.Parse(tableProd.Rows[0]["OnHand"].ToString());
 
                             //TODO: Get Onhand 
-                            //var onhand = 10;
+                            var onhand = 10;
 
                             if (number > 0)
                             {

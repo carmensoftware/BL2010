@@ -224,8 +224,6 @@ namespace BlueLedger.PL.Option
             }
             catch (Exception ex)
             {
-                LogManager.Error(ex);
-
                 return false;
             }
 

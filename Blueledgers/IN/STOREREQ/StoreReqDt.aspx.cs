@@ -25,7 +25,6 @@ namespace BlueLedger.PL.IN.STOREREQ
         private readonly Blue.BL.IN.StoreRequisitionDetail storeReqDt = new Blue.BL.IN.StoreRequisitionDetail();
         private readonly Blue.BL.APP.ViewHandler viewHandler = new Blue.BL.APP.ViewHandler();
         private readonly Blue.BL.APP.WF workFlow = new Blue.BL.APP.WF();
-        private readonly Blue.BL.APP.Config config = new Blue.BL.APP.Config();
 
         private DataSet dsStoreReq = new DataSet();
         private Blue.BL.APP.WFDt workFlowDt = new Blue.BL.APP.WFDt();
@@ -38,8 +37,6 @@ namespace BlueLedger.PL.IN.STOREREQ
         {
             get { return workFlow.GetIsActive("IN", "STOREREQ", LoginInfo.ConnStr); }
         }
-
-
 
         private int WfId
         {
@@ -115,21 +112,22 @@ namespace BlueLedger.PL.IN.STOREREQ
         private void Page_Setting()
         {
             // Display current process description
-            var cookie = Request.Cookies["[IN].[vStoreRequisition]"];
-            if ((cookie != null) && (cookie.Value != string.Empty))
+            var v = Request.Cookies["[IN].[vStoreRequisition]"];
+            if ((v != null) && (v.Value != string.Empty))
             {
-                lbl_Process.Text = viewHandler.GetDesc(int.Parse(cookie.Value), LoginInfo.ConnStr);
+                lbl_Process.Text = viewHandler.GetDesc(int.Parse(v.Value), LoginInfo.ConnStr);
             }
 
             var drStoreReq = dsStoreReq.Tables[storeReq.TableName].Rows[0];
-
             lbl_Date.Text = DateTime.Parse(drStoreReq["DeliveryDate"].ToString()).ToString(LoginInfo.BuFmtInfo.FmtSDate);
             lbl_Ref.Text = drStoreReq["RequestCode"].ToString();
             lbl_Status.Text = drStoreReq["DocStatus"].ToString();
-            lbl_Move_Type.Text = adjType.GetName(drStoreReq["AdjId"].ToString(), LoginInfo.ConnStr);
-            lbl_Project_Ref.Text = "";
 
-            var jobCode = drStoreReq["ProjectRef"].ToString();
+            //Movement Type
+            lbl_Move_Type.Text = adjType.GetName(drStoreReq["AdjId"].ToString(), LoginInfo.ConnStr);
+            //Project Ref
+            //lbl_Project_Ref.Text = drStoreReq["ProjectRef"].ToString();
+            string jobCode = drStoreReq["ProjectRef"].ToString();
             var ds = new JobCodeLookup().GetRecord(jobCode, LoginInfo.ConnStr);
 
             if (ds.Tables[0].Rows.Count > 0)
@@ -137,6 +135,77 @@ namespace BlueLedger.PL.IN.STOREREQ
                 lbl_Project_Ref.Text = string.Format("{0} : {1}", ds.Tables[0].Rows[0]["Code"], ds.Tables[0].Rows[0]["Description"]);
                 lbl_Project_Ref.ToolTip = lbl_Project_Ref.Text;
             }
+            else
+            {
+                lbl_Project_Ref.Text = "";
+            }
+
+
+            // Check Workflow Step
+
+            if (int.Parse(drStoreReq["WFStep"].ToString()) != 1)
+            {
+                btn_Create.Visible = false;
+            }
+
+            if (drStoreReq["ApprStatus"].ToString().StartsWith("_"))
+            {
+                btn_Void.Visible = true;
+            }
+
+            //if (int.Parse(drStoreReq["WFStep"].ToString()) != 3)
+            //{
+            //    btn_Void.Visible = false;
+
+            //}
+
+            //if ((int.Parse(drStoreReq["WFStep"].ToString()) == 1) && (drStoreReq["ApprStatus"].ToString() == "___"))
+            //{
+            //    btn_Void.Visible = true;
+            //}
+
+            bool allowCreate = workFlowDt.GetAllowCreate(WfId, WfStep, LoginInfo.ConnStr);
+
+            btn_Create.Visible = allowCreate;
+            btn_Edit.Visible = WfStep > 0;
+
+            if (WfStep == WfStepCount) // last step
+            {
+				lbl_ApproveMessage.Text = string.Empty;
+                panel_WFControl.Enabled = true;
+
+                // check if the current date is outside the opening period. No approval is allowed.
+                // DateTime today = DateTime.Today;
+                // DateTime openPeriod = period.GetLatestOpenEndDate(LoginInfo.ConnStr);
+                // if (today > openPeriod)
+                // {
+                    // lbl_ApproveMessage.Text = "Not Allowed to Issue SR Document until closed peroid./ไม่อนุญาตให้ Issue จนกว่าจะปิดเดือนเรียบร้อย";
+                    // panel_WFControl.Enabled = false;
+
+                // }
+                // else
+                // {
+                    // lbl_ApproveMessage.Text = string.Empty;
+                    // panel_WFControl.Enabled = true;
+                // }
+            }
+
+            // Check normal operations
+
+            if (drStoreReq["DocStatus"].ToString().ToUpper() == "VOIDED")
+            {
+                btn_Edit.Visible = false;
+                btn_Void.Visible = false;
+                WFControlPanel.Visible = false;
+            }
+
+            if (drStoreReq["DocStatus"].ToString().ToUpper() == "COMPLETE")
+            {
+                btn_Edit.Visible = false;
+                btn_Void.Visible = false;
+            }
+
+
 
             lbl_RequestTo.Text = drStoreReq["LocationCode"].ToString();
             lbl_StoreName.Text = " : " + locat.GetName(drStoreReq["LocationCode"].ToString(), LoginInfo.ConnStr);
@@ -177,6 +246,11 @@ namespace BlueLedger.PL.IN.STOREREQ
                 WFControlPanel.DataBind();
             }
 
+            // Modified on: 20/11/2017, By: Fon, About SubModule "STOREREQ" to "SR"
+            // Display Comment
+            //var masterPage = Master;
+            //if (masterPage == null) return;
+
             var comment = (PL.UserControls.Comment2)((BlueLedger.PL.Master.In.MasterDefault)Master).FindControl("Comment");
             comment.Module = "IN";
             comment.SubModule = "SR";
@@ -200,39 +274,20 @@ namespace BlueLedger.PL.IN.STOREREQ
             log.RefNo = drStoreReq["RequestCode"].ToString();
             log.Visible = true;
             log.DataBind();
+            // End Modified.
 
-            // Button control
-            btn_Create.Visible = false;
-            btn_Edit.Visible = false;
-            btn_Void.Visible = false;
+            var ii = WfStep < 1 ? 1 : WfStep;
+             if (drStoreReq["ApprStatus"].ToString().Substring(ii-1, 1) != "_")
+             {
+                 btn_Edit.Visible = false;
+             }
 
+            // Set User Authorize for Step 1
 
-            if (WfStep == WfStepCount) // last step
+            if (drStoreReq["WfStep"].ToString() == "1" && drStoreReq["WfStep"].ToString()[0] == '_')
             {
-                lbl_ApproveMessage.Text = string.Empty;
-                panel_WFControl.Enabled = true;
-            }
-
-
-            btn_Create.Visible = workFlowDt.GetAllowCreate(WfId, WfStep, LoginInfo.ConnStr);
-            btn_Edit.Visible = WfStep > 0;
-
-            if (WfStep == 0)
-            {
-                if (lbl_Status.Text.ToLower() == "complete") // View All
-                {
-                    var docDate = Convert.ToDateTime(drStoreReq["DeliveryDate"]).Date;
-                    var isVoid = Helpers.Config.IsEnableEditCommit(docDate, LoginInfo.ConnStr);
-
-                    btn_Void.Visible = isVoid;
-                }
-            }
-            else if (WfStep == 1 && drStoreReq["ApprStatus"].ToString().StartsWith("_")) // step 1
-            {
-                btn_Void.Visible = drStoreReq["CreateBy"].ToString() == LoginInfo.LoginName;
-            }
-            else
-            {
+                string createdUsername = drStoreReq["CreateBy"].ToString();
+                btn_Void.Visible = createdUsername.ToUpper() == LoginInfo.LoginName.ToUpper();
             }
 
             Control_HeaderMenuBar();
@@ -278,30 +333,17 @@ namespace BlueLedger.PL.IN.STOREREQ
         protected void btn_ConfirmVoid_Click(object sender, EventArgs e)
         {
             var drStoreReq = dsStoreReq.Tables[storeReq.TableName].Rows[0];
-            var requestCode = drStoreReq["RequestCode"].ToString();
-
             drStoreReq["DocStatus"] = "Voided";
             drStoreReq["IsVoid"] = 1;
 
             var save = storeReq.Save(dsStoreReq, LoginInfo.ConnStr);
+            if (!save) return;
 
-            if (save)
-            {
-                var sql = string.Format("DELETE FROM [IN].Inventory WHERE [Type] IN ('SR','TR') AND HdrNo = '{0}'", requestCode);
+            string requestCode = drStoreReq["RequestCode"].ToString();
+            _transLog.Save("IN", "SR", requestCode, "VOID", string.Empty, LoginInfo.LoginName, LoginInfo.ConnStr);
 
-                config.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
-
-                _transLog.Save("IN", "SR", requestCode, "VOID", string.Empty, LoginInfo.LoginName, LoginInfo.ConnStr);
-
-                pop_ConfirmVoid.ShowOnPageLoad = false;
-                pop_VoidSeccess.ShowOnPageLoad = true;
-            }
-            else
-            {
-                return;
-            }
-
-
+            pop_ConfirmVoid.ShowOnPageLoad = false;
+            pop_VoidSeccess.ShowOnPageLoad = true;
         }
 
         protected void btn_Ok_Click(object sender, EventArgs e)
@@ -328,6 +370,22 @@ namespace BlueLedger.PL.IN.STOREREQ
 
         protected void grd_StoreReqDt_RowDataBound(object sender, GridViewRowEventArgs e)
         {
+            if (e.Row.RowType == DataControlRowType.Header)
+            {
+                #region "Header"
+
+                var lbl_AllocateQty = (Label)e.Row.FindControl("lbl_Allocate_Nm");
+                if (lbl_AllocateQty != null)
+                {
+                    lbl_AllocateQty.Visible = WfStep == WfStepCount; // last step
+                }
+
+
+                #endregion
+
+            }
+
+
             if (e.Row.RowType == DataControlRowType.DataRow)
             {
                 string hdrNo = lbl_Ref.Text; // RequestCode
@@ -344,19 +402,14 @@ namespace BlueLedger.PL.IN.STOREREQ
                 DateTime atDate = DateTime.Now;
 
                 DataTable dt = new DataTable();
-                dt = bu.DbExecuteQuery(string.Format("SELECT TOP(1) CommittedDate, Amount FROM [IN].Inventory WHERE HdrNo = '{0}' AND DtNo = {1} AND ProductCode = '{2}'", hdrNo, dtNo, productCode), null, LoginInfo.ConnStr);
+                dt = bu.DbExecuteQuery(string.Format("SELECT TOP(1) CommittedDate FROM [IN].Inventory WHERE HdrNo = '{0}' AND DtNo = {1} AND ProductCode = '{2}'", hdrNo, dtNo, productCode), null, LoginInfo.ConnStr);
                 if (dt.Rows.Count > 0)
-                {
                     atDate = (DateTime)dt.Rows[0]["CommittedDate"];
-                    lastCost = Convert.ToDecimal(dt.Rows[0]["Amount"]);
-                }
 
 
                 if (dsStoreReq.Tables[prDt.TableName] != null)
                     dsStoreReq.Tables[prDt.TableName].Clear();
-
                 var getStock = prDt.GetStockSummary(dsStoreReq, productCode, lbl_RequestTo.Text, atDate.ToShortDateString(), LoginInfo.ConnStr);
-
                 if (getStock)
                 {
                     DataRow dr = dsStoreReq.Tables[prDt.TableName].Rows[0];
@@ -365,7 +418,7 @@ namespace BlueLedger.PL.IN.STOREREQ
                     onOrder = dr["OnOrder"].ToString() == string.Empty ? 0 : Convert.ToDecimal(dr["OnOrder"]);
                     reOrder = dr["ReOrder"].ToString() == string.Empty ? 0 : Convert.ToDecimal(dr["ReOrder"]);
                     lastPrice = dr["LastPrice"].ToString() == string.Empty ? 0 : Convert.ToDecimal(dr["LastPrice"]);
-                    //lastCost = dr["LastCost"].ToString() == string.Empty ? 0 : Convert.ToDecimal(dr["LastCost"]);
+                    lastCost = dr["LastCost"].ToString() == string.Empty ? 0 : Convert.ToDecimal(dr["LastCost"]);
                     reStock = dr["ReStock"].ToString() == string.Empty ? 0 : Convert.ToDecimal(dr["ReStock"]);
                     lastVendor = dr["LastVendor"].ToString();
                 }
@@ -380,17 +433,17 @@ namespace BlueLedger.PL.IN.STOREREQ
                     // ********** Display Button. **********
                     string apprStatus = DataBinder.Eval(e.Row.DataItem, "ApprStatus").ToString();
                     var j = WfStep < 1 ? 1 : WfStep;
-                    if (WfStep == 1 && apprStatus.ToString().Substring((j - 1), 10).Contains('_'))
-                    {
-                        chkItem.Visible = true;
-                    }
-                    else if (!apprStatus.ToString().Substring((j - 1) * 10, 10).Contains('_')
-                        /*current status ที่เปลี่ยนสถานะไปแล้ว*/
-                        // || apprStatus.ToString().Substring(0, (j - 1) * 10).Contains('_')
-                        /*previous status ที่ยังทำไม่เสร็จ*/)
-                    {
-                        chkItem.Visible = false;
-                    }
+                     if (WfStep == 1 && apprStatus.ToString().Substring((j - 1), 10).Contains('_'))
+                     {
+                         chkItem.Visible = true;
+                     }
+                     else if (!apprStatus.ToString().Substring((j - 1) * 10, 10).Contains('_')
+                         /*current status ที่เปลี่ยนสถานะไปแล้ว*/
+                             // || apprStatus.ToString().Substring(0, (j - 1) * 10).Contains('_')
+                         /*previous status ที่ยังทำไม่เสร็จ*/)
+                     {
+                     chkItem.Visible = false;
+                     }
 
                 }
 
@@ -464,7 +517,7 @@ namespace BlueLedger.PL.IN.STOREREQ
                     lblQtyAllocated.Text = string.Format(DefaultQtyFmt, DataBinder.Eval(e.Row.DataItem, "AllocateQty"));
                     lblQtyAllocated.ToolTip = lblQtyAllocated.Text;
 
-                    //lblQtyAllocated.Visible = WfStep == WfStepCount;
+                    lblQtyAllocated.Visible = WfStep == WfStepCount;
                 }
 
                 var lblUnitCost = e.Row.FindControl("lbl_UnitCost") as Label;
@@ -761,15 +814,5 @@ namespace BlueLedger.PL.IN.STOREREQ
             Report rpt = new Report();
             rpt.PrintForm(this, "../../RPT/PrintForm.aspx", Request.Params["ID"].ToString(), "StoreRequisitionForm");
         }
-
-        private bool EnableEditCommit(DateTime docDate, string connectionString)
-        {
-            var startPeriodDate = period.GetLatestOpenStartDate(connectionString);
-            var enableEditCommit = config.GetValue("APP", "SYS", "EnableEditCommit", connectionString) == "1";
-            var isAverage = config.GetValue("IN", "SYS", "COST", connectionString).ToUpper() == "AVCO";
-
-            return docDate >= startPeriodDate && enableEditCommit && isAverage;
-        }
-
     }
 }

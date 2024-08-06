@@ -172,7 +172,7 @@
                             <!-- C2 -->
                             <td>
                                 <dx:ASPxDateEdit ID="de_InvDate" runat="server" DisplayFormatString="dd/MM/yyyy" EditFormat="Custom" EditFormatString="dd/MM/yyyy" ShowShadow="False" Font-Names="Arial"
-                                    Font-Size="8pt" ForeColor="#4D4D4D" Width="100px" AutoPostBack="true">
+                                    Font-Size="8pt" ForeColor="#4D4D4D" Width="100px" AutoPostBack="true" OnDateChanged="ddl_Currency_SelectedIndexChanged">
                                     <ValidationSettings Display="Dynamic">
                                         <ErrorFrameStyle>
                                             <ErrorTextPaddings PaddingLeft="4px" />

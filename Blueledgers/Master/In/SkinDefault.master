@@ -1,4 +1,4 @@
-﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="SkinDefault.master.cs" Inherits="BlueLedger.PL.Master.In.MasterDefault" %>
+﻿<%@ Master AutoEventWireup="true" CodeFile="SkinDefault.master.cs" Inherits="BlueLedger.PL.Master.In.MasterDefault" Language="C#" %>
 
 <%@ Register Src="~/Master/In/Menu.ascx" TagName="Menu" TagPrefix="uc1" %>
 <%@ Register Src="~/UserControl/Comment2.ascx" TagName="Comment2" TagPrefix="uc2" %>
@@ -93,8 +93,9 @@
             <br />
         </div>
     </div>
-    <footer style="position: fixed; bottom: 0; padding-top: 5px; width: 100%; background-color: White; color: gray; text-align: right; right: 0px;">
-        <span style="margin-right:25px;">Period :<%= (new Blue.BL.PC.Priod()).GetLatestOpenStartDate(LoginInfo.ConnStr).ToShortDateString() %></span>
+    <footer style="position: fixed; bottom: 0; width: 100%; color: gray; text-align: right; right: 25px;">
+            Period :
+            <%= (new Blue.BL.PC.Priod()).GetLatestOpenStartDate(LoginInfo.ConnStr).ToShortDateString() %>
     </footer>
     </form>
     <script type="text/javascript">
@@ -102,8 +103,8 @@
             function (event) {
                 if (event.which == '13') {
                     event.preventDefault();
-                }
-            });
+            }
+        });
     </script>
 </body>
 </html>

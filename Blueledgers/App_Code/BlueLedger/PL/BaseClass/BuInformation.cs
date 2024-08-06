@@ -7,6 +7,10 @@
     {
         #region "Attributes"
 
+        /// <summary>
+        ///     Use for check Business Fifo or Average
+        /// </summary>
+        public CalcCostType.CalcType BUCalcType { get; set; }
 
         /// <summary>
         ///     Gets or set business unit code.

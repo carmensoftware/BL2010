@@ -51,14 +51,14 @@ namespace BlueLedger.PL.IN
         private readonly Blue.BL.ADMIN.TransLog _transLog = new Blue.BL.ADMIN.TransLog();
 
 
-        //private string schema = "AP";
-        //private string schemaprofile = "Profile";
-        //private string tableBankAccount = "BankAccount";
-        //private string tableContact = "Contact";
-        //private string tableContactDetail = "ContactDetail";
+        private string schema = "AP";
+        private string schemaprofile = "Profile";
+        private string tableBankAccount = "BankAccount";
+        private string tableContact = "Contact";
+        private string tableContactDetail = "ContactDetail";
         private string tableVendor = "Vendor";
         private Blue.BL.AP.TransactionType transactionType = new Blue.BL.AP.TransactionType();
-        //private string vendorName;
+        private string vendorName;
         private Blue.BL.Reference.WhtType whtType = new Blue.BL.Reference.WhtType();
 
         #endregion

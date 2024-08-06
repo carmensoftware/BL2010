@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Report ScriptLanguage="CSharp" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="03/20/2019 17:49:13" ReportInfo.CreatorVersion="2013.4.11.0">
+<Report ScriptLanguage="CSharp" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="10/03/2023 20:03:50" ReportInfo.CreatorVersion="2013.4.11.0">
   <ScriptText>using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -29,8 +29,8 @@ namespace FastReport
 }
 </ScriptText>
   <Dictionary>
-    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqCvlJxRoS3oNe5N3zvkC4LlmkTOi213q2PMFzU8HZZ4DU/VEubjZ3KctLTpD4nAN3Xp6w1h2vALk0BHFFlC/ye5crhtUVaCDIgu90pz8Gj5Q=">
-      <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;">
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlquQ+MGUuFmwCkhAb0ntbeLCVYpiuMguxDfPu6iCm/j+i8ArQZlDWCzzL3RQj5GMRB+IbPNc87HKbvh5xdqHpI9WbbEeqiHnP/FbFDFeDD5KNZNNlq4WzI1JVpP8Q0Wi59uuxF5ymzEuDsOx60tOlSwg==">
+      <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;" SelectCommand="SELECT TOP 1 * FROM [ADMIN].Bu&#13;&#10;	&#13;&#10;	">
         <Column Name="BuCode" DataType="System.String"/>
         <Column Name="Name" DataType="System.String"/>
         <Column Name="NameBilling" DataType="System.String"/>
@@ -47,6 +47,7 @@ namespace FastReport
         <Column Name="BackOffice" DataType="System.String"/>
         <Column Name="BackOfficeModel" DataType="System.String"/>
         <Column Name="BuLogo" DataType="System.Byte[]" BindableControl="Picture"/>
+        <Column Name="TaxId" DataType="System.String"/>
       </TableDataSource>
       <TableDataSource Name="Table" Alias="Cn" DataType="System.Int32" Enabled="true" SelectCommand="SELECT cn.*, v.Name as VendorName&#13;&#10;FROM PC.Cn as cn&#13;&#10;LEFT JOIN AP.Vendor v ON v.VendorCode = cn.VendorCode&#13;&#10;WHERE CnNo = @CnNo">
         <Column Name="CnNo" DataType="System.String"/>
@@ -77,7 +78,7 @@ namespace FastReport
         <Column Name="AddField10" DataType="System.String"/>
         <Column Name="ExportStatus" DataType="System.Boolean" BindableControl="CheckBox"/>
         <Column Name="VendorName" DataType="System.String"/>
-        <CommandParameter Name="CnNo" DataType="12" Expression="[ID]" DefaultValue="H1234CN19020001"/>
+        <CommandParameter Name="CnNo" DataType="12" Expression="[ID]" DefaultValue="CN23090001"/>
       </TableDataSource>
       <TableDataSource Name="Table1" Alias="CnDt" DataType="System.Int32" Enabled="true" SelectCommand="SELECT cndt.*, l.LocationName, p.ProductDesc1, p.ProductDesc2&#13;&#10;FROM PC.CnDt as cndt&#13;&#10;LEFT JOIN [IN].StoreLocation l ON l.LocationCode = cndt.Location&#13;&#10;LEFT JOIN [IN].Product p ON p.ProductCode = cndt.ProductCode&#13;&#10;WHERE CnNo = @CnNo">
         <Column Name="CnNo" DataType="System.String"/>
@@ -113,7 +114,10 @@ namespace FastReport
         <Column Name="LocationName" DataType="System.String"/>
         <Column Name="ProductDesc1" DataType="System.String"/>
         <Column Name="ProductDesc2" DataType="System.String"/>
-        <CommandParameter Name="CnNo" DataType="12" Expression="[ID]" DefaultValue="H1234CN19020001"/>
+        <Column Name="CurrNetAmt" DataType="System.Decimal"/>
+        <Column Name="CurrTaxAmt" DataType="System.Decimal"/>
+        <Column Name="CurrTotalAmt" DataType="System.Decimal"/>
+        <CommandParameter Name="CnNo" DataType="12" Expression="[ID]" DefaultValue="CN23090001"/>
       </TableDataSource>
     </MsSqlDataConnection>
     <Parameter Name="ID" DataType="System.String"/>
@@ -122,27 +126,28 @@ namespace FastReport
     <Total Name="Sum_TotalAmt" Expression="[CnDt.TotalAmt]" Evaluator="Data1"/>
   </Dictionary>
   <ReportPage Name="Page1" RawPaperSize="9" FirstPageSource="15" OtherPagesSource="15">
-    <PageHeaderBand Name="PageHeader1" Width="718.2" Height="98.28">
-      <PictureObject Name="Picture1" Width="132.3" Height="94.5" DataColumn="ADMIN_Bu.BuLogo"/>
-      <TextObject Name="Text3" Left="184.28" Top="20.79" Width="349.65" Height="18.9" Text="Credit Note" HorzAlign="Center" Font="Tahoma, 14pt"/>
-      <TextObject Name="Text25" Left="538.65" Width="179.55" Height="94.5" CanGrow="true" Text="[ADMIN_Bu.Name]&#13;&#10;[ADMIN_Bu.Address]&#13;&#10;TEL: [ADMIN_Bu.Phone] FAX: [ADMIN_Bu.Fax]" Font="Tahoma, 8pt"/>
-      <ChildBand Name="Child1" Top="102.28" Width="718.2" Height="85.05" Border.Lines="Top, Bottom" CanGrow="true">
-        <TextObject Name="Text4" Top="9.45" Width="83.16" Height="18.9" Text="Ref.#" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
-        <TextObject Name="Text5" Top="28.35" Width="83.16" Height="18.9" Text="Vendor" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
-        <TextObject Name="Text6" Top="47.25" Width="83.16" Height="18.9" Text="Description" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+    <PageHeaderBand Name="PageHeader1" Width="718.2" Height="107.73">
+      <TextObject Name="Text63" Left="311.85" Top="69.93" Width="132.3" Height="22.68" Text="Credit Note" HorzAlign="Center" Font="Tahoma, 11pt, style=Bold"/>
+      <PictureObject Name="Picture3" Left="311.85" Width="132.3" Height="56.7" DataColumn="ADMIN_Bu.BuLogo"/>
+      <TextObject Name="Text62" Width="181.44" Height="100.17" CanGrow="true" Text="&lt;b&gt;[ADMIN_Bu.Name]&lt;/b&gt;&#13;&#10;[ADMIN_Bu.Address] [ADMIN_Bu.PostCode]&#13;&#10;Tel: [ADMIN_Bu.Phone] Fax: [ADMIN_Bu.Fax]&#13;&#10;Tax ID: [ADMIN_Bu.TaxId]" Font="Tahoma, 8pt" HtmlTags="true"/>
+      <TextObject Name="Text2" Left="538.65" Width="179.55" Height="18.9" Text="[Page#]/[TotalPages#]" HorzAlign="Right" Font="Tahoma, 8pt"/>
+      <ChildBand Name="Child1" Top="111.73" Width="718.2" Height="75.6" Border.Lines="Top, Bottom" CanGrow="true">
+        <TextObject Name="Text4" Top="9.45" Width="92.61" Height="18.9" Text="Credit Note No." WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text5" Top="28.35" Width="92.61" Height="18.9" Text="Vendor" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
+        <TextObject Name="Text6" Top="47.25" Width="92.61" Height="18.9" Text="Description" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
         <TextObject Name="Text7" Left="207.9" Top="9.45" Width="56.7" Height="18.9" Text="Date" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
         <TextObject Name="Text8" Left="359.1" Top="9.45" Width="75.6" Height="18.9" Text="Doc.#" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
         <TextObject Name="Text9" Left="548.1" Top="9.45" Width="75.6" Height="18.9" Text="Doc. Date" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
         <TextObject Name="Text10" Left="359.1" Top="28.35" Width="75.6" Height="18.9" Text="Currency" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
         <TextObject Name="Text11" Left="548.1" Top="28.35" Width="75.6" Height="18.9" Text="Status" WordWrap="false" Font="Tahoma, 8pt, style=Bold"/>
-        <TextObject Name="Text12" Left="85.05" Top="9.45" Width="113.4" Height="18.9" Text="[Cn.CnNo]" WordWrap="false" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text12" Left="94.5" Top="9.45" Width="113.4" Height="18.9" Text="[Cn.CnNo]" WordWrap="false" Font="Tahoma, 8pt"/>
         <TextObject Name="Text13" Left="264.6" Top="9.45" Width="94.5" Height="18.9" Text="[Cn.CnDate]" Format="Date" Format.Format="d" WordWrap="false" Font="Tahoma, 8pt"/>
         <TextObject Name="Text14" Left="434.7" Top="9.45" Width="113.4" Height="18.9" Text="[Cn.DocNo]" WordWrap="false" Font="Tahoma, 8pt"/>
         <TextObject Name="Text15" Left="623.7" Top="9.45" Width="94.5" Height="18.9" Text="[Cn.DocDate]" Format="Date" Format.Format="d" WordWrap="false" Font="Tahoma, 8pt"/>
         <TextObject Name="Text16" Left="623.7" Top="28.35" Width="94.5" Height="18.9" Text="[Cn.DocStatus]" WordWrap="false" Font="Tahoma, 8pt"/>
         <TextObject Name="Text17" Left="434.7" Top="28.35" Width="113.4" Height="18.9" Text="[Cn.CurrencyCode] @[Cn.ExRateAudit]" WordWrap="false" Font="Tahoma, 8pt"/>
-        <TextObject Name="Text18" Left="85.05" Top="28.35" Width="274.05" Height="18.9" CanGrow="true" Text="[Cn.VendorCode] : [Cn.VendorName]" Font="Tahoma, 8pt"/>
-        <TextObject Name="Text19" Left="85.05" Top="47.25" Width="633.15" Height="18.9" CanGrow="true" Text="[Cn.Description]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text18" Left="94.5" Top="28.35" Width="264.6" Height="18.9" CanGrow="true" Text="[Cn.VendorCode] : [Cn.VendorName]" Font="Tahoma, 8pt"/>
+        <TextObject Name="Text19" Left="94.5" Top="47.25" Width="623.7" Height="18.9" CanGrow="true" Text="[Cn.Description]" Font="Tahoma, 8pt"/>
       </ChildBand>
     </PageHeaderBand>
     <ColumnHeaderBand Name="ColumnHeader1" Top="191.33" Width="718.2" Height="19.84" Border.Lines="Bottom" Fill.Color="LightBlue">
@@ -153,7 +158,7 @@ namespace FastReport
       <TextObject Name="Text36" Left="427.14" Top="0.94" Width="37.8" Height="18.9" Text="Qty." Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold" Trimming="EllipsisCharacter"/>
       <TextObject Name="Text37" Left="466.94" Top="0.94" Width="37.8" Height="18.9" Text="Unit" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
       <TextObject Name="Text38" Left="504.74" Top="0.94" Width="68.04" Height="18.9" Text="Amount" Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold" Trimming="EllipsisCharacter"/>
-      <TextObject Name="Text39" Left="572.78" Top="0.94" Width="68.04" Height="18.9" Text="Tax" Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold" Trimming="EllipsisCharacter"/>
+      <TextObject Name="Text39" Left="572.78" Top="0.94" Width="68.04" Height="18.9" Text="VAT" Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold" Trimming="EllipsisCharacter"/>
       <TextObject Name="Text40" Left="642.6" Top="0.94" Width="75.6" Height="18.9" Text="Total" Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold" Trimming="EllipsisCharacter"/>
     </ColumnHeaderBand>
     <DataBand Name="Data1" Top="215.17" Width="718.2" Height="19.84" CanGrow="true" BeforePrintEvent="Data1_BeforePrint" DataSource="Table1">
@@ -167,17 +172,28 @@ namespace FastReport
       <TextObject Name="Text32" Left="572.78" Top="0.94" Width="68.04" Height="18.9" Text="[CnDt.TaxAmt]" Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
       <TextObject Name="Text33" Left="642.6" Top="0.94" Width="75.6" Height="18.9" Text="[CnDt.TotalAmt]" Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt" Trimming="EllipsisCharacter"/>
     </DataBand>
-    <ReportSummaryBand Name="ReportSummary1" Top="239.01" Width="718.2" Height="56.7" Border.Lines="Top, Bottom">
-      <TextObject Name="Text41" Left="572.78" Width="141.75" Height="18.9" Text="[Sum_Amount]" Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" Font="Tahoma, 8pt"/>
-      <TextObject Name="Text42" Left="572.78" Top="18.9" Width="141.75" Height="18.9" Text="[Sum_TaxAmt]" Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" Font="Tahoma, 8pt"/>
-      <TextObject Name="Text43" Left="572.78" Top="37.8" Width="141.75" Height="18.9" Text="[Sum_TotalAmt]" Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" Font="Tahoma, 8pt"/>
-      <TextObject Name="Text45" Left="466.94" Top="18.9" Width="94.5" Height="18.9" Text="Total Tax" Format="Number" Format.UseLocale="true" VertAlign="Center" Font="Tahoma, 8pt"/>
-      <TextObject Name="Text46" Left="466.94" Top="37.8" Width="94.5" Height="18.9" Text="Grand Total" Format="Number" Format.UseLocale="true" VertAlign="Center" Font="Tahoma, 8pt"/>
-      <TextObject Name="Text44" Left="466.94" Width="94.5" Height="18.9" Text="Total Amount" Format="Number" Format.UseLocale="true" VertAlign="Center" Font="Tahoma, 8pt"/>
+    <ReportSummaryBand Name="ReportSummary1" Top="239.01" Width="718.2" Height="103.95" Border.Lines="Top">
+      <TextObject Name="Text41" Left="576.45" Top="9.45" Width="141.75" Height="18.9" Text="[Sum_Amount]" Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text42" Left="576.45" Top="28.35" Width="141.75" Height="18.9" Text="[Sum_TaxAmt]" Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text43" Left="576.45" Top="47.25" Width="141.75" Height="18.9" Text="[Sum_TotalAmt]" Format="Number" Format.UseLocale="true" HorzAlign="Right" VertAlign="Center" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text45" Left="466.94" Top="28.35" Width="94.5" Height="18.9" Text="Total VAT" Format="Number" Format.UseLocale="true" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text46" Left="466.94" Top="47.25" Width="94.5" Height="18.9" Text="Grand Total" Format="Number" Format.UseLocale="true" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text44" Left="466.94" Top="9.45" Width="94.5" Height="18.9" Text="Total Amount" Format="Number" Format.UseLocale="true" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text122" Top="9.45" Width="56.7" Height="18.9" Text="Remark:" Font="Arial, 8pt, style=Bold"/>
+      <TextObject Name="Text118" Top="28.35" Width="387.45" Height="18.9" Border.Lines="Bottom" Border.Style="Dot" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text119" Top="47.25" Width="387.45" Height="18.9" Border.Lines="Bottom" Border.Style="Dot" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text120" Top="66.15" Width="387.45" Height="18.9" Border.Lines="Bottom" Border.Style="Dot" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text126" Top="85.05" Width="387.45" Height="18.9" Border.Lines="Bottom" Border.Style="Dot" WordWrap="false" Font="Tahoma, 8pt"/>
     </ReportSummaryBand>
-    <PageFooterBand Name="PageFooter1" Top="299.71" Width="718.2" Height="37.8">
-      <TextObject Name="Text1" Top="9.45" Width="132.3" Height="18.9" Text="[Date]" Font="Tahoma, 8pt, style=Italic"/>
-      <TextObject Name="Text2" Left="538.65" Top="9.45" Width="179.55" Height="18.9" Text="[Page#]/[TotalPages#]" HorzAlign="Right" Font="Tahoma, 8pt"/>
+    <PageFooterBand Name="PageFooter1" Top="346.96" Width="718.2" Height="132.3" Border.Lines="Top">
+      <TextObject Name="Text123" Top="66.15" Width="75.6" Height="18.9" Text="Prepared by" WordWrap="false" Font="Arial, 8pt, style=Bold"/>
+      <TextObject Name="Text124" Left="94.5" Top="66.15" Width="226.8" Height="18.9" Border.Lines="Bottom" Border.Style="Dot" WordWrap="false" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text125" Left="94.5" Top="94.5" Width="226.8" Height="37.8" CanGrow="true" Text="AP&#13;&#10;&#13;&#10;.............. / .............. / .............. " HorzAlign="Center" WordWrap="false" Font="Tahoma, 8pt">
+        <Formats>
+          <GeneralFormat/>
+          <DateFormat/>
+        </Formats>
+      </TextObject>
     </PageFooterBand>
   </ReportPage>
 </Report>

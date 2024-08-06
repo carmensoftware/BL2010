@@ -366,112 +366,112 @@ namespace BlueLedger.PL.IN.STOREREQ
 
         protected void grd_StoreReqEdit_RowUpdating(object sender, GridViewUpdateEventArgs e)
         {
-            //return;
+            return;
 
-            ////ASPxPageControl tp_Information  = grd_StoreReqEdit.Rows[grd_StoreReqEdit.EditIndex].FindControl("tp_Information") as ASPxPageControl;
-            //var ddlGStore = grd_StoreReqEdit.Rows[grd_StoreReqEdit.EditIndex].FindControl("ddl_gStore") as ASPxComboBox;
-            //var ddlProduct = grd_StoreReqEdit.Rows[grd_StoreReqEdit.EditIndex].FindControl("ddl_Product") as ASPxComboBox;
-            //var ddlDebit = grd_StoreReqEdit.Rows[grd_StoreReqEdit.EditIndex].FindControl("ddl_Debit") as ASPxComboBox;
-            //var ddlCredit = grd_StoreReqEdit.Rows[grd_StoreReqEdit.EditIndex].FindControl("ddl_Credit") as ASPxComboBox;
-            ////ASPxTextBox txt_QtyRequested    = grd_StoreReqEdit.Rows[grd_StoreReqEdit.EditIndex].FindControl("txt_QtyRequested") as ASPxTextBox;
-            //var txtQtyRequested = grd_StoreReqEdit.Rows[grd_StoreReqEdit.EditIndex].FindControl("txt_QtyRequested") as ASPxSpinEdit;
-            //var txtComment = grd_StoreReqEdit.Rows[grd_StoreReqEdit.EditIndex].FindControl("txt_Comment") as TextBox;
-            //var deGReqDate = grd_StoreReqEdit.Rows[grd_StoreReqEdit.EditIndex].FindControl("de_gReqDate") as ASPxDateEdit;
-            //var lblUnit = grd_StoreReqEdit.Rows[grd_StoreReqEdit.EditIndex].FindControl("lbl_Unit") as Label;
-
-
-            ////Check field cannot empty
-            //if (ddlGStore != null)
-            //{
-            //    if (ddlGStore.Value != null) return;
-            //    lbl_Warning.Text = @"Please select 'Request From'";
-            //    pop_Warning.ShowOnPageLoad = true;
-            //    pop_Warning.Width = Unit.Pixel(250);
-            //    return;
-            //}
-
-            //if (ddlProduct != null)
-            //{
-            //    if (ddlProduct.Value != null) return;
-            //    lbl_Warning.Text = @"Please select 'SKU #'";
-            //    pop_Warning.ShowOnPageLoad = true;
-            //    pop_Warning.Width = Unit.Pixel(200);
-            //    return;
-            //}
+            //ASPxPageControl tp_Information  = grd_StoreReqEdit.Rows[grd_StoreReqEdit.EditIndex].FindControl("tp_Information") as ASPxPageControl;
+            var ddlGStore = grd_StoreReqEdit.Rows[grd_StoreReqEdit.EditIndex].FindControl("ddl_gStore") as ASPxComboBox;
+            var ddlProduct = grd_StoreReqEdit.Rows[grd_StoreReqEdit.EditIndex].FindControl("ddl_Product") as ASPxComboBox;
+            var ddlDebit = grd_StoreReqEdit.Rows[grd_StoreReqEdit.EditIndex].FindControl("ddl_Debit") as ASPxComboBox;
+            var ddlCredit = grd_StoreReqEdit.Rows[grd_StoreReqEdit.EditIndex].FindControl("ddl_Credit") as ASPxComboBox;
+            //ASPxTextBox txt_QtyRequested    = grd_StoreReqEdit.Rows[grd_StoreReqEdit.EditIndex].FindControl("txt_QtyRequested") as ASPxTextBox;
+            var txtQtyRequested = grd_StoreReqEdit.Rows[grd_StoreReqEdit.EditIndex].FindControl("txt_QtyRequested") as ASPxSpinEdit;
+            var txtComment = grd_StoreReqEdit.Rows[grd_StoreReqEdit.EditIndex].FindControl("txt_Comment") as TextBox;
+            var deGReqDate = grd_StoreReqEdit.Rows[grd_StoreReqEdit.EditIndex].FindControl("de_gReqDate") as ASPxDateEdit;
+            var lblUnit = grd_StoreReqEdit.Rows[grd_StoreReqEdit.EditIndex].FindControl("lbl_Unit") as Label;
 
 
-            //if (txtQtyRequested != null)
-            //{
-            //    decimal number;
+            //Check field cannot empty
+            if (ddlGStore != null)
+            {
+                if (ddlGStore.Value != null) return;
+                lbl_Warning.Text = @"Please select 'Request From'";
+                pop_Warning.ShowOnPageLoad = true;
+                pop_Warning.Width = Unit.Pixel(250);
+                return;
+            }
 
-            //    if (txtQtyRequested.Text == string.Empty)
-            //    {
-            //        //Please entry 'Qty Requested'
-            //        lbl_Warning.Text = @"Input Quantity Request";
-            //        pop_Warning.ShowOnPageLoad = true;
-            //        pop_Warning.Width = Unit.Pixel(250);
-            //        return;
-            //    }
-            //    else if (!decimal.TryParse(txtQtyRequested.Text, out number) || decimal.Parse(txtQtyRequested.Text) <= 0)
-            //    {
-            //        //Please entry 'Qty Requested' only 1-9
-            //        //check number
-            //        lbl_Warning.Text = @"Input Quantity Request";
-            //        pop_Warning.ShowOnPageLoad = true;
-            //        pop_Warning.Width = Unit.Pixel(250);
-            //        return;
-            //    }
-            //}
+            if (ddlProduct != null)
+            {
+                if (ddlProduct.Value != null) return;
+                lbl_Warning.Text = @"Please select 'SKU #'";
+                pop_Warning.ShowOnPageLoad = true;
+                pop_Warning.Width = Unit.Pixel(200);
+                return;
+            }
 
-            ////Update Date
-            //string productCode = ddlProduct.Value.ToString().Split(' ')[0];
 
-            //var drUpdating = _dsReqEdit.Tables[reqDt.TableName].Rows[grd_StoreReqEdit.Rows[grd_StoreReqEdit.EditIndex].DataItemIndex];
-            //drUpdating["ToLocationCode"] = ddlGStore.Value;
-            //drUpdating["DeliveryDate"] = deGReqDate.Date;
-            ////drUpdating["CategoryCode"] = product.GetProductCategory(ddlProduct.Value.ToString(), LoginInfo.ConnStr).ToString();
-            ////drUpdating["ProductCode"] = ddlProduct.Value.ToString();
-            //drUpdating["CategoryCode"] = product.GetProductCategory(productCode, LoginInfo.ConnStr).ToString();
-            //drUpdating["ProductCode"] = productCode;
+            if (txtQtyRequested != null)
+            {
+                decimal number;
 
-            //drUpdating["RequestQty"] = RoundQty(decimal.Parse(txtQtyRequested.Text));
-            //drUpdating["ApprQty"] = RoundQty(decimal.Parse(txtQtyRequested.Text));
+                if (txtQtyRequested.Text == string.Empty)
+                {
+                    //Please entry 'Qty Requested'
+                    lbl_Warning.Text = @"Input Quantity Request";
+                    pop_Warning.ShowOnPageLoad = true;
+                    pop_Warning.Width = Unit.Pixel(250);
+                    return;
+                }
+                else if (!decimal.TryParse(txtQtyRequested.Text, out number) || decimal.Parse(txtQtyRequested.Text) <= 0)
+                {
+                    //Please entry 'Qty Requested' only 1-9
+                    //check number
+                    lbl_Warning.Text = @"Input Quantity Request";
+                    pop_Warning.ShowOnPageLoad = true;
+                    pop_Warning.Width = Unit.Pixel(250);
+                    return;
+                }
+            }
+
+            //Update Date
+            string productCode = ddlProduct.Value.ToString().Split(' ')[0];
+
+            var drUpdating = _dsReqEdit.Tables[reqDt.TableName].Rows[grd_StoreReqEdit.Rows[grd_StoreReqEdit.EditIndex].DataItemIndex];
+            drUpdating["ToLocationCode"] = ddlGStore.Value;
+            drUpdating["DeliveryDate"] = deGReqDate.Date;
+            //drUpdating["CategoryCode"] = product.GetProductCategory(ddlProduct.Value.ToString(), LoginInfo.ConnStr).ToString();
+            //drUpdating["ProductCode"] = ddlProduct.Value.ToString();
+            drUpdating["CategoryCode"] = product.GetProductCategory(productCode, LoginInfo.ConnStr).ToString();
+            drUpdating["ProductCode"] = productCode;
+
+            drUpdating["RequestQty"] = RoundQty(decimal.Parse(txtQtyRequested.Text));
+            drUpdating["ApprQty"] = RoundQty(decimal.Parse(txtQtyRequested.Text));
             //drUpdating["AllocateQty"] = RoundQty(decimal.Parse(txtQtyRequested.Text));
-            //drUpdating["RequestUnit"] = lblUnit.Text;
-            //drUpdating["DebitACCode"] = null;
-            //drUpdating["CreditACCode"] = null;
-            //drUpdating["Comment"] = txtComment.Text == string.Empty ? null : txtComment.Text;
-            //drUpdating["ApprStatus"] = workflow.GetDtApprStatus("IN", "SR", LoginInfo.ConnStr);
+            drUpdating["RequestUnit"] = lblUnit.Text;
+            drUpdating["DebitACCode"] = null;
+            drUpdating["CreditACCode"] = null;
+            drUpdating["Comment"] = txtComment.Text == string.Empty ? null : txtComment.Text;
+            drUpdating["ApprStatus"] = workflow.GetDtApprStatus("IN", "SR", LoginInfo.ConnStr);
 
-            //// Modified on: 14/11/2017, By: Fon
-            ////grd_StoreReqEdit.DataSource = _dsReqEdit.Tables[reqDt.TableName];
-            ////grd_StoreReqEdit.EditIndex = -1;
-            ////grd_StoreReqEdit.DataBind();
+            // Modified on: 14/11/2017, By: Fon
+            //grd_StoreReqEdit.DataSource = _dsReqEdit.Tables[reqDt.TableName];
+            //grd_StoreReqEdit.EditIndex = -1;
+            //grd_StoreReqEdit.DataBind();
 
-            //Control_Location(ddlGStore.Value.ToString(), _dsReqEdit.Tables[reqDt.TableName]);
-            //// End Modified.
+            Control_Location(ddlGStore.Value.ToString(), _dsReqEdit.Tables[reqDt.TableName]);
+            // End Modified.
 
-            //if (Request.Params["MODE"].ToUpper() == "EDIT" && StoreReqEditMode.ToUpper() == "NEW")
-            //{
-            //    drUpdating["DocumentId"] = _dsReqEdit.Tables[ReqH.TableName].Rows[0]["RefId"].ToString();
-            //}
+            if (Request.Params["MODE"].ToUpper() == "EDIT" && StoreReqEditMode.ToUpper() == "NEW")
+            {
+                drUpdating["DocumentId"] = _dsReqEdit.Tables[ReqH.TableName].Rows[0]["RefId"].ToString();
+            }
 
-            //de_Date.Enabled = false;
-            ////btn_Save.Enabled = true;
-            ////btn_Create.Enabled = true;
+            de_Date.Enabled = false;
+            //btn_Save.Enabled = true;
+            //btn_Create.Enabled = true;
 
-            //StoreReqEditMode = string.Empty;
-            //td_Delete.Visible = true;
+            StoreReqEditMode = string.Empty;
+            td_Delete.Visible = true;
 
-            ////hong visible button 20130909
-            //btn_Save.Visible = true;
-            //btn_Back.Visible = true;
+            //hong visible button 20130909
+            btn_Save.Visible = true;
+            btn_Back.Visible = true;
 
-            ////btn_Create.Visible = true;
-            ////btn_Delete.Visible = true;
+            //btn_Create.Visible = true;
+            //btn_Delete.Visible = true;
 
-            //de_ReqDate.Visible = true;
-            //btn_ReqDate_Ok.Visible = true;
+            de_ReqDate.Visible = true;
+            btn_ReqDate_Ok.Visible = true;
         }
 
         protected void grd_StoreReqEdit_RowCommand(object sender, GridViewCommandEventArgs e)
@@ -2138,7 +2138,23 @@ namespace BlueLedger.PL.IN.STOREREQ
 
         protected void ddl_Product_Load(object sender, EventArgs e)
         {
-            
+            //var ddlProduct = (sender as ASPxComboBox);
+            //if (ddlProduct != null)
+            //{
+            //    var ddlGStore = ddlProduct.Parent.FindControl("ddl_gStore") as ASPxComboBox;
+
+            //    if (ddlGStore.Value != null && ddl_Store.Value != null)
+            //    {
+            //        var ds = product.GetListByTwoLocation(ddl_Store.Value.ToString(), ddlGStore.Value.ToString(), LoginInfo.ConnStr);
+            //        var dt = new ClassComboHelper().DataLimit(ds);
+
+            //        string productCode = string.Empty;
+
+            //        ddlProduct.DataSource = dt;
+            //        ddlProduct.ValueField = "ProductCode";
+            //        ddlProduct.DataBind();
+            //    }
+            //}
         }
 
         protected void ddl_Product_ItemRequestedByValue(object source, ListEditItemRequestedByValueEventArgs e)
@@ -2227,7 +2243,7 @@ namespace BlueLedger.PL.IN.STOREREQ
                 ddl_Store.Value.ToString(),
                 ddlGStore.Value.ToString(),
                 LoginInfo.ConnStr);
-            //var dt = new ClassComboHelper().DataLimit(ds);
+            var dt = new ClassComboHelper().DataLimit(ds);
             ddlProduct.DataSource = ds;
             ddlProduct.ValueField = "ProductCode";
             ddlProduct.DataBind();
@@ -2249,71 +2265,71 @@ namespace BlueLedger.PL.IN.STOREREQ
 
         private void CreateAccountMap(DataSet dsStockOut, string connStr)
         {
-            //return;
-            //var ds = new DataSet();
-            //accMapp.GetStructure(ds, connStr);
+            return;
+            var ds = new DataSet();
+            accMapp.GetStructure(ds, connStr);
 
-            //foreach (DataRow item in dsStockOut.Tables[reqDt.TableName].Rows)
-            //{
-            //    if (item.RowState == DataRowState.Deleted) continue;
+            foreach (DataRow item in dsStockOut.Tables[reqDt.TableName].Rows)
+            {
+                if (item.RowState == DataRowState.Deleted) continue;
 
-            //    var eop = string.Empty;
-            //    var dsEop = new DataSet();
-            //    locat.GetList(dsEop, connStr);
-            //    if (dsEop.Tables[locat.TableName].Rows.Count > 0)
-            //    {
-            //        var dtEop = dsEop.Tables[locat.TableName].Select("LocationCode = '" + item["ToLocationCode"] + "'");
-            //        if (dtEop.Any())
-            //        {
-            //            eop = dtEop[0]["EOP"].ToString();
-            //        }
-            //    }
+                var eop = string.Empty;
+                var dsEop = new DataSet();
+                locat.GetList(dsEop, connStr);
+                if (dsEop.Tables[locat.TableName].Rows.Count > 0)
+                {
+                    var dtEop = dsEop.Tables[locat.TableName].Select("LocationCode = '" + item["ToLocationCode"] + "'");
+                    if (dtEop.Any())
+                    {
+                        eop = dtEop[0]["EOP"].ToString();
+                    }
+                }
 
-            //    if (eop != "2") continue;
-            //    var p = product.GetProductCategory(item["ProductCode"].ToString(), connStr);
+                if (eop != "2") continue;
+                var p = product.GetProductCategory(item["ProductCode"].ToString(), connStr);
 
-            //    var adjCode = string.Empty;
-            //    var dsAdj = new DataSet();
-            //    adjType.GetList(dsAdj, "ISSUE", connStr);
-            //    if (dsAdj.Tables[adjType.TableName].Rows.Count > 0)
-            //    {
-            //        var dtAdj = dsAdj.Tables[adjType.TableName].Select("AdjId = " + ddl_Type.Value.ToString());
-            //        if (dtAdj.Any())
-            //        {
-            //            adjCode = dtAdj[0]["AdjCode"].ToString();
-            //        }
-            //    }
+                var adjCode = string.Empty;
+                var dsAdj = new DataSet();
+                adjType.GetList(dsAdj, "ISSUE", connStr);
+                if (dsAdj.Tables[adjType.TableName].Rows.Count > 0)
+                {
+                    var dtAdj = dsAdj.Tables[adjType.TableName].Select("AdjId = " + ddl_Type.Value.ToString());
+                    if (dtAdj.Any())
+                    {
+                        adjCode = dtAdj[0]["AdjCode"].ToString();
+                    }
+                }
 
-            //    var s = "BusinessUnitCode = '" + LoginInfo.BuInfo.BuCode + "'";
-            //    s += " and StoreCode = '" + ddl_Store.Value + "'";
-            //    s += " and ItemGroupCode = '" + p + "'";
-            //    s += " and A1 = '" + adjCode + "'";
-            //    //s += " and A2 = '" + item["ToLocationCode"] + "'";
-            //    s += " and PostType = '" + Blue.BL.Option.Admin.Interface.PostType.GL + "' ";
+                var s = "BusinessUnitCode = '" + LoginInfo.BuInfo.BuCode + "'";
+                s += " and StoreCode = '" + ddl_Store.Value + "'";
+                s += " and ItemGroupCode = '" + p + "'";
+                s += " and A1 = '" + adjCode + "'";
+                //s += " and A2 = '" + item["ToLocationCode"] + "'";
+                s += " and PostType = '" + Blue.BL.Option.Admin.Interface.PostType.GL + "' ";
 
 
-            //    var dt = accMapp.GetList(connStr);
-            //    var drs = dt.Select(s).ToList();
+                var dt = accMapp.GetList(connStr);
+                var drs = dt.Select(s).ToList();
 
-            //    if (drs.Count > 0) continue;
-            //    var dr = ds.Tables[accMapp.TableName].NewRow();
-            //    dr["ID"] = Guid.NewGuid(); // accMapp.GetNewID(connStr);
-            //    dr["BusinessUnitCode"] = LoginInfo.BuInfo.BuCode;
-            //    dr["StoreCode"] = ddl_Store.Value.ToString();
-            //    dr["ItemGroupCode"] = p;
-            //    dr["A1"] = adjCode;
-            //    //dr["A2"] = item["ToLocationCode"];
-            //    dr["PostType"] = "GL";
+                if (drs.Count > 0) continue;
+                var dr = ds.Tables[accMapp.TableName].NewRow();
+                dr["ID"] = Guid.NewGuid(); // accMapp.GetNewID(connStr);
+                dr["BusinessUnitCode"] = LoginInfo.BuInfo.BuCode;
+                dr["StoreCode"] = ddl_Store.Value.ToString();
+                dr["ItemGroupCode"] = p;
+                dr["A1"] = adjCode;
+                //dr["A2"] = item["ToLocationCode"];
+                dr["PostType"] = "GL";
 
-            //    ds.Tables[accMapp.TableName].Rows.Add(dr);
-            //}
+                ds.Tables[accMapp.TableName].Rows.Add(dr);
+            }
 
-            //var save = accMapp.Save(ds, connStr);
+            var save = accMapp.Save(ds, connStr);
 
-            //if (save)
-            //{
-            //    //Response.Write("SUCCESS");
-            //}
+            if (save)
+            {
+                //Response.Write("SUCCESS");
+            }
         }
 
         private void UpdateApprStatus(int workflowStep)
@@ -2712,8 +2728,8 @@ namespace BlueLedger.PL.IN.STOREREQ
                         drStoreReqDt["ApprQty"] = drStoreReqDt["RequestQty"];
                         drStoreReqDt["AllocateQty"] = drStoreReqDt["RequestQty"];
                     }
-                    //else if (WfStep < lastStepNo)
-                    //    drStoreReqDt["AllocateQty"] = drStoreReqDt["ApprQty"];
+                    // else if (WfStep < lastStepNo)
+                        // drStoreReqDt["AllocateQty"] = drStoreReqDt["ApprQty"];
 
                 }
 

@@ -289,14 +289,11 @@ namespace BlueLedger.PL.Option.Admin.Security.Role
             #region Header
             var drRole = dsRole.Tables[role.TableName].Rows[0];
 
-            var roleName = drRole["RoleName"].ToString();
-
-            //if (drRole["RoleName"].ToString() == string.Empty)
-            if (drRole["RoleName"] == DBNull.Value)
-                
+            //Modified on: 2017/05/12, By: Fon, About: RoleName & RoleDesc
+            if (drRole["RoleName"].ToString() == string.Empty)
             {
-                roleName = GenerateNewID();
-                drRole["RoleName"] =  roleName;
+                // Create new id
+                drRole["RoleName"] = GenerateNewID();
             }
             drRole["RoleDesc"] = txt_RoleDesc.Text.Trim();
             drRole["IsActive"] = chk_IsActive.Checked;
@@ -308,7 +305,6 @@ namespace BlueLedger.PL.Option.Admin.Security.Role
             {
                 drUserRole["RoleName"] = drRole["RoleName"].ToString();
             }
-
             role.Save(dsRole, LoginInfo.ConnStr);
             #endregion
 
@@ -316,8 +312,6 @@ namespace BlueLedger.PL.Option.Admin.Security.Role
             #region MODE: NEW
             if (Request.Params["MODE"].ToUpper() == "NEW")
             {
-               
-
                 var getRolePermission = rolePermission.GetList(dsRole, string.Empty, LoginInfo.ConnStr);
                 if (!getRolePermission)
                 { return; }
@@ -898,10 +892,7 @@ namespace BlueLedger.PL.Option.Admin.Security.Role
                 da.Fill(dt);
             }
             catch (Exception ex)
-            {
-                LogManager.Error(ex);
-                return null; 
-            }
+            { return null; }
             finally
             {
                 conn.Close();
@@ -928,7 +919,6 @@ namespace BlueLedger.PL.Option.Admin.Security.Role
             }
             catch (Exception ex)
             {
-                LogManager.Error(ex);
                 return null;
             }
             finally

@@ -194,7 +194,7 @@ namespace BlueLedger.PL.IN.REC
                 lbl_VendorCode.Text = drRec["VendorCode"] + " : ";
                 lbl_VendorNm.Text = vendor.GetName(drRec["VendorCode"].ToString(), hf_ConnStr.Value);
                 lbl_Currency.Text = drRec["CurrencyCode"].ToString();
-                chk_IsCashConsign.Checked = drRec["IsCashConsign"].ToString() == "1";
+                chk_IsCashConsign.Checked = drRec["IsCashConsign"].ToString() == "True";
 
 
                 lbl_ExRateAudit.Text = drRec["CurrencyRate"].ToString();
@@ -1196,10 +1196,7 @@ namespace BlueLedger.PL.IN.REC
 
         protected void btn_Back_Click(object sender, EventArgs e)
         {
-            var vid = Request.QueryString["VID"].ToString();
-            var page = Request.QueryString["page"].ToString();
-
-            Response.Redirect(string.Format("~/PC/REC/RecLst.aspx?VID={0}&page={1}", vid, page));
+            Response.Redirect("~/PC/REC/RecLst.aspx");
         }
 
         // -----------------------------------------------------------------------------------------------

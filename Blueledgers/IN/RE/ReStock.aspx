@@ -95,7 +95,7 @@
                                 <td>
                                     <asp:RadioButtonList ID="rbl_Status" runat="server" ForeColor="White">
                                         <asp:ListItem Selected="True" Value="0">Show All</asp:ListItem>
-                                        <asp:ListItem Value="1">Show Under Par Items and Auto Refill</asp:ListItem>
+                                        <asp:ListItem Value="1">Under Par</asp:ListItem>
                                     </asp:RadioButtonList>
                                 </td>
                             </tr>

@@ -5,7 +5,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using BlueLedger.PL.BaseClass;
 using DevExpress.Web.ASPxEditors;
-using Newtonsoft.Json;
+
 using System.Data.SqlClient;
 using Blue.BL;
 using System.Collections.Generic;
@@ -14,78 +14,75 @@ namespace BlueLedger.PL.PC.PR
 {
     public partial class PrEdit : BasePage
     {
-        //private int decimalPoint = 2;
+        private int decimalPoint = 2;
         private decimal Price;
+
         public string HiddenClassName { get; private set; }
 
         #region "Attributes"
 
-        private readonly Blue.BL.GnxLib GnxLib = new Blue.BL.GnxLib();
+        private readonly Blue.BL.Option.Inventory.ProdCateType ProdCateType = new Blue.BL.Option.Inventory.ProdCateType();
+        private readonly Blue.BL.Profile.Address address = new Blue.BL.Profile.Address();
+        private readonly Blue.BL.Profile.BankAccount bankAccount = new Blue.BL.Profile.BankAccount();
         private readonly Blue.BL.dbo.Bu bu = new Blue.BL.dbo.Bu();
         private readonly Blue.BL.APP.Config conf = new Blue.BL.APP.Config();
-        private readonly Blue.BL.APP.ViewHandler viewHandler = new Blue.BL.APP.ViewHandler();
-        private readonly Blue.BL.PC.Priod period = new Blue.BL.PC.Priod();
-
-        private readonly Blue.BL.ADMIN.Department dep = new Blue.BL.ADMIN.Department();
+        private readonly Blue.BL.Profile.Contact contact = new Blue.BL.Profile.Contact();
+        private readonly Blue.BL.Profile.ContactDetail contactDetail = new Blue.BL.Profile.ContactDetail();
         private readonly Blue.BL.Option.Inventory.DeliveryPoint deliPoint = new Blue.BL.Option.Inventory.DeliveryPoint();
-        private readonly Blue.BL.Option.Inventory.StoreLct storeLct = new Blue.BL.Option.Inventory.StoreLct();
-        private readonly Blue.BL.Option.Inventory.Product product = new Blue.BL.Option.Inventory.Product();
-        private readonly Blue.BL.Option.Inventory.ProdCateType ProdCateType = new Blue.BL.Option.Inventory.ProdCateType();
-        private readonly Blue.BL.Option.Inventory.ProdCat productCate = new Blue.BL.Option.Inventory.ProdCat();
-        private readonly Blue.BL.Option.Inventory.Unit unit = new Blue.BL.Option.Inventory.Unit();
-
-        private readonly Blue.BL.AP.VendorCategory vendorCategory = new Blue.BL.AP.VendorCategory();
-        private readonly Blue.BL.AP.Vendor vendor = new Blue.BL.AP.Vendor();
-
+        private readonly Blue.BL.ADMIN.Department dep = new Blue.BL.ADMIN.Department();
+        private readonly DataSet dsPriceList = new DataSet();
+        private readonly Blue.BL.AP.InvoiceDefault invoiceDefault = new Blue.BL.AP.InvoiceDefault();
+        private readonly Blue.BL.AP.InvoiceDefaultDetail invoiceDefaultDetail = new Blue.BL.AP.InvoiceDefaultDetail();
         private readonly Blue.BL.Import.JobCode jobCode = new Blue.BL.Import.JobCode();
-
+        private readonly Blue.BL.AP.PaymentDefault paymentDefault = new Blue.BL.AP.PaymentDefault();
+        private readonly Blue.BL.AP.PaymentDefaultAuto paymentDefaultAuto = new Blue.BL.AP.PaymentDefaultAuto();
+        private readonly Blue.BL.AP.PaymentDefaultCash paymentDefaultCash = new Blue.BL.AP.PaymentDefaultCash();
+        private readonly Blue.BL.AP.PaymentDefaultCheq paymentDefaultCheq = new Blue.BL.AP.PaymentDefaultCheq();
+        private readonly Blue.BL.AP.PaymentDefaultCredit paymentDefaultCredit = new Blue.BL.AP.PaymentDefaultCredit();
+        private readonly Blue.BL.AP.PaymentDefaultTrans paymentDefaultTrans = new Blue.BL.AP.PaymentDefaultTrans();
+        private readonly Blue.BL.PC.Priod period = new Blue.BL.PC.Priod();
         private readonly Blue.BL.PC.PL.PL pl = new Blue.BL.PC.PL.PL();
         private readonly Blue.BL.PC.PL.PLDt plDt = new Blue.BL.PC.PL.PLDt();
         private readonly Blue.BL.PC.PR.PR pr = new Blue.BL.PC.PR.PR();
         private readonly Blue.BL.PC.PR.PRDt prDt = new Blue.BL.PC.PR.PRDt();
         private readonly Blue.BL.IN.PriceList priceList = new Blue.BL.IN.PriceList();
         private readonly Blue.BL.IN.ProdUnit prodUnit = new Blue.BL.IN.ProdUnit();
-
-        private readonly Blue.BL.APP.WF wf = new Blue.BL.APP.WF();
+        private readonly Blue.BL.Option.Inventory.Product product = new Blue.BL.Option.Inventory.Product();
+        private readonly Blue.BL.Profile.Profile profile = new Blue.BL.Profile.Profile();
+        private readonly Blue.BL.Option.Inventory.StoreLct storeLct = new Blue.BL.Option.Inventory.StoreLct();
+        private readonly Blue.BL.AP.Vendor vendor = new Blue.BL.AP.Vendor();
+        private readonly Blue.BL.AP.VendorActiveLog vendorActiveLog = new Blue.BL.AP.VendorActiveLog();
+        private readonly Blue.BL.AP.VendorAttachment vendorAttachment = new Blue.BL.AP.VendorAttachment();
+        private readonly Blue.BL.AP.VendorComment vendorComment = new Blue.BL.AP.VendorComment();
+        private readonly Blue.BL.AP.VendorDefaultWHT vendorDefaultWHT = new Blue.BL.AP.VendorDefaultWHT();
+        private readonly Blue.BL.AP.VendorMisc vendorMisc = new Blue.BL.AP.VendorMisc();
+        private readonly Blue.BL.APP.ViewHandler viewHandler = new Blue.BL.APP.ViewHandler();
         private readonly Blue.BL.APP.WFDt wfDt = new Blue.BL.APP.WFDt();
-
-
-        private readonly Blue.BL.Ref.Currency currency = new Blue.BL.Ref.Currency();
-        private readonly Blue.BL.ADMIN.TransLog _transLog = new Blue.BL.ADMIN.TransLog();
-
-        //private readonly Blue.BL.Profile.Profile profile = new Blue.BL.Profile.Profile();
-        //private readonly Blue.BL.dbo.User buyer = new Blue.BL.dbo.User();
-        //private readonly Blue.BL.Profile.Address address = new Blue.BL.Profile.Address();
-        //private readonly Blue.BL.Profile.BankAccount bankAccount = new Blue.BL.Profile.BankAccount();
-        //private readonly Blue.BL.Profile.Contact contact = new Blue.BL.Profile.Contact();
-        //private readonly Blue.BL.Profile.ContactDetail contactDetail = new Blue.BL.Profile.ContactDetail();
-        //private readonly Blue.BL.AP.VendorActiveLog vendorActiveLog = new Blue.BL.AP.VendorActiveLog();
-        //private readonly Blue.BL.AP.VendorAttachment vendorAttachment = new Blue.BL.AP.VendorAttachment();
-        //private readonly Blue.BL.AP.VendorComment vendorComment = new Blue.BL.AP.VendorComment();
-        //private readonly Blue.BL.AP.VendorDefaultWHT vendorDefaultWHT = new Blue.BL.AP.VendorDefaultWHT();
-        //private readonly Blue.BL.AP.VendorMisc vendorMisc = new Blue.BL.AP.VendorMisc();
-        //private readonly Blue.BL.Profile.AddressPart addressPart = new Blue.BL.Profile.AddressPart();
-        //private readonly Blue.BL.Profile.AddressType addressType = new Blue.BL.Profile.AddressType();
-        //private readonly Blue.BL.Option.Inventory.ApprLv apprLv = new Blue.BL.Option.Inventory.ApprLv();
-        //private readonly Blue.BL.Profile.ContactCategory contactCategory = new Blue.BL.Profile.ContactCategory();
-        //private readonly Blue.BL.Profile.ContactType contactType = new Blue.BL.Profile.ContactType();
-        //private readonly Blue.BL.Reference.PaymentMethod paymentMethod = new Blue.BL.Reference.PaymentMethod();
-        //private readonly Blue.BL.AP.InvoiceDefault invoiceDefault = new Blue.BL.AP.InvoiceDefault();
-        //private readonly Blue.BL.AP.InvoiceDefaultDetail invoiceDefaultDetail = new Blue.BL.AP.InvoiceDefaultDetail();
-        //private readonly Blue.BL.AP.PaymentDefault paymentDefault = new Blue.BL.AP.PaymentDefault();
-        //private readonly Blue.BL.AP.PaymentDefaultAuto paymentDefaultAuto = new Blue.BL.AP.PaymentDefaultAuto();
-        //private readonly Blue.BL.AP.PaymentDefaultCash paymentDefaultCash = new Blue.BL.AP.PaymentDefaultCash();
-        //private readonly Blue.BL.AP.PaymentDefaultCheq paymentDefaultCheq = new Blue.BL.AP.PaymentDefaultCheq();
-        //private readonly Blue.BL.AP.PaymentDefaultCredit paymentDefaultCredit = new Blue.BL.AP.PaymentDefaultCredit();
-        //private readonly Blue.BL.AP.PaymentDefaultTrans paymentDefaultTrans = new Blue.BL.AP.PaymentDefaultTrans();
-
-        //private object Sender = new object();
-        //private readonly DataSet dsPriceList = new DataSet();
-        //private DataSet dsVendor = new DataSet();
-
+        private readonly Blue.BL.APP.WF workFlow = new Blue.BL.APP.WF();
+        private readonly Blue.BL.APP.WFDt workFlowDt = new Blue.BL.APP.WFDt();
+        private Blue.BL.GnxLib GnxLib = new Blue.BL.GnxLib();
+        private object Sender = new object();
+        private Blue.BL.Profile.AddressPart addressPart = new Blue.BL.Profile.AddressPart();
+        private Blue.BL.Profile.AddressType addressType = new Blue.BL.Profile.AddressType();
+        private Blue.BL.Option.Inventory.ApprLv apprLv = new Blue.BL.Option.Inventory.ApprLv();
+        private Blue.BL.dbo.User buyer = new Blue.BL.dbo.User();
+        private Blue.BL.Profile.ContactCategory contactCategory = new Blue.BL.Profile.ContactCategory();
+        private Blue.BL.Profile.ContactType contactType = new Blue.BL.Profile.ContactType();
         private DataSet dsPR = new DataSet();
         private DataSet dsPriceCompare = new DataSet();
+        private DataSet dsVendor = new DataSet();
         private DataSet dsWF = new DataSet();
+        private Blue.BL.Reference.PaymentMethod paymentMethod = new Blue.BL.Reference.PaymentMethod();
+
+        //private string prNo = string.Empty;
+        private Blue.BL.Option.Inventory.ProdCat productCate = new Blue.BL.Option.Inventory.ProdCat();
+        private Blue.BL.Option.Inventory.Unit unit = new Blue.BL.Option.Inventory.Unit();
+        private Blue.BL.AP.VendorCategory vendorCategory = new Blue.BL.AP.VendorCategory();
+
+        // Added on: 07/08/2017, On:  Fon.
+        private Blue.BL.Ref.Currency currency = new Blue.BL.Ref.Currency();
+
+        private readonly Blue.BL.ADMIN.TransLog _transLog = new Blue.BL.ADMIN.TransLog();
 
 
         private string MODE
@@ -98,21 +95,22 @@ namespace BlueLedger.PL.PC.PR
             get { return Request.QueryString["BuCode"]; }
         }
 
+
         private bool WorkFlowEnable
         {
-            get { return wf.GetIsActive("PC", "PR", hf_ConnStr.Value); }
+            get { return workFlow.GetIsActive("PC", "PR", hf_ConnStr.Value); }
         }
 
         private int wfId
         {
-            //get { return viewHandler.GetWFId(int.Parse(Request.Cookies["[PC].[vPrList]"].Value), hf_ConnStr.Value); }
-            get { return viewHandler.GetWFId(int.Parse(Request.Params["VID"].ToString()), hf_ConnStr.Value); }
+            get { return viewHandler.GetWFId(int.Parse(Request.Cookies["[PC].[vPrList]"].Value), hf_ConnStr.Value); }
+            //get { return viewHandler.GetWFId(int.Parse(Request.Params["VID"].ToString()), hf_ConnStr.Value); }
         }
 
         private int wfStep
         {
-            //get { return viewHandler.GetWFStep(int.Parse(Request.Cookies["[PC].[vPrList]"].Value), hf_ConnStr.Value); }
-            get { return viewHandler.GetWFStep(int.Parse(Request.Params["VID"].ToString()), hf_ConnStr.Value); }
+            get { return viewHandler.GetWFStep(int.Parse(Request.Cookies["[PC].[vPrList]"].Value), hf_ConnStr.Value); }
+            //get { return viewHandler.GetWFStep(int.Parse(Request.Params["VID"].ToString()), hf_ConnStr.Value); }
         }
 
         private string PRDtEditMode
@@ -127,29 +125,25 @@ namespace BlueLedger.PL.PC.PR
             set { ViewState["HOD"] = value; }
         }
 
+        // Added on: 06/09/2017, By: Fon
         private string baseCurrency
         {
             get { return conf.GetValue("APP", "BU", "DefaultCurrency", hf_ConnStr.Value); }
         }
 
-
-        private string default_TaxRate
-        {
-            get { return conf.GetValue("APP", "Default", "TaxRate", hf_ConnStr.Value); }
-        }
-
-
         private string ACTION
         {
             get { return Request.QueryString["ACTION"]; }
         }
+        // End Added.
 
+        // Added on: 10/11/2017, By: Fon
         private string IsSingleLocation
         { get { return conf.GetValue("PC", "PR", "SingleLocation", hf_ConnStr.Value); } }
 
-        //private string LimitDetail
-        //{ get { return conf.GetValue("PC", "PR", "LimitDetail", hf_ConnStr.Value); } }
-
+        private string LimitDetail
+        { get { return conf.GetValue("PC", "PR", "LimitDetail", hf_ConnStr.Value); } }
+        // End Aded.
 
         #endregion
 
@@ -166,8 +160,8 @@ namespace BlueLedger.PL.PC.PR
 
             if (!IsPostBack)
             {
-                if (wfStep <= 1)
-                    CheckUserRequired();
+
+                CheckUserRequired();
 
                 btn_PriceList.Attributes.Add("onclick", "javascript:return OpenNewWindow()");
                 Page_Retrieve();
@@ -210,7 +204,7 @@ namespace BlueLedger.PL.PC.PR
 
                 if (WorkFlowEnable)
                 {
-                    drNew["ApprStatus"] = wf.GetHdrApprStatus("PC", "PR", hf_ConnStr.Value);
+                    drNew["ApprStatus"] = workFlow.GetHdrApprStatus("PC", "PR", hf_ConnStr.Value);
                 }
 
                 // Modified on: 19/10/2017, By: Fon, Because Impact case show that useless.
@@ -296,7 +290,8 @@ namespace BlueLedger.PL.PC.PR
             {
                 if (Request.Cookies["[PC].[vPrList]"].Value != string.Empty)
                 {
-                    lbl_Process.Text = viewHandler.GetDesc(int.Parse(Request.Cookies["[PC].[vPrList]"].Value), hf_ConnStr.Value);
+                    lbl_Process.Text = viewHandler.GetDesc(int.Parse(Request.Cookies["[PC].[vPrList]"].Value),
+                        hf_ConnStr.Value);
                 }
 
                 //Disable Change All Delivery Date.
@@ -364,9 +359,8 @@ namespace BlueLedger.PL.PC.PR
                     ddl_JobCode.Text = "";
                 }
             }
-            txt_PrDate.Text = DateTime.Parse(drPr["PrDate"].ToString()).ToString("dd/MM/yyyy");
-            //txt_PrDate.Text = Convert.ToDateTime(drPr["PrDate"]).ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
-
+            //txt_PrDate.Text = DateTime.Parse(drPr["PrDate"].ToString()).ToString("dd/MM/yyyy");
+			txt_PrDate.Text = Convert.ToDateTime(drPr["PrDate"]).ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
             txt_PrDate.Enabled = (MODE.ToUpper() == "NEW"
                 //? workFlowDt.IsEnableEdit(wfId, wfStep, "PC.Pr.PRDate", hf_ConnStr.Value)
                 ? IsExistInField("PC.Pr.PRDate", "EnableField")
@@ -517,107 +511,124 @@ namespace BlueLedger.PL.PC.PR
         //Create Pr Detail.
         protected void CreateDetail()
         {
-            #region
 
-            txt_PrDate.Enabled = false;
+            int limitDetails = 0;
+            if (LimitDetail != string.Empty)
+            { limitDetails = Convert.ToInt32(LimitDetail); }
 
-            if (ddl_PrType.Value == null)
+            // < : create new detail, = : cannot
+            if (LimitDetail == string.Empty
+                || grd_PrDt1.Rows.Count < limitDetails
+                || limitDetails == 0)
             {
-                pop_AlertProdCateType.ShowOnPageLoad = true;
-
-                return;
-            }
-
-            dsPR = (DataSet)Session["dsPR"];
-            for (var i = dsPR.Tables[prDt.TableName].Rows.Count; i > 0; i--)
-            {
-                var item = dsPR.Tables[prDt.TableName].Rows[i - 1];
-                if (string.IsNullOrEmpty(item["ProductCode"].ToString()))
+                #region Unlimit or Under-limit
+                txt_PrDate.Enabled = false;
+                //if (ddl_PrType.SelectedValue == null)
+                if (ddl_PrType.Value == null)
                 {
-                    item.Delete();
+                    pop_AlertProdCateType.ShowOnPageLoad = true;
+                    return;
                 }
-            }
 
-
-            // Enable Pr Type
-            //ddl_PrType.Enabled = false;
-
-            // Disable Save and Back button when click Save or Back.
-            menu_CmdBar.Items.FindByName("Save").Visible = false;
-            menu_CmdBar.Items.FindByName("Commit").Visible = false;
-            menu_CmdBar.Items.FindByName("Back").Visible = true;
-
-            // Disable Create and Delete Button When click Create or Delete. 
-            menu_GrdBar.Items.FindByName("Create").Visible = false;
-            menu_GrdBar.Items.FindByName("Delete").Visible = false;
-
-            // Add new prdt row
-            var drNew = dsPR.Tables[prDt.TableName].NewRow();
-
-            drNew["PRNo"] = string.Empty;
-            //drNew["PRDtNo"]         = dsPR.Tables[prDt.TableName].Rows.Count + 1;
-            drNew["PRDtNo"] = (dsPR.Tables[prDt.TableName].Rows.Count == 0
-                ? 1
-                : int.Parse(dsPR.Tables[prDt.TableName].Rows[dsPR.Tables[prDt.TableName].Rows.Count - 1]["PRDtNo"].ToString()) + 1);
-            drNew["ProductCode"] = string.Empty;
-            drNew["ReqQty"] = 0;
-            drNew["ReqDate"] = DateTime.Now.AddDays(1);
-            drNew["OrderQty"] = 0;
-            drNew["ApprQty"] = 0;
-            drNew["FOCQty"] = 0;
-            drNew["RcvQty"] = 0;
-            drNew["DiscPercent"] = 0;
-            drNew["DiscAmt"] = 0;
-            drNew["TaxAmt"] = 0;
-            drNew["NetAmt"] = 0;
-            drNew["TotalAmt"] = 0;
-            drNew["TaxRate"] = 0;
-            drNew["TaxAdj"] = false;
-            drNew["Price"] = 0;
-            drNew["ApprStatus"] = wf.GetDtApprStatus("PC", "PR", hf_ConnStr.Value);
-
-            // Added on: 01/09/2017, By: Fon
-            drNew["CurrNetAmt"] = 0;
-            drNew["CurrDiscAmt"] = 0;
-            drNew["CurrTaxAmt"] = 0;
-            drNew["CurrTotalAmt"] = 0;
-            drNew["CurrencyCode"] = baseCurrency;
-            drNew["CurrencyRate"] = 1;
-            // End Added.
-
-            //Default New Line.
-            if (dsPR.Tables[prDt.TableName].Rows.Count > 0) // copy from previous record.
-            {
-                var drLastPrDt = dsPR.Tables[prDt.TableName].Rows[dsPR.Tables[prDt.TableName].Rows.Count - 1];
-
-                drNew["BuCode"] = drLastPrDt["BuCode"].ToString();
-                drNew["VendorCode"] = drLastPrDt["VendorCode"].ToString();
-                drNew["LocationCode"] = drLastPrDt["LocationCode"].ToString();
-                drNew["DeliPoint"] = drLastPrDt["DeliPoint"].ToString();
-                drNew["ReqDate"] = DateTime.Parse(drLastPrDt["ReqDate"].ToString());
-            }
-            else // first record
-            {
-                if (LoginInfo.BuInfo.IsHQ)
+                dsPR = (DataSet)Session["dsPR"];
+                for (var i = dsPR.Tables[prDt.TableName].Rows.Count; i > 0; i--)
                 {
-                    drNew["BuCode"] = string.Empty;
+                    var item = dsPR.Tables[prDt.TableName].Rows[i - 1];
+                    if (string.IsNullOrEmpty(item["ProductCode"].ToString()))
+                    {
+                        item.Delete();
+                    }
                 }
-                else
+
+
+                // Enable Pr Type
+                //ddl_PrType.Enabled = false;
+
+                // Disable Save and Back button when click Save or Back.
+                menu_CmdBar.Items.FindByName("Save").Visible = false;
+                menu_CmdBar.Items.FindByName("Commit").Visible = false;
+                menu_CmdBar.Items.FindByName("Back").Visible = true;
+
+                // Disable Create and Delete Button When click Create or Delete. 
+                menu_GrdBar.Items.FindByName("Create").Visible = false;
+                menu_GrdBar.Items.FindByName("Delete").Visible = false;
+
+                // Add new prdt row
+                var drNew = dsPR.Tables[prDt.TableName].NewRow();
+
+                drNew["PRNo"] = string.Empty;
+                //drNew["PRDtNo"]         = dsPR.Tables[prDt.TableName].Rows.Count + 1;
+                drNew["PRDtNo"] = (dsPR.Tables[prDt.TableName].Rows.Count == 0
+                    ? 1
+                    : int.Parse(
+                        dsPR.Tables[prDt.TableName].Rows[dsPR.Tables[prDt.TableName].Rows.Count - 1]["PRDtNo"].ToString()) +
+                      1);
+                drNew["ProductCode"] = string.Empty;
+                drNew["ReqQty"] = 0;
+                drNew["ReqDate"] = DateTime.Now.AddDays(1);
+                drNew["OrderQty"] = 0;
+                drNew["ApprQty"] = 0;
+                drNew["FOCQty"] = 0;
+                drNew["RcvQty"] = 0;
+                drNew["DiscPercent"] = 0;
+                drNew["DiscAmt"] = 0;
+                drNew["TaxAmt"] = 0;
+                drNew["NetAmt"] = 0;
+                drNew["TotalAmt"] = 0;
+                drNew["TaxRate"] = 0;
+                drNew["TaxAdj"] = false;
+                drNew["Price"] = 0;
+                drNew["ApprStatus"] = workFlow.GetDtApprStatus("PC", "PR", hf_ConnStr.Value);
+
+                // Added on: 01/09/2017, By: Fon
+                drNew["CurrNetAmt"] = 0;
+                drNew["CurrDiscAmt"] = 0;
+                drNew["CurrTaxAmt"] = 0;
+                drNew["CurrTotalAmt"] = 0;
+                drNew["CurrencyCode"] = baseCurrency;
+                drNew["CurrencyRate"] = 1;
+                // End Added.
+
+                //Default New Line.
+                if (dsPR.Tables[prDt.TableName].Rows.Count > 0) // copy from previous record.
                 {
-                    drNew["BuCode"] = LoginInfo.BuInfo.BuCode;
+                    var drLastPrDt = dsPR.Tables[prDt.TableName].Rows[dsPR.Tables[prDt.TableName].Rows.Count - 1];
+
+                    drNew["BuCode"] = drLastPrDt["BuCode"].ToString();
+                    drNew["VendorCode"] = drLastPrDt["VendorCode"].ToString();
+                    drNew["LocationCode"] = drLastPrDt["LocationCode"].ToString();
+                    drNew["DeliPoint"] = drLastPrDt["DeliPoint"].ToString();
+                    drNew["ReqDate"] = DateTime.Parse(drLastPrDt["ReqDate"].ToString());
                 }
+                else // first record
+                {
+                    if (LoginInfo.BuInfo.IsHQ)
+                    {
+                        drNew["BuCode"] = string.Empty;
+                    }
+                    else
+                    {
+                        drNew["BuCode"] = LoginInfo.BuInfo.BuCode;
+                    }
+                }
+
+                dsPR.Tables[prDt.TableName].Rows.Add(drNew);
+
+                // Gridview New Expand.
+                grd_PrDt1.DataSource = dsPR.Tables[prDt.TableName];
+                grd_PrDt1.EditIndex = dsPR.Tables[prDt.TableName].Rows.Count - 1;
+                grd_PrDt1.DataBind();
+
+                PRDtEditMode = "NEW";
+                Session["dsPR"] = dsPR;
+                #endregion
             }
-
-            dsPR.Tables[prDt.TableName].Rows.Add(drNew);
-
-            // Gridview New Expand.
-            grd_PrDt1.DataSource = dsPR.Tables[prDt.TableName];
-            grd_PrDt1.EditIndex = dsPR.Tables[prDt.TableName].Rows.Count - 1;
-            grd_PrDt1.DataBind();
-
-            PRDtEditMode = "NEW";
-            Session["dsPR"] = dsPR;
-            #endregion
+            else
+            {
+                lbl_PopupAlert.Text = string.Format("Purchase Request is limited {0} detail(s).", limitDetails);
+                pop_Alert.HeaderText = "Warning (Purchase Request limit)";
+                pop_Alert.ShowOnPageLoad = true;
+            }
         }
 
 
@@ -644,10 +655,10 @@ namespace BlueLedger.PL.PC.PR
                 {
                     _action = "CREATE";
 
-                    drPr["PrNo"] = pr.GetNewID(ServerDateTime, LoginInfo.ConnStr);
-                    drPr["PrDate"] = ServerDateTime;
+                    drPr["PrNo"] = pr.GetNewID(DateTime.Parse(txt_PrDate.Text), LoginInfo.ConnStr);
+                    drPr["PrDate"] = DateTime.Parse(txt_PrDate.Text).AddHours(ServerDateTime.Hour).AddMinutes(ServerDateTime.Minute).AddSeconds(ServerDateTime.Second);
                     if (DBNull.Value.Equals(drPr["ApprStatus"]))
-                        drPr["ApprStatus"] = wf.GetHdrApprStatus("PC", "PR", hf_ConnStr.Value);
+                        drPr["ApprStatus"] = workFlow.GetHdrApprStatus("PC", "PR", hf_ConnStr.Value);
 
 
                     foreach (DataRow drPrDt in dsPR.Tables[prDt.TableName].Rows)
@@ -657,8 +668,12 @@ namespace BlueLedger.PL.PC.PR
                         drPrDt["ApprQty"] = drPrDt["ReqQty"];
 
                         if (DBNull.Value.Equals(drPrDt["ApprStatus"]))
-                            drPrDt["ApprStatus"] = wf.GetDtApprStatus("PC", "PR", hf_ConnStr.Value);
+                            drPrDt["ApprStatus"] = workFlow.GetDtApprStatus("PC", "PR", hf_ConnStr.Value);
                     }
+					
+					var dtUser = bu.DbExecuteQuery(string.Format("SELECT TOP(1) DepartmentCode FROM [ADMIN].vUser WHERE LoginName ='{0}'", LoginInfo.LoginName), null, hf_ConnStr.Value);
+					if (dtUser != null && dtUser.Rows.Count > 0)
+						drPr["HOD"] = dtUser.Rows[0][0].ToString();
                 }
 
                 if (MODE.ToUpper() == "EDIT")
@@ -666,7 +681,7 @@ namespace BlueLedger.PL.PC.PR
                     _action = "MODIFY";
 
                     if (DBNull.Value.Equals(drPr["ApprStatus"]))
-                        drPr["ApprStatus"] = wf.GetHdrApprStatus("PC", "PR", hf_ConnStr.Value);
+                        drPr["ApprStatus"] = workFlow.GetHdrApprStatus("PC", "PR", hf_ConnStr.Value);
 
                     foreach (DataRow drPrDt in dsPR.Tables[prDt.TableName].Rows)
                     {
@@ -680,15 +695,8 @@ namespace BlueLedger.PL.PC.PR
                         drPrDt["AddField1"] = ddl_JobCode.SelectedIndex > -1 ? ddl_JobCode.Value.ToString().Split(':')[0] : string.Empty;
 
                         if (DBNull.Value.Equals(drPrDt["ApprStatus"]))
-                            drPrDt["ApprStatus"] = wf.GetDtApprStatus("PC", "PR", hf_ConnStr.Value);
+                            drPrDt["ApprStatus"] = workFlow.GetDtApprStatus("PC", "PR", hf_ConnStr.Value);
                     }
-                }
-                else
-                {
-                    var dtUser = bu.DbExecuteQuery(string.Format("SELECT TOP(1) DepartmentCode FROM [ADMIN].vUser WHERE LoginName ='{0}'", LoginInfo.LoginName), null, hf_ConnStr.Value);
-
-                    if (dtUser != null && dtUser.Rows.Count > 0)
-                        drPr["HOD"] = dtUser.Rows[0][0].ToString();
                 }
 
                 drPr["PrType"] = ddl_PrType.SelectedItem.Value;
@@ -696,6 +704,7 @@ namespace BlueLedger.PL.PC.PR
                 drPr["UpDatedDate"] = ServerDateTime;
                 drPr["UpdatedBy"] = LoginInfo.LoginName;
 
+               
 
                 drPr["AddField1"] = ddl_JobCode.SelectedIndex > -1 ? ddl_JobCode.Value.ToString() : string.Empty;
 
@@ -732,8 +741,8 @@ namespace BlueLedger.PL.PC.PR
 
                 var save = pr.Save(dsPR, bu.GetConnectionString(Request.Params["BuCode"]));
 
-                //object[] upAppr = new object[2];
-                //upAppr[0] = false;
+                object[] upAppr = new object[2];
+                upAppr[0] = false;
 
                 if (save)
                 {
@@ -742,33 +751,16 @@ namespace BlueLedger.PL.PC.PR
                         // Update WorkFlowStatus
                         if (MODE.ToUpper() == "NEW" || MODE.ToUpper() == "TEMPLATE")
                         {
-                            //upAppr = UpdateApprStatus();
-                            UpdateApprStatus();
+                            upAppr = UpdateApprStatus();
                         }
 
                         if (MODE.ToUpper() == "EDIT")
                         {
                             if (wfDt.GetAllowCreate(wfId, wfStep, LoginInfo.ConnStr))   //if (wfStep == 1)
                             {
-                                //upAppr = UpdateApprStatus();
-                                UpdateApprStatus();
+                                upAppr = UpdateApprStatus();
                             }
                         }
-
-                        // Sent mail
-                        var dt = conf.DbExecuteQuery("SELECT SentEmail FROM APP.WFDt WHERE WFId=1 AND Step=1", null, LoginInfo.ConnStr);
-
-                        if (dt != null && dt.Rows.Count > 0)
-                        {
-                            var isSendMail = Convert.ToBoolean(dt.Rows[0][0]);
-
-                            if (isSendMail)
-                            {
-                                var prNo = drPr["PrNo"].ToString();
-                                var sentComplete = SendEmailWorkflow.Send("A", prNo, 1, 1, LoginInfo.LoginName, hf_ConnStr.Value);
-                            }
-                        }
-
                     }
 
                     string refNo = drPr["PrNo"].ToString();
@@ -798,55 +790,42 @@ namespace BlueLedger.PL.PC.PR
 
         //Update Data of Workflow Step 1
         //private void UpdateApprStatus()
-        //private object[] UpdateApprStatus()
-        private void UpdateApprStatus()
+        private object[] UpdateApprStatus()
         {
-            var prNo = dsPR.Tables[pr.TableName].Rows[0]["PRNo"].ToString();
-            var p = new Blue.DAL.DbParameter[2];
+            object[] obj = new object[2];
+            var dtWFDt = workFlowDt.Get(wfId, wfStep, hf_ConnStr.Value);
 
-            p[0] = new Blue.DAL.DbParameter("@PrNo", prNo);
-            p[1] = new Blue.DAL.DbParameter("@LoginName", LoginInfo.LoginName);
+            var dbParams1 = new Blue.DAL.DbParameter[2];
+            dbParams1[0] = new Blue.DAL.DbParameter("@PrNo", dsPR.Tables[pr.TableName].Rows[0]["PRNo"].ToString());
+            dbParams1[1] = new Blue.DAL.DbParameter("@LoginName", LoginInfo.LoginName);
 
-            wfDt.ExcecuteApprRule("APP.WF_PR_APPR_STEP_1", p, hf_ConnStr.Value);
+            workFlowDt.ExcecuteApprRule("APP.WF_PR_APPR_STEP_1", dbParams1, hf_ConnStr.Value);
 
-            var dtWFDt = wfDt.Get(wfId, wfStep, hf_ConnStr.Value);
-
-            if (dtWFDt.Rows.Count > 0 && Convert.ToBoolean(dtWFDt.Rows[0]["SentMail"]))
+            if (Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["SentEmail"]))
             {
-                SendEmailWorkflow.Send("A", prNo, wfId, wfStep, LoginInfo.LoginName, hf_ConnStr.Value);
+                bool isSent = false;
+                lbl_hide_action.Text = "Redirect".ToUpper();
+                lbl_hide_value.Text = true.ToString();
+                lbl_PrNo.Text = dsPR.Tables[pr.TableName].Rows[0]["PRNo"].ToString();
+                isSent = Control_SentEmail("A");
+
+                obj[0] = isSent;
+                obj[1] = "Sent Email";
             }
-
-            //object[] obj = new object[2];
-
-            //if (Convert.ToBoolean(dsWF.Tables["AppWfdt"].Rows[0]["SentEmail"]))
-            //{
-            //    bool isSent = false;
-
-            //    lbl_hide_action.Text = "Redirect".ToUpper();
-            //    lbl_hide_value.Text = true.ToString();
-            //    lbl_PrNo.Text = dsPR.Tables[pr.TableName].Rows[0]["PRNo"].ToString();
-            //    isSent = Control_SentEmail("A");
-
-
-
-            //    obj[0] = isSent;
-            //    obj[1] = "Sent Email";
-            //}
-
-            //return obj;
+            return obj;
         }
 
         //Update Data of Workflow Step 3
         public void UpdateAllocateVendorApprStatus(string PRNo, int PRDtNo)
         {
-            var dtWFDt = wfDt.Get(wfId, wfStep, hf_ConnStr.Value);
+            var dtWFDt = workFlowDt.Get(wfId, wfStep, hf_ConnStr.Value);
 
             var dbParams = new Blue.DAL.DbParameter[3];
             dbParams[0] = new Blue.DAL.DbParameter("@PrNo", PRNo);
             dbParams[1] = new Blue.DAL.DbParameter("@PrDtNo", PRDtNo.ToString());
             dbParams[2] = new Blue.DAL.DbParameter("@LoginName", LoginInfo.LoginName);
 
-            wfDt.ExcecuteApprRule(dtWFDt.Rows[0]["ApprRule"].ToString(), dbParams, hf_ConnStr.Value);
+            workFlowDt.ExcecuteApprRule(dtWFDt.Rows[0]["ApprRule"].ToString(), dbParams, hf_ConnStr.Value);
         }
 
         protected void ddl_BuCode_Load(object sender, EventArgs e)
@@ -1242,6 +1221,7 @@ namespace BlueLedger.PL.PC.PR
 
         protected void ddl_ProductCode_SelectedIndexChanged(object sender, EventArgs e)
         {
+
             var ddl_BuCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_BuCode") as ASPxComboBox;
             var ddl_LocationCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_LocationCode") as ASPxComboBox;
             var ddl_ProductCode = sender as ASPxComboBox;
@@ -1250,29 +1230,34 @@ namespace BlueLedger.PL.PC.PR
             var hf_ProductCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("hf_ProductCode") as HiddenField;
             var ddl_Unit = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_Unit") as ASPxComboBox;
 
-            var connStr = bu.GetConnectionString(ddl_BuCode.Value.ToString());
-            var productCode = ddl_ProductCode.ClientValue;
-
             if (ddl_Unit != null)
             {
-                ddl_Unit.DataSource = prodUnit.GetLookUp_OrderUnitByProductCode(productCode, connStr );
+                ddl_Unit.DataSource = prodUnit.GetLookUp_OrderUnitByProductCode(ddl_ProductCode.ClientValue, bu.GetConnectionString(ddl_BuCode.Value.ToString()));
                 ddl_Unit.DataBind();
             }
 
+            //if (ddl_ProductCode.Value.ToString() != hf_ProductCode.Value)
+            //{
+            //    txt_DescEn.Text = product.GetName(ddl_ProductCode.ClientValue, bu.GetConnectionString(ddl_BuCode.Value.ToString()));
+
+            //    txt_DescLL.Text = product.GetName2(ddl_ProductCode.ClientValue, bu.GetConnectionString(ddl_BuCode.Value.ToString()));
+
+            //    ddl_Unit.Value = prodUnit.GetDefaultOrderUnit(ddl_ProductCode.ClientValue, bu.GetConnectionString(ddl_BuCode.Value.ToString()));
+            //}
+
             if (ddl_ProductCode.Text.Split(':')[0].Trim() != hf_ProductCode.Value)
             {
-                var dtProduct = product.GetProdList(productCode, connStr);
+                txt_DescEn.Text = product.GetName(ddl_ProductCode.Text.Split(':')[0].Trim(), bu.GetConnectionString(ddl_BuCode.Value.ToString()));
 
-                ddl_Unit.Value = dtProduct.Rows[0]["OrderUnit"].ToString();
-                txt_DescEn.Text = dtProduct.Rows[0]["ProductDesc1"].ToString();
-                txt_DescLL.Text = dtProduct.Rows[0]["ProductDesc2"].ToString();
+                txt_DescLL.Text = product.GetName2(ddl_ProductCode.Text.Split(':')[0].Trim(), bu.GetConnectionString(ddl_BuCode.Value.ToString()));
 
-                //txt_DescEn.Text = product.GetName(ddl_ProductCode.Text.Split(':')[0].Trim(), bu.GetConnectionString(ddl_BuCode.Value.ToString()));
-                //txt_DescLL.Text = product.GetName2(ddl_ProductCode.Text.Split(':')[0].Trim(), bu.GetConnectionString(ddl_BuCode.Value.ToString()));
-                //ddl_Unit.Value = prodUnit.GetDefaultOrderUnit(ddl_ProductCode.Text.Split(':')[0].Trim(), bu.GetConnectionString(ddl_BuCode.Value.ToString()));
+                ddl_Unit.Value = prodUnit.GetDefaultOrderUnit(ddl_ProductCode.Text.Split(':')[0].Trim(), bu.GetConnectionString(ddl_BuCode.Value.ToString()));
             }
 
+
+            //hf_ProductCode.Value = ddl_ProductCode.ClientValue;
             hf_ProductCode.Value = ddl_ProductCode.Text.Split(':')[0].Trim();
+
         }
 
         protected void ddl_BuCode_av_SelectedIndexChanged(object sender, EventArgs e)
@@ -1379,7 +1364,6 @@ namespace BlueLedger.PL.PC.PR
             var hf_ProductCode_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("hf_ProductCode_av") as HiddenField;
             var ddl_Unit_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_Unit_av") as ASPxComboBox;
             var ddl_TaxType_Grd_Av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_TaxType_Grd_Av") as ASPxComboBox;
-            
             var connStr = bu.GetConnectionString(buCode);
             var productCode = ddl_ProductCode_av.Value.ToString().Split(':')[0].Trim();
 
@@ -1414,75 +1398,21 @@ namespace BlueLedger.PL.PC.PR
             }
         }
 
-        protected void grd_PriceCompare1_RowDataBound(object sender, GridViewRowEventArgs e)
-        {
-            if (e.Row.RowType == DataControlRowType.DataRow)
-            {
-                var hf_PriceCompare_VendorCode = e.Row.FindControl("hf_PriceCompare_VendorCode") as HiddenField;
-                var hf_PriceCompare_TaxType = e.Row.FindControl("hf_PriceCompare_TaxType") as HiddenField;
-                var hf_PriceCompare_TaxRate = e.Row.FindControl("hf_PriceCompare_TaxRate") as HiddenField;
-
-                var hf_PriceCompare_FocQty = e.Row.FindControl("hf_PriceCompare_FocQty") as HiddenField;
-                var hf_PriceCompare_Price = e.Row.FindControl("hf_PriceCompare_Price") as HiddenField;
-                var hf_PriceCompare_DiscRate = e.Row.FindControl("hf_PriceCompare_DiscRate") as HiddenField;
-                var hf_PriceCompare_DiscAmt = e.Row.FindControl("hf_PriceCompare_DiscAmt") as HiddenField;
-                var hf_PriceCompare_CurrCode = e.Row.FindControl("hf_PriceCompare_CurrCode") as HiddenField;
-                //var hf_PriceCompare_CurrRate = e.Row.FindControl("hf_PriceCompare_CurrRate") as HiddenField;
-
-                if (hf_PriceCompare_VendorCode != null)
-                {
-                    hf_PriceCompare_VendorCode.Value = DataBinder.Eval(e.Row.DataItem, "VendorCode").ToString();
-                }
-
-                if (hf_PriceCompare_TaxType != null)
-                {
-                    hf_PriceCompare_TaxType.Value = DataBinder.Eval(e.Row.DataItem, "Tax").ToString();
-                }
-
-                if (hf_PriceCompare_TaxRate != null)
-                {
-                    hf_PriceCompare_TaxRate.Value = DataBinder.Eval(e.Row.DataItem, "TaxRate").ToString();
-                }
-
-                if (hf_PriceCompare_FocQty != null)
-                {
-                    hf_PriceCompare_FocQty.Value = DataBinder.Eval(e.Row.DataItem, "FOC").ToString();
-                }
-
-                if (hf_PriceCompare_Price != null)
-                {
-                    hf_PriceCompare_Price.Value = DataBinder.Eval(e.Row.DataItem, "Price").ToString();
-                }
-
-                if (hf_PriceCompare_DiscRate != null)
-                {
-                    hf_PriceCompare_DiscRate.Value = DataBinder.Eval(e.Row.DataItem, "DiscountPercent").ToString();
-                }
-
-                if (hf_PriceCompare_DiscAmt != null)
-                {
-                    hf_PriceCompare_DiscAmt.Value = DataBinder.Eval(e.Row.DataItem, "DiscountAmt").ToString();
-                }
-
-                if (hf_PriceCompare_CurrCode != null)
-                {
-                    hf_PriceCompare_CurrCode.Value = DataBinder.Eval(e.Row.DataItem, "CurrencyCode").ToString();
-                }
-
-                //if (hf_PriceCompare_CurrRate != null)
-                //{
-                //    hf_PriceCompare_CurrRate.Value = DataBinder.Eval(e.Row.DataItem, "TaxRate").ToString();
-                //}
-            }
-        }
-
-
+        /// <summary>
+        ///     Manual Assign vendor and price to pr detail from price list.
+        ///     Compare PR detail's BU Code with Price list's BU Code
+        ///     If PR detail's BU Code = Price list's BU Code, mean assign from price list which in the BU
+        ///     Else assign from price list which in other BU. This case need to check existed Vendor in assigned BU
+        ///     If not exist Vendor, need to add new vendor in the BU the assign price list.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         protected void btn_Assign_av_Click(object sender, EventArgs e)
         {
             //DataSet dsPriceList = new DataSet();
 
             var btn_Assign_av = sender as ASPxButton;
-            var gv = btn_Assign_av.Parent.Parent as GridViewRow;
+            var gvr_SelectedPriceList = btn_Assign_av.Parent.Parent as GridViewRow;
 
             // Find Controll Grid Detail
             var grd_PR = btn_Assign_av.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent as GridViewRow;
@@ -1492,110 +1422,222 @@ namespace BlueLedger.PL.PC.PR
 
             lbl_ApprQty_av.Text = string.IsNullOrEmpty(lbl_ApprQty_av.Text) ? lbl_ReqQty_av.Text : lbl_ApprQty_av.Text;
 
-            var hf_PriceCompare_VendorCode = gv.FindControl("hf_PriceCompare_VendorCode") as HiddenField;
-            var hf_PriceCompare_TaxType = gv.FindControl("hf_PriceCompare_TaxType") as HiddenField;
-            var hf_PriceCompare_TaxRate = gv.FindControl("hf_PriceCompare_TaxRate") as HiddenField;
-
-            var hf_PriceCompare_FocQty = gv.FindControl("hf_PriceCompare_FocQty") as HiddenField;
-            var hf_PriceCompare_Price = gv.FindControl("hf_PriceCompare_Price") as HiddenField;
-            var hf_PriceCompare_DiscRate = gv.FindControl("hf_PriceCompare_DiscRate") as HiddenField;
-            var hf_PriceCompare_DiscAmt = gv.FindControl("hf_PriceCompare_DiscAmt") as HiddenField;
-            var hf_PriceCompare_CurrCode = gv.FindControl("hf_PriceCompare_CurrCode") as HiddenField;
 
 
-            var vendorCode = hf_PriceCompare_VendorCode != null ? hf_PriceCompare_VendorCode.Value : "";
-            var taxType = hf_PriceCompare_TaxType != null ? hf_PriceCompare_TaxType.Value : "N";
-            var taxRate = hf_PriceCompare_TaxRate != null ? Convert.ToDecimal(hf_PriceCompare_TaxRate.Value) : 0;
-            var focQty = hf_PriceCompare_FocQty != null ? Convert.ToDecimal(hf_PriceCompare_FocQty.Value) : 0;
-            var price = hf_PriceCompare_Price != null ? Convert.ToDecimal(hf_PriceCompare_Price.Value) : 0;
-            var discRate = hf_PriceCompare_DiscRate != null ? Convert.ToDecimal(hf_PriceCompare_DiscRate.Value) : 0;
-            var discAmt = hf_PriceCompare_DiscAmt != null ? Convert.ToDecimal(hf_PriceCompare_DiscAmt.Value) : 0;
-            var currCode = hf_PriceCompare_CurrCode != null ? hf_PriceCompare_CurrCode.Value : "N";
+            var vendorCode = gvr_SelectedPriceList.Cells[2].Text.Split(':')[0].Trim();
+            var vendorName = gvr_SelectedPriceList.Cells[2].Text.Split(':')[1].Trim();
 
+            // Find PR detail bu code
+            var drPrDt = dsPR.Tables[prDt.TableName].Rows[((GridViewRow)gvr_SelectedPriceList.Parent.Parent.Parent.Parent.Parent.Parent).DataItemIndex];
 
-            // Assign Selected Price list to PR Detail.
-            var drPrDt = dsPR.Tables[prDt.TableName].Rows[((GridViewRow)gv.Parent.Parent.Parent.Parent.Parent.Parent).DataItemIndex];
+            //// Find selected price list
+            //// Get Price List Data
+            //DateTime datePriceList = DateTime.Parse(txt_PrDate.Text);
 
-            var deliveryDate = string.IsNullOrEmpty(drPrDt["ReqDate"].ToString()) ? DateTime.Now : Convert.ToDateTime(drPrDt["ReqDate"]);
-            var currencyCode = string.IsNullOrEmpty(currCode) ? baseCurrency : currCode;
-            var currencyRate = currCode == baseCurrency ? 1 : currency.GetLastCurrencyRate(currCode, deliveryDate, hf_ConnStr.Value);
-
-            drPrDt["VendorCode"] = vendorCode;
-            drPrDt["FOCQty"] = focQty;
-            drPrDt["Price"] = price;
-            drPrDt["TaxType"] = taxType;
-            drPrDt["TaxRate"] = taxRate;
-            drPrDt["DiscPercent"] = discRate;
-            drPrDt["DiscAmt"] = discAmt;
-            drPrDt["CurrencyCode"] = currencyCode;
-            drPrDt["CurrencyRate"] = currencyRate;
-
-            var apprQty = decimal.Parse(drPrDt["ApprQty"].ToString());
-
-
-            var currDiscAmt = discRate > 0 ? RoundAmt((price * discRate / 100) * apprQty) : 0;
-            var currNetAmt = NetAmt(taxType, taxRate, price, currDiscAmt, apprQty);
-            var currTaxAmt = TaxAmt(taxType, taxRate, price, currDiscAmt, apprQty);
-            var currTotalAmt = currNetAmt + currTaxAmt;
-
-            discAmt = discAmt > 0 ? currDiscAmt * currencyRate : discAmt;
-            var netAmt = RoundAmt(currNetAmt * currencyRate);
-            var taxAmt = RoundAmt(currTaxAmt * currencyRate);
-            var totalAmt = netAmt + taxAmt;
-
-            drPrDt["CurrDiscAmt"] = currDiscAmt;
-            drPrDt["CurrNetAmt"] = currNetAmt;
-            drPrDt["CurrTaxAmt"] = currTaxAmt;
-            drPrDt["CurrTotalAmt"] = currTotalAmt;
-
-            drPrDt["DiscAmt"] = discAmt;
-            drPrDt["NetAmt"] = netAmt;
-            drPrDt["TaxAmt"] = taxAmt;
-            drPrDt["TotalAmt"] = totalAmt;
-
-
-            //var priceRate = Convert.ToDecimal(price) * Convert.ToDecimal(currencyRate);
-            // Update DiscPercent and DiscAmt                
-            //if (DiscAmt == 0 && DiscPercent > 0)
+            //if (drPrDt["ProductCode"].ToString() != string.Empty)
             //{
-            //    drPrDt["DiscAmt"] = ((priceRate * DiscPercent) / 100) * apprQty;
+            //    if (ddl_PrType.SelectedItem.Value == "1") //Marketlist
+            //    {
+            //        datePriceList = DateTime.Parse(drPrDt["ReqDate"].ToString());
+
+            //        if (LoginInfo.BuInfo.IsHQ)
+            //        {
+            //            priceList.GetListHQ(dsPriceList, LoginInfo.BuInfo.BuGrpCode, drPrDt["ProductCode"].ToString(),
+            //                DateTime.Parse(drPrDt["ReqDate"].ToString()), decimal.Parse(drPrDt["ReqQty"].ToString()),
+            //                drPrDt["OrderUnit"].ToString());
+            //        }
+            //        else
+            //        {
+            //            priceList.GetList(dsPriceList, drPrDt["ProductCode"].ToString(),
+            //                DateTime.Parse(drPrDt["ReqDate"].ToString()), decimal.Parse(drPrDt["ReqQty"].ToString()),
+            //                drPrDt["OrderUnit"].ToString(), LoginInfo.ConnStr);
+            //        }
+            //    }
+            //    else //Non market list
+            //    {
+            //        datePriceList = DateTime.Parse(txt_PrDate.Text);
+
+            //        if (LoginInfo.BuInfo.IsHQ)
+            //        {
+            //            priceList.GetListHQ(dsPriceList, LoginInfo.BuInfo.BuGrpCode, drPrDt["ProductCode"].ToString(),
+            //                DateTime.Parse(txt_PrDate.Text), decimal.Parse(drPrDt["ReqQty"].ToString()),
+            //                drPrDt["OrderUnit"].ToString());
+            //        }
+            //        else
+            //        {
+            //            priceList.GetList(dsPriceList, drPrDt["ProductCode"].ToString(),
+            //                DateTime.Parse(txt_PrDate.Text), decimal.Parse(drPrDt["ReqQty"].ToString()),
+            //                drPrDt["OrderUnit"].ToString(), LoginInfo.ConnStr);
+            //        }
+            //    }
             //}
-            //else if (DiscAmt > 0 && DiscPercent > 0)
+
+
+            //if (dsPriceList.Tables[priceList.TableName].Rows.Count == 0)
             //{
-            //    drPrDt["DiscAmt"] = ((priceRate * DiscPercent) / 100) * apprQty;
+            //    lbl_PopupAlert.Text = string.Format("Not found any Price List on date {0}", datePriceList.ToShortDateString());
+            //    pop_Alert.ShowOnPageLoad = true;
+
+            //    return;
+            //}
+
+            //// Store Selected Pricelist to DataRow
+            //var drPriceList = dsPriceList.Tables[priceList.TableName].Rows[gvr_SelectedPriceList.DataItemIndex];
+
+            //// Compare selected pricelist
+            //if (drPrDt["BuCode"].ToString().ToUpper() == gvr_SelectedPriceList.Cells[0].Text.Split(':')[0].Trim().ToUpper())
+            //{
+            //    // Use own price list
+            //    // Do nothing, ready to assign selected price list to pr detail.
             //}
             //else
             //{
-            //    drPrDt["DiscPerCent"] = (DiscAmt * 100) / (priceRate);
-            //    DiscPercent = decimal.Parse(drPrDt["DiscPercent"].ToString());
+            //    // Use price list of other properties
+            //    // Check Exist Vendor                
+            //    var getVendor = vendor.IsExist(ref vendorCode, ref vendorName,
+            //        bu.GetConnectionString(drPrDt["BuCode"].ToString()));
+
+            //    // Vendor Not Exist or Unknow Occur
+            //    if (!getVendor)
+            //    {
+            //        if (vendorName != string.Empty)
+            //        {
+            //            // Display "Vendor is not exist in [BU Name], please add [VendorName] profile to [BU Name]"
+
+
+            //            Session["drPrDt"] = drPrDt;
+            //            Session["drPriceList"] = drPriceList;
+            //            Session["dsPriceList"] = dsPriceList;
+
+            //            pop_AddPriceLst.ShowOnPageLoad = true;
+            //            return;
+            //        }
+            //        // Display "Unknow Error Occurs, please contact admin"
+            //        return;
+            //    }
             //}
+            string price = gvr_SelectedPriceList.Cells[5].Text;
+            string discPercent = gvr_SelectedPriceList.Cells[6].Text;
+            string discAmt = gvr_SelectedPriceList.Cells[7].Text;
+            string focQty = gvr_SelectedPriceList.Cells[8].Text;
+
+            string taxType = gvr_SelectedPriceList.Cells[11].Text;
+            string taxRate = gvr_SelectedPriceList.Cells[12].Text;
+            string currencyCode = gvr_SelectedPriceList.Cells[13].Text;
+            string currencyRate = gvr_SelectedPriceList.Cells[14].Text;
+
+            price = string.IsNullOrEmpty(price) ? "0" : price;
+            discPercent = string.IsNullOrEmpty(discPercent) ? "0" : discPercent;
+            discAmt = string.IsNullOrEmpty(discAmt) ? "0" : discAmt;
+            focQty = string.IsNullOrEmpty(focQty) ? "0" : focQty;
+
+            taxType = string.IsNullOrEmpty(taxType) ? "N" : taxType;
+            taxRate = string.IsNullOrEmpty(taxRate) ? "0" : taxRate;
+            currencyCode = string.IsNullOrEmpty(currencyCode) ? baseCurrency : currencyCode;
+            currencyRate = string.IsNullOrEmpty(currencyRate) ? "1" : currencyRate;
 
 
-            //var discPerUnit = (priceRate * DiscPercent) / 100;
-            //var calAmt = CalAmt(priceRate, DiscAmt, decimal.Parse(drPrDt["ApprQty"].ToString()));
 
 
-            //drPrDt["CurrNetAmt"] = NetAmt(drPrDt["TaxType"].ToString(),
+            // Assign Selected Price list to PR Detail.
+            drPrDt["VendorCode"] = vendorCode;
+            //drPrDt["FOCQty"] = drPriceList["FOC"];
+            //drPrDt["Price"] = drPriceList["Price"];
+            //drPrDt["TaxType"] = drPriceList["Tax"].ToString();
+            //drPrDt["TaxRate"] = drPriceList["TaxRate"].ToString();
+            //drPrDt["DiscPercent"] = (drPriceList["DiscountPercent"].ToString() == string.Empty
+            //    ? "0.00"
+            //    : drPriceList["DiscountPercent"].ToString());
+            //drPrDt["DiscAmt"] = (drPriceList["DiscountAmt"].ToString() == string.Empty
+            //    ? "0.00"
+            //    : drPriceList["DiscountAmt"].ToString());
+            //drPrDt["CurrencyCode"] = drPriceList["CurrencyCode"].ToString();
+            //drPrDt["CurrencyRate"] = drPriceList["CurrencyRate"].ToString();
+
+
+            drPrDt["FOCQty"] = Convert.ToDecimal(focQty);
+            drPrDt["Price"] = Convert.ToDecimal(price);
+            drPrDt["TaxType"] = taxType;
+            drPrDt["TaxRate"] = Convert.ToDecimal(taxRate);
+            drPrDt["DiscPercent"] = Convert.ToDecimal(discPercent);
+            drPrDt["DiscAmt"] = Convert.ToDecimal(discAmt);
+            drPrDt["CurrencyCode"] = currencyCode;
+            drPrDt["CurrencyRate"] = Convert.ToDecimal(currencyRate);
+
+
+            //drPrDt["ApprQty"] = decimal.Parse(lbl_ReqQty_av.Text);
+            drPrDt["ApprQty"] = decimal.Parse(lbl_ApprQty_av.Text);
+
+            var DiscAmt = decimal.Parse(drPrDt["DiscAmt"].ToString());
+            var DiscPercent = decimal.Parse(drPrDt["DiscPercent"].ToString());
+            var ApprQty = decimal.Parse(drPrDt["ApprQty"].ToString());
+
+            // Modified on: 10/08/2017, By: Fon
+            // var Price = decimal.Parse(drPrDt["Price"].ToString());
+            // var price = decimal.Parse(drPrDt["Price"].ToString());
+            // var priceRate = price * currency.GetLastCurrencyRate(drPriceList["CurrencyCode"].ToString(), Convert.ToDateTime(txt_PrDate.Text), LoginInfo.ConnStr);
+            var priceRate = Convert.ToDecimal(price) * Convert.ToDecimal(currencyRate);
+            //drPrDt["CurrencyAmt"] = price * ApprQty;
+            // Ens Modified.
+
+            // Update DiscPercent and DiscAmt                
+            if (DiscAmt == 0 && DiscPercent > 0)
+            {
+                drPrDt["DiscAmt"] = ((priceRate * DiscPercent) / 100) * ApprQty;
+            }
+            else if (DiscAmt > 0 && DiscPercent > 0)
+            {
+                drPrDt["DiscAmt"] = ((priceRate * DiscPercent) / 100) * ApprQty;
+            }
+            else
+            {
+                drPrDt["DiscPerCent"] = (DiscAmt * 100) / (priceRate);
+                DiscPercent = decimal.Parse(drPrDt["DiscPercent"].ToString());
+            }
+
+
+            // Net, Tax, Total
+            //DiscAmt = (priceRate * DiscPercent) / 100; <-- This's mean per unit.
+            // Modified on: 09/02/2018, By: Fon, For: Clearly varible. 
+            var discPerUnit = (priceRate * DiscPercent) / 100;
+            var calAmt = CalAmt(priceRate, DiscAmt, decimal.Parse(drPrDt["ApprQty"].ToString()));
+
+            //drPrDt["TotalAmt"] = Amount(drPrDt["TaxType"].ToString(),
             //    decimal.Parse(drPrDt["TaxRate"].ToString())
             //    , priceRate, discPerUnit, decimal.Parse(drPrDt["ApprQty"].ToString()));
 
-            //drPrDt["CurrDiscAmt"] = drPrDt["DiscAmt"];
-
-            //drPrDt["CurrTaxAmt"] = TaxAmt(drPrDt["TaxType"].ToString(),
+            //drPrDt["NetAmt"] = NetAmt(drPrDt["TaxType"].ToString(),
             //    decimal.Parse(drPrDt["TaxRate"].ToString())
             //    , priceRate, discPerUnit, decimal.Parse(drPrDt["ApprQty"].ToString()));
 
-            //drPrDt["CurrTotalAmt"] = Amount(drPrDt["TaxType"].ToString(),
+            //drPrDt["TaxAmt"] = TaxAmt(drPrDt["TaxType"].ToString(),
             //    decimal.Parse(drPrDt["TaxRate"].ToString())
             //    , priceRate, discPerUnit, decimal.Parse(drPrDt["ApprQty"].ToString()));
 
-            //decimal currRate = Convert.ToDecimal(drPrDt["CurrencyRate"].ToString());
-            //if (currRate == 0)
-            //    currRate = 1;
-            //drPrDt["NetAmt"] = Convert.ToDecimal(drPrDt["CurrNetAmt"].ToString()) * currRate;
-            //drPrDt["DiscAmt"] = Convert.ToDecimal(drPrDt["CurrDiscAmt"].ToString()) * currRate;
-            //drPrDt["TaxAmt"] = Convert.ToDecimal(drPrDt["CurrTaxAmt"].ToString()) * currRate;
-            //drPrDt["TotalAmt"] = Convert.ToDecimal(drPrDt["CurrTotalAmt"].ToString()) * currRate;
+
+
+
+            drPrDt["CurrNetAmt"] = NetAmt(drPrDt["TaxType"].ToString(),
+                decimal.Parse(drPrDt["TaxRate"].ToString())
+                , priceRate, discPerUnit, decimal.Parse(drPrDt["ApprQty"].ToString()));
+
+            drPrDt["CurrDiscAmt"] = drPrDt["DiscAmt"];
+
+            drPrDt["CurrTaxAmt"] = TaxAmt(drPrDt["TaxType"].ToString(),
+                decimal.Parse(drPrDt["TaxRate"].ToString())
+                , priceRate, discPerUnit, decimal.Parse(drPrDt["ApprQty"].ToString()));
+
+            drPrDt["CurrTotalAmt"] = Amount(drPrDt["TaxType"].ToString(),
+                decimal.Parse(drPrDt["TaxRate"].ToString())
+                , priceRate, discPerUnit, decimal.Parse(drPrDt["ApprQty"].ToString()));
+
+            decimal currRate = Convert.ToDecimal(drPrDt["CurrencyRate"].ToString());
+            if (currRate == 0)
+                currRate = 1;
+            drPrDt["NetAmt"] = Convert.ToDecimal(drPrDt["CurrNetAmt"].ToString()) * currRate;
+            drPrDt["DiscAmt"] = Convert.ToDecimal(drPrDt["CurrDiscAmt"].ToString()) * currRate;
+            drPrDt["TaxAmt"] = Convert.ToDecimal(drPrDt["CurrTaxAmt"].ToString()) * currRate;
+            drPrDt["TotalAmt"] = Convert.ToDecimal(drPrDt["CurrTotalAmt"].ToString()) * currRate;
 
             // End Modified.
 
@@ -1900,8 +1942,8 @@ namespace BlueLedger.PL.PC.PR
                     // Get Prefer Vendor data.
                     var productCode = drUpdating["ProductCode"].ToString();
                     var prDate = ddl_PrType.SelectedItem.Value.ToString() == "1"
-                        ? DateTime.Parse(drUpdating["ReqDate"].ToString()) //, System.Globalization.CultureInfo.InvariantCulture)
-                        : GetPrDate();
+                        ? DateTime.Parse(drUpdating["ReqDate"].ToString())
+                        : DateTime.Parse(txt_PrDate.Text);
                     var reqQty = decimal.Parse(drUpdating["ReqQty"].ToString());
                     var reqUnit = drUpdating["OrderUnit"].ToString();
 
@@ -1914,52 +1956,6 @@ namespace BlueLedger.PL.PC.PR
                     {
                         var drPriceList = dtPriceList.Rows[0];
 
-                        var vendorCode = drPriceList["VendorCode"].ToString();
-                        var refNo = drPriceList["RefNo"].ToString();
-                        var price = decimal.Parse(drPriceList["Price"].ToString());
-                        var focQty = decimal.Parse(drPriceList["FOC"].ToString());
-                        var discRate = decimal.Parse(drPriceList["DiscountPercent"].ToString());
-                        var discAmt = decimal.Parse(drPriceList["DiscountAmt"].ToString());
-                        var taxType = drPriceList["Tax"].ToString();
-                        var taxRate = decimal.Parse(drPriceList["TaxRate"].ToString());
-                        var currCode = drPriceList["CurrencyCode"].ToString();
-
-                        var apprQty = decimal.Parse(drUpdating["ApprQty"].ToString());
-                        var deliveryDate = DateTime.Parse(drUpdating["ReqDate"].ToString());
-                        var currencyCode = string.IsNullOrEmpty(currCode) ? baseCurrency : currCode;
-                        var currencyRate = currCode == baseCurrency ? 1 : currency.GetLastCurrencyRate(currCode, deliveryDate, hf_ConnStr.Value);
-
-                        drUpdating["VendorCode"] = vendorCode;
-                        drUpdating["FocQty"] = focQty;
-                        drUpdating["Price"] = price;
-                        drUpdating["TaxType"] = taxType;
-                        drUpdating["TaxRate"] = taxRate;
-                        drUpdating["DiscPercent"] = discRate;
-                        drUpdating["DiscAmt"] = discAmt;
-                        drUpdating["CurrencyCode"] = currencyCode;
-                        drUpdating["CurrencyRate"] = currencyRate;
-
-                        var currDiscAmt = discRate > 0 ? RoundAmt((price * discRate / 100) * apprQty) : 0;
-                        var currNetAmt = NetAmt(taxType, taxRate, price, currDiscAmt, apprQty);
-                        var currTaxAmt = TaxAmt(taxType, taxRate, price, currDiscAmt, apprQty);
-                        var currTotalAmt = currNetAmt + currTaxAmt;
-
-                        discAmt = discAmt > 0 ? currDiscAmt * currencyRate : discAmt;
-                        var netAmt = RoundAmt(currNetAmt * currencyRate);
-                        var taxAmt = RoundAmt(currTaxAmt * currencyRate);
-                        var totalAmt = netAmt + taxAmt;
-
-                        drUpdating["CurrDiscAmt"] = currDiscAmt;
-                        drUpdating["CurrNetAmt"] = currNetAmt;
-                        drUpdating["CurrTaxAmt"] = currTaxAmt;
-                        drUpdating["CurrTotalAmt"] = currTotalAmt;
-
-                        drUpdating["DiscAmt"] = discAmt;
-                        drUpdating["NetAmt"] = netAmt;
-                        drUpdating["TaxAmt"] = taxAmt;
-                        drUpdating["TotalAmt"] = totalAmt;
-
-                        /*
                         drUpdating["VendorCode"] = drPriceList["VendorCode"].ToString();
                         drUpdating["RefNo"] = drPriceList["RefNo"].ToString();
                         drUpdating["Price"] = (drPriceList["Price"] != DBNull.Value
@@ -1972,14 +1968,11 @@ namespace BlueLedger.PL.PC.PR
                         drUpdating["DiscAmt"] = (drPriceList["DiscountAmt"] != DBNull.Value
                             ? drPriceList["DiscountAmt"].ToString()
                             : "0");
-                        //drUpdating["VendorProdCode"] = drPriceList["VendorProdCode"].ToString();
-
-
-                        
-                        //drUpdating["TaxType"] = drPriceList["Tax"].ToString();
-                        //drUpdating["TaxRate"] = (drPriceList["TaxRate"] != DBNull.Value
-                        //    ? drPriceList["TaxRate"].ToString()
-                        //    : "0");
+                        drUpdating["VendorProdCode"] = drPriceList["VendorProdCode"].ToString();
+                        drUpdating["TaxType"] = drPriceList["Tax"].ToString();
+                        drUpdating["TaxRate"] = (drPriceList["TaxRate"] != DBNull.Value
+                            ? drPriceList["TaxRate"].ToString()
+                            : "0");
 
                         var discAmt = decimal.Parse(drUpdating["DiscAmt"].ToString());
                         var discPercent = decimal.Parse(drUpdating["DiscPercent"].ToString());
@@ -2055,10 +2048,158 @@ namespace BlueLedger.PL.PC.PR
                         decimal currTotalAmt = Amount(taxType, taxRate, total, currDiscAmt, 1);
                         drUpdating["CurrTotalAmt"] = currTotalAmt;
                         drUpdating["TotalAmt"] = RoundAmt(currTotalAmt * currencyRate);
-                        */
+
                         // End Added.
                         Allocate++;
 
+                        //var drUpdating = dsPR.Tables[prDt.TableName].Rows[grd_PrDt1.Rows[i].DataItemIndex];
+                        //if (drUpdating.RowState == DataRowState.Deleted)
+                        //{
+                        //    continue;
+                        //}
+
+                        //if (drUpdating["ApprStatus"].ToString().Contains('R'))
+                        //{
+                        //    continue;
+                        //}
+
+                        //// Default Approve Quantity by Request Quantity
+                        ////drUpdating["ApprQty"] = drUpdating["ReqQty"].ToString();
+
+                        //// Get Prefer Vendor data.
+                        //var productCode = drUpdating["ProductCode"].ToString();
+                        //var date = ddl_PrType.SelectedItem.Value.ToString() == "1"
+                        //    ? DateTime.Parse(drUpdating["ReqDate"].ToString())
+                        //    : DateTime.Parse(txt_PrDate.Text);
+                        ////(product.GetApprovalLevel(drUpdating["ProductCode"].ToString(),
+                        ////    bu.GetConnectionString(drUpdating["BuCode"].ToString())) == 2
+                        ////    ? DateTime.Parse(drUpdating["ReqDate"].ToString())
+                        ////    : DateTime.Parse(dsPR.Tables[pr.TableName].Rows[0]["PrDate"].ToString()));
+
+                        //var reqQty = decimal.Parse(drUpdating["ReqQty"].ToString());
+                        //var reqUnit = drUpdating["OrderUnit"].ToString();
+
+                        //var dtPriceList = priceList.GetList(productCode, date, reqQty, reqUnit,
+                        //    bu.GetConnectionString(drUpdating["BuCode"].ToString()));
+
+                        //// Update Pr Items data
+                        //#region dtPriceList count > 0
+                        //if (dtPriceList.Rows.Count > 0)
+                        //{
+                        //    var drPriceList = dtPriceList.Rows[0];
+                        //    drUpdating["VendorCode"] = drPriceList["VendorCode"].ToString();
+                        //    drUpdating["RefNo"] = drPriceList["RefNo"].ToString();
+                        //    drUpdating["Price"] = (drPriceList["Price"] != DBNull.Value
+                        //        ? drPriceList["Price"].ToString()
+                        //        : "0");
+                        //    drUpdating["FOCQty"] = drPriceList["FOC"].ToString();
+                        //    drUpdating["DiscPercent"] = (drPriceList["DiscountPercent"] != DBNull.Value
+                        //        ? drPriceList["DiscountPercent"].ToString()
+                        //        : "0");
+                        //    drUpdating["DiscAmt"] = (drPriceList["DiscountAmt"] != DBNull.Value
+                        //        ? drPriceList["DiscountAmt"].ToString()
+                        //        : "0");
+                        //    drUpdating["VendorProdCode"] = drPriceList["VendorProdCode"].ToString();
+                        //    drUpdating["TaxType"] = drPriceList["Tax"].ToString();
+                        //    drUpdating["TaxRate"] = (drPriceList["TaxRate"] != DBNull.Value
+                        //        ? drPriceList["TaxRate"].ToString()
+                        //        : "0");
+
+                        //    // Modified on: 19/01/2018, By: Fon
+                        //    //drUpdating["TaxAdj"] = false;
+                        //    // End Modified.
+
+                        //    var Percent = decimal.Parse(drUpdating["DiscPercent"].ToString());
+                        //    var ApprQty = decimal.Parse(drUpdating["ApprQty"].ToString());
+
+                        //    // Update Net, Tax and Amount
+                        //    // Added on: 09/08/2017, By: Fon
+                        //    // var Price = decimal.Parse(drUpdating["Price"].ToString());
+                        //    var price = decimal.Parse(drUpdating["Price"].ToString());
+                        //    var priceRate = decimal.Parse(drUpdating["Price"].ToString())
+                        //           * currency.GetLastCurrencyRate(drPriceList["CurrencyCode"].ToString()
+                        //           , date, LoginInfo.ConnStr);
+
+                        //    decimal currencyRate = 1;
+                        //    if (drPriceList["CurrencyCode"].ToString() == string.Empty)
+                        //    {
+                        //        drPriceList["CurrencyCode"] = baseCurrency;
+                        //        drPriceList["CurrencyRate"] = currencyRate;
+                        //    }
+                        //    else
+                        //        currencyRate = decimal.Parse(drPriceList["CurrencyRate"].ToString());
+
+                        //    drUpdating["CurrencyCode"] = drPriceList["CurrencyCode"].ToString();
+                        //    drUpdating["CurrencyRate"] = drPriceList["CurrencyRate"].ToString();
+                        //    // End Added.
+
+                        //    // Update DiscPercent and DiscAmt                
+                        //    if (decimal.Parse(drUpdating["DiscAmt"].ToString()) == 0 &&
+                        //        decimal.Parse(drUpdating["DiscPerCent"].ToString()) > 0)
+                        //    {
+                        //        drUpdating["DiscAmt"] = ((priceRate * Percent) / 100) * ApprQty;
+                        //    }
+                        //    else if (decimal.Parse(drUpdating["DiscAmt"].ToString()) > 0 &&
+                        //             decimal.Parse(drUpdating["DiscPerCent"].ToString()) > 0)
+                        //    {
+                        //        drUpdating["DiscAmt"] = ((priceRate * Percent) / 100) * ApprQty;
+                        //    }
+                        //    else
+                        //    {
+                        //        if (priceRate == 0)
+                        //            drUpdating["DiscPerCent"] = 0;
+                        //        else
+                        //            drUpdating["DiscPerCent"] = (decimal.Parse(drUpdating["DiscAmt"].ToString()) * 100) / (priceRate);
+                        //        Percent = decimal.Parse(drUpdating["DiscPerCent"].ToString());
+                        //    }
+
+                        //    var DiscAmt = (priceRate * Percent) / 100;
+                        //    // Net, Tax, Total
+                        //    var calAmt = CalAmt(priceRate, DiscAmt,
+                        //        decimal.Parse(drUpdating["ApprQty"].ToString()));
+
+                        //    //drUpdating["NetAmt"] = NetAmt(drUpdating["TaxType"].ToString(),
+                        //    //    decimal.Parse(drUpdating["TaxRate"].ToString()), priceRate, DiscAmt
+                        //    //    , decimal.Parse(drUpdating["ApprQty"].ToString()));
+
+                        //    //drUpdating["TaxAmt"] = TaxAmt(drUpdating["TaxType"].ToString(),
+                        //    //    decimal.Parse(drUpdating["TaxRate"].ToString()), priceRate, DiscAmt
+                        //    //    , decimal.Parse(drUpdating["ApprQty"].ToString()));
+
+                        //    //drUpdating["TotalAmt"] = Amount(drUpdating["TaxType"].ToString(),
+                        //    //    decimal.Parse(drUpdating["TaxRate"].ToString()), priceRate, DiscAmt
+                        //    //    , decimal.Parse(drUpdating["ApprQty"].ToString()));
+
+                        //    // Added on: 05/09/2017, By: Fon
+                        //    decimal apprQty = 0, currDiscAmt = 0;
+                        //    decimal.TryParse(drUpdating["ApprQty"].ToString(), out apprQty);
+
+                        //    decimal currNetAmt = NetAmt(drUpdating["TaxType"].ToString(),
+                        //        decimal.Parse(drUpdating["TaxRate"].ToString())
+                        //        , price * apprQty, currDiscAmt, 1);
+                        //    drUpdating["CurrNetAmt"] = currNetAmt;
+                        //    drUpdating["NetAmt"] = currNetAmt * currencyRate;
+
+                        //    currDiscAmt = ((price * Percent) / 100) * ApprQty;
+                        //    drUpdating["CurrDiscAmt"] = currDiscAmt;
+                        //    drUpdating["DiscAmt"] = currDiscAmt * currencyRate;
+
+
+                        //    decimal currTaxAmt = TaxAmt(drUpdating["TaxType"].ToString(),
+                        //        decimal.Parse(drUpdating["TaxRate"].ToString())
+                        //        , price * apprQty, currDiscAmt, 1);
+                        //    drUpdating["CurrTaxAmt"] = currTaxAmt;
+                        //    drUpdating["TaxAmt"] = currTaxAmt * currencyRate;
+
+
+                        //    decimal currTotalAmt = Amount(drUpdating["TaxType"].ToString(),
+                        //        decimal.Parse(drUpdating["TaxRate"].ToString())
+                        //        , price * apprQty, currDiscAmt, 1);
+                        //    drUpdating["CurrTotalAmt"] = currTotalAmt;
+                        //    drUpdating["TotalAmt"] = currTotalAmt * currencyRate;
+
+                        //    // End Added.
+                        //    Allocate++;
                     }
                     #endregion
                     else
@@ -2128,241 +2269,241 @@ namespace BlueLedger.PL.PC.PR
                 drUpdating["ReqDate"] = DateTime.Parse(dte_DeliDate.Date.ToString("dd/MM/yyyy"));
             }
 
-            //Page_Setting();
+            Page_Setting();
 
             pop_ConfirmChangeDeliDate.ShowOnPageLoad = false;
         }
 
         // Add New vendor from Assign Button.
-        //protected void btn_OkAddVendor_Click(object sender, EventArgs e)
-        //{
-        //    dsPriceCompare = (DataSet)Session["dsPriceCompare"];
+        protected void btn_OkAddVendor_Click(object sender, EventArgs e)
+        {
+            dsPriceCompare = (DataSet)Session["dsPriceCompare"];
 
-        //    pop_NewVendor.ShowOnPageLoad = true;
+            pop_NewVendor.ShowOnPageLoad = true;
 
-        //    grd_Vendor.DataSource = dsPriceCompare.Tables[priceList.TableName];
-        //    grd_Vendor.DataBind();
-        //    //Response.Redirect(System.Web.HttpContext.Current.Request.Url.ToString(), true);
-        //}
+            grd_Vendor.DataSource = dsPriceCompare.Tables[priceList.TableName];
+            grd_Vendor.DataBind();
+            //Response.Redirect(System.Web.HttpContext.Current.Request.Url.ToString(), true);
+        }
 
-        //protected void btn_CancelAddVendor_Click(object sender, EventArgs e)
-        //{
-        //    pop_AddVendor.ShowOnPageLoad = false;
+        protected void btn_CancelAddVendor_Click(object sender, EventArgs e)
+        {
+            pop_AddVendor.ShowOnPageLoad = false;
 
-        //}
+        }
 
         // Save New Vendor.
-        //protected void btn_Save_Click(object sender, EventArgs e)
-        //{
-        //    pop_ConfirmSaveAddVendor.ShowOnPageLoad = true;
-        //    pop_NewVendor.ShowOnPageLoad = false;
+        protected void btn_Save_Click(object sender, EventArgs e)
+        {
+            pop_ConfirmSaveAddVendor.ShowOnPageLoad = true;
+            pop_NewVendor.ShowOnPageLoad = false;
 
-        //}
+        }
 
-        //protected void btn_ConfirmSaveAddVendor_Click(object sender, EventArgs e)
-        //{
-        //    dsPriceCompare = (DataSet)Session["dsPriceCompare"];
-        //    dsVendor = (DataSet)Session["dsVendor"];
+        protected void btn_ConfirmSaveAddVendor_Click(object sender, EventArgs e)
+        {
+            dsPriceCompare = (DataSet)Session["dsPriceCompare"];
+            dsVendor = (DataSet)Session["dsVendor"];
 
-        //    for (var i = 0; i <= grd_Vendor.Rows.Count - 1; i++)
-        //    {
-        //        var rdo_Vendor = grd_Vendor.Rows[i].Cells[0].FindControl("rdo_Vendor") as RadioButton;
-        //        if (rdo_Vendor.Checked)
-        //        {
-        //            var drSaveVendor = dsPriceCompare.Tables[priceList.TableName].Rows[i];
+            for (var i = 0; i <= grd_Vendor.Rows.Count - 1; i++)
+            {
+                var rdo_Vendor = grd_Vendor.Rows[i].Cells[0].FindControl("rdo_Vendor") as RadioButton;
+                if (rdo_Vendor.Checked)
+                {
+                    var drSaveVendor = dsPriceCompare.Tables[priceList.TableName].Rows[i];
 
-        //            var BuCode = drSaveVendor["BuCode"].ToString().Split(':');
+                    var BuCode = drSaveVendor["BuCode"].ToString().Split(':');
 
-        //            // Vendor
-        //            vendor.GetVendorStructure(dsVendor, LoginInfo.ConnStr);
+                    // Vendor
+                    vendor.GetVendorStructure(dsVendor, LoginInfo.ConnStr);
 
-        //            // Profile
-        //            profile.GetProfileStructure(dsVendor, LoginInfo.ConnStr);
+                    // Profile
+                    profile.GetProfileStructure(dsVendor, LoginInfo.ConnStr);
 
-        //            // Get vendorMisc.
-        //            vendorMisc.GetSchema(dsVendor, LoginInfo.ConnStr);
+                    // Get vendorMisc.
+                    vendorMisc.GetSchema(dsVendor, LoginInfo.ConnStr);
 
-        //            // Get bankaccount information
-        //            bankAccount.GetBankAccountStructure(dsVendor, LoginInfo.ConnStr);
+                    // Get bankaccount information
+                    bankAccount.GetBankAccountStructure(dsVendor, LoginInfo.ConnStr);
 
-        //            // Get contact information.
-        //            contact.GetContactStructure(dsVendor, LoginInfo.ConnStr);
+                    // Get contact information.
+                    contact.GetContactStructure(dsVendor, LoginInfo.ConnStr);
 
-        //            // Get contact detail structure for before click image button.
-        //            contactDetail.GetContactDetailStructure(dsVendor, LoginInfo.ConnStr);
+                    // Get contact detail structure for before click image button.
+                    contactDetail.GetContactDetailStructure(dsVendor, LoginInfo.ConnStr);
 
-        //            // Get addresslist.
-        //            address.GetAddressStructure(dsVendor, LoginInfo.ConnStr);
+                    // Get addresslist.
+                    address.GetAddressStructure(dsVendor, LoginInfo.ConnStr);
 
-        //            // Get invoicelist.
-        //            invoiceDefault.GetInvoiceDefaultStructure(dsVendor, LoginInfo.ConnStr);
+                    // Get invoicelist.
+                    invoiceDefault.GetInvoiceDefaultStructure(dsVendor, LoginInfo.ConnStr);
 
-        //            // Get invoicedetail structure.
-        //            invoiceDefaultDetail.GetInvoiceDefaultDetailStructure(dsVendor, LoginInfo.ConnStr);
+                    // Get invoicedetail structure.
+                    invoiceDefaultDetail.GetInvoiceDefaultDetailStructure(dsVendor, LoginInfo.ConnStr);
 
-        //            // Get paymentlist.
-        //            paymentDefault.GetPaymentDefaultStructure(dsVendor, LoginInfo.ConnStr);
+                    // Get paymentlist.
+                    paymentDefault.GetPaymentDefaultStructure(dsVendor, LoginInfo.ConnStr);
 
-        //            // Get paymentdefaultcash structure.
-        //            paymentDefaultCash.GetPaymentDefaultCashStructure(dsVendor, LoginInfo.ConnStr);
+                    // Get paymentdefaultcash structure.
+                    paymentDefaultCash.GetPaymentDefaultCashStructure(dsVendor, LoginInfo.ConnStr);
 
-        //            // Get paymentdefaultcheq structure.
-        //            paymentDefaultCheq.GetPaymentDefaultCheqStructure(dsVendor, LoginInfo.ConnStr);
+                    // Get paymentdefaultcheq structure.
+                    paymentDefaultCheq.GetPaymentDefaultCheqStructure(dsVendor, LoginInfo.ConnStr);
 
-        //            // Get paymentdefaultcredit structure.
-        //            paymentDefaultCredit.GetPaymentDefaultCreditStructure(dsVendor, LoginInfo.ConnStr);
+                    // Get paymentdefaultcredit structure.
+                    paymentDefaultCredit.GetPaymentDefaultCreditStructure(dsVendor, LoginInfo.ConnStr);
 
-        //            // Get paymentdefaultauto structure.
-        //            paymentDefaultAuto.GetPaymentDefaultAutoStructure(dsVendor, LoginInfo.ConnStr);
+                    // Get paymentdefaultauto structure.
+                    paymentDefaultAuto.GetPaymentDefaultAutoStructure(dsVendor, LoginInfo.ConnStr);
 
-        //            // Get paymentdefaulttrans structure.
-        //            paymentDefaultTrans.GetPaymentDefaultTransStructure(dsVendor, LoginInfo.ConnStr);
+                    // Get paymentdefaulttrans structure.
+                    paymentDefaultTrans.GetPaymentDefaultTransStructure(dsVendor, LoginInfo.ConnStr);
 
-        //            // Get vendordefaultwht structure.
-        //            vendorDefaultWHT.GetVendorDefaultWHTStructure(dsVendor, LoginInfo.ConnStr);
+                    // Get vendordefaultwht structure.
+                    vendorDefaultWHT.GetVendorDefaultWHTStructure(dsVendor, LoginInfo.ConnStr);
 
-        //            // Get vendorComment.
-        //            vendorComment.GetSchema(dsVendor, LoginInfo.ConnStr);
+                    // Get vendorComment.
+                    vendorComment.GetSchema(dsVendor, LoginInfo.ConnStr);
 
-        //            // Get vendorActiveLog.
-        //            vendorActiveLog.GetSchema(dsVendor, LoginInfo.ConnStr);
+                    // Get vendorActiveLog.
+                    vendorActiveLog.GetSchema(dsVendor, LoginInfo.ConnStr);
 
-        //            // Get vendor attachment.
-        //            vendorAttachment.GetStructure(dsVendor, LoginInfo.ConnStr);
+                    // Get vendor attachment.
+                    vendorAttachment.GetStructure(dsVendor, LoginInfo.ConnStr);
 
-        //            // Vendor Exist.
-        //            var dsVendorExist = new DataSet();
+                    // Vendor Exist.
+                    var dsVendorExist = new DataSet();
 
-        //            var resultVendorExist = vendor.GetListBu(dsVendorExist, Session["AssignBuCode"].ToString(),
-        //                drSaveVendor["VendorName"].ToString());
+                    var resultVendorExist = vendor.GetListBu(dsVendorExist, Session["AssignBuCode"].ToString(),
+                        drSaveVendor["VendorName"].ToString());
 
-        //            if (!resultVendorExist)
-        //            {
-        //                return;
-        //            }
+                    if (!resultVendorExist)
+                    {
+                        return;
+                    }
 
-        //            if (dsVendorExist.Tables[vendor.TableName].Rows.Count > 0)
-        //            {
-        //                continue;
-        //            }
+                    if (dsVendorExist.Tables[vendor.TableName].Rows.Count > 0)
+                    {
+                        continue;
+                    }
 
-        //            // Vendor.
-        //            var result = vendor.GetVendor(drSaveVendor["VendorCode"].ToString(), dsVendor,
-        //                bu.GetConnectionString(BuCode[0].Trim()));
+                    // Vendor.
+                    var result = vendor.GetVendor(drSaveVendor["VendorCode"].ToString(), dsVendor,
+                        bu.GetConnectionString(BuCode[0].Trim()));
 
-        //            if (!result)
-        //            {
-        //                return;
-        //            }
+                    if (!result)
+                    {
+                        return;
+                    }
 
-        //            //Add New Vendor.
-        //            var drVendor = dsVendor.Tables[vendor.TableName].Rows[0];
+                    //Add New Vendor.
+                    var drVendor = dsVendor.Tables[vendor.TableName].Rows[0];
 
-        //            var drNewVendor = dsVendor.Tables[vendor.TableName].NewRow();
+                    var drNewVendor = dsVendor.Tables[vendor.TableName].NewRow();
 
-        //            drNewVendor["VendorCode"] =
-        //                vendor.GetNewVendorCode(bu.GetConnectionString(Session["AssignBuCode"].ToString()));
-        //            drNewVendor["SunVendorCode"] = drVendor["SunVendorCode"];
-        //            drNewVendor["ProfileCode"] = drVendor["ProfileCode"];
-        //            drNewVendor["Name"] = drVendor["Name"];
-        //            drNewVendor["VendorCategoryCode"] = drVendor["VendorCategoryCode"];
-        //            drNewVendor["TaxID"] = drVendor["TaxID"];
-        //            drNewVendor["RegisterNo"] = drVendor["RegisterNo"];
-        //            drNewVendor["CreditTerm"] = drVendor["CreditTerm"];
-        //            drNewVendor["DiscountTerm"] = drVendor["DiscountTerm"];
-        //            drNewVendor["DiscountRate"] = drVendor["DiscountRate"];
-        //            drNewVendor["Description"] = drVendor["Description"];
-        //            drNewVendor["Rating"] = drVendor["Rating"];
-        //            drNewVendor["TaxType"] = drVendor["TaxType"];
-        //            drNewVendor["TaxRate"] = drVendor["TaxRate"];
-        //            drNewVendor["IsActive"] = drVendor["IsActive"];
-        //            drNewVendor["CreatedBy"] = LoginInfo.LoginName;
-        //            drNewVendor["CreatedDate"] = ServerDateTime;
-        //            drNewVendor["UpdatedBy"] = LoginInfo.LoginName;
-        //            drNewVendor["UpdatedDate"] = ServerDateTime;
+                    drNewVendor["VendorCode"] =
+                        vendor.GetNewVendorCode(bu.GetConnectionString(Session["AssignBuCode"].ToString()));
+                    drNewVendor["SunVendorCode"] = drVendor["SunVendorCode"];
+                    drNewVendor["ProfileCode"] = drVendor["ProfileCode"];
+                    drNewVendor["Name"] = drVendor["Name"];
+                    drNewVendor["VendorCategoryCode"] = drVendor["VendorCategoryCode"];
+                    drNewVendor["TaxID"] = drVendor["TaxID"];
+                    drNewVendor["RegisterNo"] = drVendor["RegisterNo"];
+                    drNewVendor["CreditTerm"] = drVendor["CreditTerm"];
+                    drNewVendor["DiscountTerm"] = drVendor["DiscountTerm"];
+                    drNewVendor["DiscountRate"] = drVendor["DiscountRate"];
+                    drNewVendor["Description"] = drVendor["Description"];
+                    drNewVendor["Rating"] = drVendor["Rating"];
+                    drNewVendor["TaxType"] = drVendor["TaxType"];
+                    drNewVendor["TaxRate"] = drVendor["TaxRate"];
+                    drNewVendor["IsActive"] = drVendor["IsActive"];
+                    drNewVendor["CreatedBy"] = LoginInfo.LoginName;
+                    drNewVendor["CreatedDate"] = ServerDateTime;
+                    drNewVendor["UpdatedBy"] = LoginInfo.LoginName;
+                    drNewVendor["UpdatedDate"] = ServerDateTime;
 
-        //            // New Row for vendor table.                    
-        //            dsVendor.Tables[vendor.TableName].Rows.Add(drNewVendor);
+                    // New Row for vendor table.                    
+                    dsVendor.Tables[vendor.TableName].Rows.Add(drNewVendor);
 
-        //            //Save New Vendor
-        //            var save = vendor.Save(dsVendor, bu.GetConnectionString(Session["AssignBuCode"].ToString().Trim()));
+                    //Save New Vendor
+                    var save = vendor.Save(dsVendor, bu.GetConnectionString(Session["AssignBuCode"].ToString().Trim()));
 
-        //            if (save)
-        //            {
-        //                var lbl_Vendor_av = grd_PrDt1.Rows[int.Parse(Session["ItemIndex"].ToString())].FindControl("lbl_Vendor_av") as Label;
-        //                var lbl_FOC_av = grd_PrDt1.Rows[int.Parse(Session["ItemIndex"].ToString())].FindControl("lbl_FOC_av") as Label;
-        //                var lbl_ReqQty_av = grd_PrDt1.Rows[int.Parse(Session["ItemIndex"].ToString())].FindControl("lbl_ReqQty_av") as Label;
-        //                var lbl_NetAmt_av = grd_PrDt1.Rows[int.Parse(Session["ItemIndex"].ToString())].FindControl("lbl_NetAmt_av") as Label;
-        //                var lbl_TaxAmt_av = grd_PrDt1.Rows[int.Parse(Session["ItemIndex"].ToString())].FindControl("lbl_TaxAmt_av") as Label;
-        //                var lbl_TotalAmt_av = grd_PrDt1.Rows[int.Parse(Session["ItemIndex"].ToString())].FindControl("lbl_TotalAmt_av") as Label;
-        //                var lbl_Price_av = grd_PrDt1.Rows[int.Parse(Session["ItemIndex"].ToString())].FindControl("lbl_Price_av") as Label;
-        //                var lbl_TaxType_av = grd_PrDt1.Rows[int.Parse(Session["ItemIndex"].ToString())].FindControl("lbl_TaxType_av") as Label;
-        //                var lbl_TaxRate_av = grd_PrDt1.Rows[int.Parse(Session["ItemIndex"].ToString())].FindControl("lbl_TaxRate_av") as Label;
-        //                var lbl_DiscPercent_av = grd_PrDt1.Rows[int.Parse(Session["ItemIndex"].ToString())].FindControl("lbl_DiscPercent_av") as Label;
-        //                var lbl_DiscAmt_av = grd_PrDt1.Rows[int.Parse(Session["ItemIndex"].ToString())].FindControl("lbl_DiscAmt_av") as Label;
-        //                var grd_PriceCompare = grd_PrDt1.Rows[int.Parse(Session["ItemIndex"].ToString())].FindControl("grd_PriceCompare") as GridView;
+                    if (save)
+                    {
+                        var lbl_Vendor_av = grd_PrDt1.Rows[int.Parse(Session["ItemIndex"].ToString())].FindControl("lbl_Vendor_av") as Label;
+                        var lbl_FOC_av = grd_PrDt1.Rows[int.Parse(Session["ItemIndex"].ToString())].FindControl("lbl_FOC_av") as Label;
+                        var lbl_ReqQty_av = grd_PrDt1.Rows[int.Parse(Session["ItemIndex"].ToString())].FindControl("lbl_ReqQty_av") as Label;
+                        var lbl_NetAmt_av = grd_PrDt1.Rows[int.Parse(Session["ItemIndex"].ToString())].FindControl("lbl_NetAmt_av") as Label;
+                        var lbl_TaxAmt_av = grd_PrDt1.Rows[int.Parse(Session["ItemIndex"].ToString())].FindControl("lbl_TaxAmt_av") as Label;
+                        var lbl_TotalAmt_av = grd_PrDt1.Rows[int.Parse(Session["ItemIndex"].ToString())].FindControl("lbl_TotalAmt_av") as Label;
+                        var lbl_Price_av = grd_PrDt1.Rows[int.Parse(Session["ItemIndex"].ToString())].FindControl("lbl_Price_av") as Label;
+                        var lbl_TaxType_av = grd_PrDt1.Rows[int.Parse(Session["ItemIndex"].ToString())].FindControl("lbl_TaxType_av") as Label;
+                        var lbl_TaxRate_av = grd_PrDt1.Rows[int.Parse(Session["ItemIndex"].ToString())].FindControl("lbl_TaxRate_av") as Label;
+                        var lbl_DiscPercent_av = grd_PrDt1.Rows[int.Parse(Session["ItemIndex"].ToString())].FindControl("lbl_DiscPercent_av") as Label;
+                        var lbl_DiscAmt_av = grd_PrDt1.Rows[int.Parse(Session["ItemIndex"].ToString())].FindControl("lbl_DiscAmt_av") as Label;
+                        var grd_PriceCompare = grd_PrDt1.Rows[int.Parse(Session["ItemIndex"].ToString())].FindControl("grd_PriceCompare") as GridView;
 
-        //                //DataRow drAssign = dsPR.Tables[prDt.TableName].Rows[((GridViewRow)lbl_Vendor_av.NamingContainer).DataItemIndex];
-        //                var drAssign = dsPR.Tables[prDt.TableName].Rows[int.Parse(Session["ItemIndex"].ToString())];
+                        //DataRow drAssign = dsPR.Tables[prDt.TableName].Rows[((GridViewRow)lbl_Vendor_av.NamingContainer).DataItemIndex];
+                        var drAssign = dsPR.Tables[prDt.TableName].Rows[int.Parse(Session["ItemIndex"].ToString())];
 
-        //                lbl_Vendor_av.Text = drNewVendor["VendorCode"] + " : " + drNewVendor["Name"];
-        //                lbl_FOC_av.Text = drSaveVendor["FOC"].ToString();
-        //                lbl_Price_av.Text = drSaveVendor["Price"].ToString();
-        //                lbl_TaxType_av.Text = drSaveVendor["Tax"].ToString();
-        //                lbl_TaxRate_av.Text = drSaveVendor["TaxRate"].ToString();
-        //                lbl_DiscPercent_av.Text = drSaveVendor["DiscountPercent"].ToString();
-        //                lbl_DiscAmt_av.Text = drSaveVendor["DiscountAmt"].ToString();
+                        lbl_Vendor_av.Text = drNewVendor["VendorCode"] + " : " + drNewVendor["Name"];
+                        lbl_FOC_av.Text = drSaveVendor["FOC"].ToString();
+                        lbl_Price_av.Text = drSaveVendor["Price"].ToString();
+                        lbl_TaxType_av.Text = drSaveVendor["Tax"].ToString();
+                        lbl_TaxRate_av.Text = drSaveVendor["TaxRate"].ToString();
+                        lbl_DiscPercent_av.Text = drSaveVendor["DiscountPercent"].ToString();
+                        lbl_DiscAmt_av.Text = drSaveVendor["DiscountAmt"].ToString();
 
-        //                drAssign["VendorCode"] = drNewVendor["VendorCode"].ToString();
-        //                drAssign["FOCQty"] = drSaveVendor["FOC"].ToString();
-        //                drAssign["Price"] = drSaveVendor["Price"].ToString();
-        //                //drAssign["TaxType"] = drSaveVendor["Tax"].ToString();
-        //                //drAssign["TaxRate"] = drSaveVendor["TaxRate"].ToString();
-        //                drAssign["DiscPercent"] = drSaveVendor["DiscountPercent"].ToString() == string.Empty
-        //                    ? "0.00"
-        //                    : lbl_DiscPercent_av.Text;
-        //                drAssign["DiscAmt"] = drSaveVendor["DiscountAmt"].ToString();
-        //                drAssign["ReqQty"] = lbl_ReqQty_av.Text;
-        //                drAssign["ApprQty"] = lbl_ReqQty_av.Text;
+                        drAssign["VendorCode"] = drNewVendor["VendorCode"].ToString();
+                        drAssign["FOCQty"] = drSaveVendor["FOC"].ToString();
+                        drAssign["Price"] = drSaveVendor["Price"].ToString();
+                        drAssign["TaxType"] = drSaveVendor["Tax"].ToString();
+                        drAssign["TaxRate"] = drSaveVendor["TaxRate"].ToString();
+                        drAssign["DiscPercent"] = drSaveVendor["DiscountPercent"].ToString() == string.Empty
+                            ? "0.00"
+                            : lbl_DiscPercent_av.Text;
+                        drAssign["DiscAmt"] = drSaveVendor["DiscountAmt"].ToString();
+                        drAssign["ReqQty"] = lbl_ReqQty_av.Text;
+                        drAssign["ApprQty"] = lbl_ReqQty_av.Text;
 
-        //                // Net, Tax, Total
-        //                var Price = decimal.Parse(drAssign["Price"].ToString());
-        //                var DiscAmt = decimal.Parse(drAssign["DiscAmt"].ToString());
-        //                var calAmt = CalAmt(Price, DiscAmt, decimal.Parse(drAssign["ApprQty"].ToString()));
+                        // Net, Tax, Total
+                        var Price = decimal.Parse(drAssign["Price"].ToString());
+                        var DiscAmt = decimal.Parse(drAssign["DiscAmt"].ToString());
+                        var calAmt = CalAmt(Price, DiscAmt, decimal.Parse(drAssign["ApprQty"].ToString()));
 
-        //                drAssign["TotalAmt"] = Amount(drAssign["TaxType"].ToString(),
-        //                    decimal.Parse(drAssign["TaxRate"].ToString())
-        //                    , Price, DiscAmt, decimal.Parse(drAssign["ApprQty"].ToString()));
+                        drAssign["TotalAmt"] = Amount(drAssign["TaxType"].ToString(),
+                            decimal.Parse(drAssign["TaxRate"].ToString())
+                            , Price, DiscAmt, decimal.Parse(drAssign["ApprQty"].ToString()));
 
-        //                drAssign["NetAmt"] = NetAmt(drAssign["TaxType"].ToString(),
-        //                    decimal.Parse(drAssign["TaxRate"].ToString())
-        //                    , Price, DiscAmt, decimal.Parse(drAssign["ApprQty"].ToString()));
+                        drAssign["NetAmt"] = NetAmt(drAssign["TaxType"].ToString(),
+                            decimal.Parse(drAssign["TaxRate"].ToString())
+                            , Price, DiscAmt, decimal.Parse(drAssign["ApprQty"].ToString()));
 
-        //                drAssign["TaxAmt"] = TaxAmt(drAssign["TaxType"].ToString(),
-        //                    decimal.Parse(drAssign["TaxRate"].ToString())
-        //                    , Price, DiscAmt, decimal.Parse(drAssign["ApprQty"].ToString()));
+                        drAssign["TaxAmt"] = TaxAmt(drAssign["TaxType"].ToString(),
+                            decimal.Parse(drAssign["TaxRate"].ToString())
+                            , Price, DiscAmt, decimal.Parse(drAssign["ApprQty"].ToString()));
 
-        //                lbl_NetAmt_av.Text = drAssign["NetAmt"].ToString();
-        //                lbl_TotalAmt_av.Text = drAssign["TotalAmt"].ToString();
-        //                lbl_TaxAmt_av.Text = drAssign["TaxAmt"].ToString();
+                        lbl_NetAmt_av.Text = drAssign["NetAmt"].ToString();
+                        lbl_TotalAmt_av.Text = drAssign["TotalAmt"].ToString();
+                        lbl_TaxAmt_av.Text = drAssign["TaxAmt"].ToString();
 
-        //                dsVendor.Clear();
-        //            }
-        //        }
-        //    }
+                        dsVendor.Clear();
+                    }
+                }
+            }
 
-        //    pop_NewVendor.ShowOnPageLoad = false;
-        //    pop_AddVendor.ShowOnPageLoad = false;
-        //    pop_ConfirmSaveAddVendor.ShowOnPageLoad = false;
-        //}
+            pop_NewVendor.ShowOnPageLoad = false;
+            pop_AddVendor.ShowOnPageLoad = false;
+            pop_ConfirmSaveAddVendor.ShowOnPageLoad = false;
+        }
 
-        //protected void btn_CancelSaveAddVendor_Click(object sender, EventArgs e)
-        //{
-        //    pop_ConfirmSaveAddVendor.ShowOnPageLoad = false;
-        //    pop_NewVendor.ShowOnPageLoad = false;
-        //    pop_AddVendor.ShowOnPageLoad = false;
-        //    //Response.Redirect(System.Web.HttpContext.Current.Request.Url.ToString(), true);
-        //}
+        protected void btn_CancelSaveAddVendor_Click(object sender, EventArgs e)
+        {
+            pop_ConfirmSaveAddVendor.ShowOnPageLoad = false;
+            pop_NewVendor.ShowOnPageLoad = false;
+            pop_AddVendor.ShowOnPageLoad = false;
+            //Response.Redirect(System.Web.HttpContext.Current.Request.Url.ToString(), true);
+        }
 
         // Gridview New Expand.
         protected void grd_PrDt1_RowDataBound(object sender, GridViewRowEventArgs e)
@@ -2809,7 +2950,7 @@ namespace BlueLedger.PL.PC.PR
                     var ddl_ProductCode_av = e.Row.FindControl("ddl_ProductCode_av") as ASPxComboBox;
                     var ddl_Vendor_av = e.Row.FindControl("ddl_Vendor_av") as ASPxComboBox;
 
-                    ddl_ProductCode_av.Value = DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString().Trim();
+                    ddl_ProductCode_av.Value = DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString();
                     ddl_Vendor_av.Value = DataBinder.Eval(e.Row.DataItem, "VendorCode").ToString();
                     ddl_Vendor_av.ToolTip = ddl_Vendor_av.Text;
                 }
@@ -2866,7 +3007,7 @@ namespace BlueLedger.PL.PC.PR
                         ddl_ProductCode_av.Visible = !IsExistInField("PC.PrDt.ProductCode", controlHide);
                         ddl_ProductCode_av.Enabled = IsExistInField("PC.PrDt.ProductCode", controlEnable);
 
-                        ddl_ProductCode_av.Value = DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString().Trim();
+                        ddl_ProductCode_av.Value = DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString();
                     }
                 }
                 // Description
@@ -2877,7 +3018,7 @@ namespace BlueLedger.PL.PC.PR
                     lbl_DescEN_av.Enabled = IsExistInField("PC.PrDt.Descen", controlEnable);
 
                     //lbl_DescEN_av.Text = DataBinder.Eval(e.Row.DataItem, "Descen").ToString();
-                    lbl_DescEN_av.Text = product.GetName(DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString().Trim(), buConnStr);
+                    lbl_DescEN_av.Text = product.GetName(DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString(), buConnStr);
                     lbl_DescEN_av.ToolTip = lbl_DescEN_av.Text;
                 }
                 if (e.Row.FindControl("txt_DescEN_av") != null)
@@ -2888,7 +3029,7 @@ namespace BlueLedger.PL.PC.PR
                     txt_DescEN_av.Visible = !IsExistInField("PC.PrDt.Descen", controlHide);
                     //txt_DescEN_av.ReadOnly = !IsExistInField("PC.PrDt.Descen", controlEnable);
                     //txt_DescEN_av.Text = DataBinder.Eval(e.Row.DataItem, "Descen").ToString();
-                    txt_DescEN_av.Text = product.GetName(DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString().Trim(), buConnStr);
+                    txt_DescEN_av.Text = product.GetName(DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString(), buConnStr);
                     txt_DescEN_av.ToolTip = txt_DescEN_av.Text;
                 }
 
@@ -2896,7 +3037,7 @@ namespace BlueLedger.PL.PC.PR
                 {
                     var lbl_DescLL_av = e.Row.FindControl("lbl_DescLL_av") as Label;
                     //lbl_DescLL_av.Text = DataBinder.Eval(e.Row.DataItem, "Descll").ToString();
-                    lbl_DescLL_av.Text = product.GetName2(DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString().Trim(), buConnStr);
+                    lbl_DescLL_av.Text = product.GetName2(DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString(), buConnStr);
                     lbl_DescLL_av.ToolTip = lbl_DescLL_av.Text;
                 }
                 if (e.Row.FindControl("txt_DescLL_av") != null)
@@ -2906,7 +3047,7 @@ namespace BlueLedger.PL.PC.PR
 
                     txt_DescLL_av.Visible = !IsExistInField("PC.PrDt.Descll", controlHide);
                     //txt_DescLL_av.Text = DataBinder.Eval(e.Row.DataItem, "Descll").ToString();
-                    txt_DescLL_av.Text = product.GetName2(DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString().Trim(), buConnStr);
+                    txt_DescLL_av.Text = product.GetName2(DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString(), buConnStr);
                     txt_DescLL_av.ToolTip = txt_DescLL_av.Text;
                 }
 
@@ -3280,7 +3421,7 @@ namespace BlueLedger.PL.PC.PR
                 if (e.Row.FindControl("lbl_ProductCode") != null)
                 {
                     var lbl_ProductCode = e.Row.FindControl("lbl_ProductCode") as Label;
-                    lbl_ProductCode.Text = DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString().Trim();
+                    lbl_ProductCode.Text = DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString();
                     lbl_ProductCode.ToolTip = lbl_ProductCode.Text;
 
                     lbl_ProductCode.Visible = !IsExistInField("PC.PrDt.ProductCode", controlHide);
@@ -3288,24 +3429,17 @@ namespace BlueLedger.PL.PC.PR
                 if (e.Row.FindControl("ddl_ProductCode") != null)
                 {
                     var ddl_ProductCode = e.Row.FindControl("ddl_ProductCode") as ASPxComboBox;
-                    ddl_ProductCode.Value = DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString().Trim();
+                    ddl_ProductCode.Value = DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString();
                     ddl_ProductCode.ToolTip = ddl_ProductCode.Text;
 
                     ddl_ProductCode.Visible = !IsExistInField("PC.PrDt.ProductCode", controlHide);
                     ddl_ProductCode.Enabled = IsExistInField("PC.PrDt.ProductCode", controlEnable);
 
                 }
-                
                 if (e.Row.FindControl("hf_ProductCode") != null)
                 {
                     var hf_ProductCode = e.Row.FindControl("hf_ProductCode") as HiddenField;
-                    hf_ProductCode.Value = DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString().Trim();
-                }
-
-                if (e.Row.FindControl("hf_ProductCode_av") != null)
-                {
-                    var hf_ProductCode_av = e.Row.FindControl("hf_ProductCode_av") as HiddenField;
-                    hf_ProductCode_av.Value = DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString().Trim();
+                    hf_ProductCode.Value = DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString();
                 }
 
                 // Description (en)
@@ -3859,7 +3993,7 @@ namespace BlueLedger.PL.PC.PR
                     if (ddl_PrType.SelectedItem.Value.ToString() == "1") //Marketlist
                     {
                         result = priceList.GetList(dsPriceCompare,
-                            DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString().Trim(),
+                            DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString(),
                             DateTime.Parse(DataBinder.Eval(e.Row.DataItem, "ReqDate").ToString()),
                             decimal.Parse(DataBinder.Eval(e.Row.DataItem, "ReqQty").ToString()),
                             DataBinder.Eval(e.Row.DataItem, "OrderUnit").ToString(), LoginInfo.ConnStr);
@@ -3867,7 +4001,7 @@ namespace BlueLedger.PL.PC.PR
                     else //Non market list
                     {
                         result = priceList.GetList(dsPriceCompare,
-                            DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString().Trim(),
+                            DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString(),
                             DateTime.Parse(txt_PrDate.Text),
                             decimal.Parse(DataBinder.Eval(e.Row.DataItem, "ReqQty").ToString()),
                             DataBinder.Eval(e.Row.DataItem, "OrderUnit").ToString(), LoginInfo.ConnStr);
@@ -4004,98 +4138,29 @@ namespace BlueLedger.PL.PC.PR
         protected void grd_PrDt1_RowUpdating(object sender, GridViewUpdateEventArgs e)
         {
             bool isCreateStep = wfDt.GetAllowCreate(wfId, wfStep, hf_ConnStr.Value);
-            var drUpdating = dsPR.Tables[prDt.TableName].Rows[grd_PrDt1.Rows[grd_PrDt1.EditIndex].DataItemIndex];
-            var ddl_BuCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_BuCode") as ASPxComboBox;
 
+
+            var drUpdating = dsPR.Tables[prDt.TableName].Rows[grd_PrDt1.Rows[grd_PrDt1.EditIndex].DataItemIndex];
+
+            var ddl_Vendor_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_Vendor_av") as ASPxComboBox;
+            var ddl_BuCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_BuCode") as ASPxComboBox;
+            var ddl_BuCode_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_BuCode_av") as ASPxComboBox;
+            var ddl_LocationCode_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_LocationCode_av") as ASPxComboBox;
+            var ddl_ProductCode_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_ProductCode_av") as ASPxComboBox;
             DataRow drWFDt = dsWF.Tables["APPwfdt"].Rows[0];
 
-            var locationCode = string.Empty;
+            // Added on: 10/11/2017, By: Fon
+            string locationCode = string.Empty;
+            // End Added.
 
+            #region IsAllocateVendor
             if (Convert.ToBoolean(drWFDt["IsAllocateVendor"]))
             {
-
-                #region IsAllocateVendor
-
-                var ddl_BuCode_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_BuCode_av") as ASPxComboBox;
-                var ddl_Vendor_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_Vendor_av") as ASPxComboBox;
-                var ddl_LocationCode_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_LocationCode_av") as ASPxComboBox;
-                var ddl_ProductCode_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_ProductCode_av") as ASPxComboBox;
-                var dte_DeliDate_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("dte_DeliDate_av") as ASPxDateEdit;
-                var ddl_DeliPoint_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_DeliPoint_av") as ASPxComboBox;
-                var DeliPoint = ddl_DeliPoint_av.Value.ToString().Split(':');
-
-                var ddl_Unit_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_Unit_av") as ASPxComboBox;
-                var txt_ReqQty_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_ReqQty_av") as ASPxSpinEdit;
-                var txt_FOC_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_FOC_av") as ASPxSpinEdit;
-                var txt_ApprQty_av = (ASPxSpinEdit)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_ApprQty_av");
-                var txt_Price_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_Price_av") as ASPxSpinEdit;
-
-                var chk_Adj_Grd_Av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("chk_Adj_Grd_Av") as ASPxCheckBox;
-                var ddl_TaxType_Grd_Av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_TaxType_Grd_Av") as ASPxComboBox;
-                var txt_TaxRate_Grd_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_TaxRate_Grd_av") as TextBox;
-                var txt_DiscPercent_Grd_Av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_DiscPercent_Grd_Av") as TextBox;
-
-                var ddl_CurrCode_av = (ASPxComboBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_CurrCode_av");
-                var ddl_CurrRate_av = (ASPxComboBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_CurrRate_av");
-
-                var txt_CurrDiscAmt_Grd_Av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_CurrDiscAmt_Grd_Av") as TextBox;
-                var txt_CurrNetAmt_Grd_Av = (TextBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_CurrNetAmt_Grd_Av");
-                var txt_CurrTaxAmt_Grd_Av = (TextBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_CurrTaxAmt_Grd_Av");
-                var txt_CurrTotalAmt_Grd_Av = (TextBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_CurrTotalAmt_Grd_Av");
-
-                var txt_DiscAmt_Grd_Av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_DiscAmt_Grd_Av") as TextBox;
-                var txt_NetAmt_Grd_Av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_NetAmt_Grd_Av") as TextBox;
-                var txt_TaxAmt_Grd_Av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_TaxAmt_Grd_Av") as TextBox;
-                var txt_TotalAmt_Grd_Av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_TotalAmt_Grd_Av") as TextBox;
-
-                var txt_Comment_Detail = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_Comment_Detail") as TextBox;
-
-                var taxRate = Convert.ToDecimal(txt_TaxRate_Grd_av.Text);
-
-
-                // Validating
-
-                if (ddl_Vendor_av.Value == null)
-                {
-                    lbl_Pop_AlertBox.Text = "Vendor is required.";
-                    pop_AlertBox.ShowOnPageLoad = true;
-
-                    return;
-                }
-
-                if (ddl_Unit_av.Value == null)
-                {
-                    lbl_Pop_AlertBox.Text = "Unit is required.";
-                    pop_AlertBox.ShowOnPageLoad = true;
-
-                    return;
-                }
-
-                if (string.IsNullOrEmpty(txt_ReqQty_av.Text) || decimal.Parse(txt_ReqQty_av.Text) <= 0)
-                {
-                    pop_AlertQty.ShowOnPageLoad = true;
-
-                    return;
-                }
-
-                if (ddl_TaxType_Grd_Av.Text != "None" && taxRate == 0)
-                {
-                    pop_AlertTaxRate.ShowOnPageLoad = true;
-
-                    return;
-                }
-
-                if (Convert.ToDecimal(txt_Price_av.Text) <= 0)
-                {
-                    pop_AlertPrice.ShowOnPageLoad = true;
-
-                    return;
-                }
-
-                // Assign values
-
+                // Allocate Vendor.                
                 if (ddl_Vendor_av.Value != null)
                 {
+                    /* Fixed on: 2017/03/30, for manual select.
+                    drUpdating["VendorCode"] = ddl_Vendor_av.Value.ToString();*/
                     drUpdating["VendorCode"] = ddl_Vendor_av.Value.ToString().Split(':')[0].Trim();
                 }
 
@@ -4115,41 +4180,132 @@ namespace BlueLedger.PL.PC.PR
                     drUpdating["ProductCode"] = ddl_ProductCode_av.Text.Split(':')[0].Trim();
                 }
 
+                ////var txt_DescEN_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("Txt_DescEN_av") as TextBox;
+                //var txt_DescEN_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("Txt_DescEN_av") as Label;
+                //drUpdating["Descen"] = txt_DescEN_av.Text;
+
+                ////var txt_DescLL_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_DescLL_av") as TextBox;
+                //var txt_DescLL_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_DescLL_av") as Label;
+                //drUpdating["Descll"] = txt_DescLL_av.Text;
+                //drUpdating["Descen"] = product.GetName(ddl_ProductCode_av.Value.ToString(), bu.GetConnectionString(ddl_BuCode.Value.ToString()));
+                //drUpdating["Descll"] = product.GetName2(ddl_ProductCode_av.Value.ToString(), bu.GetConnectionString(ddl_BuCode.Value.ToString()));
+
+
+                var dte_DeliDate_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("dte_DeliDate_av") as ASPxDateEdit;
                 if (!string.IsNullOrEmpty(dte_DeliDate_av.Text))
                 {
-                    drUpdating["ReqDate"] = dte_DeliDate_av.Date;
+                    drUpdating["ReqDate"] = DateTime.Parse(dte_DeliDate_av.Date.ToString("dd/MM/yyyy"));
                 }
 
+                var ddl_DeliPoint_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_DeliPoint_av") as ASPxComboBox;
+                var DeliPoint = ddl_DeliPoint_av.Value.ToString().Split(':');
                 if (ddl_DeliPoint_av.Value != null)
                 {
                     drUpdating["DeliPoint"] = int.Parse(DeliPoint[0]);
                 }
 
+                var txt_ReqQty_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_ReqQty_av") as ASPxSpinEdit;
 
-                drUpdating["ReqQty"] = txt_ReqQty_av.Text;
-                drUpdating["FOCQty"] = !string.IsNullOrEmpty(txt_FOC_av.Text) ? txt_FOC_av.Text : "0";
+                if (!string.IsNullOrEmpty(txt_ReqQty_av.Text) && decimal.Parse(txt_ReqQty_av.Text) != 0)
+                {
+                    drUpdating["ReqQty"] = txt_ReqQty_av.Text;
+                }
+                else
+                {
+                    //drUpdating["ReqQty"] = 0.00;
+                    pop_AlertQty.ShowOnPageLoad = true;
+                    return;
+                }
+
+                var txt_FOC_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_FOC_av") as ASPxSpinEdit;
+                if (!string.IsNullOrEmpty(txt_FOC_av.Text))
+                {
+                    drUpdating["FOCQty"] = txt_FOC_av.Text;
+                }
+                else
+                {
+                    drUpdating["FOCQty"] = 0;
+                }
+
+                var ddl_Unit_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_Unit_av") as ASPxComboBox;
                 drUpdating["OrderUnit"] = ddl_Unit_av.Value;
 
-                drUpdating["Price"] = txt_Price_av.Text;
+                var txt_NetAmt_Grd_Av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_NetAmt_Grd_Av") as TextBox;
+                drUpdating["NetAmt"] = txt_NetAmt_Grd_Av.Text;
+
+                var txt_TaxAmt_Grd_Av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_TaxAmt_Grd_Av") as TextBox;
+                drUpdating["TaxAmt"] = txt_TaxAmt_Grd_Av.Text;
+
+                var txt_TotalAmt_Grd_Av =
+                    grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_TotalAmt_Grd_Av") as TextBox;
+                drUpdating["TotalAmt"] = txt_TotalAmt_Grd_Av.Text;
+
+
+                var txt_Price_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_Price_av") as ASPxSpinEdit;
+                if (Convert.ToDecimal(txt_Price_av.Text) > 0)
+                {
+                    drUpdating["Price"] = txt_Price_av.Text;
+                }
+                else if (Convert.ToDecimal(txt_FOC_av.Text) > 0)
+                {
+                    drUpdating["Price"] = txt_Price_av.Text;
+                }
+                else
+                {
+                    pop_AlertPrice.ShowOnPageLoad = true;
+                    return;
+                }
+
+                // Added on: 08/08/2017, By: Fon
+                ASPxComboBox ddl_CurrCode_av = (ASPxComboBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_CurrCode_av");
+                ASPxComboBox ddl_CurrRate_av = (ASPxComboBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_CurrRate_av");
+                TextBox txt_CurrNetAmt_Grd_Av = (TextBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_CurrNetAmt_Grd_Av");
+                TextBox txt_CurrDiscAmt_Grd_Av = (TextBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_CurrDiscAmt_Grd_Av");
+                TextBox txt_CurrTaxAmt_Grd_Av = (TextBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_CurrTaxAmt_Grd_Av");
+                TextBox txt_CurrTotalAmt_Grd_Av = (TextBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_CurrTotalAmt_Grd_Av");
 
                 drUpdating["CurrencyCode"] = ddl_CurrCode_av.Value.ToString().Trim();
                 drUpdating["CurrencyRate"] = ddl_CurrRate_av.Value.ToString();
-
                 drUpdating["CurrNetAmt"] = txt_CurrNetAmt_Grd_Av.Text;
                 drUpdating["CurrTaxAmt"] = txt_CurrTaxAmt_Grd_Av.Text;
                 drUpdating["CurrTotalAmt"] = txt_CurrTotalAmt_Grd_Av.Text;
+                // End Added.
 
-                drUpdating["DiscAmt"] = txt_DiscAmt_Grd_Av.Text;
-                drUpdating["NetAmt"] = txt_NetAmt_Grd_Av.Text;
-                drUpdating["TaxAmt"] = txt_TaxAmt_Grd_Av.Text;
-                drUpdating["TotalAmt"] = txt_TotalAmt_Grd_Av.Text;
 
+                var chk_Adj_Grd_Av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("chk_Adj_Grd_Av") as ASPxCheckBox;
                 drUpdating["TaxAdj"] = chk_Adj_Grd_Av.Checked;
-                drUpdating["TaxType"] = ddl_TaxType_Grd_Av.Value;
-                drUpdating["TaxRate"] = txt_TaxRate_Grd_av.Text;
 
-                if (!string.IsNullOrEmpty(txt_DiscPercent_Grd_Av.Text)
-                    && decimal.Parse(txt_DiscPercent_Grd_Av.Text) <= 100)
+                if (!chk_Adj_Grd_Av.Checked)
+                {
+                    drUpdating["TaxType"] = product.GetTaxType(drUpdating["ProductCode"].ToString(), hf_ConnStr.Value);
+                    drUpdating["TaxRate"] = product.GetTaxRate(drUpdating["ProductCode"].ToString(), hf_ConnStr.Value).ToString();
+                }
+                else
+                {
+                    var ddl_TaxType_Grd_Av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_TaxType_Grd_Av") as ASPxComboBox;
+
+                    drUpdating["TaxType"] = ddl_TaxType_Grd_Av.Value;
+
+                    var txt_TaxRate_Grd_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_TaxRate_Grd_av") as TextBox;
+
+                    if (!string.IsNullOrEmpty(txt_TaxRate_Grd_av.Text) && ddl_TaxType_Grd_Av.Value.ToString() == "N")
+                    {
+                        drUpdating["TaxRate"] = 0;
+                    }
+                    else if (decimal.Parse(txt_TaxRate_Grd_av.Text) > 0 && ddl_TaxType_Grd_Av.Value.ToString() != "N")
+                    {
+                        drUpdating["TaxRate"] = txt_TaxRate_Grd_av.Text;
+                    }
+                    else
+                    {
+                        pop_AlertTaxRate.ShowOnPageLoad = true;
+                        return;
+                    }
+                }
+
+                var txt_DiscPercent_Grd_Av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_DiscPercent_Grd_Av") as TextBox;
+                if (!string.IsNullOrEmpty(txt_DiscPercent_Grd_Av.Text) &&
+                    decimal.Parse(txt_DiscPercent_Grd_Av.Text) <= 100)
                 {
                     drUpdating["DiscPercent"] = txt_DiscPercent_Grd_Av.Text;
                 }
@@ -4161,28 +4317,43 @@ namespace BlueLedger.PL.PC.PR
                 else if (decimal.Parse(txt_DiscPercent_Grd_Av.Text) > 100)
                 {
                     pop_AlertDisc.ShowOnPageLoad = true;
-
                     return;
                 }
 
-                var currDiscAmt = string.IsNullOrEmpty(txt_CurrDiscAmt_Grd_Av.Text) ? 0m : decimal.Parse(txt_CurrDiscAmt_Grd_Av.Text);
-                var reqQty = decimal.Parse(txt_ReqQty_av.Text);
-                var price = decimal.Parse(txt_Price_av.Text);
+                var txt_DiscAmt_Grd_Av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_DiscAmt_Grd_Av") as TextBox;
 
-
-                if (currDiscAmt / reqQty > price)
+                // Modified on: 31/08/2017, By: Fon
+                //if (!string.IsNullOrEmpty(txt_DiscAmt_Grd_Av.Text) &&
+                //    (decimal.Parse(txt_DiscAmt_Grd_Av.Text) / decimal.Parse(txt_ReqQty_av.Text)) <
+                //    decimal.Parse(txt_Price_av.Text))
+                if (!string.IsNullOrEmpty(txt_CurrDiscAmt_Grd_Av.Text) &&
+                   (decimal.Parse(txt_CurrDiscAmt_Grd_Av.Text) / decimal.Parse(txt_ReqQty_av.Text)) < decimal.Parse(txt_Price_av.Text))
+                {
+                    drUpdating["CurrDiscAmt"] = txt_CurrDiscAmt_Grd_Av.Text;
+                    drUpdating["DiscAmt"] = txt_DiscAmt_Grd_Av.Text;
+                }
+                //else if ((decimal.Parse(txt_DiscAmt_Grd_Av.Text) / decimal.Parse(txt_ReqQty_av.Text)) >
+                //         decimal.Parse(txt_Price_av.Text))
+                else if ((decimal.Parse(txt_CurrDiscAmt_Grd_Av.Text) / decimal.Parse(txt_ReqQty_av.Text)) > decimal.Parse(txt_Price_av.Text))
                 {
                     pop_AlertDiscAmt.ShowOnPageLoad = true;
-
                     return;
                 }
+                else
+                {
+                    drUpdating["CurrDiscAmt"] = 0;
+                    drUpdating["DiscAmt"] = 0;
+                    txt_CurrDiscAmt_Grd_Av.Text = String.Format(DefaultAmtFmt, drUpdating["CurrDiscAmt"]);
+                    txt_DiscAmt_Grd_Av.Text = String.Format(DefaultAmtFmt, drUpdating["DiscAmt"]);
+                }
 
-                drUpdating["CurrDiscAmt"] = txt_CurrDiscAmt_Grd_Av.Text;
-                drUpdating["DiscAmt"] = txt_DiscAmt_Grd_Av.Text;
 
 
+                var txt_ApprQty_av = (ASPxSpinEdit)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_ApprQty_av");
+                //if (!string.IsNullOrEmpty(txt_ReqQty_av.Text) && decimal.Parse(txt_ReqQty_av.Text) != 0)
                 if (!string.IsNullOrEmpty(txt_ApprQty_av.Text) && decimal.Parse(txt_ApprQty_av.Text) != 0)
                 {
+                    //drUpdating["ApprQty"] = txt_ReqQty_av.Text;
                     drUpdating["ApprQty"] = RoundQty(decimal.Parse(txt_ApprQty_av.Text));
                 }
                 else
@@ -4190,34 +4361,39 @@ namespace BlueLedger.PL.PC.PR
                     if (!isCreateStep)
                     {
                         pop_AlertApprQty.ShowOnPageLoad = true;
-
                         return;
                     }
                 }
 
+                var txt_Comment_Detail =
+                    grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_Comment_Detail") as TextBox;
                 drUpdating["Comment"] = (txt_Comment_Detail.Text != null ? txt_Comment_Detail.Text : string.Empty);
 
                 decimal DiscAmt = (decimal.Parse(drUpdating["Price"].ToString()) * decimal.Parse(drUpdating["DiscPercent"].ToString())) / 100;
-                #endregion
             }
+            #endregion
+            #region Not Allocate Vendor
             else
             {
-
-                #region Not Allocate Vendor
-
                 var ddl_ProductCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_ProductCode") as ASPxComboBox;
 
                 drUpdating["ProductCode"] = ddl_ProductCode.Value.ToString().Split(' ')[0].Trim();
 
                 var ddl_LocationCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_LocationCode") as ASPxComboBox;
-                
                 drUpdating["LocationCode"] = ddl_LocationCode.Value.ToString();
                 locationCode = ddl_LocationCode.Value.ToString();
+
+                //var txt_DescEn = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_DescEn") as TextBox;
+                //drUpdating["Descen"] = txt_DescEn.Text;
+
+                //var txt_DescLL = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_DescLL") as TextBox;
+                //drUpdating["Descll"] = txt_DescLL.Text;
                 drUpdating["Descen"] = product.GetName(ddl_ProductCode.Text.Split(':')[0].Trim(), bu.GetConnectionString(ddl_BuCode.Value.ToString()));
                 drUpdating["Descll"] = product.GetName2(ddl_ProductCode.Text.Split(':')[0].Trim(), bu.GetConnectionString(ddl_BuCode.Value.ToString()));
 
-                var ddl_Unit = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_Unit") as ASPxComboBox;
 
+                //TextBox txt_Unit = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_Unit") as TextBox;
+                var ddl_Unit = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_Unit") as ASPxComboBox;
                 if (ddl_Unit != null && ddl_Unit.Value.ToString() != string.Empty)
                     drUpdating["OrderUnit"] = ddl_Unit.Value;
                 else
@@ -4229,14 +4405,13 @@ namespace BlueLedger.PL.PC.PR
 
 
                 var chk_Adj = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("chk_Adj") as CheckBox;
-
                 drUpdating["TaxAdj"] = chk_Adj.Checked;
 
-                //if (!chk_Adj.Checked)
-                //{
-                //    drUpdating["TaxType"] = product.GetTaxType(drUpdating["ProductCode"].ToString().Trim(), hf_ConnStr.Value);
-                //    drUpdating["TaxRate"] = product.GetTaxRate(drUpdating["ProductCode"].ToString().Trim(), hf_ConnStr.Value).ToString();
-                //}
+                if (!chk_Adj.Checked)
+                {
+                    drUpdating["TaxType"] = product.GetTaxType(drUpdating["ProductCode"].ToString(), hf_ConnStr.Value);
+                    drUpdating["TaxRate"] = product.GetTaxRate(drUpdating["ProductCode"].ToString(), hf_ConnStr.Value).ToString();
+                }
 
 
                 var txt_QtyRequest = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_QtyRequest") as ASPxSpinEdit;
@@ -4333,13 +4508,14 @@ namespace BlueLedger.PL.PC.PR
                 drUpdating["TotalAmt"] = RoundAmt(Convert.ToDecimal(drUpdating["CurrTotalAmt"]) * currRate);
 
                 // End Modified
-                #endregion
             }
+            #endregion
 
             if (ddl_JobCode.Value != null)
             {
                 drUpdating["AddField1"] = ddl_JobCode.Value.ToString();
                 dsPR.Tables[pr.TableName].Rows[0]["AddField1"] = ddl_JobCode.Value.ToString();
+                //dsPR.Tables[pr.TableName].Rows[grd_PrDt1.EditIndex]["AddField1"] = ddl_JobCode.Value.ToString();
             }
 
             if (txt_Desc.Text != "")
@@ -4348,9 +4524,15 @@ namespace BlueLedger.PL.PC.PR
                 //dsPR.Tables[pr.TableName].Rows[grd_PrDt1.EditIndex]["Description"] = txt_Desc.Text;
             }
 
+            // Enable Pr Type & Pr Date
+            //ddl_PrType.Enabled = true;
+            //txt_PrDate.Enabled = true;
 
             if (wfDt.GetAllowCreate(wfId, wfStep, hf_ConnStr.Value))
             {
+                //menu_CmdBar.Items[0].Visible = true; //Save
+                //menu_CmdBar.Items[1].Visible = true; //Back
+
                 menu_GrdBar.Items[0].Visible = true; //Create
                 menu_GrdBar.Items[1].Visible = true; //Delete
 
@@ -4371,11 +4553,15 @@ namespace BlueLedger.PL.PC.PR
             //ddl_JobCode.Enabled = true;
             PRDtEditMode = string.Empty;
 
+            // Modified on: 10/11/2017, By: Fon
+            /*grd_PrDt1.DataSource = dsPR.Tables[prDt.TableName];
+            grd_PrDt1.EditIndex = -1;
+            grd_PrDt1.DataBind();*/
+
             Control_Location(locationCode, dsPR.Tables[prDt.TableName]);
             // End Modified.
 
             Session["dsPR"] = dsPR;
-
         }
 
         protected void menu_CmdBar_ItemClick(object source, DevExpress.Web.ASPxMenu.MenuItemEventArgs e)
@@ -4453,13 +4639,18 @@ namespace BlueLedger.PL.PC.PR
             ddl_PrType.Value = hf_PrType.Value;
         }
 
+        // ********************************* 22/09/2011 ********************************************
         protected void btn_WarningProdCateType_OK_Click(object sender, EventArgs e)
         {
             pop_AlertProdCateType.ShowOnPageLoad = false;
         }
 
+        // *****************************************************************************************
+
         protected void grd_PrDt1_RowDeleting(object sender, GridViewDeleteEventArgs e)
         {
+            //pop_ConfirmDelete_Grd.ShowOnPageLoad = true;
+
             dsPR.Tables[prDt.TableName].Rows[e.RowIndex].Delete();
 
             grd_PrDt1.DataSource = dsPR.Tables[prDt.TableName];
@@ -4467,21 +4658,27 @@ namespace BlueLedger.PL.PC.PR
             grd_PrDt1.DataBind();
 
             PRDtEditMode = string.Empty;
+            //ddl_JobCode.Enabled = true;
             Session["dsPR"] = dsPR;
         }
 
         protected void grd_PrDt1_RowCommand(object sender, GridViewCommandEventArgs e)
         {
+            #region Save New
             if (e.CommandName.ToUpper() == "SAVENEW")
             {
-                #region Save New
 
                 var ddl_BuCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_BuCode") as ASPxComboBox;
                 var ddl_BuCode_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_BuCode_av") as ASPxComboBox;
+
                 var ddl_Vendor_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_Vendor_av") as ASPxComboBox;
+
+
                 var ddl_LocationCode_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_LocationCode_av") as ASPxComboBox;
+
                 var ddl_ProductCode_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_ProductCode_av") as ASPxComboBox;
                 var ddlProductCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_ProductCode") as ASPxComboBox;
+
 
                 if (ddlProductCode.Value == null || string.IsNullOrEmpty(ddlProductCode.Value.ToString()))
                 {
@@ -4496,14 +4693,21 @@ namespace BlueLedger.PL.PC.PR
                 drUpdating["ReqDate"] = dte_DeliDate_av.Date;
 
 
+                #region Allocate Vendor.
                 if (Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["IsAllocateVendor"]))
                 {
-                    #region Allocate Vendor.
                     // Allocate Vendor.
                     drUpdating["BuCode"] = ddl_BuCode_av.Value == null ? BuCode : ddl_BuCode_av.Value.ToString();
                     drUpdating["VendorCode"] = ddl_Vendor_av.Value == null ? string.Empty : ddl_Vendor_av.Value.ToString();
                     drUpdating["LocationCode"] = ddl_LocationCode_av.Value == null ? string.Empty : ddl_LocationCode_av.Value.ToString();
                     drUpdating["ProductCode"] = ddl_ProductCode_av.Value == null ? string.Empty : ddl_ProductCode_av.Value.ToString();
+
+                    //var txt_DescEN_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("Txt_DescEN_av") as TextBox;
+                    //var txt_DescEN_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("Txt_DescEN_av") as Label;
+                    //drUpdating["Descen"] = txt_DescEN_av.Text;
+                    //var txt_DescLL_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_DescLL_av") as TextBox;
+                    //var txt_DescLL_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_DescLL_av") as Label;
+                    //drUpdating["Descll"] = txt_DescLL_av.Text;
 
 
                     var ddl_DeliPoint_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_DeliPoint_av") as ASPxComboBox;
@@ -4649,11 +4853,48 @@ namespace BlueLedger.PL.PC.PR
                     var txt_Comment_Detail = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_Comment_Detail") as TextBox;
                     drUpdating["Comment"] = (txt_Comment_Detail.Text != null ? txt_Comment_Detail.Text : string.Empty);
 
-                    #endregion
+
+                    //drUpdating["DiscAmt"] = decimal.Parse(txt_DiscAmt_Grd_Av.Text);
+                    //drUpdating["DiscPerCent"] = decimal.Parse(txt_DiscPercent_Grd_Av.Text);
+
+
+                    //if (decimal.Parse(txt_DiscAmt_Grd_Av.Text) == 0 && decimal.Parse(txt_DiscPercent_Grd_Av.Text) != 0)
+                    //{
+                    //    drUpdating["DiscAmt"] = (decimal.Parse(drUpdating["Price"].ToString()) * decimal.Parse(drUpdating["DiscPercent"].ToString())) / 100;
+                    //}
+                    //else if (decimal.Parse(txt_DiscAmt_Grd_Av.Text) > 0 && decimal.Parse(txt_DiscPercent_Grd_Av.Text) > 0)
+                    //{
+                    //    drUpdating["DiscAmt"] = ((decimal.Parse(drUpdating["Price"].ToString()) *
+                    //                              decimal.Parse(drUpdating["DiscPercent"].ToString())) / 100)
+                    //                            * decimal.Parse(drUpdating["ApprQty"].ToString());
+                    //}
+                    //else
+                    //{
+                    //    drUpdating["DiscPerCent"] = (decimal.Parse(drUpdating["DiscAmt"].ToString()) * 100) /
+                    //                                decimal.Parse(drUpdating["Price"].ToString());
+                    //}
+
+                    //decimal DiscAmt;
+                    //DiscAmt = (decimal.Parse(drUpdating["Price"].ToString()) * decimal.Parse(drUpdating["DiscPercent"].ToString())) / 100;
+
+                    ////UpdateNetAmount(); 
+                    //drUpdating["NetAmt"] = NetAmt(drUpdating["TaxType"].ToString(),
+                    //    decimal.Parse(drUpdating["TaxRate"].ToString()),
+                    //    decimal.Parse(drUpdating["Price"].ToString()), DiscAmt,
+                    //    decimal.Parse(drUpdating["ApprQty"].ToString()));
+                    //drUpdating["TaxAmt"] = TaxAmt(drUpdating["TaxType"].ToString(),
+                    //    decimal.Parse(drUpdating["TaxRate"].ToString()),
+                    //    decimal.Parse(drUpdating["Price"].ToString()), DiscAmt,
+                    //    decimal.Parse(drUpdating["ApprQty"].ToString()));
+                    //drUpdating["TotalAmt"] = Amount(drUpdating["TaxType"].ToString(),
+                    //    decimal.Parse(drUpdating["TaxRate"].ToString()),
+                    //    decimal.Parse(drUpdating["Price"].ToString()), DiscAmt,
+                    //    decimal.Parse(drUpdating["ApprQty"].ToString()));
                 }
+                #endregion
+                #region Not Allocate Vendor
                 else
                 {
-                    #region Not Allocate Vendor
                     {
 
                         var ddl_LocationCode =
@@ -4664,7 +4905,7 @@ namespace BlueLedger.PL.PC.PR
                         var ddl_ProductCode =
                             grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_ProductCode") as ASPxComboBox;
                         var ProductCode = ddl_ProductCode.Value.ToString().Split(':');
-                        drUpdating["ProductCode"] = ProductCode[0].ToString().Trim();
+                        drUpdating["ProductCode"] = ProductCode[0];
 
                         // Modified on: 17/01/2018, By: Fon, For: 
                         //Issue Local
@@ -4693,7 +4934,7 @@ namespace BlueLedger.PL.PC.PR
                         drUpdating["TaxType"] = product.GetTaxType(drUpdating["ProductCode"].ToString(),
                              hf_ConnStr.Value);
                         drUpdating["TaxRate"] =
-                            product.GetTaxRate(drUpdating["ProductCode"].ToString().Trim(), LoginInfo.ConnStr).ToString();
+                            product.GetTaxRate(drUpdating["ProductCode"].ToString(), LoginInfo.ConnStr).ToString();
 
                         //ASPxSpinEdit txt_QtyRequest = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_QtyRequest") as ASPxSpinEdit;
                         var txt_QtyRequest = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_QtyRequest") as ASPxSpinEdit;
@@ -4756,8 +4997,8 @@ namespace BlueLedger.PL.PC.PR
                             decimal.Parse(drUpdating["DiscAmt"].ToString()),
                             decimal.Parse(drUpdating["ReqQty"].ToString()));
                     }
-                    #endregion
                 }
+                #endregion
 
                 bool isSaveNew = Control_Location(drUpdating["LocationCode"].ToString(), dsPR.Tables[prDt.TableName]);
 
@@ -4775,8 +5016,8 @@ namespace BlueLedger.PL.PC.PR
 
                 if (isSaveNew)
                     CreateDetail();
-                #endregion
             }
+            #endregion
 
             if (e.CommandName.ToUpper() == "CREATE")
             {
@@ -4938,7 +5179,7 @@ namespace BlueLedger.PL.PC.PR
 
         protected void ddl_TaxType_Grd_Av_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ASPxComboBox ddl = (ASPxComboBox)sender;
+            ASPxComboBox ddl_TaxType_Grd_Av = (ASPxComboBox)sender;
             TextBox txt_TaxRate_Grd_Av = (TextBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_TaxRate_Grd_Av");
             TextBox txt_CurrTaxAmt_Grd_Av = (TextBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_CurrTaxAmt_Grd_Av");
             TextBox txt_TaxAmt_Grd_Av = (TextBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_TaxAmt_Grd_Av");
@@ -4950,7 +5191,7 @@ namespace BlueLedger.PL.PC.PR
                 txt_TaxAmt_Grd_Av.Enabled = true;
             }
 
-            if (ddl.SelectedItem.Value.ToString() == "N")
+            if (ddl_TaxType_Grd_Av.SelectedItem.Value.ToString() == "N")
             {
                 if (txt_TaxRate_Grd_Av != null)
                 {
@@ -4960,15 +5201,6 @@ namespace BlueLedger.PL.PC.PR
                     txt_TaxAmt_Grd_Av.Enabled = false;
                 }
             }
-            else
-            {
-                if (string.IsNullOrEmpty(txt_TaxRate_Grd_Av.Text) || Convert.ToDecimal(txt_TaxRate_Grd_Av.Text) == 0)
-                {
-                    txt_TaxRate_Grd_Av.Text = default_TaxRate.ToString();
-                }
-            }
-
-
 
             CalculationItem_av(grd_PrDt1.EditIndex);
             //CostContent_ValueChanged(grd_PrDt1.EditIndex, true);
@@ -5087,23 +5319,23 @@ namespace BlueLedger.PL.PC.PR
         {
             // if (Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["IsAllocateVendor"]))
             // {
-            // var ComboBox = sender as ASPxComboBox;
-            // var txt_ReqQty_av = ComboBox.Parent.Parent.Parent.FindControl("txt_ReqQty_av") as ASPxSpinEdit;
-            // var buCode = dsPR.Tables[prDt.TableName].Rows[((GridViewRow)ComboBox.NamingContainer).DataItemIndex]["BuCode"].ToString();
-            // var drPrDtEdit = dsPR.Tables[prDt.TableName].Rows[((GridViewRow)ComboBox.Parent.Parent.Parent).DataItemIndex];
+                // var ComboBox = sender as ASPxComboBox;
+                // var txt_ReqQty_av = ComboBox.Parent.Parent.Parent.FindControl("txt_ReqQty_av") as ASPxSpinEdit;
+                // var buCode = dsPR.Tables[prDt.TableName].Rows[((GridViewRow)ComboBox.NamingContainer).DataItemIndex]["BuCode"].ToString();
+                // var drPrDtEdit = dsPR.Tables[prDt.TableName].Rows[((GridViewRow)ComboBox.Parent.Parent.Parent).DataItemIndex];
+				
+				// var dt = vendor.DbExecuteQuery("SELECT VendorCode, Name FROM [AP].Vendor WHERE IsActive = 1", null, LoginInfo.ConnStr);
 
-            // var dt = vendor.DbExecuteQuery("SELECT VendorCode, Name FROM [AP].Vendor WHERE IsActive = 1", null, LoginInfo.ConnStr);
 
 
-
-            // ComboBox.DataSource = dt;
-            // //ComboBox.DataSource = vendor.GetLookUp(LoginInfo.ConnStr);
-            // ComboBox.DataBind();
+                // ComboBox.DataSource = dt;
+				// //ComboBox.DataSource = vendor.GetLookUp(LoginInfo.ConnStr);
+                // ComboBox.DataBind();
             // }
 
         }
-
-        protected void ddl_Vendor_av_Load1(object sender, EventArgs e)
+		
+		protected void ddl_Vendor_av_Load1(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["IsAllocateVendor"]))
             {
@@ -5111,13 +5343,13 @@ namespace BlueLedger.PL.PC.PR
                 var txt_ReqQty_av = ComboBox.Parent.Parent.Parent.FindControl("txt_ReqQty_av") as ASPxSpinEdit;
                 var buCode = dsPR.Tables[prDt.TableName].Rows[((GridViewRow)ComboBox.NamingContainer).DataItemIndex]["BuCode"].ToString();
                 var drPrDtEdit = dsPR.Tables[prDt.TableName].Rows[((GridViewRow)ComboBox.Parent.Parent.Parent).DataItemIndex];
-
-                var dt = vendor.DbExecuteQuery("SELECT VendorCode, Name FROM [AP].Vendor WHERE IsActive = 1", null, LoginInfo.ConnStr);
+				
+				var dt = vendor.DbExecuteQuery("SELECT VendorCode, Name FROM [AP].Vendor WHERE IsActive = 1", null, LoginInfo.ConnStr);
 
 
 
                 ComboBox.DataSource = dt;
-                //ComboBox.DataSource = vendor.GetLookUp(LoginInfo.ConnStr);
+				//ComboBox.DataSource = vendor.GetLookUp(LoginInfo.ConnStr);
                 ComboBox.DataBind();
             }
 
@@ -5126,43 +5358,43 @@ namespace BlueLedger.PL.PC.PR
 
         protected void ddl_Vendor_av_OnItemsRequestedByFilterCondition_SQL(object source, ListEditItemsRequestedByFilterConditionEventArgs e)
         {
-            var comboBox = (ASPxComboBox)source;
+                            var comboBox = (ASPxComboBox)source;
 
-            SqlDataSource1.ConnectionString = LoginInfo.ConnStr;
+                            SqlDataSource1.ConnectionString = LoginInfo.ConnStr;
 
-            SqlDataSource1.SelectCommand =
-                @"SELECT VendorCode, Name , [Description] AS Branch
+                            SqlDataSource1.SelectCommand = 
+                                @"SELECT VendorCode, Name , [Description] AS Branch
                                 FROM (SELECT VendorCode, Name, [Description], ROW_NUMBER() OVER(ORDER BY VendorCode) as rn 
                                       FROM [AP].[Vendor] 
                         	          WHERE (VendorCode + ' ' + Name LIKE @filter) AND IsActive = 1) as st
                                 WHERE st.[rn] BETWEEN @startIndex AND @endIndex";
 
-            SqlDataSource1.SelectParameters.Clear();
-            SqlDataSource1.SelectParameters.Add("filter", TypeCode.String, string.Format("%{0}%", e.Filter));
-            SqlDataSource1.SelectParameters.Add("startIndex", TypeCode.Int64, (e.BeginIndex + 1).ToString());
-            SqlDataSource1.SelectParameters.Add("endIndex", TypeCode.Int64, (e.EndIndex + 1).ToString());
-            comboBox.DataSource = SqlDataSource1;
-            comboBox.DataBind();
-            comboBox.ToolTip = comboBox.Text;
+                            SqlDataSource1.SelectParameters.Clear();
+                            SqlDataSource1.SelectParameters.Add("filter", TypeCode.String, string.Format("%{0}%", e.Filter));
+                            SqlDataSource1.SelectParameters.Add("startIndex", TypeCode.Int64, (e.BeginIndex + 1).ToString());
+                            SqlDataSource1.SelectParameters.Add("endIndex", TypeCode.Int64, (e.EndIndex + 1).ToString());
+                            comboBox.DataSource = SqlDataSource1;
+                            comboBox.DataBind();
+                            comboBox.ToolTip = comboBox.Text;
 
         }
 
         protected void ddl_Vendor_av_OnItemRequestedByValue_SQL(object source, ListEditItemRequestedByValueEventArgs e)
         {
-            var comboBox = (ASPxComboBox)source;
+                var comboBox = (ASPxComboBox)source;
 
-            if (e.Value == null)
-                return;
+                if (e.Value == null)
+                    return;
 
-            SqlDataSource1.SelectCommand = @"SELECT VendorCode, Name , [Description] AS Branch FROM [AP].[Vendor] WHERE VendorCode = @VendorCode ";
-            SqlDataSource1.ConnectionString = LoginInfo.ConnStr;
-            SqlDataSource1.SelectParameters.Clear();
-            SqlDataSource1.SelectParameters.Add("VendorCode", TypeCode.String, e.Value.ToString());
-            comboBox.DataSource = SqlDataSource1;
-            comboBox.DataBind();
-            comboBox.ToolTip = comboBox.Text;
+                SqlDataSource1.SelectCommand = @"SELECT VendorCode, Name , [Description] AS Branch FROM [AP].[Vendor] WHERE VendorCode = @VendorCode ";
+                SqlDataSource1.ConnectionString = LoginInfo.ConnStr;
+                SqlDataSource1.SelectParameters.Clear();
+                SqlDataSource1.SelectParameters.Add("VendorCode", TypeCode.String, e.Value.ToString());
+                comboBox.DataSource = SqlDataSource1;
+                comboBox.DataBind();
+                comboBox.ToolTip = comboBox.Text;
 
-
+          
         }
 
         #endregion
@@ -5200,7 +5432,6 @@ namespace BlueLedger.PL.PC.PR
         protected bool Control_SentEmail(string action)
         {
             string errorMessage = SentEmail(action.ToUpper());
-
             if (errorMessage != string.Empty)
             {
                 lbl_PopupAlert.Text = errorMessage;
@@ -5539,15 +5770,9 @@ namespace BlueLedger.PL.PC.PR
             //ddl_CurrRate_av.Value = currency.GetLastCurrencyRate(ddl_CurrCode_av.Value.ToString(), Convert.ToDateTime(txt_PrDate.Text), LoginInfo.ConnStr);
 
             //CostContent_ValueChanged(grd_PrDt1.EditIndex, true);
-            var cbb = (sender as ASPxComboBox);
-            var gvr = cbb.NamingContainer as GridViewRow;
+            var gvr = (sender as ASPxComboBox).NamingContainer as GridViewRow;
             var ddl_CurrRate_av = gvr.FindControl("ddl_CurrRate_av") as ASPxComboBox;
-            var currCode = cbb.Text;
-            var dt = Get_CurrencyHistory(currCode);
-            ddl_CurrRate_av.DataSource = dt;
-            ddl_CurrRate_av.DataBind();
-            if (dt.Rows.Count > 0)
-                ddl_CurrRate_av.Items[0].Selected = true;
+            ddl_CurrRate_av.DataSource = currency.GetLastCurrencyRate((sender as ASPxComboBox).Value.ToString(), Convert.ToDateTime(txt_PrDate.Text), hf_ConnStr.Value);
         }
 
         protected void ddl_CurrRate_av_Load(object sender, EventArgs e)
@@ -5617,17 +5842,12 @@ namespace BlueLedger.PL.PC.PR
             decimal.TryParse(txt_DiscPercent_grd_av.Text, out discRate);
             decimal.TryParse(txt_Price_Av.Text, out price);
             decimal.TryParse(txt_ApprQty_av.Text, out qty);
-
-            if (qty == 0)
-                decimal.TryParse(dsPR.Tables[prDt.TableName].Rows[grd_PrDt1.EditIndex]["ApprQty"].ToString(), out qty);
-
-            if (txt_DiscPercent_grd_av.Text == string.Empty)
-                txt_DiscPercent_grd_av.Text = string.Format("{0:N}", 0);
-
+            if (qty == 0) decimal.TryParse(dsPR.Tables[prDt.TableName].Rows[grd_PrDt1.EditIndex]["ApprQty"].ToString(), out qty);
+            if (txt_DiscPercent_grd_av.Text == string.Empty) txt_DiscPercent_grd_av.Text = string.Format("{0:N}", 0);
             currDiscAmt = ((price * qty) * discRate) / 100;
-
             txt_CurrDiscAmt_Grd_Av.Text = string.Format(DefaultAmtFmt, currDiscAmt);
 
+            //CostContent_ValueChanged(grd_PrDt1.EditIndex, true);
             CalculationItem_av(grd_PrDt1.EditIndex);
 
         }
@@ -5849,14 +6069,22 @@ namespace BlueLedger.PL.PC.PR
         private void CalculationItem_av(int grdEditIndex, string connStr = null)
         {
             // Controls
+            //var txt_ReqQty_av = grd_PrDt1.Rows[grdEditIndex].FindControl("txt_ReqQty_av") as ASPxSpinEdit;
+            //var txt_ApprQty_av = grd_PrDt1.Rows[grdEditIndex].FindControl("txt_ApprQty_av") as ASPxSpinEdit;
+            //var txt_Price_av = grd_PrDt1.Rows[grdEditIndex].FindControl("txt_Price_av") as ASPxSpinEdit;
             var ddl_CurrRate_av = grd_PrDt1.Rows[grdEditIndex].FindControl("ddl_CurrRate_av") as ASPxComboBox;
+            //var txt_DiscPercent_Grd_Av = grd_PrDt1.Rows[grdEditIndex].FindControl("txt_DiscPercent_Grd_Av") as TextBox;
             var txt_CurrDiscAmt_Grd_Av = grd_PrDt1.Rows[grdEditIndex].FindControl("txt_CurrDiscAmt_Grd_Av") as TextBox;
+            //var txt_DiscAmt_Grd_Av = grd_PrDt1.Rows[grdEditIndex].FindControl("txt_DiscAmt_Grd_Av") as TextBox;
             var chk_Adj_Grd_Av = grd_PrDt1.Rows[grdEditIndex].FindControl("chk_Adj_Grd_Av") as ASPxCheckBox;
             var ddl_TaxType_Grd_Av = grd_PrDt1.Rows[grdEditIndex].FindControl("ddl_TaxType_Grd_Av") as ASPxComboBox;
             var txt_TaxRate_Grd_av = grd_PrDt1.Rows[grdEditIndex].FindControl("txt_TaxRate_Grd_av") as TextBox;
 
             #region -- Varaible(s)
 
+            //decimal reqQty = txt_ReqQty_av == null ? 0 : Convert.ToDecimal(txt_ReqQty_av.Value);
+            //decimal qty = txt_ApprQty_av == null ? 0 : Convert.ToDecimal(txt_ApprQty_av.Value);
+            //decimal price = txt_Price_av == null ? 0 : Convert.ToDecimal(txt_Price_av.Value);
             decimal curRate = ddl_CurrRate_av == null ? 0 : Convert.ToDecimal(ddl_CurrRate_av.Value);
             decimal curDiscAmt = txt_CurrDiscAmt_Grd_Av == null ? 0 : Convert.ToDecimal(txt_CurrDiscAmt_Grd_Av.Text);
 
@@ -5865,9 +6093,7 @@ namespace BlueLedger.PL.PC.PR
             decimal taxRate = txt_TaxRate_Grd_av == null ? 0 : Convert.ToDecimal(txt_TaxRate_Grd_av.Text);
 
             var amount = GetAmount_av(grdEditIndex, connStr) - curDiscAmt;
-
             decimal curNetAmt = amount; //RoundAmt(amount, connStr) - curDiscAmt;
-
             decimal curTaxAmt = 0;
 
             if (taxRate != 0)
@@ -5935,7 +6161,6 @@ namespace BlueLedger.PL.PC.PR
             var txt_ReqQty_av = grd_PrDt1.Rows[grdEditIndex].FindControl("txt_ReqQty_av") as ASPxSpinEdit;
             var txt_ApprQty_av = grd_PrDt1.Rows[grdEditIndex].FindControl("txt_ApprQty_av") as ASPxSpinEdit;
             var txt_Price_av = grd_PrDt1.Rows[grdEditIndex].FindControl("txt_Price_av") as ASPxSpinEdit;
-
             decimal reqQty = txt_ReqQty_av == null ? 0 : Convert.ToDecimal(txt_ReqQty_av.Value);
             decimal qty = txt_ApprQty_av == null ? 0 : Convert.ToDecimal(txt_ApprQty_av.Value);
             decimal price = txt_Price_av == null ? 0 : Convert.ToDecimal(txt_Price_av.Value);
@@ -5965,7 +6190,8 @@ namespace BlueLedger.PL.PC.PR
                     //if (!IsProduct_InThisLocation(dr["productCode"].ToString(), locationCode))
                     if (!IsSame_Location(dt, rowIndex, locationCode))
                     {
-                        lbl_Warning_ProductLocate.Text = string.Format(@"Some products in list do not exist in this location.<br/>Do you want to change to selected location? ");
+                        lbl_Warning_ProductLocate.Text = string.Format(@"Some products in list do not exist in this location.
+                                <br/> Do you want to change to selected location? ");
                         productMatchLocate = false;
                         pop_Product_Location.ShowOnPageLoad = true;
                         return productMatchLocate;
@@ -6176,14 +6402,16 @@ namespace BlueLedger.PL.PC.PR
                 var sql = string.Format("SELECT TOP(1) DepartmentCode FROM [ADMIN].vUser WHERE LoginName = '{0}'", LoginInfo.LoginName);
                 var dt = pr.DbExecuteQuery(sql, null, connStr);
 
-                if (dt != null && dt.Rows[0][0].ToString() == "")
+                if (dt == null || dt.Rows[0][0].ToString() == "")
                 {
                     lbl_UserRequired.Text = "Department is required. Please assign Department to this user.";
                     pop_UserRequired.ShowOnPageLoad = true;
+                    
                     return;
                 }
 
-                HOD = dt.Rows.Count > 0 ? dt.Rows[0][0].ToString() : "";
+                HOD = dt.Rows[0][0].ToString();
+
 
                 var sql1 = string.Format("SELECT COUNT(*) as RN FROM [ADMIN].UserRole ur JOIN [IN].RoleType rt ON ur.RoleName = rt.RoleName WHERE ur.IsActive = 1 AND LoginName = '{0}'", LoginInfo.LoginName);
                 var dt1 = pr.DbExecuteQuery(sql1, null, connStr);
@@ -6202,13 +6430,6 @@ namespace BlueLedger.PL.PC.PR
         {
             Response.Redirect("~/PC/PR/PrList.aspx");
         }
-
-        private DateTime GetPrDate()
-        {
-            //return Convert.ToDateTime(txt_PrDate.Text, System.Globalization.CultureInfo.InvariantCulture).Date
-            return DateTime.Parse(txt_PrDate.Text);
-        }
-
 
     }
 }

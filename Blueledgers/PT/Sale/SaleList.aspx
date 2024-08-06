@@ -1,1039 +1,982 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" MasterPageFile="~/Master/In/SkinDefault.master" Inherits="BlueLedger.PL.PT.Sale.SaleList" CodeFile="SaleList.aspx.cs" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="SaleList.aspx.cs" Inherits="BlueLedger.PL.PT.Sale.SaleList" MasterPageFile="~/Master/In/SkinDefault.master" %>
 
 <%@ MasterType VirtualPath="~/master/In/SkinDefault.master" %>
-<%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxMenu" TagPrefix="dx" %>
-<%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxPopupControl" TagPrefix="dx" %>
-<%@ Register Assembly="DevExpress.Web.ASPxEditors.v10.1" Namespace="DevExpress.Web.ASPxEditors" TagPrefix="dx" %>
-<%@ Register Src="~/UserControl/Spinner.ascx" TagName="Spinner" TagPrefix="uc" %>
-<asp:Content ID="Content1" runat="server" ContentPlaceHolderID="head">
-    <!-- Flex-->
+<%@ Register Assembly="DevExpress.Web.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Web.ASPxMenu" TagPrefix="dx" %>
+<%@ Register Assembly="DevExpress.Web.ASPxEditors.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Web.ASPxEditors"
+    TagPrefix="dx" %>
+<%@ Register Assembly="DevExpress.Web.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Web.ASPxPopupControl"
+    TagPrefix="dx" %>
+<asp:Content ID="Content1" runat="server" ContentPlaceHolderID="cph_Main">
     <style>
-        .flex
+        .no-padding
         {
-            display: flex !important;
-            height: fit-content;
+            padding: 0px;
+        }
+        .card
+        {
+            padding: 10px;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+            transition: 0.3s;
+            width: 40%;
+            background-color: #F0F0F0;
         }
         
-        .flex-wrap
+        .card:hover
         {
-            flex-wrap: wrap;
-        }
-        .flex-column
-        {
-            flex-direction: column;
-        }
-        .flex-flow-end
-        {
-            justify-content: flex-end;
-        }
-        .flex-flow-start
-        {
-            justify-content: flex-start;
-        }
-        .flex-flow-center
-        {
-            justify-content: center;
-        }
-        .flex-flow-between
-        {
-            justify-content: space-between;
+            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
         }
     </style>
-    <style>
-        .master-info-bar
-        {
-            font-size: 1rem !important;
-        }
-        .p-3
-        {
-            padding: 10px !important;
-        }
-        .mb
-        {
-            margin-bottom: 5px !important;
-        }
-        .mb-3
-        {
-            margin-bottom: 10px !important;
-        }
-        .me-3
-        {
-            margin-right: 10px;
-        }
-        .text-end
-        {
-            text-align: right;
-        }
-        .w-100
-        {
-            width: 100%;
-        }
-        .d-flex
-        {
-            display: flex !important;
-            height: fit-content;
-        }
-        
-        .d-flex-wrap
-        {
-            flex-wrap: wrap;
-        }
-        .flex-column
-        {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .text-desc
-        {
-            color: #1E90FF !important;
-        }
-        .text-bold
-        {
-            font-weight: bold;
-        }
-        td
-        {
-            padding: 5px;
-        }
-        .GridPager a
-        {
-            margin: auto 1%;
-            border-radius: 50%;
-            background-color: #DCDCDC;
-            padding: 5px 10px 5px 10px;
-            color: #fff;
-            text-decoration: none;
-        }
-        .GridPager span
-        {
-            background-color: #0000FF;
-            color: #fff;
-            border-radius: 50%;
-            padding: 5px 10px 5px 10px;
-        }
-        .GridPager a:hover
-        {
-            background-color: #87CEFA;
-            color: #fff;
-        }
-        .top-most
-        {
-            z-index: 12101 !important;
-        }
-    </style>
-</asp:Content>
-<asp:Content ID="Content2" runat="server" ContentPlaceHolderID="cph_Main">
-    <!--Hidden Fields-->
-    <asp:HiddenField ID="hf_DeleteMode" runat="server" />
-    <asp:HiddenField ID="hf_DeleteCode" runat="server" />
-    <!-- Title Bar -->
-    <div class="mb-3" style="background-color: #4d4d4d; width: 100%; padding: 2px; height: 32px;">
-        <div style="margin-left: 10px; float: left; margin-top: 5px;">
-            <asp:Label ID="lbl_Title" runat="server" Font-Size="Small" Text="<%$ Resources:PT_Sale_SaleList, lbl_Title %>" SkinID="LBL_HD_WHITE" />
-        </div>
-        <div style="margin-right: 10px; float: right;">
-            <dx:ASPxMenu runat="server" ID="menu_CmdBar" Font-Size="Small" Font-Bold="True" BackColor="Transparent" ItemSpacing="5px" VerticalAlign="Middle" OnItemClick="menu_CmdBar_ItemClick">
-                <Border BorderStyle="None" />
-                <ItemStyle BackColor="WhiteSmoke" ForeColor="Black" Font-Size="Small">
-                    <HoverStyle BackColor="Blue" ForeColor="White">
-                        <Border BorderStyle="None" />
-                    </HoverStyle>
-                    <Paddings PaddingLeft="10" PaddingRight="10" />
-                    <Border BorderStyle="None" />
-                </ItemStyle>
-                <Items>
-                    <dx:MenuItem Name="Department" Text="Department" Visible="false">
-                        <ItemStyle BackColor="DarkGray" ForeColor="White" />
-                    </dx:MenuItem>
-                    <dx:MenuItem Name="Outlet" Text="Outlet">
-                        <ItemStyle BackColor="DarkGray" ForeColor="White" />
-                    </dx:MenuItem>
-                    <dx:MenuItem Name="Item" Text="Item/PLU">
-                        <ItemStyle BackColor="DarkGray" ForeColor="White" />
-                    </dx:MenuItem>
-                    <dx:MenuItem Name="Import" Text="Import" Visible="false" />
-                </Items>
-            </dx:ASPxMenu>
-        </div>
-    </div>
-    <!-- Sale Data -->
-    <asp:UpdatePanel ID="UpdatePanel_Detail" runat="server" UpdateMode="Conditional">
+    <asp:UpdatePanel ID="UpdatePanel_Detail" runat="server">
         <ContentTemplate>
-            <!-- Content -->
-            <table class="w-100 mb-3">
+            <!-- MENU BAR -->
+            <div class="CMD_BAR">
+                <div class="CMD_BAR_LEFT">
+                    <asp:Image ID="Image1" runat="server" ImageUrl="~/App_Themes/Default/Images/master/icon/icon_purchase.png" />
+                    <asp:Label ID="lbl_Title" runat="server" Text="<%$ Resources:PT_Sale_SaleList, lbl_Title %>" SkinID="LBL_HD_WHITE" />
+                </div>
+                <div class="CMD_BAR_RIGHT">
+                    <dx:ASPxMenu runat="server" ID="menu_CmdBar" Font-Bold="True" BackColor="Transparent" Border-BorderStyle="None" ItemSpacing="2px" VerticalAlign="Middle"
+                        Height="16px" OnItemClick="menu_CmdBar_ItemClick">
+                        <ItemStyle BackColor="Transparent">
+                            <HoverStyle BackColor="Transparent">
+                                <Border BorderStyle="None" />
+                            </HoverStyle>
+                            <Paddings Padding="2px" />
+                            <Border BorderStyle="None" />
+                        </ItemStyle>
+                        <Items>
+                            <dx:MenuItem Name="StockOut" Text="Sale to Stock Out" ItemStyle-ForeColor="White" ItemStyle-Font-Size="0.8em" />
+                            <dx:MenuItem Text="|" ItemStyle-ForeColor="White" ItemStyle-Font-Size="0.8em" />
+                            <dx:MenuItem Name="Import" Text="Import" ItemStyle-ForeColor="White" ItemStyle-Font-Size="0.8em" />
+                            <%--<dx:MenuItem Name="Outlet" Text="Outlet" ItemStyle-ForeColor="White" ItemStyle-Font-Size="0.8em" />
+                            <dx:MenuItem Name="Department" Text="Department" ItemStyle-ForeColor="White" ItemStyle-Font-Size="0.8em" />
+                            <dx:MenuItem Name="Item" Text="Item" ItemStyle-ForeColor="White" ItemStyle-Font-Size="0.8em" />--%>
+                            <dx:MenuItem Text="|" ItemStyle-ForeColor="White" ItemStyle-Font-Size="0.8em" />
+                            <dx:MenuItem Name="Print" Text="">
+                                <ItemStyle Height="16px" Width="43px">
+                                    <HoverStyle>
+                                        <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-print.png" Repeat="NoRepeat" VerticalPosition="center" />
+                                    </HoverStyle>
+                                    <BackgroundImage ImageUrl="~/App_Themes/Default/Images/master/icon/print.png" Repeat="NoRepeat" HorizontalPosition="center" VerticalPosition="center" />
+                                </ItemStyle>
+                            </dx:MenuItem>
+                        </Items>
+                    </dx:ASPxMenu>
+                </div>
+            </div>
+            <!-- Option Bar -->
+            <div style="display: block; vertical-align: bottom; padding: 5px; border-bottom: 1px solid silver; width: 100%;">
+                <div>
+                    <asp:Button runat="server" ID="btn_Outlet" Text="Outlet" OnClick="btn_Outlet_Click" />
+                    <asp:Button runat="server" ID="btn_Department" Text="Department" OnClick="btn_Department_Click" />
+                    <asp:Button runat="server" ID="btn_Item" Text="Item" OnClick="btn_Item_Click" />
+                </div>
+                <br />
+            </div>
+            <br />
+            <table width="100%">
                 <tr>
-                    <!--Calendar to select date, Post from POS-->
-                    <td style="vertical-align: top; width: 260px;">
-                        <div class="mb-3">
-                            <dx:ASPxCalendar ID="cal_Sale" runat="server" AutoPostBack="true" ShowClearButton="False" ShowTodayButton="False" ShowWeekNumbers="False" OnSelectionChanged="cal_Sale_SelectionChanged">
-                            </dx:ASPxCalendar>
-                        </div>
-                        <div>
-                            <asp:Button ID="btn_POS" runat="server" Text="POS Data" OnClick="btn_POS_Click" />
+                    <td width="80px">
+                        <div style="display: inline-block;">
+                            <%--<asp:CheckBox ID="chk_FilterByDate" runat="server" AutoPostBack="true" Text="Filter by date:" OnCheckedChanged="chk_FilterByDate_ChckedChanged" />--%>
+                            <asp:Label runat="server" ID="lbl_DateFilter" Text="Filter by date: " />
                         </div>
                     </td>
-                    <!-- Data View -->
-                    <td style="vertical-align: top;">
-                        <div>
-                            <asp:Label ID="label_Date" runat="server" Font-Bold="true" Font-Size="Large"><%= cal_Sale.Value==null?"": cal_Sale.SelectedDate.ToShortDateString() %></asp:Label>
-                            &nbsp;&nbsp;
-                            <asp:Button ID="btn_Consumption" runat="server" Text="View Product Consumption" OnClick="btn_Consumption_Click" Visible="false" />
-                            &nbsp;&nbsp;
-                            <asp:Button ID="btn_View_StockOut" runat="server" Text="Stock Out Information" OnClick="btn_View_StockOut_Click" Visible="false" />
-                        </div>
-                        <div style="display: block;">
-                            <div style="float: left;">
-                                <asp:Label ID="Label11" runat="server" Font-Size="Medium" Font-Bold="true" Text="Item(s) : " />
-                                <asp:Label ID="lbl_SaleItems" runat="server" Font-Size="Medium" Font-Bold="false" Text="0" />
+                    <td>
+                        <div id="div_Filter" runat="server" style="display: block;">
+                            <div style="display: inline-block; vertical-align: bottom;">
+                                <dx:ASPxDateEdit ID="de_DateFrom" runat="server" />
                             </div>
-                            <div style="float: right;">
-                                <asp:Label ID="Label10" runat="server" Font-Size="Medium" Font-Bold="true" Text="Total : " />
-                                <asp:Label ID="lbl_SaleTotal" runat="server" Font-Size="Medium" Font-Bold="false" Text="0.00" />
+                            <div style="display: inline-block; width: 40px; text-align: center;">
+                                <asp:Label ID="lbl_To" runat="server" Text=" to " />
+                            </div>
+                            <div style="display: inline-block; vertical-align: bottom;">
+                                <dx:ASPxDateEdit ID="de_DateTo" runat="server" />
+                            </div>
+                            <div style="display: inline-block; padding-left: 10px;">
+                                <asp:Button ID="btn_FilterByDate" runat="server" Text="Update" OnClick="btn_FilterByDate_Click" />
                             </div>
                         </div>
-                        <div style="clear: both; margin-bottom: 10px;">
-                        </div>
-                        <asp:GridView ID="gv_Sale" runat="server" SkinID="GRD_V1" Width="100%" AllowPaging="true" PageSize="40" OnPageIndexChanging="gv_Sale_PageIndexChanging">
-                            <Columns>
-                                <asp:BoundField DataField="OutletCode" HeaderText="Outlet" />
-                                <asp:BoundField DataField="OutletName" HeaderText="" />
-                                <asp:BoundField DataField="ItemCode" HeaderText="Item/PLU" />
-                                <asp:BoundField DataField="ItemName" HeaderText="" />
-                                <asp:TemplateField>
-                                    <HeaderTemplate>
-                                        Location
-                                    </HeaderTemplate>
-                                    <ItemTemplate>
-                                        <asp:LinkButton runat="server" ID="btn_EditLocation" OnClick="btn_EditLocation_Click"><img src="<%=iconEdit%>" alt="edit" /> <%# Eval("LocationCode") %></asp:LinkButton>
-                                        <asp:HiddenField runat="server" ID="hf_OutletCode" Value='<%# Eval("OutletCode") %>' />
-                                        <asp:HiddenField runat="server" ID="hf_OutletName" Value='<%# Eval("OutletName") %>' />
-                                        <asp:HiddenField runat="server" ID="hf_ItemCode" Value='<%# Eval("ItemCode") %>' />
-                                        <asp:HiddenField runat="server" ID="hf_ItemName" Value='<%# Eval("ItemName") %>' />
-                                        <asp:HiddenField runat="server" ID="hf_LocationCode" Value='<%# Eval("LocationCode") %>' />
-                                    </ItemTemplate>
-                                </asp:TemplateField>
-                                <asp:BoundField DataField="LocationName" HeaderText="" />
-                                <asp:BoundField DataField="RecipeCode" HeaderText="Recipe" />
-                                <asp:BoundField DataField="RecipeName1" HeaderText="" />
-                                <asp:TemplateField>
-                                    <HeaderTemplate>
-                                        <div class="text-end">
-                                            Qty
-                                        </div>
-                                    </HeaderTemplate>
-                                    <ItemTemplate>
-                                        <%# string.Format("{0:N2}", Convert.ToDecimal(Eval("Qty"))) %>
-                                    </ItemTemplate>
-                                    <ItemStyle HorizontalAlign="Right" />
-                                </asp:TemplateField>
-                                <asp:TemplateField>
-                                    <HeaderTemplate>
-                                        <div class="text-end">
-                                            Price
-                                        </div>
-                                    </HeaderTemplate>
-                                    <ItemTemplate>
-                                        <%# string.Format("{0:N2}", Convert.ToDecimal(Eval("Price"))) %>
-                                    </ItemTemplate>
-                                    <ItemStyle HorizontalAlign="Right" />
-                                </asp:TemplateField>
-                                <asp:TemplateField>
-                                    <HeaderTemplate>
-                                        <div class="text-end">
-                                            Total
-                                        </div>
-                                    </HeaderTemplate>
-                                    <ItemTemplate>
-                                        <%# string.Format("{0:N2}", Convert.ToDecimal(Eval("Total"))) %>
-                                    </ItemTemplate>
-                                    <ItemStyle HorizontalAlign="Right" />
-                                </asp:TemplateField>
-                            </Columns>
-                            <PagerSettings Mode="NumericFirstLast" Position="Bottom" PageButtonCount="10" />
-                            <PagerStyle BackColor="DarkGray" ForeColor="Black" Height="24px" VerticalAlign="Bottom" HorizontalAlign="Center" CssClass="GridPager" />
-                        </asp:GridView>
+                    </td>
+                    <td align="right" width="350px">
+                        <asp:TextBox ID="txt_Search" runat="server" Width="180px" AutoPostBack="true" OnTextChanged="txt_Search_TextChanged" />
+                        <asp:Button ID="btn_Search" runat="server" Width="60px" Text="Search" OnClick="btn_Search_Click" />
                     </td>
                 </tr>
             </table>
+            <br />
+            <!-- Data -->
+            <!-- Add New -->
+            <table class="card">
+                <thead>
+                    <tr>
+                        <!-- Date -->
+                        <th>
+                            Date
+                        </th>
+                        <!-- Outlet -->
+                        <th>
+                            Outlet
+                        </th>
+                        <!-- Department -->
+                        <th>
+                            Department
+                        </th>
+                        <!-- ItemCode -->
+                        <th>
+                            Item Code
+                        </th>
+                        <!-- Qty -->
+                        <th>
+                            Qty
+                        </th>
+                        <!-- Price -->
+                        <th>
+                            Price
+                        </th>
+                        <!-- Total -->
+                        <th>
+                            Total
+                        </th>
+                        <!-- Action -->
+                        <th>
+                            &nbsp;
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <!-- Date -->
+                        <td>
+                            <dx:ASPxDateEdit ID="de_SaleDate_New" runat="server" Width="100px" />
+                        </td>
+                        <!-- Outlet -->
+                        <td>
+                            <asp:DropDownList ID="ddl_Outlet_New" runat="server" Width="100px" Height="23" Font-Size="1.1em" DataSource="<%#GetOutletList()%>" DataTextField="Outlet"
+                                DataValueField="OutletCode" />
+                        </td>
+                        <!-- Department -->
+                        <td>
+                            <asp:DropDownList ID="ddl_DepartmentCode_New" runat="server" Width="100px" Height="23" Font-Size="1.1em" DataSource="<%#GetDepartmentList()%>" DataTextField="Department"
+                                DataValueField="DepartmentCode" />
+                        </td>
+                        <!-- ItemCode -->
+                        <td>
+                            <asp:DropDownList ID="ddl_ItemCode_New" runat="server" Width="300px" Height="23" Font-Size="1.1em" DataSource="<%#GetItemList()%>" DataTextField="Item"
+                                DataValueField="ItemCode" />
+                        </td>
+                        <!-- Qty -->
+                        <td>
+                            <dx:ASPxSpinEdit ID="txt_NewSaleQty" runat="server" ClientInstanceName="txt_NewSaleQty" Width="100px" NullText="0.000" DecimalPlaces="3" DisplayFormatString="N3"
+                                SpinButtons-ShowIncrementButtons="False" HorizontalAlign="Right">
+                                <ClientSideEvents NumberChanged="function(s, e) { 
+                                    txt_NewSaleTotal.SetNumber(txt_NewSaleQty.GetNumber() * txt_NewSalePrice.GetNumber());
+                                }" />
+                            </dx:ASPxSpinEdit>
+                        </td>
+                        <!-- Price -->
+                        <td>
+                            <dx:ASPxSpinEdit ID="txt_NewSalePrice" ClientInstanceName="txt_NewSalePrice" runat="server" Width="100px" NullText="0.00" DecimalPlaces="2" DisplayFormatString="N2"
+                                SpinButtons-ShowIncrementButtons="False" HorizontalAlign="Right">
+                                <ClientSideEvents NumberChanged="function(s, e) { 
+                                    txt_NewSaleTotal.SetNumber(txt_NewSaleQty.GetNumber() * txt_NewSalePrice.GetNumber());
+                                }" />
+                            </dx:ASPxSpinEdit>
+                        </td>
+                        <!-- Total -->
+                        <td>
+                            <dx:ASPxSpinEdit ID="txt_NewSaleTotal" ClientInstanceName="txt_NewSaleTotal" runat="server" Width="100px" NullText="0.00" DecimalPlaces="2" DisplayFormatString="N2"
+                                SpinButtons-ShowIncrementButtons="False" HorizontalAlign="Right" />
+                        </td>
+                        <!-- Action -->
+                        <td>
+                            <asp:Button ID="btn_SaleAdd" runat="server" Text="Add" Width="80" Height="24" OnClick="btn_SaleAdd_Click" />
+                        </td>
+                    </tr>
+                    <tr>
+                    </tr>
+                </tbody>
+            </table>
+            <br />
+            <asp:GridView ID="grd_Sale" runat="server" SkinID="GRD_V1" Width="100%" AutoGenerateColumns="false" DataKeyNames="ID" AllowPaging="true" PageSize="25"
+                OnPageIndexChanging="grd_Sale_PageIndexChanging" OnRowDataBound="grd_Sale_RowDataBound" OnRowEditing="grd_Sale_RowEditing" OnRowCancelingEdit="grd_Sale_RowCancelingEdit"
+                OnRowUpdating="grd_Sale_RowUpdating" OnRowDeleting="grd_Sale_RowDeleting">
+                <Columns>
+                    <%--IsPosted--%>
+                    <asp:TemplateField HeaderText="Posted" ItemStyle-Width="60">
+                        <EditItemTemplate>
+                            <asp:CheckBox runat="server" ID="chk_IsPosted" onclick="return false;" />
+                        </EditItemTemplate>
+                        <ItemTemplate>
+                            <asp:CheckBox runat="server" ID="chk_IsPosted" onclick="return false;" />
+                        </ItemTemplate>
+                    </asp:TemplateField>
+                    <%--Date--%>
+                    <asp:TemplateField HeaderText="Date" ItemStyle-Width="100">
+                        <EditItemTemplate>
+                            <dx:ASPxDateEdit ID="de_SaleDate" runat="server" Date='<%#Eval("SaleDate") %>' />
+                        </EditItemTemplate>
+                        <ItemTemplate>
+                            <asp:Label ID="lbl_SaleDate" runat="server" Text='<%# String.Format("{0:dd/MM/yyyy}", Eval("SaleDate")) %>' />
+                        </ItemTemplate>
+                    </asp:TemplateField>
+                    <%--Revenue--%>
+                    <asp:TemplateField HeaderText="Revenue" ItemStyle-Width="100" Visible="false">
+                        <EditItemTemplate>
+                            <asp:TextBox ID="txt_RevenueCode" runat="server" Text='<%#Eval("RevenueCode") %>' />
+                        </EditItemTemplate>
+                        <ItemTemplate>
+                            <asp:Label ID="lbl_RevenueCode" runat="server" Text='<%#Eval("RevenueCode") %>' />
+                        </ItemTemplate>
+                    </asp:TemplateField>
+                    <%--Outlet--%>
+                    <asp:TemplateField HeaderText="Outlet" ItemStyle-Width="100">
+                        <EditItemTemplate>
+                            <dx:ASPxComboBox ID="ddl_Outlet" runat="server" ValueType="System.String" ValueField="OutletCode" TextField="Outlet" IncrementalFilteringMode="Contains" />
+                        </EditItemTemplate>
+                        <ItemTemplate>
+                            <asp:Label ID="lbl_Outlet" runat="server" Text='<%#Eval("Outlet") %>' />
+                        </ItemTemplate>
+                    </asp:TemplateField>
+                    <%--Department--%>
+                    <asp:TemplateField HeaderText="Department" ItemStyle-Width="100">
+                        <EditItemTemplate>
+                            <%--<asp:TextBox ID="txt_DepartmentCode" runat="server" Text='<%#Eval("DepartmentCode") %>' />--%>
+                            <dx:ASPxComboBox ID="ddl_Department" runat="server" ValueType="System.String" ValueField="DepartmentCode" TextField="Department" IncrementalFilteringMode="Contains" />
+                        </EditItemTemplate>
+                        <ItemTemplate>
+                            <asp:Label ID="lbl_DepartmentCode" runat="server" Text='<%#Eval("Department") %>' />
+                        </ItemTemplate>
+                    </asp:TemplateField>
+                    <%--Item--%>
+                    <asp:TemplateField HeaderText="Item" ItemStyle-Width="280">
+                        <EditItemTemplate>
+                            <%--<asp:TextBox ID="txt_ItemCode" runat="server" Text='<%#Eval("ItemCode") %>' />--%>
+                            <dx:ASPxComboBox ID="ddl_Item" runat="server" ValueType="System.String" ValueField="ItemCode" TextField="Item" IncrementalFilteringMode="Contains" Width="100%" />
+                        </EditItemTemplate>
+                        <ItemTemplate>
+                            <asp:Label ID="lbl_ItemCode" runat="server" Text='<%#Eval("Item") %>' />
+                        </ItemTemplate>
+                        <FooterTemplate>
+                            <asp:Label runat="server" ID="Label01" Text="Total" />
+                        </FooterTemplate>
+                        <FooterStyle HorizontalAlign="Left" />
+                    </asp:TemplateField>
+                    <%--Qty--%>
+                    <asp:TemplateField HeaderText="Qty" ItemStyle-Width="80" HeaderStyle-HorizontalAlign="Right" ItemStyle-HorizontalAlign="Right">
+                        <EditItemTemplate>
+                            <%--<asp:TextBox ID="txt_Qty" runat="server" Style="text-align: right;" Text='<%#Eval("Qty") %>' />--%>
+                            <dx:ASPxSpinEdit ID="txt_Qty" runat="server" ClientInstanceName="txt_Qty" Width="100%" NullText="0" DecimalPlaces='<%#DefaultQtyDigit %>' SpinButtons-ShowIncrementButtons="False"
+                                HorizontalAlign="Right" Number='<%#Eval("Qty") %>'>
+                                <ClientSideEvents NumberChanged="function(s, e) {
+                                    txt_Total.SetNumber(txt_Qty.GetNumber() * txt_UnitPrice.GetNumber());                                
+                                 }" />
+                            </dx:ASPxSpinEdit>
+                        </EditItemTemplate>
+                        <ItemTemplate>
+                            <asp:Label ID="lbl_Qty" runat="server" Text='<%#String.Format(DefaultQtyFmt, Eval("Qty")) %>' />
+                        </ItemTemplate>
+                        <ItemStyle HorizontalAlign="Right" />
+                    </asp:TemplateField>
+                    <%--Price--%>
+                    <asp:TemplateField HeaderText="Price" ItemStyle-Width="80" HeaderStyle-HorizontalAlign="Right" ItemStyle-HorizontalAlign="Right">
+                        <EditItemTemplate>
+                            <%--<asp:TextBox ID="txt_UnitPrice" runat="server" Text='<%#Eval("UnitPrice") %>' />--%>
+                            <dx:ASPxSpinEdit ID="txt_UnitPrice" runat="server" ClientInstanceName="txt_UnitPrice" Width="100%" NullText="0" DecimalPlaces='<%#DefaultAmtDigit %>' SpinButtons-ShowIncrementButtons="False"
+                                HorizontalAlign="Right" Number='<%#Eval("Price") %>'>
+                                <ClientSideEvents NumberChanged="function(s, e) { 
+                                    txt_Total.SetNumber(txt_Qty.GetNumber() * txt_UnitPrice.GetNumber());                                
+                                 }" />
+                            </dx:ASPxSpinEdit>
+                        </EditItemTemplate>
+                        <ItemTemplate>
+                            <asp:Label ID="lbl_UnitPrice" runat="server" Text='<%#String.Format(DefaultAmtFmt, Eval("Price")) %>' />
+                        </ItemTemplate>
+                        <ItemStyle HorizontalAlign="Right" />
+                    </asp:TemplateField>
+                    <%--Total--%>
+                    <asp:TemplateField HeaderText="Total" ItemStyle-Width="120" HeaderStyle-HorizontalAlign="Right" ItemStyle-HorizontalAlign="Right">
+                        <EditItemTemplate>
+                            <%--<asp:TextBox ID="txt_Total" runat="server" Text='<%#Eval("Total") %>' />--%>
+                            <dx:ASPxSpinEdit ID="txt_Total" runat="server" ClientInstanceName="txt_Total" Width="100%" NullText="0" DecimalPlaces='<%#DefaultAmtDigit %>' DisplayFormatString='<%#DefaultAmtFmt%>'
+                                SpinButtons-ShowIncrementButtons="False" HorizontalAlign="Right" Number='<%#Eval("Total") %>' ReadOnly="true" Border-BorderStyle="None" BackColor="Transparent">
+                                <ClientSideEvents NumberChanged="function(s, e) { 
+                                }" />
+                            </dx:ASPxSpinEdit>
+                        </EditItemTemplate>
+                        <ItemTemplate>
+                            <asp:Label ID="lbl_Total" runat="server" Text='<%#String.Format(DefaultAmtFmt, Eval("Total")) %>' />
+                        </ItemTemplate>
+                        <FooterTemplate>
+                            <asp:Label ID="lbl_SumTotal" runat="server" Text="" Font-Bold="true" />
+                        </FooterTemplate>
+                        <ItemStyle HorizontalAlign="Right" />
+                        <FooterStyle HorizontalAlign="Right" />
+                    </asp:TemplateField>
+                    <%--Status--%>
+                    <asp:TemplateField HeaderText="Void" ItemStyle-Width="60" Visible="false">
+                        <EditItemTemplate>
+                            <asp:TextBox ID="txt_Void" runat="server" Text='<%#Eval("Void") %>' />
+                        </EditItemTemplate>
+                        <ItemTemplate>
+                            <asp:Label ID="lbl_Void" runat="server" Text='<%#Eval("Void") %>' />
+                        </ItemTemplate>
+                        <ItemStyle HorizontalAlign="Right" />
+                    </asp:TemplateField>
+                    <%--Action--%>
+                    <asp:TemplateField HeaderText="">
+                        <ItemTemplate>
+                            &nbsp;&nbsp;
+                            <asp:LinkButton ID="btnEdit" runat="server" CommandName="Edit" Text="Edit"></asp:LinkButton>
+                            &nbsp;&nbsp;
+                            <asp:LinkButton ID="btnDelete" runat="server" CommandName="Delete" Text="Delete" CausesValidation="false" OnClientClick="return confirm('Are you sure you want to delete this record?')"></asp:LinkButton>
+                        </ItemTemplate>
+                        <EditItemTemplate>
+                            &nbsp;&nbsp;
+                            <asp:LinkButton ID="btnUpdate" runat="server" CommandName="Save" Text="Update"></asp:LinkButton>
+                            &nbsp;&nbsp;
+                            <asp:LinkButton ID="btnCancel" runat="server" CommandName="Cancel" Text="Cancel"></asp:LinkButton>
+                        </EditItemTemplate>
+                    </asp:TemplateField>
+                </Columns>
+            </asp:GridView>
+            <!-- Footer -->
+            <div style="display: block; padding-top: 10px; width: 100%;">
+                <div class="inline">
+                    <asp:TextBox ID="txt_PageSize" runat="server" AutoPostBack="true" Width="30px" OnTextChanged="txt_PageSize_TextChanged" />
+                    <asp:Label ID="lbl_PageSize" runat="server" Text="item(s) per page" />
+                </div>
+                <div class="inline" style="float: right;">
+                    <%--<asp:Label ID="lbl_SumTotal_Nm" runat="server" Text="Total" Font-Bold="true" Font-Size="Medium" />
+                    <span style="padding-left: 30px;">
+                        <asp:Label ID="lbl_SumTotal" runat="server" Text="" Font-Bold="true" Font-Size="Large" /></span>--%>
+                </div>
+            </div>
+            <!-- Popup -->
+            <dx:ASPxPopupControl ID="pop_Import" ClientInstanceName="pop_Import" runat="server" Width="800" CloseAction="CloseButton" HeaderText="Import from file"
+                Modal="True" AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="Middle" PopupHorizontalAlign="WindowCenter">
+                <ContentCollection>
+                    <dx:PopupControlContentControl ID="PopupControlContentControl1" runat="server">
+                        <asp:UpdatePanel ID="UpdatePanel2" runat="server">
+                            <ContentTemplate>
+                                <div style="width: 100%;">
+                                    <div style="float: left;">
+                                        <asp:FileUpload ID="FileUploadControl" runat="server" Width="400px" /><span>| *.csv, *.xls, *xlsx </span>
+                                    </div>
+                                    <div style="float: right;">
+                                        <asp:Button ID="btn_Upload" runat="server" Text="Upload" OnClick="btn_Upload_Click" />
+                                    </div>
+                                    <div style="clear: both;">
+                                    </div>
+                                </div>
+                                <hr />
+                                <asp:GridView ID="grd_Import" runat="server" AllowPaging="true" PageSize="25" OnPageIndexChanging="grd_Import_PageIndexChanging" OnRowDataBound="grd_Import_RowDataBound">
+                                </asp:GridView>
+                                <br />
+                                <div style="width: 100%;">
+                                    <div style="display: inline-block;">
+                                        <asp:Button ID="btn_Import" runat="server" Text="Import" Width="100px" OnClick="btn_Import_Click" OnClientClick="return confirm('Are you sure you want to import?');" />
+                                    </div>
+                                    <div style="display: inline-block;">
+                                        <label id="lbl_FileName" runat="server" />
+                                    </div>
+                                </div>
+                                <div style="display: block; width: 100%;">
+                                    <label id="lblErrorMessage" runat="server" style="color: red;" />
+                                </div>
+                            </ContentTemplate>
+                            <Triggers>
+                                <asp:PostBackTrigger ControlID="btn_Upload" />
+                            </Triggers>
+                        </asp:UpdatePanel>
+                    </dx:PopupControlContentControl>
+                </ContentCollection>
+            </dx:ASPxPopupControl>
+            <dx:ASPxPopupControl ID="pop_Outlet" ClientInstanceName="pop_Outlet" runat="server" Width="640" Modal="True" ShowHeader="false" ShowPageScrollbarWhenModal="True"
+                AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="Above" PopupHorizontalAlign="WindowCenter" ContentStyle-CssClass="no-padding" CloseAction="None">
+                <ContentCollection>
+                    <dx:PopupControlContentControl ID="PopupControlContentControl2" runat="server">
+                        <div class="CMD_BAR">
+                            <div class="CMD_BAR_LEFT">
+                                <asp:Image ID="Image3" runat="server" ImageUrl="~/App_Themes/Default/Images/master/icon/icon_purchase.png" />
+                                <asp:Label ID="Label2" runat="server" Text="Outlet" />
+                            </div>
+                            <div class="CMD_BAR_RIGHT">
+                                <dx:ASPxMenu runat="server" ID="menu_Outlet" BackColor="Transparent" Border-BorderStyle="None" ItemSpacing="3px" OnItemClick="menu_Outlet_ItemClick">
+                                    <ItemStyle BackColor="Transparent" Border-BorderStyle="None" Paddings-Padding="2px">
+                                        <HoverStyle BackColor="Transparent">
+                                            <Border BorderStyle="None" />
+                                        </HoverStyle>
+                                    </ItemStyle>
+                                    <Items>
+                                        <dx:MenuItem Name="Print" Text="" Visible="false">
+                                            <ItemStyle Height="16px" Width="42px">
+                                                <HoverStyle>
+                                                    <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-print.png" Repeat="NoRepeat" VerticalPosition="center" />
+                                                </HoverStyle>
+                                                <BackgroundImage ImageUrl="~/App_Themes/Default/Images/master/icon/print.png" Repeat="NoRepeat" HorizontalPosition="center" VerticalPosition="center" />
+                                            </ItemStyle>
+                                        </dx:MenuItem>
+                                        <dx:MenuItem Name="Back" Text="">
+                                            <ItemStyle Height="16px" Width="42px">
+                                                <HoverStyle>
+                                                    <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-back.png" Repeat="NoRepeat" VerticalPosition="center" />
+                                                </HoverStyle>
+                                                <BackgroundImage ImageUrl="~/App_Themes/Default/Images/master/icon/back.png" Repeat="NoRepeat" HorizontalPosition="center" VerticalPosition="center" />
+                                            </ItemStyle>
+                                        </dx:MenuItem>
+                                    </Items>
+                                </dx:ASPxMenu>
+                            </div>
+                        </div>
+                        <br />
+                        <table class="card" style="width: 100%; text-align: left;">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <asp:Label runat="server" ID="Label101" Text="Code" />
+                                    </th>
+                                    <th>
+                                        <asp:Label runat="server" ID="Label102" Text="Name" />
+                                    </th>
+                                    <th>
+                                        <asp:Label runat="server" ID="Label103" Text="Location" />
+                                    </th>
+                                    <th>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <asp:TextBox runat="server" ID="txt_NewOutletCode" Style="text-transform: uppercase" Width="100" />
+                                    </td>
+                                    <td>
+                                        <asp:TextBox runat="server" ID="txt_NewOutletName" />
+                                    </td>
+                                    <td>
+                                        <asp:DropDownList runat="server" ID="ddl_NewOutletLocation" Width="300" />
+                                    </td>
+                                    <td align="right">
+                                        <asp:Button runat="server" ID="btn_OutletAdd" Width="80" Text="Add" OnClick="btn_OutletAdd_Click" />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <br />
+                        <br />
+                        <asp:GridView ID="grd_Outlet" runat="server" SkinID="GRD_V1" DataKeyNames="OutletCode" AutoGenerateColumns="false" ShowFooter="false" AllowPaging="true"
+                            Width="100%" PageSize="15" OnPageIndexChanging="grd_Outlet_PageIndexChanging" OnRowCommand="grd_Outlet_RowCommand" OnRowDataBound="grd_Outlet_RowDataBound"
+                            OnRowEditing="grd_Outlet_RowEditing" OnRowCancelingEdit="grd_Outlet_RowCancelingEdit" OnRowUpdating="grd_Outlet_RowUpdating" OnRowDeleting="grd_Outlet_RowDeleting">
+                            <Columns>
+                                <asp:TemplateField HeaderText="Outlet" ItemStyle-Wrap="False" ItemStyle-Width="100px">
+                                    <EditItemTemplate>
+                                        <asp:Label ID="txt_Outlet" runat="server" Text='<%#Eval("OutletCode")%>' />
+                                    </EditItemTemplate>
+                                    <ItemTemplate>
+                                        <asp:Label ID="lbl_Outlet_Nm" runat="server" Text='<%#Eval("OutletCode")%>' />
+                                    </ItemTemplate>
+                                    <FooterTemplate>
+                                    </FooterTemplate>
+                                </asp:TemplateField>
+                                <asp:TemplateField HeaderText="Name" ItemStyle-Wrap="False" ItemStyle-Width="160">
+                                    <EditItemTemplate>
+                                        <asp:TextBox ID="txt_OutletName" runat="server" Text='<%#Eval("OutletName")%>' />
+                                    </EditItemTemplate>
+                                    <ItemTemplate>
+                                        <asp:Label ID="lbl_OutletName_Nm" runat="server" Text='<%#Eval("OutletName")%>' />
+                                    </ItemTemplate>
+                                    <FooterTemplate>
+                                        <%--<asp:TextBox ID="txt_OutletCode_New" runat="server" />--%>
+                                    </FooterTemplate>
+                                </asp:TemplateField>
+                                <asp:TemplateField HeaderText="Location" ItemStyle-Wrap="true">
+                                    <EditItemTemplate>
+                                        <asp:DropDownList ID="ddl_LocationCode" runat="server" DataTextField="Location" DataValueField="LocationCode" />
+                                    </EditItemTemplate>
+                                    <ItemTemplate>
+                                        <asp:Label ID="lbl_LocationCode" runat="server" Text='<%#Eval("Location") %>' />
+                                    </ItemTemplate>
+                                    <FooterTemplate>
+                                        <%--<asp:DropDownList ID="ddl_LocationCode_New" runat="server" DataSource='<%#GetLocation() %>' DataTextField="Location" DataValueField="LocationCode" />--%>
+                                    </FooterTemplate>
+                                </asp:TemplateField>
+                                <asp:TemplateField HeaderText="" ItemStyle-Width="100">
+                                    <ItemTemplate>
+                                        <div style="display: table;">
+                                            <asp:LinkButton ID="btnEdit" runat="server" Style="display: table-cell;" CommandName="Edit" Text="Edit"></asp:LinkButton>
+                                            &nbsp;&nbsp;
+                                            <asp:LinkButton ID="btnDelete" runat="server" Style="display: table-cell;" CommandName="Delete" Text="Delete" OnClientClick="return confirm('Are you sure you want to delete this record?')"></asp:LinkButton>
+                                        </div>
+                                    </ItemTemplate>
+                                    <EditItemTemplate>
+                                        <div style="display: table;">
+                                            <asp:LinkButton ID="btnUpdate" runat="server" Style="display: table-cell;" CommandName="Update" Text="Save"></asp:LinkButton>
+                                            &nbsp;&nbsp;
+                                            <asp:LinkButton ID="btnCancel" runat="server" Style="display: table-cell;" CommandName="Cancel" Text="Cancel"></asp:LinkButton>
+                                        </div>
+                                    </EditItemTemplate>
+                                    <FooterTemplate>
+                                        <%--<asp:LinkButton ID="btnAdd" runat="server" CommandName="Add" Text="Add"></asp:LinkButton>--%>
+                                    </FooterTemplate>
+                                </asp:TemplateField>
+                            </Columns>
+                            <EmptyDataTemplate>
+                                <label>
+                                    No data</label>
+                            </EmptyDataTemplate>
+                        </asp:GridView>
+                    </dx:PopupControlContentControl>
+                </ContentCollection>
+                <ClientSideEvents CloseUp="function(s, e) { s.PerformCallback(); }" />
+            </dx:ASPxPopupControl>
+            <dx:ASPxPopupControl ID="pop_Department" ClientInstanceName="pop_Department" runat="server" Width="440" Modal="True" ShowHeader="false" ShowPageScrollbarWhenModal="True"
+                AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="Above" PopupHorizontalAlign="WindowCenter" ContentStyle-CssClass="no-padding" CloseAction="None">
+                <ContentCollection>
+                    <dx:PopupControlContentControl ID="PopupControlContentControl3" runat="server">
+                        <div class="CMD_BAR">
+                            <div class="CMD_BAR_LEFT">
+                                <asp:Image ID="Image4" runat="server" ImageUrl="~/App_Themes/Default/Images/master/icon/icon_purchase.png" />
+                                <asp:Label ID="Label3" runat="server" Text="Department" />
+                            </div>
+                            <div class="CMD_BAR_RIGHT">
+                                <dx:ASPxMenu runat="server" ID="ASPxMenu1" BackColor="Transparent" Border-BorderStyle="None" ItemSpacing="3px" OnItemClick="menu_Department_ItemClick">
+                                    <ItemStyle BackColor="Transparent" Border-BorderStyle="None" Paddings-Padding="2px">
+                                        <HoverStyle BackColor="Transparent">
+                                            <Border BorderStyle="None" />
+                                        </HoverStyle>
+                                    </ItemStyle>
+                                    <Items>
+                                        <dx:MenuItem Name="Print" Text="" Visible="false">
+                                            <ItemStyle Height="16px" Width="42px">
+                                                <HoverStyle>
+                                                    <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-print.png" Repeat="NoRepeat" VerticalPosition="center" />
+                                                </HoverStyle>
+                                                <BackgroundImage ImageUrl="~/App_Themes/Default/Images/master/icon/print.png" Repeat="NoRepeat" HorizontalPosition="center" VerticalPosition="center" />
+                                            </ItemStyle>
+                                        </dx:MenuItem>
+                                        <dx:MenuItem Name="Back" Text="">
+                                            <ItemStyle Height="16px" Width="42px">
+                                                <HoverStyle>
+                                                    <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-back.png" Repeat="NoRepeat" VerticalPosition="center" />
+                                                </HoverStyle>
+                                                <BackgroundImage ImageUrl="~/App_Themes/Default/Images/master/icon/back.png" Repeat="NoRepeat" HorizontalPosition="center" VerticalPosition="center" />
+                                            </ItemStyle>
+                                        </dx:MenuItem>
+                                    </Items>
+                                </dx:ASPxMenu>
+                            </div>
+                        </div>
+                        <br />
+                        <table class="card" style="width: 100%; text-align: left;">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <asp:Label runat="server" ID="Label4" Text="Code" />
+                                    </th>
+                                    <th>
+                                        <asp:Label runat="server" ID="Label5" Text="Name" />
+                                    </th>
+                                    <th>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <asp:TextBox runat="server" ID="txt_NewDepartmentCode" Style="text-transform: uppercase" Width="100" />
+                                    </td>
+                                    <td>
+                                        <asp:TextBox runat="server" ID="txt_NewDepartmentName" Width="220" />
+                                    </td>
+                                    <td align="right">
+                                        <asp:Button runat="server" ID="btn_DepartmentAdd" Text="Add" Width="80" OnClick="btn_DepartmentAdd_Click" />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <br />
+                        <br />
+                        <asp:GridView ID="grd_Department" runat="server" SkinID="GRD_V1" DataKeyNames="DepartmentCode" AutoGenerateColumns="false" AllowPaging="true" PageSize="25"
+                            OnPageIndexChanging="grd_Department_PageIndexChanging" OnRowCommand="grd_Department_RowCommand" OnRowEditing="grd_Department_RowEditing" OnRowCancelingEdit="grd_Department_RowCancelingEdit"
+                            OnRowUpdating="grd_Department_RowUpdating" OnRowDeleting="grd_Department_RowDeleting">
+                            <Columns>
+                                <asp:TemplateField HeaderText="Department" ItemStyle-Wrap="False" ControlStyle-Width="100px">
+                                    <EditItemTemplate>
+                                        <asp:Label ID="lbl_DepartmentCode" runat="server" Text='<%#Eval("DepartmentCode")%>' />
+                                    </EditItemTemplate>
+                                    <ItemTemplate>
+                                        <asp:Label ID="lbl_DepartmentCode" runat="server" Text='<%#Eval("DepartmentCode")%>' />
+                                    </ItemTemplate>
+                                    <FooterTemplate>
+                                        <%--<asp:TextBox ID="txt_DepartmentCode_New" runat="server" />--%>
+                                    </FooterTemplate>
+                                </asp:TemplateField>
+                                <asp:TemplateField HeaderText="Name" ItemStyle-Wrap="False" ControlStyle-Width="300px">
+                                    <EditItemTemplate>
+                                        <asp:TextBox ID="txt_DepartmentName" runat="server" Text='<%#Eval("DepartmentName")%>' />
+                                    </EditItemTemplate>
+                                    <ItemTemplate>
+                                        <asp:Label ID="lbl_DepartmentName" runat="server" Text='<%#Eval("DepartmentName") %>' />
+                                    </ItemTemplate>
+                                    <FooterTemplate>
+                                        <%--<asp:TextBox ID="txt_DepartmentName_New" runat="server" />--%>
+                                    </FooterTemplate>
+                                </asp:TemplateField>
+                                <asp:TemplateField HeaderText="" ItemStyle-Width="100">
+                                    <ItemTemplate>
+                                        <div style="display: table;">
+                                            <asp:LinkButton ID="btnEdit" runat="server" Style="display: table-cell;" CommandName="Edit" Text="Edit"></asp:LinkButton>
+                                            &nbsp;&nbsp;
+                                            <asp:LinkButton ID="btnDelete" runat="server" Style="display: table-cell;" CommandName="Delete" Text="Delete" CausesValidation="false" OnClientClick="return confirm('Are you sure you want to delete this record?')"></asp:LinkButton>
+                                        </div>
+                                    </ItemTemplate>
+                                    <EditItemTemplate>
+                                        <div style="display: table;">
+                                            <asp:LinkButton ID="btnUpdate" runat="server" Style="display: table-cell;" CommandName="Update" Text="Save"></asp:LinkButton>
+                                            &nbsp;&nbsp;
+                                            <asp:LinkButton ID="btnCancel" runat="server" Style="display: table-cell;" CommandName="Cancel" Text="Cancel"></asp:LinkButton>
+                                        </div>
+                                    </EditItemTemplate>
+                                    <FooterTemplate>
+                                        <%--<asp:LinkButton ID="btnAdd" runat="server" CommandName="Add" Text="Add"></asp:LinkButton>--%>
+                                    </FooterTemplate>
+                                    <FooterStyle HorizontalAlign="Center" />
+                                </asp:TemplateField>
+                            </Columns>
+                        </asp:GridView>
+                    </dx:PopupControlContentControl>
+                </ContentCollection>
+            </dx:ASPxPopupControl>
+            <dx:ASPxPopupControl ID="pop_Item" ClientInstanceName="pop_Item" runat="server" Width="640" Modal="True" ShowHeader="false" ShowPageScrollbarWhenModal="True"
+                AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="Above" PopupHorizontalAlign="WindowCenter" ContentStyle-CssClass="no-padding" CloseAction="None">
+                <ContentCollection>
+                    <dx:PopupControlContentControl ID="PopupControlContentControl4" runat="server">
+                        <div class="CMD_BAR">
+                            <div class="CMD_BAR_LEFT">
+                                <asp:Image ID="Image5" runat="server" ImageUrl="~/App_Themes/Default/Images/master/icon/icon_purchase.png" />
+                                <asp:Label ID="Label6" runat="server" Text="Item" />
+                            </div>
+                            <div class="CMD_BAR_RIGHT">
+                                <dx:ASPxMenu runat="server" ID="ASPxMenu2" BackColor="Transparent" Border-BorderStyle="None" ItemSpacing="3px" OnItemClick="menu_Item_ItemClick">
+                                    <ItemStyle BackColor="Transparent" Border-BorderStyle="None" Paddings-Padding="2px">
+                                        <HoverStyle BackColor="Transparent">
+                                            <Border BorderStyle="None" />
+                                        </HoverStyle>
+                                    </ItemStyle>
+                                    <Items>
+                                        <dx:MenuItem Name="Print" Text="" Visible="false">
+                                            <ItemStyle Height="16px" Width="42px">
+                                                <HoverStyle>
+                                                    <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-print.png" Repeat="NoRepeat" VerticalPosition="center" />
+                                                </HoverStyle>
+                                                <BackgroundImage ImageUrl="~/App_Themes/Default/Images/master/icon/print.png" Repeat="NoRepeat" HorizontalPosition="center" VerticalPosition="center" />
+                                            </ItemStyle>
+                                        </dx:MenuItem>
+                                        <dx:MenuItem Name="Back" Text="">
+                                            <ItemStyle Height="16px" Width="42px">
+                                                <HoverStyle>
+                                                    <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-back.png" Repeat="NoRepeat" VerticalPosition="center" />
+                                                </HoverStyle>
+                                                <BackgroundImage ImageUrl="~/App_Themes/Default/Images/master/icon/back.png" Repeat="NoRepeat" HorizontalPosition="center" VerticalPosition="center" />
+                                            </ItemStyle>
+                                        </dx:MenuItem>
+                                    </Items>
+                                </dx:ASPxMenu>
+                            </div>
+                        </div>
+                        <br />
+                        <table class="card" style="width: 100%; text-align: left;">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <asp:Label runat="server" ID="Label7" Text="Code" />
+                                    </th>
+                                    <th>
+                                        <asp:Label runat="server" ID="Label8" Text="Name" />
+                                    </th>
+                                    <th>
+                                        <asp:Label runat="server" ID="Label9" Text="Recipe" />
+                                    </th>
+                                    <th>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <asp:TextBox runat="server" ID="txt_NewItemCode" Style="text-transform: uppercase" Width="100" />
+                                    </td>
+                                    <td>
+                                        <asp:TextBox runat="server" ID="txt_NewItemName" />
+                                    </td>
+                                    <td>
+                                        <asp:DropDownList runat="server" ID="ddl_NewItemType" AutoPostBack="true" OnSelectedIndexChanged="ddl_NewItemType_SelectedIndexChanged">
+                                            <asp:ListItem>Recipe</asp:ListItem>
+                                            <asp:ListItem>Product</asp:ListItem>
+                                        </asp:DropDownList>
+                                    </td>
+                                    <td>
+                                        <%--<asp:DropDownList runat="server" ID="ddl_NewItemRecipe" Width="300"  />--%>
+                                        <dx:ASPxComboBox ID="ddl_NewItemRecipe" runat="server" Width="285px" DropDownWidth="550" DropDownStyle="DropDownList" ValueField="ProductCode" ValueType="System.String"
+                                            TextFormatString="{0}" EnableCallbackMode="true" IncrementalFilteringMode="Contains" CallbackPageSize="30">
+                                        </dx:ASPxComboBox>
+                                    </td>
+                                    <td align="right">
+                                        <asp:Button runat="server" ID="btn_ItemAdd" Text="Add" Width="80" OnClick="btn_ItemAdd_Click" />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <br />
+                        <br />
+                        <asp:GridView ID="grd_Item" runat="server" SkinID="GRD_V1" Width="100%" DataKeyNames="ItemCode" AutoGenerateColumns="false" ShowFooter="false" AllowPaging="true"
+                            PageSize="25" OnPageIndexChanging="grd_Item_PageIndexChanging" OnRowDataBound="grd_Item_RowDataBound" OnRowEditing="grd_Item_RowEditing" OnRowDeleting="grd_Item_RowDeleting"
+                            OnRowUpdating="grd_Item_RowUpdating" OnRowCancelingEdit="grd_Item_RowCancelingEdit">
+                            <Columns>
+                                <%--Item code--%>
+                                <asp:TemplateField HeaderText="Item" ItemStyle-Wrap="False" ControlStyle-Width="80px">
+                                    <EditItemTemplate>
+                                        <asp:Label ID="lbl_ItemCode" runat="server" Text='<%#Eval("ItemCode")%>' />
+                                    </EditItemTemplate>
+                                    <ItemTemplate>
+                                        <asp:Label ID="lbl_ItemCode" runat="server" Text='<%#Eval("ItemCode")%>' />
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                                <%--Item name--%>
+                                <asp:TemplateField HeaderText="Name" ItemStyle-Wrap="False" ControlStyle-Width="200px">
+                                    <EditItemTemplate>
+                                        <asp:TextBox ID="txt_ItemName" runat="server" Text='<%#Eval("itemName")%>' />
+                                    </EditItemTemplate>
+                                    <ItemTemplate>
+                                        <asp:Label ID="lbl_ItemName" runat="server" Text='<%#Eval("ItemName")%>' />
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                                <%--Item type--%>
+                                <asp:TemplateField HeaderText="Type" ItemStyle-Wrap="False" ControlStyle-Width="200px">
+                                    <EditItemTemplate>
+                                        <asp:DropDownList ID="ddl_ProductType" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddl_ProductType_SelectedIndexChanged">
+                                            <asp:ListItem>Recipe</asp:ListItem>
+                                            <asp:ListItem>Product</asp:ListItem>
+                                        </asp:DropDownList>
+                                    </EditItemTemplate>
+                                    <ItemTemplate>
+                                        <asp:Label ID="lbl_ProductType" runat="server" />
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                                <%--Product code--%>
+                                <asp:TemplateField HeaderText="Recipe/Product" ItemStyle-Wrap="False" ControlStyle-Width="200px">
+                                    <EditItemTemplate>
+                                        <asp:DropDownList ID="ddl_ProductCode" runat="server" DataTextField="ProductName" DataValueField="ProductCode" />
+                                    </EditItemTemplate>
+                                    <ItemTemplate>
+                                        <asp:Label ID="lbl_ProductCode" runat="server" Text='<%#Eval("ProductCode") %>' />
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                                <%--Action--%>
+                                <asp:TemplateField HeaderText="" ItemStyle-Width="100">
+                                    <ItemTemplate>
+                                        <div style="display: table;">
+                                            <asp:LinkButton ID="btnEdit" runat="server" Style="display: table-cell;" CommandName="Edit" Text="Edit"></asp:LinkButton>
+                                            &nbsp;&nbsp;
+                                            <asp:LinkButton ID="btnDelete" runat="server" Style="display: table-cell;" CommandName="Delete" Text="Delete" CausesValidation="false" OnClientClick="return confirm('Are you sure you want to delete this record?')"></asp:LinkButton>
+                                        </div>
+                                    </ItemTemplate>
+                                    <EditItemTemplate>
+                                        <div style="display: table;">
+                                            <asp:LinkButton ID="btnUpdate" runat="server" Style="display: table-cell;" CommandName="Update" Text="Update"></asp:LinkButton>
+                                            &nbsp;&nbsp;
+                                            <asp:LinkButton ID="btnCancel" runat="server" Style="display: table-cell;" CommandName="Cancel" Text="Cancel"></asp:LinkButton>
+                                        </div>
+                                    </EditItemTemplate>
+                                </asp:TemplateField>
+                            </Columns>
+                        </asp:GridView>
+                    </dx:PopupControlContentControl>
+                </ContentCollection>
+            </dx:ASPxPopupControl>
+            <!-- -->
+            <dx:ASPxPopupControl ID="pop_StockOut" ClientInstanceName="pop_StockOut" runat="server" Width="800" CloseAction="CloseButton" HeaderText="Sale to Stock Out"
+                Modal="True" AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="Middle" PopupHorizontalAlign="WindowCenter" ShowPageScrollbarWhenModal="True"
+                ShowHeader="false" ContentStyle-CssClass="no-padding">
+                <ContentCollection>
+                    <dx:PopupControlContentControl ID="PopupControlContentControl6" runat="server">
+                        <div class="CMD_BAR">
+                            <div class="CMD_BAR_LEFT">
+                                <asp:Image ID="Image2" runat="server" ImageUrl="~/App_Themes/Default/Images/master/icon/icon_purchase.png" />
+                                <asp:Label ID="Label1" runat="server" Text="Sale to Stock Out" />
+                            </div>
+                            <div class="CMD_BAR_RIGHT">
+                                <dx:ASPxMenu runat="server" ID="menu_sale" BackColor="Transparent" ItemSpacing="3px" OnItemClick="menu_Sale_ItemClick">
+                                    <Items>
+                                        <%--<dx:MenuItem Name="Edit" Text="">
+                                            <ItemStyle Height="16px" Width="38px">
+                                                <HoverStyle>
+                                                    <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-edit.png" Repeat="NoRepeat" VerticalPosition="center" />
+                                                </HoverStyle>
+                                                <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/edit.png" Repeat="NoRepeat" VerticalPosition="center" />
+                                            </ItemStyle>
+                                        </dx:MenuItem>
+                                        <dx:MenuItem Name="Delete" Text="">
+                                            <ItemStyle Height="16px" Width="41px">
+                                                <HoverStyle>
+                                                    <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-delete.png" Repeat="NoRepeat" VerticalPosition="center" />
+                                                </HoverStyle>
+                                                <BackgroundImage ImageUrl="~/App_Themes/Default/Images/master/icon/delete.png" Repeat="NoRepeat" HorizontalPosition="center" VerticalPosition="center" />
+                                            </ItemStyle>
+                                        </dx:MenuItem>--%>
+                                        <dx:MenuItem Name="Back" Text="">
+                                            <ItemStyle Height="16px" Width="42px">
+                                                <HoverStyle>
+                                                    <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-back.png" Repeat="NoRepeat" VerticalPosition="center" />
+                                                </HoverStyle>
+                                                <BackgroundImage ImageUrl="~/App_Themes/Default/Images/master/icon/back.png" Repeat="NoRepeat" HorizontalPosition="center" VerticalPosition="center" />
+                                            </ItemStyle>
+                                        </dx:MenuItem>
+                                    </Items>
+                                    <Paddings Padding="0px" />
+                                    <SeparatorPaddings Padding="0px" />
+                                    <SubMenuStyle HorizontalAlign="Left" Font-Bold="True" />
+                                    <Border BorderStyle="None" />
+                                    <ItemStyle BackColor="Transparent">
+                                        <HoverStyle BackColor="Transparent">
+                                            <Border BorderStyle="None" />
+                                        </HoverStyle>
+                                        <Paddings Padding="2px" />
+                                    </ItemStyle>
+                                </dx:ASPxMenu>
+                            </div>
+                        </div>
+                        <div style="padding: 10px;">
+                            <div style="display: block;">
+                                <div style="display: inline-block;">
+                                    <asp:Label runat="server" ID="lbl_SoDate" Text="Date" />
+                                </div>
+                                <div style="display: inline-block; vertical-align: bottom;">
+                                    <dx:ASPxDateEdit ID="de_SoDate" runat="server" />
+                                </div>
+                                <div style="display: inline-block;">
+                                    <asp:Button ID="btn_SoDate" runat="server" Text="View" OnClick="btn_SoDate_Click" />
+                                </div>
+                            </div>
+                            <br />
+                            <asp:GridView ID="grd_StockOut" runat="server" SkinID="GRD_V1" Width="100%" AutoGenerateColumns="false" DataKeyNames="ID" AllowPaging="true" PageSize="25"
+                                OnPageIndexChanging="grd_StockOut_PageIndexChanging" OnRowDataBound="grd_StockOut_RowDataBound">
+                                <Columns>
+                                    <%--IsPosted--%>
+                                    <asp:TemplateField HeaderText="Posted" ItemStyle-Width="60">
+                                        <ItemTemplate>
+                                            <asp:CheckBox runat="server" ID="chk_IsPosted" onclick="return false;" />
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <%--Date--%>
+                                    <asp:TemplateField HeaderText="Date" ItemStyle-Width="100">
+                                        <ItemTemplate>
+                                            <asp:Label ID="lbl_SaleDate" runat="server" Text='<%# String.Format("{0:dd/MM/yyyy}", Eval("SaleDate")) %>' />
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <%--Revenue--%>
+                                    <asp:TemplateField HeaderText="Revenue" ItemStyle-Width="100" Visible="false">
+                                        <ItemTemplate>
+                                            <asp:Label ID="lbl_RevenueCode" runat="server" Text='<%#Eval("RevenueCode") %>' />
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <%--Outlet--%>
+                                    <asp:TemplateField HeaderText="Outlet" ItemStyle-Width="100">
+                                        <ItemTemplate>
+                                            <asp:Label ID="lbl_Outlet" runat="server" Text='<%#Eval("Outlet") %>' />
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <%--Department--%>
+                                    <asp:TemplateField HeaderText="Department" ItemStyle-Width="100">
+                                        <ItemTemplate>
+                                            <asp:Label ID="lbl_DepartmentCode" runat="server" Text='<%#Eval("Department") %>' />
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <%--Item--%>
+                                    <asp:TemplateField HeaderText="Item" ItemStyle-Width="280">
+                                        <ItemTemplate>
+                                            <asp:Label ID="lbl_ItemCode" runat="server" Text='<%#Eval("Item") %>' />
+                                        </ItemTemplate>
+                                        <FooterTemplate>
+                                            <asp:Label runat="server" ID="Label01" Text="Total" />
+                                        </FooterTemplate>
+                                        <FooterStyle HorizontalAlign="Left" />
+                                    </asp:TemplateField>
+                                    <%--Qty--%>
+                                    <asp:TemplateField HeaderText="Qty" ItemStyle-Width="80" HeaderStyle-HorizontalAlign="Right" ItemStyle-HorizontalAlign="Right">
+                                        <ItemTemplate>
+                                            <asp:Label ID="lbl_Qty" runat="server" Text='<%#String.Format(DefaultQtyFmt, Eval("Qty")) %>' />
+                                        </ItemTemplate>
+                                        <ItemStyle HorizontalAlign="Right" />
+                                    </asp:TemplateField>
+                                    <%--Price--%>
+                                    <asp:TemplateField HeaderText="Price" ItemStyle-Width="80" HeaderStyle-HorizontalAlign="Right" ItemStyle-HorizontalAlign="Right">
+                                        <ItemTemplate>
+                                            <asp:Label ID="lbl_UnitPrice" runat="server" Text='<%#String.Format(DefaultAmtFmt, Eval("Price")) %>' />
+                                        </ItemTemplate>
+                                        <ItemStyle HorizontalAlign="Right" />
+                                    </asp:TemplateField>
+                                    <%--Total--%>
+                                    <asp:TemplateField HeaderText="Total" ItemStyle-Width="120" HeaderStyle-HorizontalAlign="Right" ItemStyle-HorizontalAlign="Right">
+                                        <ItemTemplate>
+                                            <asp:Label ID="lbl_Total" runat="server" Text='<%#String.Format(DefaultAmtFmt, Eval("Total")) %>' />
+                                        </ItemTemplate>
+                                        <FooterTemplate>
+                                            <asp:Label ID="lbl_SumTotal" runat="server" Text="" Font-Bold="true" />
+                                        </FooterTemplate>
+                                        <ItemStyle HorizontalAlign="Right" />
+                                        <FooterStyle HorizontalAlign="Right" />
+                                    </asp:TemplateField>
+                                    <%--Status--%>
+                                    <asp:TemplateField HeaderText="Void" ItemStyle-Width="60" Visible="false">
+                                        <ItemTemplate>
+                                            <asp:Label ID="lbl_Void" runat="server" Text='<%#Eval("Void") %>' />
+                                        </ItemTemplate>
+                                        <ItemStyle HorizontalAlign="Right" />
+                                    </asp:TemplateField>
+                                </Columns>
+                            </asp:GridView>
+                            <br />
+                            <div style="display: block; text-align: right;">
+                                <asp:Button runat="server" ID="btn_SoProcess" Text="Process" />
+                            </div>
+                        </div>
+                    </dx:PopupControlContentControl>
+                </ContentCollection>
+            </dx:ASPxPopupControl>
+            <!-- -->
+            <dx:ASPxPopupControl ID="pop_Alert" ClientInstanceName="pop_Alert" runat="server" Width="320" CloseAction="CloseButton" HeaderText="Alert" Modal="True"
+                ShowHeader="true" AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter" ShowPageScrollbarWhenModal="True">
+                <ContentCollection>
+                    <dx:PopupControlContentControl ID="PopupControlContentControl5" runat="server">
+                        <div>
+                            <div style="width: 100%; text-align: center;">
+                                <asp:Label ID="lbl_Alert" runat="server" />
+                            </div>
+                            <br />
+                            <div style="width: 100%; text-align: center;">
+                                <asp:Button ID="btn_Alert_Ok" runat="server" Text="OK" OnClick="btn_Alert_Ok_Click" />
+                            </div>
+                        </div>
+                    </dx:PopupControlContentControl>
+                </ContentCollection>
+            </dx:ASPxPopupControl>
         </ContentTemplate>
         <Triggers>
-            <asp:PostBackTrigger ControlID="btn_POS" />
-            <asp:PostBackTrigger ControlID="btn_Consumption" />
-            <asp:PostBackTrigger ControlID="btn_View_StockOut" />
-            <asp:PostBackTrigger ControlID="gv_Sale" />
+            <%--<asp:PostBackTrigger ControlID="btn_Upload" />--%>
+            <%--<asp:AsyncPostBackTrigger ControlID="btnProcessData" />--%>
         </Triggers>
     </asp:UpdatePanel>
     <asp:UpdateProgress ID="UpdateProgress_Detail" runat="server" AssociatedUpdatePanelID="UpdatePanel_Detail">
         <ProgressTemplate>
-            <uc:Spinner ID="spinner" runat="server" />
+            <div class="fix-layout" style="border-style: solid; border-width: 1px; border-color: #0071BD; background-color: #FFFFFF; width: 120px; height: 60px">
+                <div style="padding: 10px; text-align: center;">
+                    <asp:Image ID="img_Loading" runat="server" ImageUrl="~/App_Themes/Default/Images/master/in/Default/ajax-loader.gif" />
+                    <br />
+                    <asp:Label ID="lbl_Loading" runat="server" Font-Bold="true" Text="Loading..." />
+                </div>
+            </div>
         </ProgressTemplate>
     </asp:UpdateProgress>
-    <!-- Popup-->
-    <dx:ASPxPopupControl ID="pop_Alert" ClientInstanceName="pop_Alert" runat="server" CssClass="top-most" Width="320" HeaderText="Alert" ShowHeader="true"
-        CloseAction="CloseButton" Modal="True" AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter"
-        ShowPageScrollbarWhenModal="True">
-        <ContentCollection>
-            <dx:PopupControlContentControl ID="PopupControlContentControl_Alert" runat="server">
-                <div style="width: 100%; text-align: justify;">
-                    <asp:Label ID="lbl_Alert" runat="server" />
-                    <br />
-                    <br />
-                    <br />
-                </div>
-                <div style="width: 100%; text-align: center;">
-                    <asp:Button ID="btn_Alert_Ok" runat="server" Width="80" Text="OK" OnClientClick="pop_Alert.Hide();" />
-                </div>
-            </dx:PopupControlContentControl>
-        </ContentCollection>
-    </dx:ASPxPopupControl>
-    <dx:ASPxPopupControl ID="pop_ConfirmDelete" ClientInstanceName="pop_ConfirmDelete" runat="server" CssClass="top-most" Width="320" HeaderText="Confirmation"
-        ShowHeader="true" CloseAction="CloseButton" Modal="True" AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter"
-        ShowPageScrollbarWhenModal="True">
-        <ContentCollection>
-            <dx:PopupControlContentControl ID="PopupControlContentControl2" runat="server">
-                <div style="width: 100%; text-align: center;">
-                    <asp:Label ID="lbl_ConfirmDelete" runat="server" />
-                    <br />
-                    <br />
-                    <br />
-                    <asp:Button ID="btn_ConfirmDelete_Yes" runat="server" Width="80" Text="Yes" OnClick="btn_ConfirmDelete_Yes_Click" />
-                    &nbsp;&nbsp;
-                    <asp:Button ID="btn_ConfirmDelete_No" runat="server" Width="80" Text="No" OnClientClick="pop_ConfirmDelete.Hide();" />
-                </div>
-            </dx:PopupControlContentControl>
-        </ContentCollection>
-    </dx:ASPxPopupControl>
-    <!-- Popup -->
-    <!-- Setting -->
-    <dx:ASPxPopupControl ID="pop_Outlet" ClientInstanceName="pop_Outlet" runat="server" HeaderText="Outlet" Width="640" Height="480" CloseAction="CloseButton"
-        Modal="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter" ShowPageScrollbarWhenModal="True" AutoUpdatePosition="True" AllowDragging="True">
-        <ContentCollection>
-            <dx:PopupControlContentControl ID="PopupControlContentControl_Outlet" runat="server">
-                <div style="padding: 10px; background-color: #F5F5F5;">
-                    <table style="width: 100%; padding: 0 5px 0 5px;">
-                        <thead>
-                            <tr>
-                                <th>
-                                    Code
-                                </th>
-                                <th>
-                                    Name
-                                </th>
-                                <th>
-                                    <asp:Label runat="server" ID="Label103" Text="Location" />
-                                </th>
-                                <th>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <asp:TextBox runat="server" ID="txt_NewOutletCode" Style="text-transform: uppercase" Width="100" />
-                                </td>
-                                <td>
-                                    <asp:TextBox runat="server" ID="txt_NewOutletName" />
-                                </td>
-                                <td>
-                                    <asp:DropDownList runat="server" ID="ddl_NewOutletLocation" Width="280" />
-                                </td>
-                                <td>
-                                    <asp:Button runat="server" ID="btn_OutletAdd" Width="60" Text="Add" OnClick="btn_OutletAdd_Click" />
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <br />
-                <div style="overflow: scroll; height: 320px;">
-                    <asp:GridView ID="gv_Outlet" runat="server" SkinID="GRD_V1" Width="100%">
-                        <Columns>
-                            <asp:TemplateField HeaderText="Outlet">
-                                <ItemTemplate>
-                                    <%#Eval("OutletCode")%>
-                                    <div class="text-desc">
-                                        <%#Eval("OutletName")%>
-                                    </div>
-                                </ItemTemplate>
-                            </asp:TemplateField>
-                            <asp:TemplateField HeaderText="Location">
-                                <ItemTemplate>
-                                    <div>
-                                        <%#Eval("LocationCode")%>
-                                    </div>
-                                    <div class="text-desc">
-                                        <%#Eval("LocationName")%>
-                                    </div>
-                                </ItemTemplate>
-                            </asp:TemplateField>
-                            <asp:TemplateField HeaderText="" ItemStyle-Width="100">
-                                <ItemTemplate>
-                                    <asp:HiddenField runat="server" ID="hf_OutletCode" Value='<%# Eval("OutletCode") %>' />
-                                    <asp:HiddenField runat="server" ID="hf_ItemCode" Value="" />
-                                    <asp:HiddenField runat="server" ID="hf_LocationCode" Value='<%# Eval("LocationCode") %>' />
-                                    <asp:Button runat="server" ID="btn_OutletItem_Edit" Text="Edit" OnClick="btn_OutletItem_Edit_Click" />
-                                    <asp:Button runat="server" ID="btn_OutletItem_Delete" Text="Delete" OnClick="btn_OutletItem_Delete_Click" />
-                                </ItemTemplate>
-                            </asp:TemplateField>
-                        </Columns>
-                        <EmptyDataTemplate>
-                            <span>No data</span>
-                        </EmptyDataTemplate>
-                    </asp:GridView>
-                </div>
-                <div style="overflow: scroll; height: 320px;">
-                    <asp:GridView ID="gv_OutletItem" runat="server" SkinID="GRD_V1" Width="100%">
-                        <Columns>
-                            <asp:TemplateField HeaderText="Outlet">
-                                <ItemTemplate>
-                                    <%#Eval("OutletCode")%>
-                                    <div class="text-desc">
-                                        <%#Eval("OutletName")%>
-                                    </div>
-                                </ItemTemplate>
-                            </asp:TemplateField>
-                            <asp:TemplateField HeaderText="Item">
-                                <ItemTemplate>
-                                    <div>
-                                        <%#Eval("ItemCode")%>
-                                    </div>
-                                    <div class="text-desc">
-                                        <%#Eval("ItemName")%>
-                                    </div>
-                                </ItemTemplate>
-                            </asp:TemplateField>
-                            <asp:TemplateField HeaderText="Location">
-                                <ItemTemplate>
-                                    <div>
-                                        <%#Eval("LocationCode")%>
-                                    </div>
-                                    <div class="text-desc">
-                                        <%#Eval("LocationName")%>
-                                    </div>
-                                </ItemTemplate>
-                            </asp:TemplateField>
-                            <asp:TemplateField HeaderText="" ItemStyle-Width="100">
-                                <ItemTemplate>
-                                    <asp:HiddenField runat="server" ID="hf_OutletCode" Value='<%# Eval("OutletCode") %>' />
-                                    <asp:HiddenField runat="server" ID="hf_ItemCode" Value='<%# Eval("ItemCode") %>' />
-                                    <asp:HiddenField runat="server" ID="hf_LocationCode" Value='<%# Eval("LocationCode") %>' />
-                                    <asp:Button runat="server" ID="btn_OutletItem_Edit" Text="Edit" OnClick="btn_OutletItem_Edit_Click" />
-                                    <asp:Button runat="server" ID="btn_OutletItem_Delete" Text="Delete" OnClick="btn_OutletItem_Delete_Click" />
-                                </ItemTemplate>
-                            </asp:TemplateField>
-                        </Columns>
-                        <EmptyDataTemplate>
-                            <span>No data</span>
-                        </EmptyDataTemplate>
-                    </asp:GridView>
-                </div>
-            </dx:PopupControlContentControl>
-        </ContentCollection>
-        <ClientSideEvents CloseUp="function(s, e) { s.PerformCallback(); }" />
-    </dx:ASPxPopupControl>
-    <!-- Popup SetOutlet -->
-    <dx:ASPxPopupControl ID="pop_SetOutlet" ClientInstanceName="pop_SetOutlet" runat="server" CssClass="top-most" HeaderText="Outlet and Item" Width="320"
-        CloseAction="CloseButton" Modal="True" ShowPageScrollbarWhenModal="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter">
-        <ContentCollection>
-            <dx:PopupControlContentControl ID="PopupControlContentControl4" runat="server">
-                <asp:HiddenField runat="server" ID="hf_SetOutletCode" />
-                <asp:HiddenField runat="server" ID="hf_SetOutletName" />
-                <asp:HiddenField runat="server" ID="hf_SetItemCode" />
-                <table style="border: none;">
-                    <tr>
-                        <th style="width: 80px">
-                            <asp:Label ID="Label2" runat="server" Font-Bold="true" Text="Outlet " />
-                        </th>
-                        <td>
-                            <asp:Label ID="lbl_SetOutlet" runat="server" Text="" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>
-                            <asp:Label ID="Label3" runat="server" Font-Bold="true" Text="Item " />
-                        </th>
-                        <td>
-                            <asp:Label ID="lbl_SetItem" runat="server" Text="" />
-                        </td>
-                    </tr>
-                </table>
-                <hr />
-                <div class="d-flex flex-column">
-                    <asp:Label ID="Label6" runat="server" Text="Location" />
-                    <asp:DropDownList runat="server" ID="ddl_SetOutlet_Location">
-                    </asp:DropDownList>
-                </div>
-                <br />
-                <div class="d-flex">
-                    <asp:Button runat="server" ID="btn_SetOutlet_Save" Text="Save" OnClick="btn_SetOutlet_Save_Click" />
-                </div>
-                <br />
-            </dx:PopupControlContentControl>
-        </ContentCollection>
-    </dx:ASPxPopupControl>
-    <dx:ASPxPopupControl ID="pop_Department" ClientInstanceName="pop_Department" runat="server" HeaderText="Department" Width="640" Height="480" CloseAction="CloseButton"
-        Modal="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter" ShowPageScrollbarWhenModal="True" AutoUpdatePosition="True" AllowDragging="True">
-        <ContentCollection>
-            <dx:PopupControlContentControl ID="PopupControlContentControl_Department" runat="server">
-                <asp:GridView ID="grd_Department" runat="server" SkinID="GRD_V1" Width="100%" DataKeyNames="DepartmentCode" OnRowCommand="grd_Department_RowCommand" OnRowEditing="grd_Department_RowEditing"
-                    OnRowCancelingEdit="grd_Department_RowCancelingEdit" OnRowUpdating="grd_Department_RowUpdating" OnRowDeleting="grd_Department_RowDeleting">
-                    <Columns>
-                        <asp:TemplateField HeaderText="Department" ItemStyle-Wrap="False" ControlStyle-Width="100px">
-                            <EditItemTemplate>
-                                <asp:Label ID="lbl_DepartmentCode" runat="server" Text='<%#Eval("DepartmentCode")%>' />
-                            </EditItemTemplate>
-                            <ItemTemplate>
-                                <asp:Label ID="lbl_DepartmentCode" runat="server" Text='<%#Eval("DepartmentCode")%>' />
-                            </ItemTemplate>
-                            <FooterTemplate>
-                                <%--<asp:TextBox ID="txt_DepartmentCode_New" runat="server" />--%>
-                            </FooterTemplate>
-                        </asp:TemplateField>
-                        <asp:TemplateField HeaderText="Name" ItemStyle-Wrap="False" ControlStyle-Width="300px">
-                            <EditItemTemplate>
-                                <asp:TextBox ID="txt_DepartmentName" runat="server" Text='<%#Eval("DepartmentName")%>' />
-                            </EditItemTemplate>
-                            <ItemTemplate>
-                                <asp:Label ID="lbl_DepartmentName" runat="server" Text='<%#Eval("DepartmentName") %>' />
-                            </ItemTemplate>
-                            <FooterTemplate>
-                                <%--<asp:TextBox ID="txt_DepartmentName_New" runat="server" />--%>
-                            </FooterTemplate>
-                        </asp:TemplateField>
-                        <asp:TemplateField HeaderText="" ItemStyle-Width="100">
-                            <ItemTemplate>
-                                <div style="display: table;">
-                                    <asp:LinkButton ID="btnEdit" runat="server" Style="display: table-cell;" CommandName="Edit" Text="Edit"></asp:LinkButton>
-                                    &nbsp;&nbsp;
-                                    <asp:LinkButton ID="btnDelete" runat="server" Style="display: table-cell;" CommandName="Delete" Text="Delete" CausesValidation="false" OnClientClick="return confirm('Are you sure you want to delete this record?')"></asp:LinkButton>
-                                </div>
-                            </ItemTemplate>
-                            <EditItemTemplate>
-                                <div style="display: table;">
-                                    <asp:LinkButton ID="btnUpdate" runat="server" Style="display: table-cell;" CommandName="Update" Text="Save"></asp:LinkButton>
-                                    &nbsp;&nbsp;
-                                    <asp:LinkButton ID="btnCancel" runat="server" Style="display: table-cell;" CommandName="Cancel" Text="Cancel"></asp:LinkButton>
-                                </div>
-                            </EditItemTemplate>
-                            <FooterTemplate>
-                                <%--<asp:LinkButton ID="btnAdd" runat="server" CommandName="Add" Text="Add"></asp:LinkButton>--%>
-                            </FooterTemplate>
-                            <FooterStyle HorizontalAlign="Center" />
-                        </asp:TemplateField>
-                    </Columns>
-                </asp:GridView>
-                <div style="position: absolute; bottom: 15px; background-color: #F5F5F5; padding: 10px; width: 617px;">
-                    <table style="width: 100%;">
-                        <thead>
-                            <tr>
-                                <th>
-                                    <asp:Label runat="server" ID="Label4" Text="Code" />
-                                </th>
-                                <th>
-                                    <asp:Label runat="server" ID="Label5" Text="Name" />
-                                </th>
-                                <th>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <asp:TextBox runat="server" ID="txt_NewDepartmentCode" Style="text-transform: uppercase" Width="100" />
-                                </td>
-                                <td>
-                                    <asp:TextBox runat="server" ID="txt_NewDepartmentName" Width="100%" />
-                                </td>
-                                <td align="right">
-                                    <asp:Button runat="server" ID="btn_DepartmentAdd" Text="Add" Width="60" OnClick="btn_DepartmentAdd_Click" />
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </dx:PopupControlContentControl>
-        </ContentCollection>
-    </dx:ASPxPopupControl>
-    <dx:ASPxPopupControl ID="pop_Item" ClientInstanceName="pop_Item" runat="server" Style="z-index: 12000 !important;" HeaderText="Item (PLU)" Width="720"
-        CloseAction="CloseButton" Modal="True" ShowPageScrollbarWhenModal="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter" AutoUpdatePosition="True"
-        AllowDragging="True">
-        <ContentCollection>
-            <dx:PopupControlContentControl ID="PopupControlContentControl_Item" runat="server">
-                <div>
-                    <div style="float: left;">
-                        <asp:Button ID="btn_ReloadItem" runat="server" Text="Refresh" OnClick="btn_ReloadItem_Click" />
-                    </div>
-                    <div style="float: right; display: none">
-                        <asp:TextBox ID="txt_SearchItem" runat="server" AutoPostBack="true" Width="200" />
-                        <asp:Button ID="btn_SearchItem" runat="server" Text="Search" OnClick="btn_SearchItem_Click" />
-                    </div>
-                </div>
-                <div style="clear: both; margin-bottom: 10px;">
-                </div>
-                <div style="overflow: scroll; height: 480px;">
-                    <asp:GridView ID="gv_Item" runat="server" SkinID="GRD_V1" Width="100%">
-                        <Columns>
-                            <asp:TemplateField HeaderText="Item">
-                                <ItemTemplate>
-                                    <%#Eval("ItemCode")%>
-                                    <div class="text-desc">
-                                        <%#Eval("ItemName")%>
-                                    </div>
-                                </ItemTemplate>
-                            </asp:TemplateField>
-                            <asp:TemplateField HeaderText="Recipe">
-                                <ItemTemplate>
-                                    <div>
-                                        <%#Eval("RcpCode")%>
-                                    </div>
-                                    <div class="text-desc">
-                                        <%#Eval("RcpDesc1")%>
-                                    </div>
-                                </ItemTemplate>
-                            </asp:TemplateField>
-                            <asp:TemplateField HeaderText="" ItemStyle-Width="100">
-                                <ItemTemplate>
-                                    <asp:HiddenField runat="server" ID="hf_ItemCode" Value='<%# Eval("ItemCode") %>' />
-                                    <asp:HiddenField runat="server" ID="hf_RcpCode" Value='<%# Eval("RcpCode") %>' />
-                                    <asp:Button runat="server" ID="btn_Item_Edit" Text="Edit" OnClick="btn_Item_Edit_Click" />
-                                    <asp:Button runat="server" ID="btn_Item_Delete" Text="Delete" OnClick="btn_Item_Delete_Click" />
-                                </ItemTemplate>
-                            </asp:TemplateField>
-                        </Columns>
-                        <EmptyDataTemplate>
-                            <span>No data</span>
-                        </EmptyDataTemplate>
-                    </asp:GridView>
-                </div>
-                <div style="margin-top: 10px; padding: 5px; background-color: #F5F5F5; width: 100%;">
-                    <table style="width: 100%;">
-                        <thead>
-                            <tr>
-                                <th>
-                                    <asp:Label runat="server" ID="Label7" Text="Code" />
-                                </th>
-                                <th>
-                                    <asp:Label runat="server" ID="Label8" Text="Name" />
-                                </th>
-                                <th>
-                                    <asp:Label runat="server" ID="Label9" Text="Recipe" />
-                                </th>
-                                <th>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <asp:TextBox runat="server" ID="txt_NewItemCode" Style="text-transform: uppercase" Width="100" />
-                                </td>
-                                <td>
-                                    <asp:TextBox runat="server" ID="txt_NewItemName" />
-                                </td>
-                                <td>
-                                    <dx:ASPxComboBox ID="ddl_NewItemRecipe" runat="server" Width="285px" DropDownWidth="340" DropDownStyle="DropDownList" ValueField="RcpCode" ValueType="System.String"
-                                        TextFormatString="{0} : {1}" EnableCallbackMode="true" CallbackPageSize="30" IncrementalFilteringMode="Contains" OnLoad="ddl_ItemRecipe_Load">
-                                        <Columns>
-                                            <dx:ListBoxColumn Caption="Code" FieldName="RcpCode" Width="80" />
-                                            <dx:ListBoxColumn Caption="Name1" FieldName="RcpDesc1" Width="180" />
-                                            <dx:ListBoxColumn Caption="Name2" FieldName="RcpDesc2" Width="180" />
-                                        </Columns>
-                                    </dx:ASPxComboBox>
-                                </td>
-                                <td align="right">
-                                    <asp:Button runat="server" ID="btn_ItemAdd" Text="Add" Width="60" OnClick="btn_ItemAdd_Click" />
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </dx:PopupControlContentControl>
-        </ContentCollection>
-    </dx:ASPxPopupControl>
-    <dx:ASPxPopupControl ID="pop_SetItem" ClientInstanceName="pop_SetItem" runat="server" Style="z-index: 12100 !important;" HeaderText="Item (PLU)" CloseAction="CloseButton"
-        Modal="True" ShowPageScrollbarWhenModal="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter" AutoUpdatePosition="True" AllowDragging="True">
-        <ContentCollection>
-            <dx:PopupControlContentControl ID="PopupControlContentControl5" runat="server">
-                <asp:HiddenField runat="server" ID="hf_SetItem_RcpCode" />
-                <asp:HiddenField runat="server" ID="hf_SetItem_ItemCode" />
-                <div>
-                    <asp:Label ID="Label14" runat="server" Font-Bold="true" Text="Item " />
-                </div>
-                <div>
-                    <asp:Label ID="lbl_SetItem_Item" runat="server" Text="" />
-                </div>
-                <hr />
-                <div>
-                    <asp:Label ID="Label16" runat="server" Font-Bold="true" Text="Recipe" />
-                </div>
-                <div>
-                    <asp:DropDownList runat="server" ID="ddl_SetItem_Recipe" Width="400">
-                    </asp:DropDownList>
-                </div>
-                <br />
-                <div class="d-flex">
-                    <asp:Button runat="server" ID="btn_SetItem_Save" Text="Save" OnClick="btn_SetItem_Save_Click" />
-                </div>
-                <br />
-            </dx:PopupControlContentControl>
-        </ContentCollection>
-    </dx:ASPxPopupControl>
-    <!-- Post to inventory -->
-    <%--<dx:ASPxPopupControl ID="pop_RecipeDtail" ClientInstanceName="pop_RecipeDtail" runat="server" Width="640" CloseAction="CloseButton" HeaderText="Recipe Details"
-        Modal="True" ShowHeader="true" AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter"
-        ShowPageScrollbarWhenModal="True">
-        <ContentCollection>
-            <dx:PopupControlContentControl ID="PopupControlContentControl_RecipeDetail" runat="server">
-                <div style="margin: 10px 5px 10px 0; text-align: right; width: 100%;">
-                    <asp:Button ID="btn_PostToStockOut" runat="server" Text="Post to issue" Width="80" OnClick="btn_PostToStockOut_Click" />
-                </div>
-                <asp:GridView ID="gv_RecipeDetail" runat="server" SkinID="GRD_V2" ShowFooter="true">
-                    <Columns>
-                        <asp:TemplateField>
-                            <HeaderTemplate>
-                                Outlet
-                            </HeaderTemplate>
-                            <ItemTemplate>
-                                <%# string.Format("{0} : {1}", Eval("OutletCode"), Eval("OutletName")) %>
-                            </ItemTemplate>
-                        </asp:TemplateField>
-                        <asp:TemplateField>
-                            <HeaderTemplate>
-                                PLU
-                            </HeaderTemplate>
-                            <ItemTemplate>
-                                <%# string.Format("{0} : {1}", Eval("ItemCode"), Eval("ItemName1")) %>
-                            </ItemTemplate>
-                        </asp:TemplateField>
-                        <asp:TemplateField>
-                            <HeaderTemplate>
-                                <div style="text-align: right">
-                                    Qty
-                                </div>
-                            </HeaderTemplate>
-                            <ItemTemplate>
-                                <%# string.Format("{0:N2}",  Eval("Qty")) %>
-                            </ItemTemplate>
-                            <ItemStyle HorizontalAlign="Right" />
-                        </asp:TemplateField>
-                        <asp:TemplateField>
-                            <HeaderTemplate>
-                                <div style="text-align: right">
-                                    Price
-                                </div>
-                            </HeaderTemplate>
-                            <ItemTemplate>
-                                <%# string.Format("{0:N2}",  Eval("Price")) %>
-                            </ItemTemplate>
-                            <ItemStyle HorizontalAlign="Right" />
-                        </asp:TemplateField>
-                        <asp:TemplateField>
-                            <HeaderTemplate>
-                                <div style="text-align: right">
-                                    Total
-                                </div>
-                            </HeaderTemplate>
-                            <ItemTemplate>
-                                <%# string.Format("{0:N2}",  Eval("Total")) %>
-                            </ItemTemplate>
-                            <ItemStyle HorizontalAlign="Right" />
-                        </asp:TemplateField>
-                    </Columns>
-                </asp:GridView>
-            </dx:PopupControlContentControl>
-        </ContentCollection>
-    </dx:ASPxPopupControl>--%>
-    <!-- Procedure -->
-    <dx:ASPxPopupControl ID="pop_StockOut" ClientInstanceName="pop_StockOut" runat="server" Width="800" CloseAction="CloseButton" HeaderText="Sale to Stock Out"
-        Modal="True" AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="Middle" PopupHorizontalAlign="WindowCenter" ShowPageScrollbarWhenModal="True"
-        ShowHeader="false" ContentStyle-CssClass="no-padding">
-        <ContentCollection>
-            <dx:PopupControlContentControl ID="PopupControlContentControl6" runat="server">
-            </dx:PopupControlContentControl>
-        </ContentCollection>
-    </dx:ASPxPopupControl>
-    <!-- Import/Interface -->
-    <dx:ASPxPopupControl ID="pop_POS" ClientInstanceName="pop_POS" runat="server" Width="640" CloseAction="CloseButton" HeaderText="POS" Modal="True" ShowHeader="true"
-        AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="Above" PopupHorizontalAlign="WindowCenter" ShowPageScrollbarWhenModal="True">
-        <ContentCollection>
-            <dx:PopupControlContentControl ID="PopupControlContentControl3" runat="server">
-                <div style="display: flex; margin-bottom: 5px;">
-                    <asp:Label runat="server" Style="margin-right: 5px;" Text="Period :" />
-                    <asp:DropDownList runat="server" ID="ddl_Month">
-                        <asp:ListItem Value="1">1</asp:ListItem>
-                        <asp:ListItem Value="2">2</asp:ListItem>
-                        <asp:ListItem Value="3">3</asp:ListItem>
-                        <asp:ListItem Value="4">4</asp:ListItem>
-                        <asp:ListItem Value="5">5</asp:ListItem>
-                        <asp:ListItem Value="6">6</asp:ListItem>
-                        <asp:ListItem Value="7">7</asp:ListItem>
-                        <asp:ListItem Value="8">8</asp:ListItem>
-                        <asp:ListItem Value="9">9</asp:ListItem>
-                        <asp:ListItem Value="10">10</asp:ListItem>
-                        <asp:ListItem Value="11">11</asp:ListItem>
-                        <asp:ListItem Value="12">12</asp:ListItem>
-                    </asp:DropDownList>
-                    <asp:Label ID="Label1" runat="server" Text=" " />
-                    <asp:DropDownList runat="server" ID="ddl_Year">
-                    </asp:DropDownList>
-                    &nbsp;&nbsp;
-                    <asp:Button runat="server" ID="btn_SelectPeriod" Text="Go" OnClick="btn_SelectPeriod_Click" />
-                </div>
-                <asp:GridView ID="gv_POS" runat="server" SkinID="GRD_V2" AutoGenerateColumns="false" Width="100%" ShowFooter="true" OnRowDataBound="gv_POS_RowDataBound">
-                    <Columns>
-                        <asp:TemplateField>
-                            <HeaderTemplate>
-                                Date
-                            </HeaderTemplate>
-                            <ItemTemplate>
-                                <%# Convert.ToDateTime(Eval("DocDate")).ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture)%>
-                            </ItemTemplate>
-                        </asp:TemplateField>
-                        <asp:BoundField HeaderText="Description" DataField="Description" />
-                        <asp:BoundField HeaderText="Source" DataField="Source" />
-                        <asp:BoundField HeaderText="Update date" DataField="UpdatedDate" />
-                        <asp:TemplateField>
-                            <ItemTemplate>
-                                <asp:HiddenField runat="server" ID="hf_RowId" Value='<%# Eval("RowId") %>' />
-                                <asp:HiddenField runat="server" ID="hf_ID" Value='<%# Eval("ID") %>' />
-                                <asp:HiddenField runat="server" ID="hf_DocDate" Value='<%# Eval("DocDate") %>' />
-                                <asp:Button ID="btn_PostFromPOS" runat="server" Text="Import" OnClick="btn_PostFromPOS_Click" />
-                            </ItemTemplate>
-                        </asp:TemplateField>
-                    </Columns>
-                </asp:GridView>
-            </dx:PopupControlContentControl>
-        </ContentCollection>
-    </dx:ASPxPopupControl>
-    <dx:ASPxPopupControl ID="pop_Interface" ClientInstanceName="pop_Interface" runat="server" Width="640" CloseAction="CloseButton" HeaderText="Interface"
-        Modal="True" ShowHeader="true" AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter"
-        ShowPageScrollbarWhenModal="True">
-        <ContentCollection>
-            <dx:PopupControlContentControl ID="PopupControlContentControl7" runat="server">
-                <div style="margin: 10px 5px 10px 0; text-align: right; width: 100%;">
-                    <asp:Button ID="btn_Interface_Post" runat="server" Text="Post" Width="80" OnClick="btn_Interface_Post_Click" />
-                </div>
-                <div style="margin: 10px 0 10px 0;">
-                    <b>Date:&nbsp;</b>
-                    <asp:Label ID="lbl_Intf_Date" runat="server" />
-                </div>
-                <div style="margin: 10px 0 10px 0;">
-                    <b>Total:&nbsp;</b>
-                    <asp:Label ID="lbl_Intf_GrandTotal" runat="server" Font-Bold="true" Text="0.00" />
-                </div>
-                <asp:GridView ID="gv_Intf_Sale" runat="server" SkinID="GRD_V2" AutoGenerateColumns="false" Width="100%" ShowFooter="true">
-                    <Columns>
-                        <asp:TemplateField>
-                            <HeaderTemplate>
-                                Outlet
-                            </HeaderTemplate>
-                            <ItemTemplate>
-                                <%# string.Format("{0} : {1}", Eval("OutletCode"), Eval("OutletName")) %>
-                            </ItemTemplate>
-                        </asp:TemplateField>
-                        <asp:TemplateField>
-                            <HeaderTemplate>
-                                PLU
-                            </HeaderTemplate>
-                            <ItemTemplate>
-                                <%# string.Format("{0} : {1}", Eval("ItemCode"), Eval("ItemName")) %>
-                            </ItemTemplate>
-                        </asp:TemplateField>
-                        <asp:TemplateField>
-                            <HeaderTemplate>
-                                <div style="text-align: right">
-                                    Qty
-                                </div>
-                            </HeaderTemplate>
-                            <ItemTemplate>
-                                <%# string.Format("{0:N2}",  Eval("Qty")) %>
-                            </ItemTemplate>
-                            <ItemStyle HorizontalAlign="Right" />
-                        </asp:TemplateField>
-                        <asp:TemplateField>
-                            <HeaderTemplate>
-                                <div style="text-align: right">
-                                    Price
-                                </div>
-                            </HeaderTemplate>
-                            <ItemTemplate>
-                                <%# string.Format("{0:N2}",  Eval("UnitPrice")) %>
-                            </ItemTemplate>
-                            <ItemStyle HorizontalAlign="Right" />
-                        </asp:TemplateField>
-                        <asp:TemplateField>
-                            <HeaderTemplate>
-                                <div style="text-align: right">
-                                    Total
-                                </div>
-                            </HeaderTemplate>
-                            <ItemTemplate>
-                                <%# string.Format("{0:N2}",  Eval("Total")) %>
-                            </ItemTemplate>
-                            <ItemStyle HorizontalAlign="Right" />
-                        </asp:TemplateField>
-                    </Columns>
-                </asp:GridView>
-            </dx:PopupControlContentControl>
-        </ContentCollection>
-    </dx:ASPxPopupControl>
-    <dx:ASPxPopupControl ID="pop_ConfirmPostInterface" ClientInstanceName="pop_ConfirmPostInterface" runat="server" Width="240" HeaderText="Confirm" ShowHeader="true"
-        ShowCloseButton="false" CloseAction="CloseButton" Modal="True" AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter"
-        ShowPageScrollbarWhenModal="True">
-        <ContentCollection>
-            <dx:PopupControlContentControl ID="PopupControlContentControl8" runat="server">
-                <div style="margin: 10px 0 30px 0; text-align: center;">
-                    <asp:Label ID="lbl_Intf_Confirm_PostDate" runat="server" />
-                </div>
-                <div style="margin: 10px; text-align: center;">
-                    <asp:Button ID="btn_Interface_ConfirmPost" runat="server" Width="80" Text="Post" OnClick="btn_Interface_ConfirmPost_Click" />
-                    &nbsp;&nbsp;&nbsp;
-                    <asp:Button ID="btn_Intf_Confirm_Cancel" runat="server" Width="80" Text="Cancel" OnClientClick="pop_ConfirmPostInterface.Hide(); " />
-                </div>
-            </dx:PopupControlContentControl>
-        </ContentCollection>
-    </dx:ASPxPopupControl>
-    <dx:ASPxPopupControl ID="pop_Import" runat="server" ClientInstanceName="pop_Import" Width="480" Height="620" Modal="True" CloseAction="CloseButton" HeaderText="Import Data"
-        PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter" ShowPageScrollbarWhenModal="true">
-        <ContentCollection>
-            <dx:PopupControlContentControl ID="PopupControlContentControl_Import" runat="server">
-                <div class="mb">
-                    <asp:Label ID="lbl_ImportType_Nm" runat="server" Font-Size="Small" Font-Bold="true" Text="Import Type" />
-                </div>
-                <div class="mb-3">
-                    <asp:DropDownList ID="ddl_ImportType" runat="server" Width="100%" Font-Size="Small" AutoPostBack="true" OnSelectedIndexChanged="ddl_Import_SelectedIndexChanged">
-                        <asp:ListItem Value="File">File</asp:ListItem>
-                        <asp:ListItem Value="API">API</asp:ListItem>
-                    </asp:DropDownList>
-                </div>
-                <asp:Panel ID="panel_File" runat="server" CssClass="card p-3 mb-3" Font-Size="Small">
-                    <b>From file</b>
-                    <table class="w-100">
-                        <tr>
-                            <td colspan="2">
-                                <asp:FileUpload ID="FileUpload" runat="server" Width="100%" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <small>Support file *.csv | *.xls | *.xlsx"</small>
-                            </td>
-                            <td align="right">
-                                <asp:Button ID="btn_PreviewFile" runat="server" Width="60" Text="Import" OnClick="btn_PreviewFile_Click" />
-                            </td>
-                        </tr>
-                    </table>
-                    <hr />
-                </asp:Panel>
-                <asp:Panel ID="panel_API" runat="server" CssClass="card p-3 mb-3" Font-Size="Small">
-                    <b>From API</b>
-                </asp:Panel>
-                <br />
-                <div style="height: 320px; overflow: scroll;">
-                    <asp:GridView ID="gv_PreviewFile" runat="server" Width="100%">
-                    </asp:GridView>
-                </div>
-            </dx:PopupControlContentControl>
-        </ContentCollection>
-    </dx:ASPxPopupControl>
-    <dx:ASPxPopupControl ID="pop_Import2" ClientInstanceName="pop_Import2" runat="server" Width="800" Modal="True" CloseAction="CloseButton" HeaderText="Import from file"
-        PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter" ShowPageScrollbarWhenModal="true">
-        <ContentCollection>
-            <dx:PopupControlContentControl ID="PopupControlContentControl1" runat="server">
-                <asp:UpdatePanel ID="UpdatePanel2" runat="server">
-                    <ContentTemplate>
-                        <div style="width: 100%;">
-                            <div style="float: left;">
-                                <asp:FileUpload ID="FileUploadControl" runat="server" Width="400px" /><span>| *.csv, *.xls, *xlsx </span>
-                            </div>
-                            <div style="float: right;">
-                                <asp:Button ID="btn_Upload" runat="server" Text="Upload" OnClick="btn_Upload_Click" />
-                            </div>
-                            <div style="clear: both;">
-                            </div>
-                        </div>
-                        <hr />
-                        <asp:GridView ID="grd_Import" runat="server" AllowPaging="true" PageSize="25" OnPageIndexChanging="grd_Import_PageIndexChanging" OnRowDataBound="grd_Import_RowDataBound">
-                        </asp:GridView>
-                        <br />
-                        <div style="width: 100%;">
-                            <div style="display: inline-block;">
-                                <asp:Button ID="btn_Import" runat="server" Text="Import" Width="100px" OnClick="btn_Import_Click" OnClientClick="return confirm('Are you sure you want to import?');" />
-                            </div>
-                            <div style="display: inline-block;">
-                                <label id="lbl_FileName" runat="server" />
-                            </div>
-                        </div>
-                        <div style="display: block; width: 100%;">
-                            <label id="lblErrorMessage" runat="server" style="color: red;" />
-                        </div>
-                    </ContentTemplate>
-                    <Triggers>
-                        <asp:PostBackTrigger ControlID="btn_Upload" />
-                    </Triggers>
-                </asp:UpdatePanel>
-            </dx:PopupControlContentControl>
-        </ContentCollection>
-    </dx:ASPxPopupControl>
-    <dx:ASPxPopupControl ID="pop_Consumption" ClientInstanceName="pop_Consumptioon" runat="server" Width="960" HeaderText="Product Consumption" ShowHeader="true"
-        CloseAction="CloseButton" Modal="True" AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="Above" PopupHorizontalAlign="WindowCenter"
-        ShowPageScrollbarWhenModal="True">
-        <ContentCollection>
-            <dx:PopupControlContentControl ID="PopupControlContentControl_Consumption" runat="server">
-                <div class="flex flex-flow-between">
-                    <div class="flex">
-                        <span>Location</span>&nbsp;&nbsp;
-                        <asp:DropDownList runat="server" ID="ddl_Consumption_Location" AutoPostBack="true" Width="400" OnSelectedIndexChanged="ddl_Consumption_Location_SelectedIndexChanged">
-                        </asp:DropDownList>
-                    </div>
-                    <div class="flex">
-                        <asp:Button runat="server" ID="btn_PostToStockOut" Text="Post all location(s) to stock out" OnClick="btn_PostToStockOut_Click" />
-                        &nbsp;&nbsp;
-                        <asp:DropDownList runat="server" ID="ddl_PostToStockOut" Width="200">
-                        </asp:DropDownList>
-                    </div>
-                </div>
-                <br />
-                <div style="overflow: scroll; height: 600px;">
-                    <asp:GridView ID="gv_Items" runat="server" SkinID="GRD_V2" Width="100%" HeaderStyle-HorizontalAlign="Left">
-                        <Columns>
-                            <asp:BoundField DataField="ProductCode" HeaderText="Code" />
-                            <asp:BoundField DataField="ProductDesc1" HeaderText="Name1" />
-                            <asp:BoundField DataField="ProductDesc2" HeaderText="Name2" />
-                            <asp:BoundField DataField="Unit" HeaderText="Unit" />
-                            <asp:TemplateField>
-                                <HeaderTemplate>
-                                    <div style="text-align: right;">
-                                        Quantity
-                                    </div>
-                                </HeaderTemplate>
-                                <ItemTemplate>
-                                    <%# FormatQty(Eval("Qty")) %>
-                                </ItemTemplate>
-                                <ItemStyle HorizontalAlign="Right" />
-                            </asp:TemplateField>
-                        </Columns>
-                    </asp:GridView>
-                </div>
-            </dx:PopupControlContentControl>
-        </ContentCollection>
-    </dx:ASPxPopupControl>
-    <dx:ASPxPopupControl ID="pop_PostToStockOut" ClientInstanceName="pop_PostToStockOut" runat="server" Width="380" HeaderText="Post to stock out" ShowHeader="true"
-        CloseAction="CloseButton" Modal="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter" ShowPageScrollbarWhenModal="True">
-        <ContentCollection>
-            <dx:PopupControlContentControl ID="PopupControlContentControl9" runat="server">
-                <div class="flex flex-flow-center">
-                    <asp:Label runat="server" ID="lbl_PostToStockOut" />
-                </div>
-                <br />
-                <hr />
-                <div class="flex flex-flow-center">
-                    <asp:Button runat="server" ID="btn_PostToStockOut_Confirm" Width="80" Text="Yes" OnClick="btn_PostToStockOut_Confirm_Click" />
-                    &nbsp;&nbsp;&nbsp;&nbsp;
-                    <asp:Button runat="server" ID="btn_PostToStockOut_Cancel" Width="80" Text="No" OnClientClick="pop_PostToStockOut.Hide();" />
-                </div>
-            </dx:PopupControlContentControl>
-        </ContentCollection>
-    </dx:ASPxPopupControl>
 </asp:Content>

@@ -20,11 +20,6 @@
             display: table-cell;
             width: auto;
         }
-        .td-col
-        {
-            padding-left: 3px;
-            padding-right: 3px;
-        }
     </style>
     <script type="text/javascript">
         function GoTop() {
@@ -61,7 +56,21 @@
         }
 
 
-       
+        //Select One Row at a Time
+        function CheckOtherIsCheckedByGVID(spanChk) {
+            var CurrentRdbID = spanChk.id;
+            var Chk = spanChk;
+            Parent = document.getElementById('<%= grd_Vendor.ClientID %>');
+            var items = Parent.getElementsByTagName('input');
+
+            for (i = 0; i < items.length; i++) {
+                if (items[i].id != CurrentRdbID && items[i].type == "radio") {
+                    if (items[i].checked) {
+                        items[i].checked = false;
+                    }
+                }
+            }
+        }
 
         // Expand Gridview
         function expandDetailsInGrid(_this) {
@@ -334,8 +343,6 @@
                         </asp:TemplateField>
                         <%--Detail--%>
                         <asp:TemplateField>
-                            <HeaderStyle Width="100%" />
-                            <ItemStyle Width="100%" />
                             <HeaderTemplate>
                                 <asp:Panel ID="p_Issue" runat="server" Width="100%">
                                     <!--Store/Location-->
@@ -380,52 +387,99 @@
                                     </div>
                                 </asp:Panel>
                                 <asp:Panel ID="p_AllocateVendor" runat="server">
+                                    <%--<div style="width: 100%;">
+                                        <div class="<%= HiddenClassName %>" style="display: inline-block; padding-right: 5px; height: 28px;">
+                                            <asp:Label ID="lbl_BU_HD_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_BU_HD_av %>" Width="80px"></asp:Label>
+                                        </div>
+                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
+                                            <asp:Label ID="lbl_Vendor_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_Vendor_HDG_av %>" Width="220px"></asp:Label>
+                                        </div>
+                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
+                                            <asp:Label ID="lbl_Store_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_Store_HDG_av %>" Width="200px"></asp:Label>
+                                        </div>
+                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
+                                            <asp:Label ID="lbl_SKU_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_SKU_HDG_av %>" Width="100px"></asp:Label>
+                                        </div>
+                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
+                                            <asp:Label ID="lbl_DescEn_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_DescEn_HDG_av %>" Width="160px"></asp:Label>
+                                        </div>
+                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
+                                            <asp:Label ID="lbl_Descll_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_Descll_HDG_av %>" Width="160px"></asp:Label>
+                                        </div>
+                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
+                                            <asp:Label ID="lbl_Unit_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_Unit_HDG_av %>" Width="80px"></asp:Label>
+                                        </div>
+                                        <div style="display: inline-block; padding-right: 5px; height: 28px; text-align: right;">
+                                            <asp:Label ID="lbl_ReqQty_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_QtyReq_HDG_av %>" Width="80px"></asp:Label>
+                                        </div>
+                                        <div style="display: inline-block; padding-right: 5px; height: 28px; text-align: right;">
+                                            <asp:Label ID="lbl_ApprQty_HDG_av" runat="server" Text="Qty Appr." Width="80px"></asp:Label>
+                                        </div>
+                                        <div style="display: inline-block; padding-right: 5px; height: 28px; text-align: right;">
+                                            <asp:Label ID="lbl_FOC_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_FOC_HDG_av %>" Width="80px"></asp:Label>
+                                        </div>
+                                        <div style="display: inline-block; padding-right: 5px; text-align: right;">
+                                            <asp:Label ID="lbl_Price_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_Price_HDG_av %>" Width="100px"></asp:Label>
+                                        </div>
+                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
+                                            <asp:Label ID="lbl_CurrCode_HDG_av" runat="server" Text="Currency" Width="80px"></asp:Label>
+                                        </div>
+                                        <div style="display: inline-block; padding-right: 5px; height: 28px; text-align: right;">
+                                            <asp:Label ID="lbl_CurrRate_HDG_av" runat="server" Text="Curr. Rate" Width="80px"></asp:Label>
+                                        </div>
+                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
+                                            <asp:Label ID="lbl_DeliPoint_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_DeliPotin_HDG_av %>" Width="220px"></asp:Label>
+                                        </div>
+                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
+                                            <asp:Label ID="lbl_DeliDate_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_DeliDate_HDG_av %>" Width="100px"></asp:Label>
+                                        </div>
+                                    </div>--%>
                                     <table style="width: 100%;">
                                         <tr>
-                                            <td class="<%= HiddenClassName %>">
-                                                <asp:Label ID="lbl_BU_HD_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_BU_HD_av %>" Width="80"></asp:Label>
+                                            <td style="padding-left: 3px; padding-right: 3px;" class="<%= HiddenClassName %>">
+                                                <asp:Label ID="lbl_BU_HD_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_BU_HD_av %>" Width="80px"></asp:Label>
                                             </td>
-                                            <td style="width: 200px;">
-                                                <asp:Label ID="lbl_Vendor_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_Vendor_HDG_av %>" Width="95%"></asp:Label>
+                                            <td style="padding-left: 3px; padding-right: 3px;">
+                                                <asp:Label ID="lbl_Vendor_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_Vendor_HDG_av %>" Width="200px"></asp:Label>
                                             </td>
-                                            <td style="width: 200px;">
-                                                <asp:Label ID="lbl_Store_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_Store_HDG_av %>" Width="95%"></asp:Label>
+                                            <td style="padding-left: 3px; padding-right: 3px;">
+                                                <asp:Label ID="lbl_Store_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_Store_HDG_av %>" Width="200px"></asp:Label>
                                             </td>
-                                            <td style="width: 100px;">
-                                                <asp:Label ID="lbl_SKU_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_SKU_HDG_av %>" Width="95%"></asp:Label>
+                                            <td style="padding-left: 3px; padding-right: 3px;">
+                                                <asp:Label ID="lbl_SKU_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_SKU_HDG_av %>" Width="100px"></asp:Label>
                                             </td>
-                                            <td style="width: 160px;">
-                                                <asp:Label ID="lbl_DescEn_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_DescEn_HDG_av %>" Width="95%"></asp:Label>
-                                                <%--</td>
-                                            <td style="width:160px;">--%>
-                                                <%--<asp:Label ID="lbl_Descll_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_Descll_HDG_av %>" Width="95%"></asp:Label>--%>
+                                            <td style="padding-left: 3px; padding-right: 3px;">
+                                                <asp:Label ID="lbl_DescEn_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_DescEn_HDG_av %>" Width="160px"></asp:Label>
                                             </td>
-                                            <td style="width: 100px;">
-                                                <asp:Label ID="lbl_DeliDate_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_DeliDate_HDG_av %>" Width="95%"></asp:Label>
+                                            <td style="padding-left: 3px; padding-right: 3px;">
+                                                <asp:Label ID="lbl_Descll_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_Descll_HDG_av %>" Width="160px"></asp:Label>
                                             </td>
-                                            <td style="width: 200px;">
-                                                <asp:Label ID="lbl_DeliPoint_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_DeliPotin_HDG_av %>" Width="95%"></asp:Label>
+                                            <td style="padding-left: 3px; padding-right: 3px;">
+                                                <asp:Label ID="lbl_DeliDate_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_DeliDate_HDG_av %>" Width="100px"></asp:Label>
                                             </td>
-                                            <td style="width: 80px;">
-                                                <asp:Label ID="lbl_ReqQty_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_QtyReq_HDG_av %>" Width="95%"></asp:Label>
+                                            <td style="padding-left: 3px; padding-right: 3px;">
+                                                <asp:Label ID="lbl_DeliPoint_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_DeliPotin_HDG_av %>" Width="200px"></asp:Label>
                                             </td>
-                                            <td style="width: 80px;">
-                                                <asp:Label ID="lbl_ApprQty_HDG_av" runat="server" Text="Qty Appr." Width="95%"></asp:Label>
+                                            <td style="padding-left: 3px; padding-right: 3px;">
+                                                <asp:Label ID="lbl_ReqQty_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_QtyReq_HDG_av %>" Width="80px"></asp:Label>
                                             </td>
-                                            <td style="width: 80px;">
-                                                <asp:Label ID="lbl_FOC_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_FOC_HDG_av %>" Width="95%"></asp:Label>
+                                            <td style="padding-left: 3px; padding-right: 3px;">
+                                                <asp:Label ID="lbl_ApprQty_HDG_av" runat="server" Text="Qty Appr." Width="80px"></asp:Label>
                                             </td>
-                                            <td style="width: 80px;">
-                                                <asp:Label ID="lbl_Unit_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_Unit_HDG_av %>" Width="95%"></asp:Label>
+                                            <td style="padding-left: 3px; padding-right: 3px;">
+                                                <asp:Label ID="lbl_FOC_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_FOC_HDG_av %>" Width="80px"></asp:Label>
                                             </td>
-                                            <td style="width: 80px;">
-                                                <asp:Label ID="lbl_Price_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_Price_HDG_av %>" Width="95%"></asp:Label>
+                                            <td style="padding-left: 3px; padding-right: 3px;">
+                                                <asp:Label ID="lbl_Unit_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_Unit_HDG_av %>" Width="80px"></asp:Label>
                                             </td>
-                                            <td style="width: 80px;">
-                                                <asp:Label ID="lbl_CurrCode_HDG_av" runat="server" Text="Currency" Width="95%"></asp:Label>
+                                            <td style="padding-left: 3px; padding-right: 3px;">
+                                                <asp:Label ID="lbl_Price_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_Price_HDG_av %>" Width="80px"></asp:Label>
                                             </td>
-                                            <td style="width: 80px;">
-                                                <asp:Label ID="lbl_CurrRate_HDG_av" runat="server" Text="Curr. Rate" Width="95%"></asp:Label>
+                                            <td style="padding-left: 3px; padding-right: 3px;">
+                                                <asp:Label ID="lbl_CurrCode_HDG_av" runat="server" Text="Currency" Width="80px"></asp:Label>
+                                            </td>
+                                            <td style="padding-left: 3px; padding-right: 3px;">
+                                                <asp:Label ID="lbl_CurrRate_HDG_av" runat="server" Text="Curr. Rate" Width="80px"></asp:Label>
                                             </td>
                                         </tr>
                                     </table>
@@ -480,56 +534,99 @@
                                     </div>
                                 </asp:Panel>
                                 <asp:Panel ID="p_AllocateVendor" runat="server">
+                                    <%--<div style="width: 100%;">
+                                        <div class="<%= HiddenClassName %>" style="display: inline-block; padding-right: 5px; height: 28px;">
+                                            <asp:Label ID="lbl_BuCode_av" runat="server" Width="80px"></asp:Label>
+                                        </div>
+                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
+                                            <asp:Label ID="lbl_Vendor_av" runat="server" Width="220px" SkinID="LBL_NR_GRD"></asp:Label>
+                                        </div>
+                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
+                                            <asp:Label ID="lbl_LocationCode_av" runat="server" Width="200px" SkinID="LBL_NR_GRD"></asp:Label>
+                                        </div>
+                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
+                                            <asp:Label ID="lbl_SKU_av" runat="server" Width="100px" SkinID="LBL_NR_GRD"></asp:Label>
+                                        </div>
+                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
+                                            <asp:Label ID="lbl_DescEN_av" runat="server" Width="160px" SkinID="LBL_NR_GRD"></asp:Label>
+                                        </div>
+                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
+                                            <asp:Label ID="lbl_DescLL_av" runat="server" Width="160px" SkinID="LBL_NR_GRD"></asp:Label>
+                                        </div>
+                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
+                                            <asp:Label ID="lbl_OrderUnit_av" runat="server" Width="80px" SkinID="LBL_NR_GRD"></asp:Label>
+                                        </div>
+                                        <div style="display: inline-block; padding-right: 5px; height: 28px; text-align: right;">
+                                            <asp:Label ID="lbl_ReqQty_av" runat="server" Width="80px" SkinID="LBL_NR_GRD"></asp:Label>
+                                        </div>
+                                        <div style="display: inline-block; padding-right: 5px; height: 28px; text-align: right;">
+                                            <asp:Label ID="lbl_ApprQty_av" runat="server" Width="80px" SkinID="LBL_NR_GRD"></asp:Label>
+                                        </div>
+                                        <div style="display: inline-block; padding-right: 5px; height: 28px; text-align: right;">
+                                            <asp:Label ID="lbl_FOC_av" runat="server" Width="80px" SkinID="LBL_NR_GRD"></asp:Label>
+                                        </div>
+                                        <div style="display: inline-block; padding-right: 5px; height: 28px; text-align: right;">
+                                            <asp:Label ID="lbl_Price_av" runat="server" Width="100px" SkinID="LBL_NR_GRD"></asp:Label>
+                                        </div>
+                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
+                                            <asp:Label ID="lbl_CurrCode_av" runat="server" Width="80px" SkinID="LBL_NR_GRD"></asp:Label>
+                                        </div>
+                                        <div style="display: inline-block; padding-right: 5px; height: 28px; text-align: right;">
+                                            <asp:Label ID="lbl_CurrRate_av" runat="server" Width="80px" SkinID="LBL_NR_GRD"></asp:Label>
+                                        </div>
+                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
+                                            <asp:Label ID="lbl_DeliPoint_av" runat="server" Width="220px" SkinID="LBL_NR_GRD"></asp:Label>
+                                        </div>
+                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
+                                            <asp:Label ID="lbl_DeliDate_av" runat="server" Width="100px" SkinID="LBL_NR_GRD"></asp:Label>
+                                        </div>
+                                    </div>--%>
                                     <table style="width: 100%;">
                                         <tr>
                                             <td class="<%= HiddenClassName %>">
-                                                <asp:Label ID="lbl_BuCode_av" runat="server" Width="95%"></asp:Label>
+                                                <asp:Label ID="lbl_BuCode_av" runat="server" Width="80px"></asp:Label>
                                             </td>
-                                            <td style="width: 200px; vertical-align: top;">
-                                                <asp:Label ID="lbl_Vendor_av" runat="server" Width="95%" SkinID="LBL_NR_GRD"></asp:Label>
+                                            <td>
+                                                <asp:Label ID="lbl_Vendor_av" runat="server" Width="200px" SkinID="LBL_NR_GRD"></asp:Label>
                                             </td>
-                                            <td style="width: 200px; vertical-align: top;">
-                                                <asp:Label ID="lbl_LocationCode_av" runat="server" Width="95%" SkinID="LBL_NR_GRD"></asp:Label>
+                                            <td>
+                                                <asp:Label ID="lbl_LocationCode_av" runat="server" Width="200px" SkinID="LBL_NR_GRD"></asp:Label>
                                             </td>
-                                            <td style="width: 100px; vertical-align: top;">
-                                                <asp:Label ID="lbl_SKU_av" runat="server" Width="95%" SkinID="LBL_NR_GRD"></asp:Label>
+                                            <td>
+                                                <asp:Label ID="lbl_SKU_av" runat="server" Width="100px" SkinID="LBL_NR_GRD"></asp:Label>
                                             </td>
-                                            <td style="width: 160px; vertical-align: top;">
-                                                <div>
-                                                    <asp:Label ID="lbl_DescEN_av" runat="server" Width="95%" SkinID="LBL_NR_GRD"></asp:Label>
-                                                </div>
-                                                <%--</td>
-                                            <td style="width:160px;">--%>
-                                                <div>
-                                                    <asp:Label ID="lbl_DescLL_av" runat="server" Width="95%" ForeColor="DarkBlue" SkinID="LBL_NR_GRD"></asp:Label>
-                                                </div>
+                                            <td>
+                                                <asp:Label ID="lbl_DescEN_av" runat="server" Width="160px" SkinID="LBL_NR_GRD"></asp:Label>
                                             </td>
-                                            <td style="width: 100px; vertical-align: top;">
-                                                <asp:Label ID="lbl_DeliDate_av" runat="server" Width="95%" SkinID="LBL_NR_GRD"></asp:Label>
+                                            <td>
+                                                <asp:Label ID="lbl_DescLL_av" runat="server" Width="160px" SkinID="LBL_NR_GRD"></asp:Label>
                                             </td>
-                                            <td style="width: 200px; vertical-align: top;">
-                                                <asp:Label ID="lbl_DeliPoint_av" runat="server" Width="95%" SkinID="LBL_NR_GRD"></asp:Label>
+                                            <td>
+                                                <asp:Label ID="lbl_DeliDate_av" runat="server" Width="100px" SkinID="LBL_NR_GRD"></asp:Label>
                                             </td>
-                                            <td style="width: 80px; vertical-align: top;">
-                                                <asp:Label ID="lbl_ReqQty_av" runat="server" Width="95%" SkinID="LBL_NR_GRD"></asp:Label>
+                                            <td>
+                                                <asp:Label ID="lbl_DeliPoint_av" runat="server" Width="200px" SkinID="LBL_NR_GRD"></asp:Label>
                                             </td>
-                                            <td style="width: 80px; vertical-align: top;">
-                                                <asp:Label ID="lbl_ApprQty_av" runat="server" Width="95%" SkinID="LBL_NR_GRD"></asp:Label>
+                                            <td>
+                                                <asp:Label ID="lbl_ReqQty_av" runat="server" Width="80px" SkinID="LBL_NR_GRD"></asp:Label>
                                             </td>
-                                            <td style="width: 80px; vertical-align: top;">
-                                                <asp:Label ID="lbl_FOC_av" runat="server" Width="95%" SkinID="LBL_NR_GRD"></asp:Label>
+                                            <td>
+                                                <asp:Label ID="lbl_ApprQty_av" runat="server" Width="80px" SkinID="LBL_NR_GRD"></asp:Label>
                                             </td>
-                                            <td style="width: 80px; vertical-align: top;">
-                                                <asp:Label ID="lbl_OrderUnit_av" runat="server" Width="95%" SkinID="LBL_NR_GRD"></asp:Label>
+                                            <td>
+                                                <asp:Label ID="lbl_FOC_av" runat="server" Width="80px" SkinID="LBL_NR_GRD"></asp:Label>
                                             </td>
-                                            <td style="width: 80px; vertical-align: top;">
-                                                <asp:Label ID="lbl_Price_av" runat="server" Width="95%" SkinID="LBL_NR_GRD"></asp:Label>
+                                            <td>
+                                                <asp:Label ID="lbl_OrderUnit_av" runat="server" Width="80px" SkinID="LBL_NR_GRD"></asp:Label>
                                             </td>
-                                            <td style="width: 80px; vertical-align: top;">
-                                                <asp:Label ID="lbl_CurrCode_av" runat="server" Width="95%" SkinID="LBL_NR_GRD"></asp:Label>
+                                            <td>
+                                                <asp:Label ID="lbl_Price_av" runat="server" Width="80px" SkinID="LBL_NR_GRD"></asp:Label>
                                             </td>
-                                            <td style="width: 80px; vertical-align: top;">
-                                                <asp:Label ID="lbl_CurrRate_av" runat="server" Width="95%" SkinID="LBL_NR_GRD"></asp:Label>
+                                            <td>
+                                                <asp:Label ID="lbl_CurrCode_av" runat="server" Width="80px" SkinID="LBL_NR_GRD"></asp:Label>
+                                            </td>
+                                            <td>
+                                                <asp:Label ID="lbl_CurrRate_av" runat="server" Width="80px" SkinID="LBL_NR_GRD"></asp:Label>
                                             </td>
                                         </tr>
                                     </table>
@@ -600,13 +697,14 @@
                                     </div>
                                     <!--DeliveryPoint-->
                                     <div style="display: inline-block;">
-                                        <dx:ASPxComboBox ID="ddl_DeliPoint" runat="server" Width="160px" ValueField="DptCode" ValueType="System.String" TextFormatString="{0} : {1}" EnableCallbackMode="true"
-                                            CallbackPageSize="25" DropDownRows="15" OnLoad="ddl_DeliPoint_Load">
+                                        <dx:ASPxComboBox ID="ddl_DeliPoint" runat="server" Width="160px" ValueField="DptCode"  ValueType="System.String" TextFormatString="{0} : {1}"
+											EnableCallbackMode="true" CallbackPageSize="25" DropDownRows="15" OnLoad="ddl_DeliPoint_Load">
                                             <Columns>
                                                 <dx:ListBoxColumn Caption="Code" FieldName="DptCode" Width="30px" />
                                                 <dx:ListBoxColumn Caption="Name" FieldName="Name" Width="240px" />
                                             </Columns>
                                         </dx:ASPxComboBox>
+									
                                         <asp:HiddenField ID="hf_DeliPoint" runat="server" />
                                     </div>
                                     <!--Currency Code-->
@@ -629,7 +727,7 @@
                                         </dx:ASPxComboBox>
                                     </div>
                                 </asp:Panel>
-                                <asp:Panel ID="p_AllocateVendor" runat="server" Width="100%">
+                                <asp:Panel ID="p_AllocateVendor" runat="server">
                                     <table style="width: 100%;">
                                         <tr>
                                             <td class="<%= HiddenClassName %>">
@@ -645,8 +743,8 @@
                                                         Display="Dynamic" />
                                                 </div>
                                             </td>
-                                            <td style="width: 200px;">
-                                                <dx:ASPxComboBox ID="ddl_Vendor_av" runat="server" Width="200" EnableCallbackMode="true" CallbackPageSize="100" IncrementalFilteringMode="Contains" ValueField="VendorCode"
+                                            <td>
+                                                <dx:ASPxComboBox ID="ddl_Vendor_av" runat="server" Width="200px" EnableCallbackMode="true" CallbackPageSize="100" IncrementalFilteringMode="Contains" ValueField="VendorCode"
                                                     ValueType="System.String" TextFormatString="{0} : {1}" OnLoad="ddl_Vendor_av_Load" OnItemsRequestedByFilterCondition="ddl_Vendor_av_OnItemsRequestedByFilterCondition_SQL"
                                                     OnItemRequestedByValue="ddl_Vendor_av_OnItemRequestedByValue_SQL">
                                                     <Columns>
@@ -654,9 +752,13 @@
                                                         <dx:ListBoxColumn Caption="Name" FieldName="Name" Width="300px" />
                                                     </Columns>
                                                 </dx:ASPxComboBox>
+                                                <div>
+                                                    <asp:RequiredFieldValidator ID="Req_Vendor_av" runat="server" Width="10px" ErrorMessage="*" ValidationGroup="grd_Group_av" ControlToValidate="ddl_Vendor_av"
+                                                        Display="Dynamic" />
+                                                </div>
                                             </td>
-                                            <td style="width: 200px;">
-                                                <dx:ASPxComboBox ID="ddl_LocationCode_av" runat="server" Width="200" AutoPostBack="True" EnableCallbackMode="false" CallbackPageSize="10" IncrementalFilteringMode="Contains"
+                                            <td>
+                                                <dx:ASPxComboBox ID="ddl_LocationCode_av" runat="server" Width="200px" AutoPostBack="True" EnableCallbackMode="false" CallbackPageSize="10" IncrementalFilteringMode="Contains"
                                                     ValueField="LocationCode" ValueType="System.String" TextFormatString="{0} : {1}" OnLoad="ddl_LocationCode_av_Load" OnSelectedIndexChanged="ddl_LocationCode_av_SelectedIndexChanged">
                                                     <Columns>
                                                         <dx:ListBoxColumn Caption="Code" FieldName="LocationCode" Width="100px" />
@@ -664,9 +766,9 @@
                                                     </Columns>
                                                 </dx:ASPxComboBox>
                                             </td>
-                                            <td colspan="2" style="width: 160px;">
-                                                <dx:ASPxComboBox ID="ddl_ProductCode_av" runat="server" Width="90%" AutoPostBack="True" IncrementalFilteringMode="Contains" EnableCallbackMode="true" ValueField="ProductCode"
-                                                    ValueType="System.String" TextFormatString="{0} : {1} : {2}" OnSelectedIndexChanged="ddl_ProductCode_av_SelectedIndexChanged">
+                                            <td colspan="3">
+                                                <dx:ASPxComboBox ID="ddl_ProductCode_av" runat="server" Width="420px" AutoPostBack="True" IncrementalFilteringMode="Contains" EnableCallbackMode="true"
+                                                    ValueField="ProductCode" ValueType="System.String" TextFormatString="{0} : {1} : {2}" OnSelectedIndexChanged="ddl_ProductCode_av_SelectedIndexChanged">
                                                     <Columns>
                                                         <dx:ListBoxColumn Caption="Code" FieldName="ProductCode" Width="100px" />
                                                         <dx:ListBoxColumn Caption="Name" FieldName="ProductDesc1" Width="200px" />
@@ -675,12 +777,12 @@
                                                 </dx:ASPxComboBox>
                                                 <asp:HiddenField ID="hf_ProductCode_av" runat="server" />
                                             </td>
-                                            <td style="width: 100px;">
-                                                <dx:ASPxDateEdit ID="dte_DeliDate_av" runat="server" Width="95%" />
+                                            <td>
+                                                <dx:ASPxDateEdit ID="dte_DeliDate_av" runat="server" Width="100px" />
                                             </td>
-                                            <td style="width: 200px;">
-                                                <dx:ASPxComboBox ID="ddl_DeliPoint_av" runat="server" Width="95%" IncrementalFilteringMode="Contains" ValueField="DptCode" ValueType="System.String" TextFormatString="{0} : {1}"
-                                                    OnLoad="ddl_DeliPoint_av_Load">
+                                            <td>
+                                                <dx:ASPxComboBox ID="ddl_DeliPoint_av" runat="server" Width="200px" IncrementalFilteringMode="Contains" ValueField="DptCode" ValueType="System.String"
+                                                    TextFormatString="{0} : {1}" OnLoad="ddl_DeliPoint_av_Load">
                                                     <Columns>
                                                         <dx:ListBoxColumn Caption="Code" FieldName="DptCode" Width="50px" />
                                                         <dx:ListBoxColumn Caption="Name" FieldName="Name" Width="200px" />
@@ -688,27 +790,27 @@
                                                 </dx:ASPxComboBox>
                                                 <asp:HiddenField ID="hf_DeliPoint_av" runat="server" />
                                             </td>
-                                            <td style="width: 80px;">
-                                                <dx:ASPxSpinEdit ID="txt_ReqQty_av" Width="95%" runat="server" SkinID="sk_qty" AutoPostBack="true" OnNumberChanged="txt_ReqQty_av_NumberChanged" />
+                                            <td>
+                                                <dx:ASPxSpinEdit ID="txt_ReqQty_av" Width="80px" runat="server" SkinID="sk_qty" AutoPostBack="true" OnNumberChanged="txt_ReqQty_av_NumberChanged" />
                                                 <div>
                                                     <asp:RequiredFieldValidator ID="txt_ReqQty_avReq" runat="server" Width="10px" ControlToValidate="txt_ReqQty_av" ErrorMessage="*" Visible="false"> 
                                                     </asp:RequiredFieldValidator>
                                                 </div>
                                             </td>
-                                            <td style="width: 80px;">
-                                                <dx:ASPxSpinEdit ID="txt_ApprQty_av" Width="95%" runat="server" SkinID="sk_qty" OnNumberChanged="txt_ApprQty_av_NumberChanged" />
+                                            <td>
+                                                <dx:ASPxSpinEdit ID="txt_ApprQty_av" Width="80px" runat="server" SkinID="sk_qty" OnNumberChanged="txt_ApprQty_av_NumberChanged" />
                                                 <div>
                                                     <asp:RequiredFieldValidator ID="txt_ApprQty_avReq" runat="server" Width="10px" ControlToValidate="txt_ReqQty_av" ErrorMessage="*" Visible="false" />
                                                 </div>
                                             </td>
-                                            <td style="width: 80px;">
-                                                <dx:ASPxSpinEdit ID="txt_FOC_av" Width="95%" runat="server" SkinID="sk_qty" />
+                                            <td>
+                                                <dx:ASPxSpinEdit ID="txt_FOC_av" Width="80px" runat="server" SkinID="sk_qty" />
                                                 <div>
                                                     <asp:RequiredFieldValidator ID="txt_FOC_avReq" runat="server" Width="10px" ControlToValidate="txt_FOC_av" ErrorMessage="*" Visible="false" />
                                                 </div>
                                             </td>
-                                            <td style="width: 80px;">
-                                                <dx:ASPxComboBox ID="ddl_Unit_av" runat="server" Width="95%" AutoPostBack="True" IncrementalFilteringMode="Contains" ValueField="OrderUnit" ValueType="System.String"
+                                            <td>
+                                                <dx:ASPxComboBox ID="ddl_Unit_av" runat="server" Width="80px" AutoPostBack="True" IncrementalFilteringMode="Contains" ValueField="OrderUnit" ValueType="System.String"
                                                     TextFormatString="{0}" OnLoad="ddl_Unit_av_Load" OnSelectedIndexChanged="ddl_Unit_av_SelectedIndexChanged">
                                                     <Columns>
                                                         <dx:ListBoxColumn Caption="Code" FieldName="OrderUnit" />
@@ -716,8 +818,8 @@
                                                 </dx:ASPxComboBox>
                                                 <asp:HiddenField ID="hf_UnitCode_av" runat="server" />
                                             </td>
-                                            <td style="width: 80px;">
-                                                <dx:ASPxSpinEdit ID="txt_Price_av" runat="server" Width="95%" AutoPostBack="true" HorizontalAlign="Right" NullText="0" Number="0" DecimalPlaces="2" OnNumberChanged="txt_Price_av_NumberChanged">
+                                            <td>
+                                                <dx:ASPxSpinEdit ID="txt_Price_av" runat="server" Width="80px" AutoPostBack="true" HorizontalAlign="Right" NullText="0" Number="0" OnNumberChanged="txt_Price_av_NumberChanged">
                                                     <SpinButtons ShowIncrementButtons="False" />
                                                     <ValidationSettings Display="Dynamic">
                                                         <ErrorFrameStyle ImageSpacing="4px">
@@ -730,8 +832,8 @@
                                                     <asp:RequiredFieldValidator ID="txt_Price_avReq" runat="server" Width="10px" ControlToValidate="txt_Price_av" ErrorMessage="*" Visible="false" />
                                                 </div>
                                             </td>
-                                            <td style="width: 80px;">
-                                                <dx:ASPxComboBox ID="ddl_CurrCode_av" runat="server" Width="95%" AutoPostBack="true" IncrementalFilteringMode="Contains" ValueField="CurrencyCode" ValueType="System.String"
+                                            <td>
+                                                <dx:ASPxComboBox ID="ddl_CurrCode_av" runat="server" Width="80px" AutoPostBack="true" IncrementalFilteringMode="Contains" ValueField="CurrencyCode" ValueType="System.String"
                                                     TextFormatString="{0}" OnInit="ddl_CurrCode_av_OnInit" OnSelectedIndexChanged="ddl_CurrCode_av_SelectedIndexChanged">
                                                     <Columns>
                                                         <dx:ListBoxColumn Caption="Code" FieldName="CurrencyCode" />
@@ -742,9 +844,9 @@
                                                         Display="Dynamic" />
                                                 </div>
                                             </td>
-                                            <td style="width: 80px;">
-                                                <dx:ASPxComboBox ID="ddl_CurrRate_av" runat="server" Width="95%" AutoPostBack="True" DropDownStyle="DropDown" IncrementalFilteringMode="Contains" ValueField="CurrencyRate"
-                                                    TextFormatString="{0:N6}" OnLoad="ddl_CurrRate_av_Load" OnSelectedIndexChanged="ddl_CurrRate_av_SelectedIndexChanged">
+                                            <td>
+                                                <dx:ASPxComboBox ID="ddl_CurrRate_av" runat="server" Width="80px" AutoPostBack="True" DropDownStyle="DropDown" IncrementalFilteringMode="Contains" ValueField="CurrencyRate" TextFormatString="{0:N6}"
+                                                    OnLoad="ddl_CurrRate_av_Load" OnSelectedIndexChanged="ddl_CurrRate_av_SelectedIndexChanged">
                                                     <Columns>
                                                         <dx:ListBoxColumn Caption="Rate" FieldName="CurrencyRate" />
                                                         <dx:ListBoxColumn Caption="Input Date" FieldName="InputDate" />
@@ -1032,7 +1134,7 @@
                                             <tr>
                                                 <td style="height: 17px; width: 100%">
                                                     <asp:GridView ID="grd_PriceCompare1" runat="server" AutoGenerateColumns="False" Width="100%" SkinID="GRD_V1" EmptyDataText="No Data to Display" EnableModelValidation="True"
-                                                        ShowFooter="True" OnRowDataBound="grd_PriceCompare1_RowDataBound">
+                                                        ShowFooter="True">
                                                         <Columns>
                                                             <asp:BoundField HeaderText="<%$ Resources:PC_PR_PrEdit, lbl_BU_Compare_Nm %>" DataField="BuCode">
                                                                 <HeaderStyle HorizontalAlign="Left" />
@@ -1082,16 +1184,6 @@
                                                             <asp:BoundField DataField="CurrencyRate" Visible="false" />
                                                             <asp:TemplateField HeaderText="">
                                                                 <ItemTemplate>
-                                                                    <asp:HiddenField runat="server" ID="hf_PriceCompare_VendorCode" />
-                                                                    <asp:HiddenField runat="server" ID="hf_PriceCompare_FocQty" />
-                                                                    <asp:HiddenField runat="server" ID="hf_PriceCompare_Price" />
-                                                                    <asp:HiddenField runat="server" ID="hf_PriceCompare_DiscRate" />
-                                                                    <asp:HiddenField runat="server" ID="hf_PriceCompare_DiscAmt" />
-                                                                    <asp:HiddenField runat="server" ID="hf_PriceCompare_TaxType" />
-                                                                    <asp:HiddenField runat="server" ID="hf_PriceCompare_TaxRate" />
-                                                                    <asp:HiddenField runat="server" ID="hf_PriceCompare_CurrCode" />                                                                   
-                                                                    <%--<asp:HiddenField runat="server" ID="hf_PriceCompare_CurrRate" />--%>
-
                                                                     <dx:ASPxButton ID="btn_Assign_av" runat="server" Text="Assign" OnClick="btn_Assign_av_Click">
                                                                     </dx:ASPxButton>
                                                                 </ItemTemplate>
@@ -1782,8 +1874,6 @@
                 </div>
             </div>
             <!-- Variables -->
-            <asp:HiddenField ID="hf_LoginName" runat="server" />
-            <asp:HiddenField ID="hf_ConnStr" runat="server" />
             <asp:ObjectDataSource ID="ods_Store_Dt" runat="server" SelectMethod="GetList" TypeName="Blue.BL.Option.Inventory.StoreLct" OldValuesParameterFormatString="original_{0}">
                 <SelectParameters>
                     <asp:ControlParameter ControlID="hf_LoginName" Name="LoginName" PropertyName="Value" Type="String" />
@@ -1809,7 +1899,8 @@
                     <asp:ControlParameter ControlID="hf_ConnStr" Name="ConnStr" PropertyName="Value" Type="String" />
                 </SelectParameters>
             </asp:ObjectDataSource>
-            <!-- Popups -->
+            <asp:HiddenField ID="hf_LoginName" runat="server" />
+            <asp:HiddenField ID="hf_ConnStr" runat="server" />
             <dx:ASPxPopupControl ID="pop_AlertBox" runat="server" HeaderText="" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" Width="360px"
                 Modal="True" ShowPageScrollbarWhenModal="True">
                 <ContentCollection>
@@ -1968,7 +2059,7 @@
                     </dx:PopupControlContentControl>
                 </ContentCollection>
             </dx:ASPxPopupControl>
-            <%--<dx:ASPxPopupControl ID="pop_AddVendor" runat="server" HeaderText="Warning" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" Width="360px"
+            <dx:ASPxPopupControl ID="pop_AddVendor" runat="server" HeaderText="Warning" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" Width="360px"
                 Modal="True" ShowPageScrollbarWhenModal="True">
                 <ContentCollection>
                     <dx:PopupControlContentControl ID="PopupControlContentControl9" runat="server">
@@ -1980,9 +2071,15 @@
                             </tr>
                             <tr>
                                 <td align="right">
+                                    <%--<dx:ASPxButton ID="btn_OkAddVendor" runat="server" Text="Yes" Width="50px" OnClick="btn_OkAddVendor_Click"
+                                                        SkinID="BTN_N1">
+                                                    </dx:ASPxButton>--%>
                                     <asp:Button ID="btn_OkAddVendor" runat="server" Text="<%$ Resources:PC_PR_PrEdit, btn_OkAddVendor %>" Width="50px" OnClick="btn_OkAddVendor_Click" SkinID="BTN_V1" />
                                 </td>
                                 <td align="left" style="width: 160px">
+                                    <%--<dx:ASPxButton ID="btn_CancelAddVendor" runat="server" Text="No" Width="50px" OnClick="btn_CancelAddVendor_Click"
+                                                        SkinID="BTN_N1">
+                                                    </dx:ASPxButton>--%>
                                     <asp:Button ID="btn_CancelAddVendor" runat="server" Text="<%$ Resources:PC_PR_PrEdit, btn_CancelAddVendor %>" Width="50px" OnClick="btn_CancelAddVendor_Click"
                                         SkinID="BTN_V1" />
                                 </td>
@@ -1990,8 +2087,8 @@
                         </table>
                     </dx:PopupControlContentControl>
                 </ContentCollection>
-            </dx:ASPxPopupControl>--%>
-            <%--<dx:ASPxPopupControl ID="pop_ConfirmSaveAddVendor" runat="server" HeaderText="Warning" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter"
+            </dx:ASPxPopupControl>
+            <dx:ASPxPopupControl ID="pop_ConfirmSaveAddVendor" runat="server" HeaderText="Warning" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter"
                 Width="360px" Modal="True" ShowPageScrollbarWhenModal="True">
                 <ContentCollection>
                     <dx:PopupControlContentControl ID="PopupControlContentControl10" runat="server">
@@ -2003,10 +2100,16 @@
                             </tr>
                             <tr>
                                 <td align="right">
+                                    <%--<dx:ASPxButton ID="btn_ConfirmSaveAddVendor" runat="server" Text="Yes" Width="50px"
+                                                        OnClick="btn_ConfirmSaveAddVendor_Click" SkinID="BTN_N1">
+                                                    </dx:ASPxButton>--%>
                                     <asp:Button ID="btn_ConfirmSaveAddVendor" runat="server" Text="<%$ Resources:PC_PR_PrEdit, btn_ConfirmSaveAddVendor %>" Width="50px" OnClick="btn_ConfirmSaveAddVendor_Click"
                                         SkinID="BTN_V1" />
                                 </td>
                                 <td align="left" style="width: 160px">
+                                    <%-- <dx:ASPxButton ID="btn_CancelSaveAddVendor" runat="server" Text="No" Width="50px"
+                                                        OnClick="btn_CancelSaveAddVendor_Click" SkinID="BTN_N1">
+                                                    </dx:ASPxButton>--%>
                                     <asp:Button ID="btn_CancelSaveAddVendor" runat="server" Text="<%$ Resources:PC_PR_PrEdit, btn_CancelSaveAddVendor %>" Width="50px" OnClick="btn_CancelSaveAddVendor_Click"
                                         SkinID="BTN_V1" />
                                 </td>
@@ -2014,7 +2117,7 @@
                         </table>
                     </dx:PopupControlContentControl>
                 </ContentCollection>
-            </dx:ASPxPopupControl>--%>
+            </dx:ASPxPopupControl>
             <dx:ASPxPopupControl ID="pop_AlertProductSame" runat="server" HeaderText="Warning" Modal="True" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter"
                 ShowCloseButton="False" Width="300px" CloseAction="CloseButton" ShowPageScrollbarWhenModal="True">
                 <ContentCollection>
@@ -2204,7 +2307,7 @@
                 </ContentCollection>
             </dx:ASPxPopupControl>
             <%--End Added.--%>
-            <%--<dx:ASPxPopupControl ID="pop_NewVendor" runat="server" HeaderText="Warning" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" PopupAction="None"
+            <dx:ASPxPopupControl ID="pop_NewVendor" runat="server" HeaderText="Warning" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" PopupAction="None"
                 Modal="True" ShowPageScrollbarWhenModal="True">
                 <ContentCollection>
                     <dx:PopupControlContentControl ID="PopupControlContentControl19" runat="server">
@@ -2263,9 +2366,10 @@
                         </table>
                     </dx:PopupControlContentControl>
                 </ContentCollection>
-            </dx:ASPxPopupControl>--%>
+            </dx:ASPxPopupControl>
         </ContentTemplate>
         <Triggers>
+            <asp:AsyncPostBackTrigger ControlID="menu_GrdBar" EventName="ItemClick" />
             <asp:AsyncPostBackTrigger ControlID="menu_GrdBar" EventName="ItemClick" />
         </Triggers>
     </asp:UpdatePanel>
