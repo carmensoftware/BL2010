@@ -171,8 +171,10 @@ namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
                     // Added on: 23/11/2017, For: New feature(Get new account-Mapping)
                     case "GETNEW":
                         GetApiData();
+
                         string errMsg = string.Empty;
                         bool returnExe = EXEC_spGetNewAccountMapping(ref errMsg);
+                        
                         if (!returnExe)
                         {
                             // lbl_Warning.Text = errMsg;
@@ -202,8 +204,8 @@ namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
 
                 if (intfType.ToLower() == "api")
                 {
-                    string apiAuth = keys.Value("auth");
-                    string apiAccount = keys.Value("account");
+                    //string apiAuth = keys.Value("auth");
+                    string apiAccount = keys.Value("accountcode");
                     string apiDepartment = keys.Value("department");
 
                     string baseUrl = keys.Value("host");
@@ -215,6 +217,8 @@ namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
 
                         // Account Code
                         var jsonAcc = api.Get(apiAccount);
+
+                        //lbl_Message.Text = jsonAcc;
 
                         var account = JsonConvert.DeserializeObject<RootAcc>(jsonAcc);
 
@@ -262,7 +266,9 @@ namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
                     }
                     catch (Exception ex)
                     {
-                        Response.Write(string.Format("<script>alert(`{0}`);</script>", ex.Message));
+                        //lbl_Message.Text = "Error : " + ex.Message;
+                        //throw new Exception(ex.Message);
+                        //Response.Write(string.Format("<script>alert(`{0}`);</script>", ex.Message));
                     }
 
                     //using (var client = new HttpClient())

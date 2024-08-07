@@ -631,7 +631,7 @@
             <asp:GridView ID="GridView1" runat="server">
             </asp:GridView>
             <br />
-            <asp:Label ID="lbl_Message" runat="server" />
+            <asp:Label ID="lbl_Message" runat="server" BackColor="#ffffcc"  />
         </ContentTemplate>
         <Triggers>
             <asp:PostBackTrigger ControlID="btnExportHide" />

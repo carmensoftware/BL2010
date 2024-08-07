@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Net;
+using System.Text;
 
 /// <summary>
 /// Summary description for API
@@ -27,7 +28,10 @@ public class API
                 client.BaseAddress = _host;
                 client.Headers.Add("Authorization", _auth);
 
-                return client.DownloadString(SetEndpoint(endpoint));
+                var data =  client.DownloadData(SetEndpoint(endpoint));
+
+
+                return Encoding.UTF8.GetString(data);
             }
 
         }

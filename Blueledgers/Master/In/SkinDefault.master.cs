@@ -23,15 +23,11 @@ namespace BlueLedger.PL.Master.In
             if (!IsPostBack)
             {
 
-                // Display Login Information
-                //lnk_UserName.Text = LoginInfo.LoginName;
-
                 //Display Menu
                 Menu.DataBind();
 
                 if (Session["License"] != null)
                 {
-                    //Response.Write("<script>alert('" + Session["License"].ToString() + "');</script>");
                     ScriptManager.RegisterStartupScript(this, this.GetType(), System.Guid.NewGuid().ToString(), "alert('" + Session["License"].ToString() + "');", true);
                     Session["License"] = null;
                 }
@@ -43,13 +39,18 @@ namespace BlueLedger.PL.Master.In
 
         private void SetHeaderScripts()
         {
-            string rootPath = ResolveUrl("~");
+            var rootPath = ResolveUrl("~");
+            var sb = new System.Text.StringBuilder();
 
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
-            sb.Append(string.Format(" <link rel='stylesheet' type='text/css' href='{0}App_Themes/Default/theme.css' />", rootPath));
-            sb.Append(string.Format(" <link rel='stylesheet' type='text/css' href='{0}App_Themes/Default/layout.css' />", rootPath));
+            // css
+
             //sb.Append(string.Format(" <link rel='stylesheet' type='text/css' href='{0}App_Themes/Default/theme.css' />", rootPath));
-            sb.Append(string.Format(" <link rel='stylesheet' type='text/css' href='{0}Scripts/jquery-ui-1.8.21.custom.css' />", rootPath));
+            //sb.Append(string.Format(" <link rel='stylesheet' type='text/css' href='{0}App_Themes/Default/layout.css' />", rootPath));
+            //sb.Append(string.Format(" <link rel='stylesheet' type='text/css' href='{0}App_Themes/Default/bl-flex.css' />", rootPath));
+            //sb.Append(string.Format(" <link rel='stylesheet' type='text/css' href='{0}Scripts/jquery-ui-1.8.21.custom.css' />", rootPath));
+
+
+            // javascripts
             sb.Append(string.Format(" <script type='text/javascript' src='{0}Scripts/jquery-1.9.1.js'></script>", rootPath));
             sb.Append(string.Format(" <script type='text/javascript' src='{0}Scripts/jquery-ui-1.8.21.custom.min.js'></script>", rootPath));
             sb.Append(string.Format(" <script type='text/javascript' src='{0}Scripts/GnxLib.js'></script>", rootPath));

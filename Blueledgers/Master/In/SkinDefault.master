@@ -11,6 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex" />
     <meta name="googlebot" content="noindex" />
+    <link runat="server" href="~/Scripts/jquery-ui-1.8.21.custom.css" rel="stylesheet" type="text/css" />
     <title>Blueledgers</title>
     <asp:ContentPlaceHolder ID="head" runat="server">
     </asp:ContentPlaceHolder>
@@ -93,11 +94,13 @@
             <br />
         </div>
     </div>
-    <footer style="position: fixed; bottom: 0; width: 100%; color: gray; text-align: right; right: 25px;">
-            Period :
-            <%= (new Blue.BL.PC.Priod()).GetLatestOpenStartDate(LoginInfo.ConnStr).ToShortDateString() %>
-    </footer>
+
     </form>
+    <footer style="position: fixed; bottom: 0; width: 100%; color: gray; text-align: right; right: 25px;">
+            Period : <%= (new Blue.BL.PC.Priod()).GetLatestOpenStartDate(LoginInfo.ConnStr).ToShortDateString() %>
+    </footer>
+
+
     <script type="text/javascript">
         $(document).keypress(
             function (event) {
