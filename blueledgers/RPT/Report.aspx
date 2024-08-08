@@ -70,7 +70,7 @@
     </div>
     <hr />
     <div style="display: flex; align-items: center; flex-direction: column; with: 100%; margin-bottom: 20px;">
-        <asp:Panel runat="server" ID="panel_Dialog" CssClass="panel-dialog" BackColor="WhiteSmoke" Width="640">
+        <asp:Panel runat="server" ID="panel_Dialog" ClientIDMode="Static" CssClass="panel-dialog" BackColor="WhiteSmoke" Width="640">
         </asp:Panel>
         <hr />
         <button type="button" id="btn_submit" class="btn-view">
@@ -90,9 +90,52 @@
             // Init
             $('.dialog-select').select2();
 
+            const query = window.location.search;
+            const urlParams = new URLSearchParams(query);
+            
             // Event(s)
+            $('#btn_submit').on('click', function () { 
+                let parameters = [];
+
+                $('.parameter').each(function(){
+                    let item = $(this);
+                    let tagName = item.prop('tagName');
+                    let name = '';
+                    let value = '';
+
+
+                    switch(tagName){
+                        case 'TABLE': // DateEdit
+                            name = item.find('input').prop('name');
+                            value = item.find('input').val().split('/').reverse().join('-');
+                            break;
+                        case 'SELECT':
+                            name = item.prop('name');
+                            value = item.val();
+                            break;
+                        case 'SPAN': // CheckBox
+                            name = item.find('input').prop('name');
+                            value = item.find('input').prop('checked');
+                            break;
+                    }
+
+                    parameters.push({
+                        name : name,
+                        value: value
+                   });
+                });
+
+
+                let id = urlParams.get('id');
+                let param = btoa(JSON.stringify(parameters));
+                let path = window.location.href.split('?')[0]
+                location.href = `${path}?id=${id}&parameters=${param}`;
+
+                //console.log(id, param);
+             });
 
             // Method(s)
+
         });
     </script>
 </body>

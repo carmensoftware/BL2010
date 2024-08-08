@@ -1,22 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using BlueLedger.PL.BaseClass;
 using System.Data;
 using System.Data.SqlClient;
-using System.Xml;
-using Newtonsoft.Json;
 using System.IO;
-using System.Web.UI.HtmlControls;
-using Newtonsoft.Json.Linq;
+using System.Linq;
 using System.Text;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.HtmlControls;
+using System.Web.UI.WebControls;
+using System.Xml;
+using BlueLedger.PL.BaseClass;
+using DevExpress.Web.ASPxEditors;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Threading;
+using System.Globalization;
 
 public partial class Report : System.Web.UI.Page
 {
     protected LoginInformation LoginInfo;
+
+    protected override void InitializeCulture()
+    {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("th") { DateTimeFormat = { Calendar = new GregorianCalendar() } };
+
+        //Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("th-TH");
+
+        base.InitializeCulture();
+    }
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -126,6 +138,7 @@ public partial class Report : System.Web.UI.Page
             return null;
     }
 
+    #region -- Dialog
 
     // Set dialog
     private void SetDialog(Panel panel, string json)
@@ -154,157 +167,254 @@ public partial class Report : System.Web.UI.Page
         // Create Controls
         var dialogList = JArray.Parse(report["dialog"].ToString());
 
-        foreach (var item in dialogList)
+        foreach (var dialog in dialogList)
         {
-            var type = item["type"].Value<string>();
+            var type = dialog["type"].Value<string>();
 
             switch (type.ToLower())
             {
                 case "date":
+                    var dateEdit = new DialogItem()
+                    {
+                        Name = GetValue(dialog, "name"),
+                        Text = GetValue(dialog, "text"),
+                        Value = GetValue(dialog, "value")
+                    };
+
+                    panel.Controls.Add(Create_DateEdit(dateEdit));
+
                     break;
                 case "select":
-                    var select = new Dialog_Select();
+                    var select = new Dialog_Select()
+                    {
+                        Name = GetValue(dialog, "name"),
+                        Text = GetValue(dialog, "text"),
+                        Value = GetValue(dialog, "value")
+                    };
 
-                    select.Name = GetValue(item, "name");
-                    select.Text = GetValue(item, "text");
-                    select.Data = GetValue(item, "data");
-                    select.FieldText = GetValue(item, "fieldText");
-                    select.FieldValue = GetValue(item, "fieldValue");
-                    select.Value = GetValue(item, "value");
+                    select.Data = GetValue(dialog, "data");
+                    select.FieldText = GetValue(dialog, "fieldText");
+                    select.FieldValue = GetValue(dialog, "fieldValue");
 
 
+                   
+                    if (dialog["options"] != null)
+                    {
+                        var options = new List<Dialog_Select_Option>();
+
+                        var items = dialog["options"];
+
+                        foreach (var item in items)
+                        {
+                            options.Add(new Dialog_Select_Option
+                            {
+                                Value = GetValue(item, "value"),
+                                Text = GetValue(item, "text")
+                            });
+                        }
+
+                        select.Options = options;
+                    }
+                    else
+                        select.Options = null;
 
                     panel.Controls.Add(Create_Select(select, ds));
-
                     break;
                 case "checkbox":
+                    var checkbox = new DialogItem()
+                    {
+                        Name = GetValue(dialog, "name"),
+                        Text = GetValue(dialog, "text"),
+                        Value = GetValue(dialog, "value")
+                    };
+
+                    panel.Controls.Add(Create_CheckBox(checkbox));
+
                     break;
             }
         }
 
 
 
-        //foreach (DataTable dt in ds.Tables)
-        //{
-        //    test.AppendLine(dt.TableName);
-        //}
 
-        //lbl_test.Text = test.ToString();
-
-
-        //var item1 = new Dialog_Select
-        //{
-        //    Name = "test",
-        //    Text = "Product",
-        //    Options = new Dialog_Select_Option[]
-        //    {
-        //        new Dialog_Select_Option{ Text="Procurement", Value="PC" },
-        //        new Dialog_Select_Option{ Text="Inventory", Value="IN" },
-        //        new Dialog_Select_Option{ Text="Portion", Value="PT" },
-        //    }
-
-        //};
-
-
-        //var select1 = Create_Select(item1, ds);
-
-        //var item2 = new Dialog_Select
-        //{
-        //    Name = "test2",
-        //    Text = "To",
-        //    Data="Product",
-        //    FieldText = "Text",
-        //    FieldValue = "Value",
-        //};
-
-
-        //var select2 = Create_Select(item2, ds);
-
-        //panel.Controls.Add(select1);
-        //panel.Controls.Add(select2);
     }
 
     private string GetValue(JToken token, string propertyName)
     {
         JToken item;
 
-        if (((JObject) token).TryGetValue(propertyName, out item))
+        if (((JObject)token).TryGetValue(propertyName, out item))
         {
             return item.Value<string>();
         }
         else
             return null;
-
-
-
-
-
-
     }
 
-    private HtmlGenericControl Create_Select(Dialog_Select item, DataSet ds = null)
+
+    private HtmlGenericControl Create_Div_Label(string text)
     {
         var div = new HtmlGenericControl();
+
         div.TagName = "div";
         div.Attributes["class"] = "dialog-div";
 
         var label = new HtmlGenericControl();
+
         label.TagName = "label";
-        label.InnerText = item.Text;
+        label.InnerText = text;
         label.Attributes.Add("class", "dialog-label");
 
+        div.Controls.Add(label);
+
+        return div;
+    }
+
+    private HtmlGenericControl Create_DateEdit(DialogItem item)
+    {
+        var div = Create_Div_Label(item.Text);
+
+        var dateEdit = new ASPxDateEdit();
+
+        //dateEdit.ClientIDMode = System.Web.UI.ClientIDMode.Static;
+        dateEdit.ID = item.Name;
+        dateEdit.CssClass = "parameter";
+
+        var date = DateTime.Today;
+
+        var firstDayOfMonth = new DateTime(date.Year, date.Month, 1);
+        var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddSeconds(-1);
+        switch (item.Value.ToLower())
+        {
+            case "startmonth":
+                date = firstDayOfMonth;
+                break;
+            case "endmonth":
+                date = lastDayOfMonth;
+                break;
+            case "startyear":
+                date = new DateTime(date.Year, 1, 1);
+                break;
+            case "endyear":
+                date = new DateTime(date.Year, 12, 31);
+                break;
+            default:
+                break;
+        }
+
+        dateEdit.Date = date;
+
+        div.Controls.Add(dateEdit);
+
+        return div;
+    }
+
+    private HtmlGenericControl Create_Select(Dialog_Select item, DataSet ds = null)
+    {
+        var div = Create_Div_Label(item.Text);
+
         var select = new HtmlGenericControl();
+
+
         select.TagName = "select";
+        select.Attributes["id"] = item.Name;
         select.Attributes["name"] = item.Name;
-        select.Attributes["class"] = "dialog-select";
+        select.Attributes["class"] = "dialog-select parameter";
+
+
+        var options = new List<Dialog_Select_Option>();
 
         if (string.IsNullOrEmpty(item.Data))
-        {
-            foreach (var option in item.Options)
-            {
-                var o = new HtmlGenericControl();
-                o.TagName = "option";
-                o.Attributes["value"] = option.Value;
-                o.InnerText = option.Text;
-
-                select.Controls.Add(o);
-            }
-        }
+            options.AddRange(item.Options);
         else
         {
             var tableName = item.Data.ToLower();
             var dt = ds.Tables[tableName];
 
-            for (int i = 0; i < dt.Rows.Count; i++ )
-            {
-                DataRow dr = dt.Rows[i];
-                var value = dr[item.FieldValue].ToString();
-                var text = dr[item.FieldText].ToString();
-
-                var o = new HtmlGenericControl();
-                o.TagName = "option";
-                o.Attributes["value"] = value;
-                o.InnerText = text;
-
-                if (value == "1FB03")
+            options.AddRange(dt.AsEnumerable()
+                .Select(x => new Dialog_Select_Option
                 {
-                    o.Attributes["selected"] = "true";
+                    Value = x.Field<string>(item.FieldValue),
+                    Text = x.Field<string>(item.FieldText),
+                }));
+        }
+
+        var index = options.Count == 0 ? -1 : 0;
+        switch (item.Value.ToLower())
+        {
+            case "last":
+                index = options.Count - 1;
+                break;
+            case "first":
+                index = 0;
+                break;
+            default:
+                if(Int32.TryParse(item.Value, out index)){
+                    index = index >= options.Count ? options.Count -1 : index;
                 }
-
-                select.Controls.Add(o);
-            }
-
+                break;
         }
 
 
-        div.Controls.Add(label);
+
+
+        for(int i =0; i < options.Count ; i ++)
+        {
+            var option = options[i];
+            var op = new HtmlGenericControl();
+            op.TagName = "option";
+            op.Attributes["value"] = option.Value;
+            op.InnerText = option.Text;
+
+            if (index == i)
+            {
+                op.Attributes["selected"] = "true";
+            }
+
+            select.Controls.Add(op);
+        }
+
+
+
+
         div.Controls.Add(select);
 
 
         return div;
     }
 
+    private HtmlGenericControl Create_CheckBox(DialogItem item)
+    {
+        var div = new HtmlGenericControl();
 
+        div.TagName = "div";
+        div.Attributes["style"] = "padding-top:5px; padding-bottom:5px; display:flex; align-items:center;";
+
+        var check = new CheckBox();
+
+        check.ClientIDMode = System.Web.UI.ClientIDMode.Static;
+        check.ID = item.Name;
+        check.Text = item.Text;
+        check.CssClass = "parameter";
+
+        switch (item.Value.ToLower())
+        {
+            case "check":
+            case "checked":
+            case "true":
+                check.Checked = true;
+                break;
+            default:
+                check.Checked = false;
+                break;
+        }
+        div.Controls.Add(check);
+
+        return div;
+    }
+
+
+    #endregion
 
 
     private void LoadReport_Old(ReportItem item)
@@ -348,6 +458,8 @@ public partial class Report : System.Web.UI.Page
 
     }
 
+    #region --Class--
+
     internal class ReportItem
     {
         public string Id { get; set; }
@@ -368,7 +480,7 @@ public partial class Report : System.Web.UI.Page
         checkbox
     }
 
-    public class DialogBase
+    public class DialogItem
     {
         public string Name { get; set; }
         public string Text { get; set; }
@@ -376,10 +488,7 @@ public partial class Report : System.Web.UI.Page
         public string Value { get; set; }
     }
 
-
-
-
-    public class Dialog_Select : DialogBase
+    public class Dialog_Select : DialogItem
     {
         public string Data { get; set; }
         public string FieldValue { get; set; }
@@ -392,4 +501,6 @@ public partial class Report : System.Web.UI.Page
         public string Value { get; set; }
         public string Text { get; set; }
     }
+    #endregion
+
 }
