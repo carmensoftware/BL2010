@@ -19,36 +19,52 @@ using System.Globalization;
 
 public partial class Report : System.Web.UI.Page
 {
+    private readonly string pathReport = @"~\App_Files\Reports\";
+
     protected LoginInformation LoginInfo;
+
+    protected IEnumerable<DialogParameter> _Parameters
+    {
+        get
+        {
+            var urlParam = Request.QueryString["parameters"] == null ? "" : Request.QueryString["parameters"].ToString();
+            var json = DecodeBase64(urlParam);
+            return JsonConvert.DeserializeObject<IEnumerable<DialogParameter>>(json);
+
+            //return values == null ? new DialogParameter[] { } : values.ToArray();
+        }
+    }
+
 
     protected override void InitializeCulture()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("th") { DateTimeFormat = { Calendar = new GregorianCalendar() } };
-
-        //Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("th-TH");
-
         base.InitializeCulture();
     }
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        if (Session["LoginInfo"] == null)
+        try
         {
-            Session["PreviousPage"] = HttpContext.Current.Request.Url.AbsoluteUri;
-            Response.Redirect("~/ErrorPages/SessionTimeOut.aspx");
-        }
+            if (Session["LoginInfo"] == null)
+            {
+                Session["PreviousPage"] = HttpContext.Current.Request.Url.AbsoluteUri;
+                Response.Redirect("~/ErrorPages/SessionTimeOut.aspx");
+            }
 
-        LoginInfo = (LoginInformation)Session["LoginInfo"];
+            LoginInfo = (LoginInformation)Session["LoginInfo"];
 
-        if (!IsPostBack)
-        {
             Page_Setup();
+        }
+        catch
+        {
+            Response.Redirect("~/Option/User/Default.aspx");
         }
     }
 
     private void Page_Setup()
     {
-        this.Title = string.Format("Report-{0}", LoginInfo.BuInfo.BuName);
+        this.Title = string.Format("Reports - {0}", LoginInfo.BuInfo.BuName);
         var id = Request.QueryString["id"];
 
         if (id != null)
@@ -60,12 +76,16 @@ public partial class Report : System.Web.UI.Page
 
             if (string.IsNullOrEmpty(report.Dialog))
             {
+                panel_Dialog.Visible = false;
                 LoadReport_Old(report);
             }
             else
             {
-                WebReport1.Visible = false;
-                SetDialog(panel_Dialog, report.Dialog);
+                panel_Dialog.Visible = true;
+                var parameters = _Parameters;
+
+                SetDialog(panel_Parameters, report.Dialog, parameters);
+                LoadReport(report.Report, parameters);
             }
 
         }
@@ -81,6 +101,18 @@ public partial class Report : System.Web.UI.Page
 
 
     // Method(s)
+    private string EncodeBase64(string value)
+    {
+        var valueBytes = Encoding.UTF8.GetBytes(value);
+        return Convert.ToBase64String(valueBytes);
+    }
+
+    private string DecodeBase64(string value)
+    {
+        var valueBytes = System.Convert.FromBase64String(value);
+        return Encoding.UTF8.GetString(valueBytes);
+    }
+
     private DataTable ExecuteQuery(string connectionString, string query, IEnumerable<SqlParameter> parameters = null)
     {
         try
@@ -138,10 +170,10 @@ public partial class Report : System.Web.UI.Page
             return null;
     }
 
-    #region -- Dialog
+    #region -- Dialog --
 
     // Set dialog
-    private void SetDialog(Panel panel, string json)
+    private void SetDialog(Panel panel, string json, IEnumerable<DialogParameter> parameters = null)
     {
         var connStr = LoginInfo.ConnStr;
         var test = new StringBuilder();
@@ -170,26 +202,39 @@ public partial class Report : System.Web.UI.Page
         foreach (var dialog in dialogList)
         {
             var type = dialog["type"].Value<string>();
+            var name = GetValue(dialog, "name");
+            var text = GetValue(dialog, "text");
+            var value = GetValue(dialog, "value");
+            var p_value = "";
+
+            if (parameters != null)
+            {
+                var item = parameters.FirstOrDefault(x => x.Name.ToLower() == name.ToLower());
+
+                p_value = item != null ? item.Value : "";
+            }
+
 
             switch (type.ToLower())
             {
                 case "date":
                     var dateEdit = new DialogItem()
                     {
-                        Name = GetValue(dialog, "name"),
-                        Text = GetValue(dialog, "text"),
-                        Value = GetValue(dialog, "value")
+                        Name = name,
+                        Text = text,
+                        Value = value
                     };
 
-                    panel.Controls.Add(Create_DateEdit(dateEdit));
+                    panel.Controls.Add(Create_DateEdit(dateEdit, p_value));
 
                     break;
+
                 case "select":
                     var select = new Dialog_Select()
                     {
-                        Name = GetValue(dialog, "name"),
-                        Text = GetValue(dialog, "text"),
-                        Value = GetValue(dialog, "value")
+                        Name = name,
+                        Text = text,
+                        Value = value
                     };
 
                     select.Data = GetValue(dialog, "data");
@@ -197,7 +242,7 @@ public partial class Report : System.Web.UI.Page
                     select.FieldValue = GetValue(dialog, "fieldValue");
 
 
-                   
+
                     if (dialog["options"] != null)
                     {
                         var options = new List<Dialog_Select_Option>();
@@ -218,17 +263,18 @@ public partial class Report : System.Web.UI.Page
                     else
                         select.Options = null;
 
-                    panel.Controls.Add(Create_Select(select, ds));
+                    panel.Controls.Add(Create_Select(select, ds, p_value));
                     break;
+
                 case "checkbox":
                     var checkbox = new DialogItem()
                     {
-                        Name = GetValue(dialog, "name"),
-                        Text = GetValue(dialog, "text"),
-                        Value = GetValue(dialog, "value")
+                        Name = name,
+                        Text = text,
+                        Value = value
                     };
 
-                    panel.Controls.Add(Create_CheckBox(checkbox));
+                    panel.Controls.Add(Create_CheckBox(checkbox, p_value));
 
                     break;
             }
@@ -251,7 +297,6 @@ public partial class Report : System.Web.UI.Page
             return null;
     }
 
-
     private HtmlGenericControl Create_Div_Label(string text)
     {
         var div = new HtmlGenericControl();
@@ -270,7 +315,7 @@ public partial class Report : System.Web.UI.Page
         return div;
     }
 
-    private HtmlGenericControl Create_DateEdit(DialogItem item)
+    private HtmlGenericControl Create_DateEdit(DialogItem item, string parameter_value)
     {
         var div = Create_Div_Label(item.Text);
 
@@ -284,22 +329,35 @@ public partial class Report : System.Web.UI.Page
 
         var firstDayOfMonth = new DateTime(date.Year, date.Month, 1);
         var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddSeconds(-1);
-        switch (item.Value.ToLower())
+
+        if (string.IsNullOrEmpty(parameter_value))
         {
-            case "startmonth":
-                date = firstDayOfMonth;
-                break;
-            case "endmonth":
-                date = lastDayOfMonth;
-                break;
-            case "startyear":
-                date = new DateTime(date.Year, 1, 1);
-                break;
-            case "endyear":
-                date = new DateTime(date.Year, 12, 31);
-                break;
-            default:
-                break;
+            switch (item.Value.ToLower())
+            {
+                case "startmonth":
+                    date = firstDayOfMonth;
+                    break;
+                case "endmonth":
+                    date = lastDayOfMonth;
+                    break;
+                case "startyear":
+                    date = new DateTime(date.Year, 1, 1);
+                    break;
+                case "endyear":
+                    date = new DateTime(date.Year, 12, 31);
+                    break;
+                default:
+                    break;
+            }
+        }
+        else
+        {
+            var testDate = DateTime.Today;
+
+            if (DateTime.TryParse(parameter_value, out testDate))
+            {
+                date = testDate;
+            }
         }
 
         dateEdit.Date = date;
@@ -309,12 +367,10 @@ public partial class Report : System.Web.UI.Page
         return div;
     }
 
-    private HtmlGenericControl Create_Select(Dialog_Select item, DataSet ds = null)
+    private HtmlGenericControl Create_Select(Dialog_Select item, DataSet ds, string parameter_value)
     {
         var div = Create_Div_Label(item.Text);
-
         var select = new HtmlGenericControl();
-
 
         select.TagName = "select";
         select.Attributes["id"] = item.Name;
@@ -339,26 +395,43 @@ public partial class Report : System.Web.UI.Page
                 }));
         }
 
+        // Set the value
+
+
         var index = options.Count == 0 ? -1 : 0;
-        switch (item.Value.ToLower())
+
+        if (string.IsNullOrEmpty(parameter_value))
         {
-            case "last":
-                index = options.Count - 1;
-                break;
-            case "first":
-                index = 0;
-                break;
-            default:
-                if(Int32.TryParse(item.Value, out index)){
-                    index = index >= options.Count ? options.Count -1 : index;
+            switch (item.Value.ToLower())
+            {
+                case "last":
+                    index = options.Count - 1;
+                    break;
+                case "first":
+                    index = 0;
+                    break;
+                default:
+                    if (Int32.TryParse(item.Value, out index))
+                    {
+                        index = index >= options.Count ? options.Count - 1 : index;
+                    }
+                    break;
+            }
+
+        }
+        else
+        {
+            for (int i = 0; i < options.Count; i++)
+            {
+                if (options[i].Value.ToLower() == parameter_value.ToLower())
+                {
+                    index = i;
+                    break;
                 }
-                break;
+            }
         }
 
-
-
-
-        for(int i =0; i < options.Count ; i ++)
+        for (int i = 0; i < options.Count; i++)
         {
             var option = options[i];
             var op = new HtmlGenericControl();
@@ -375,15 +448,12 @@ public partial class Report : System.Web.UI.Page
         }
 
 
-
-
         div.Controls.Add(select);
-
 
         return div;
     }
 
-    private HtmlGenericControl Create_CheckBox(DialogItem item)
+    private HtmlGenericControl Create_CheckBox(DialogItem item, string parameter_value)
     {
         var div = new HtmlGenericControl();
 
@@ -408,22 +478,61 @@ public partial class Report : System.Web.UI.Page
                 check.Checked = false;
                 break;
         }
+
+        if (!string.IsNullOrEmpty(parameter_value))
+        {
+            var value = false;
+            if (bool.TryParse(parameter_value, out value))
+            {
+                check.Checked = value;
+            }
+        }
+
         div.Controls.Add(check);
 
         return div;
     }
 
-
     #endregion
 
+    #region --Fast Report--
+    private void LoadReport(string report, IEnumerable<DialogParameter> parameters = null)
+    {
+        if (parameters == null)
+        {
+            WebReport1.Visible = false;
+
+            return;
+        }
+
+        var filename = pathReport + report;
+
+        WebReport1.Visible = true;
+        WebReport1.ReportFile = filename;
+        SetReportPage(filename);
+
+        WebReport1.Dialogs = false;
+
+        // Set parameters to report
+        foreach (var item in parameters)
+        {
+            WebReport1.Report.SetParameterValue(item.Name, item.Value);
+        }
+
+
+    }
 
     private void LoadReport_Old(ReportItem item)
     {
-        var path = @"~\App_Files\Reports\";
-        var filename = path + item.Report;
-
+        var filename = pathReport + item.Report;
+        WebReport1.Visible = true;
         WebReport1.ReportFile = filename;
 
+        SetReportPage(filename);
+    }
+
+    private void SetReportPage(string filename)
+    {
         // Set Page size dynamic with Report Paper Size
         XmlDocument xDoc = new XmlDocument();
         XmlNodeList report;
@@ -457,6 +566,7 @@ public partial class Report : System.Web.UI.Page
 
 
     }
+    #endregion
 
     #region --Class--
 
@@ -500,6 +610,12 @@ public partial class Report : System.Web.UI.Page
     {
         public string Value { get; set; }
         public string Text { get; set; }
+    }
+
+    public class DialogParameter
+    {
+        public string Name { get; set; }
+        public string Value { get; set; }
     }
     #endregion
 

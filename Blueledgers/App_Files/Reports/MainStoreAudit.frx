@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Report ScriptLanguage="CSharp" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="07/22/2014 16:45:57" ReportInfo.CreatorVersion="2013.4.11.0">
+<Report ScriptLanguage="CSharp" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="08/09/2024 12:44:11" ReportInfo.CreatorVersion="2013.4.11.0">
   <ScriptText>using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -58,7 +58,7 @@ namespace FastReport
 }
 </ScriptText>
   <Dictionary>
-    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqOYTMYw5/jEQg4pS6MrJhvatnARRNJIvQXR66ij+Xw84bFI4f6+nbsFQvqdZgAgaJTS+orIPz5r6lYgzNU4ThccOrmfVO/8Hnr0hc4bENs6I=">
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqOYTMYw5/jEQg4pS6MrJhvSjd+onlOlG0B3xpKosCDlvCbaX6JpBfe3ceRpTN/5kFYFVVZzLlBfu1as7v9iCElp14c3PQ6ZQJVHFfjLqs5LFuElLwyBPXSZNYsi/JUo1i">
       <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;">
         <Column Name="BuCode" DataType="System.String"/>
         <Column Name="Name" DataType="System.String"/>
@@ -78,55 +78,42 @@ namespace FastReport
         <Column Name="BuLogo" DataType="System.Byte[]" BindableControl="Picture"/>
       </TableDataSource>
       <TableDataSource Name="Table" Alias="msa" DataType="System.Int32" Enabled="true" SelectCommand="IF 1=0&#13;&#10;SET FMTONLY OFF&#13;&#10;&#13;&#10;EXEC [RPT].rptMainStoreAudit&#13;&#10;@FDATE=@p_FDate,@TDATE=@p_TDate,&#13;&#10;@FLOCATION=@p_Flocation,@TLOCATION=@p_Tlocation,&#13;&#10;@FPRODUCT=@p_Fproduct,@TPRODUCT=@p_Tproduct,&#13;&#10;@ONLYONHAND=@p_showonhand&#13;&#10;">
-        <Column Name="Location" DataType="System.String"/>
         <Column Name="LocationName" DataType="System.String"/>
         <Column Name="productCode" DataType="System.String"/>
         <Column Name="ProductDesc1" DataType="System.String"/>
-        <Column Name="OrderUnit" DataType="System.String"/>
-        <Column Name="BfwQty" DataType="System.Decimal"/>
-        <Column Name="BfwAmount" DataType="System.Decimal"/>
         <Column Name="RecQty" DataType="System.Decimal"/>
-        <Column Name="RecAmount" DataType="System.Decimal"/>
-        <Column Name="TrIqty" DataType="System.Decimal"/>
-        <Column Name="TrIAmount" DataType="System.Decimal"/>
-        <Column Name="Troqty" DataType="System.Decimal"/>
-        <Column Name="TroAmount" DataType="System.Decimal"/>
-        <Column Name="srqty" DataType="System.Decimal"/>
-        <Column Name="srAmount" DataType="System.Decimal"/>
-        <Column Name="siqty" DataType="System.Decimal"/>
-        <Column Name="siAmount" DataType="System.Decimal"/>
-        <Column Name="soqty" DataType="System.Decimal"/>
-        <Column Name="soAmount" DataType="System.Decimal"/>
-        <Column Name="EOPQTY" DataType="System.Decimal"/>
-        <Column Name="eopAmount" DataType="System.Decimal"/>
-        <Column Name="Difference" DataType="System.Decimal"/>
-        <Column Name="CsQty" DataType="System.Decimal"/>
-        <Column Name="CsAmount" DataType="System.Decimal"/>
+        <Column Name="LocationCode" DataType="System.String"/>
+        <Column Name="UnitCost" DataType="System.Decimal"/>
+        <Column Name="OpenQty" DataType="System.Decimal"/>
+        <Column Name="OpenAmt" DataType="System.Decimal"/>
+        <Column Name="RecAmt" DataType="System.Decimal"/>
+        <Column Name="CnQty" DataType="System.Decimal"/>
+        <Column Name="CnAmt" DataType="System.Decimal"/>
+        <Column Name="CnAmt2" DataType="System.Decimal"/>
+        <Column Name="SrInQty" DataType="System.Decimal"/>
+        <Column Name="SrInAmt" DataType="System.Decimal"/>
+        <Column Name="SrOutQty" DataType="System.Decimal"/>
+        <Column Name="SrOutAmt" DataType="System.Decimal"/>
+        <Column Name="StkInQty" DataType="System.Decimal"/>
+        <Column Name="StkInAmt" DataType="System.Decimal"/>
+        <Column Name="StkOutQty" DataType="System.Decimal"/>
+        <Column Name="StkOutAmt" DataType="System.Decimal"/>
+        <Column Name="EopInQty" DataType="System.Decimal"/>
+        <Column Name="EopInAmt" DataType="System.Decimal"/>
+        <Column Name="EopOutQty" DataType="System.Decimal"/>
+        <Column Name="EopOutAmt" DataType="System.Decimal"/>
+        <Column Name="CloseQty" DataType="System.Decimal"/>
+        <Column Name="CloseAmt" DataType="System.Decimal"/>
+        <Column Name="AdjustAmt" DataType="System.Decimal"/>
+        <Column Name="ProductDesc11" DataType="System.String"/>
+        <Column Name="InventoryUnit" DataType="System.String"/>
         <CommandParameter Name="p_FDate" DataType="4" Expression="[p_FDate]" DefaultValue="10/10/13"/>
         <CommandParameter Name="p_TDate" DataType="4" Expression="[p_TDate]" DefaultValue="10/10/13"/>
-        <CommandParameter Name="p_Flocation" DataType="22" Expression="[p_Flocation]"/>
-        <CommandParameter Name="p_Tlocation" DataType="22" Expression="[p_Tlocation]"/>
-        <CommandParameter Name="p_Fproduct" DataType="22" Expression="[p_Fproduct]"/>
-        <CommandParameter Name="p_Tproduct" DataType="22" Expression="[p_Tproduct]"/>
-        <CommandParameter Name="p_showonhand" DataType="8" Expression="[p_showonhand]" DefaultValue="0"/>
-      </TableDataSource>
-      <TableDataSource Name="Table7" Alias="FCAT" DataType="System.Int32" Enabled="true" SelectCommand="select CategoryCode+' '+CategoryName&#13;&#10;from [IN].ProductCategory&#13;&#10;where ParentNo='0'&#13;&#10;Order By CategoryCode">
-        <Column Name="Column1" DataType="System.String"/>
-      </TableDataSource>
-      <TableDataSource Name="Table8" Alias="TCAT" DataType="System.Int32" Enabled="true" SelectCommand="select CategoryCode+' '+CategoryName&#13;&#10;from [IN].ProductCategory&#13;&#10;where ParentNo='0'&#13;&#10;Order By CategoryCode">
-        <Column Name="Column1" DataType="System.String"/>
-      </TableDataSource>
-      <TableDataSource Name="Table9" Alias="FPRODUCT" DataType="System.Int32" Enabled="true" SelectCommand="select ProductCode+' '+ProductDesc1&#13;&#10;from [IN].Product&#13;&#10;Order By ProductCode">
-        <Column Name="Column1" DataType="System.String"/>
-      </TableDataSource>
-      <TableDataSource Name="Table10" Alias="TPRODUCT" DataType="System.Int32" Enabled="true" SelectCommand="select ProductCode+' '+ProductDesc1&#13;&#10;from [IN].Product&#13;&#10;Order By ProductCode">
-        <Column Name="Column1" DataType="System.String"/>
-      </TableDataSource>
-      <TableDataSource Name="Table11" Alias="FLOCATION" DataType="System.Int32" Enabled="true" SelectCommand="exec rpt.listlocationbytype 1">
-        <Column Name="Item" DataType="System.String"/>
-      </TableDataSource>
-      <TableDataSource Name="Table12" Alias="TLOCATION" DataType="System.Int32" Enabled="true" SelectCommand="exec rpt.listlocationbytype 1">
-        <Column Name="Item" DataType="System.String"/>
+        <CommandParameter Name="p_Flocation" DataType="12" Expression="[p_FLocation]"/>
+        <CommandParameter Name="p_Tlocation" DataType="12" Expression="[p_TLocation]"/>
+        <CommandParameter Name="p_Fproduct" DataType="12" Expression="[p_FProduct]"/>
+        <CommandParameter Name="p_Tproduct" DataType="12" Expression="[p_TProduct]"/>
+        <CommandParameter Name="p_showonhand" DataType="8" Expression="[p_ShowOnhand]" DefaultValue="0"/>
       </TableDataSource>
     </MsSqlDataConnection>
     <Parameter Name="p_FDate" DataType="System.DateTime"/>
@@ -138,7 +125,6 @@ namespace FastReport
     <Parameter Name="p_Fproduct" DataType="System.String"/>
     <Parameter Name="p_Tproduct" DataType="System.String"/>
     <Parameter Name="p_showonhand" DataType="System.Int32"/>
-    <Parameter Name="p_show" DataType="System.String"/>
     <Total Name="SumBamt" Expression="[msa.BfwAmount]" Evaluator="Data1" PrintOn="GroupFooter1"/>
     <Total Name="SumRcvAmt" Expression="[msa.RecAmount]" Evaluator="Data1" PrintOn="GroupFooter1"/>
     <Total Name="SumTriAmt" Expression="[msa.TrIAmount]" Evaluator="Data1" PrintOn="GroupFooter1"/>
@@ -165,7 +151,7 @@ namespace FastReport
       <TextObject Name="Text4" Top="94.5" Width="330.75" Height="18.9" Text="[ADMIN_Bu.Name]" Font="Tahoma, 8pt"/>
       <TextObject Name="Text44" Left="1247.4" Top="66.15" Width="283.5" Height="56.7" Text="Date From [TextDate1.Text] To [TextDate2.Text]&#13;&#10;Location From [p_Flocation] To [p_Tlocation]&#13;&#10;SKU# From [p_Fproduct]  To  [p_Tproduct]&#13;&#10;Type [p_show]" HorzAlign="Right" Font="Tahoma, 8pt"/>
     </PageHeaderBand>
-    <ColumnHeaderBand Name="ColumnHeader1" Top="136.83" Width="1531.28" Height="56.7" Border.Lines="Top, Bottom">
+    <ColumnHeaderBand Name="ColumnHeader1" Top="136.3" Width="1531.28" Height="56.7" Border.Lines="Top, Bottom">
       <TextObject Name="Text5" Width="330.75" Height="56.7" Border.Lines="All" Fill.Color="Gainsboro" Text="Product Code    Description" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
       <TextObject Name="Text7" Left="330.75" Width="66.15" Height="56.7" Border.Lines="All" Fill.Color="Gainsboro" Text="Unit" HorzAlign="Center" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
       <TextObject Name="Text9" Left="396.9" Width="132.3" Height="28.35" Border.Lines="All" Fill.Color="Gainsboro" Text="Openning/Brought Forward" HorzAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
@@ -195,10 +181,10 @@ namespace FastReport
       <TextObject Name="Text10" Left="396.9" Top="28.35" Width="56.7" Height="28.35" Border.Lines="All" Fill.Color="Gainsboro" Text="Qty" HorzAlign="Center" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
       <TextObject Name="Text12" Left="453.6" Top="28.35" Width="75.6" Height="28.35" Border.Lines="All" Fill.Color="Gainsboro" Text="Amt" HorzAlign="Center" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
     </ColumnHeaderBand>
-    <GroupHeaderBand Name="GroupHeader1" Top="198.06" Width="1531.28" Height="28.35" Border.Lines="Bottom" KeepWithData="true" RepeatOnEveryPage="true" Condition="[msa.Location]" SortOrder="None">
+    <GroupHeaderBand Name="GroupHeader1" Top="197" Width="1531.28" Height="28.35" Border.Lines="Bottom" KeepWithData="true" RepeatOnEveryPage="true" Condition="[msa.Location]" SortOrder="None">
       <TextObject Name="Text8" Left="75.6" Width="1455.3" Height="28.35" Border.Lines="Bottom" CanGrow="true" CanBreak="false" Text="[msa.Location] - [msa.LocationName]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
       <TextObject Name="Text11" Width="75.6" Height="28.35" Border.Lines="Bottom" Text="Location :" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
-      <DataBand Name="Data1" Top="230.94" Width="1531.28" Height="18.9" CanGrow="true" BeforePrintEvent="Data1_BeforePrint" DataSource="Table">
+      <DataBand Name="Data1" Top="229.35" Width="1531.28" Height="18.9" CanGrow="true" BeforePrintEvent="Data1_BeforePrint" DataSource="Table">
         <TextObject Name="Text14" Width="330.75" Height="18.9" Border.Lines="Left, Right" CanGrow="true" CanBreak="false" Text="[msa.productCode] : [msa.ProductDesc1]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
         <TextObject Name="Text95" Left="330.75" Width="66.15" Height="18.9" Border.Lines="Left, Right" CanBreak="false" Text="[msa.OrderUnit]" HorzAlign="Center" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
         <TextObject Name="Text96" Left="453.6" Width="75.6" Height="18.9" Border.Lines="Left, Right" CanGrow="true" CanBreak="false" Text="[msa.BfwAmount]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt">
@@ -287,7 +273,7 @@ namespace FastReport
           </Highlight>
         </TextObject>
       </DataBand>
-      <GroupFooterBand Name="GroupFooter1" Top="254.37" Width="1531.28" Height="28.35" Border.Lines="Top" Fill.Color="WhiteSmoke">
+      <GroupFooterBand Name="GroupFooter1" Top="252.25" Width="1531.28" Height="28.35" Border.Lines="Top" Fill.Color="WhiteSmoke">
         <TextObject Name="Text6" Left="37.8" Width="94.5" Height="28.35" Border.Lines="Top" Text="Location Total :" HorzAlign="Right" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
         <TextObject Name="Text115" Left="132.3" Width="292.95" Height="28.35" Border.Lines="Top" CanGrow="true" CanBreak="false" Text="[msa.Location] - [msa.LocationName]" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt"/>
         <TextObject Name="Text15" Left="434.7" Width="94.5" Height="28.35" Border.Lines="Top" Text="[SumBamt]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
@@ -331,10 +317,10 @@ namespace FastReport
             <Condition Expression="Value &lt; 0"/>
           </Highlight>
         </TextObject>
-        <ChildBand Name="Child2" Top="287.25" Width="1531.28" Height="9.45"/>
+        <ChildBand Name="Child2" Top="284.6" Width="1531.28" Height="9.45"/>
       </GroupFooterBand>
     </GroupHeaderBand>
-    <ReportSummaryBand Name="ReportSummary1" Top="301.23" Width="1531.28" Height="28.35" Border.Lines="Top, Bottom" Fill.Color="Gainsboro">
+    <ReportSummaryBand Name="ReportSummary1" Top="298.05" Width="1531.28" Height="28.35" Border.Lines="Top, Bottom" Fill.Color="Gainsboro">
       <TextObject Name="Text116" Width="434.7" Height="28.35" Border.Lines="Top, Bottom" Text="Grand Total :" HorzAlign="Center" VertAlign="Center" Font="Tahoma, 8pt, style=Bold"/>
       <TextObject Name="Text29" Left="434.7" Width="94.5" Height="28.35" Border.Lines="Top, Bottom" CanGrow="true" CanBreak="false" Text="[GrandBamt]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 8pt, style=Bold">
         <Highlight>
@@ -382,8 +368,8 @@ namespace FastReport
         </Highlight>
       </TextObject>
     </ReportSummaryBand>
-    <PageFooterBand Name="PageFooter1" Top="334.11" Width="1531.28" Height="9.45">
-      <ChildBand Name="Child1" Top="348.09" Width="1531.28" Height="47.25" Border.Lines="Top">
+    <PageFooterBand Name="PageFooter1" Top="330.4" Width="1531.28" Height="9.45">
+      <ChildBand Name="Child1" Top="343.85" Width="1531.28" Height="47.25" Border.Lines="Top">
         <TextObject Name="Text1" Top="18.9" Width="132.3" Height="28.35" Text="Report summary&#13;&#10;Print on [Date]" Format="Date" Format.Format="d" Font="Arial, 8pt"/>
         <TextObject Name="Text2" Left="1237.95" Top="18.9" Width="292.95" Height="28.35" Text="Page [Page#] of [TotalPages#]" HorzAlign="Right" Font="Arial, 8pt"/>
       </ChildBand>
@@ -392,18 +378,18 @@ namespace FastReport
   <DialogPage Name="ReportDialog" Width="450" Height="422" AcceptButton="btnOk" CancelButton="btnCancel" LoadEvent="">
     <ButtonControl Name="btnOk" Left="242" Top="350" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="0" Text="OK" ClickEvent="btnOk_Click" DialogResult="OK"/>
     <ButtonControl Name="btnCancel" Left="353" Top="350" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="1" Text="Cancel" DialogResult="Cancel"/>
-    <TextBoxControl Name="TextDate1" Left="128" Top="16" Width="300" Font="Tahoma, 8pt" TabIndex="3"/>
-    <LabelControl Name="Label1" Left="36" Top="16" Width="57" Height="13" Font="Tahoma, 8pt" TabIndex="4" Text="From Date"/>
-    <LabelControl Name="Label2" Left="36" Top="60" Width="45" Height="13" Font="Tahoma, 8pt" TabIndex="4" Text="To Date"/>
-    <TextBoxControl Name="TextDate2" Left="128" Top="60" Width="300" Font="Tahoma, 8pt" TabIndex="3"/>
+    <TextBoxControl Name="TextDate1" Left="128" Top="16" Width="300" Height="27" Font="Tahoma, 8pt" TabIndex="3"/>
+    <LabelControl Name="Label1" Left="36" Top="16" Width="83" Height="19" Font="Tahoma, 8pt" TabIndex="4" Text="From Date"/>
+    <LabelControl Name="Label2" Left="36" Top="60" Width="65" Height="19" Font="Tahoma, 8pt" TabIndex="4" Text="To Date"/>
+    <TextBoxControl Name="TextDate2" Left="128" Top="60" Width="300" Height="27" Font="Tahoma, 8pt" TabIndex="3"/>
     <ComboBoxControl Name="ComboBox3" Left="128" Top="104" Width="300" Font="Tahoma, 8pt" TabIndex="2" DataColumn="FPRODUCT.Column1" DropDownWidth="300" ItemHeight="13"/>
     <ComboBoxControl Name="ComboBox4" Left="128" Top="152" Width="300" Font="Tahoma, 8pt" TabIndex="2" DataColumn="TPRODUCT.Column1" DropDownWidth="300" ItemHeight="13"/>
     <ComboBoxControl Name="ComboBox5" Left="128" Top="204" Width="300" Font="Tahoma, 8pt" TabIndex="2" DataColumn="FLOCATION.Item" DropDownWidth="300" ItemHeight="13"/>
     <ComboBoxControl Name="ComboBox6" Left="128" Top="252" Width="300" Font="Tahoma, 8pt" TabIndex="2" DataColumn="TLOCATION.Item" DropDownWidth="300" ItemHeight="13"/>
-    <LabelControl Name="Label5" Left="36" Top="104" Width="71" Height="13" Font="Tahoma, 8pt" TabIndex="7" Text="Product From"/>
-    <LabelControl Name="Label6" Left="36" Top="152" Width="59" Height="13" Font="Tahoma, 8pt" TabIndex="8" Text="Product To"/>
-    <LabelControl Name="Label7" Left="36" Top="204" Width="74" Height="13" Font="Tahoma, 8pt" TabIndex="9" Text="Location From"/>
-    <LabelControl Name="Label8" Left="36" Top="252" Width="62" Height="13" Font="Tahoma, 8pt" TabIndex="10" Text="Location To"/>
-    <CheckBoxControl Name="CheckBox1" Left="128" Top="300" Width="136" Height="17" Font="Tahoma, 8pt" TabIndex="11" Text="Show Transaction Only"/>
+    <LabelControl Name="Label5" Left="36" Top="104" Width="105" Height="19" Font="Tahoma, 8pt" TabIndex="7" Text="Product From"/>
+    <LabelControl Name="Label6" Left="36" Top="152" Width="87" Height="19" Font="Tahoma, 8pt" TabIndex="8" Text="Product To"/>
+    <LabelControl Name="Label7" Left="36" Top="204" Width="110" Height="19" Font="Tahoma, 8pt" TabIndex="9" Text="Location From"/>
+    <LabelControl Name="Label8" Left="36" Top="252" Width="92" Height="19" Font="Tahoma, 8pt" TabIndex="10" Text="Location To"/>
+    <CheckBoxControl Name="CheckBox1" Left="128" Top="300" Width="199" Height="23" Font="Tahoma, 8pt" TabIndex="11" Text="Show Transaction Only"/>
   </DialogPage>
 </Report>

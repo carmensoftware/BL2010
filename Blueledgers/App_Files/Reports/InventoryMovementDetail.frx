@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Report ScriptLanguage="CSharp" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="07/03/2018 13:46:06" ReportInfo.CreatorVersion="2013.4.11.0">
+<Report ScriptLanguage="CSharp" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="08/09/2024 18:00:12" ReportInfo.CreatorVersion="2013.4.11.0">
   <ScriptText>using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -21,44 +21,14 @@ namespace FastReport
 
     private void _StartReport(object sender, EventArgs e)
     {
-      DateTime startOfMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-      TextDate1.Text = startOfMonth.ToShortDateString();
-      TextDate2.Text = DateTime.Today.ToShortDateString();
-      
     }
-
-    private void btnOk_Click(object sender, EventArgs e)
-    {
-      Report.SetParameterValue(&quot;p_FDate&quot;, Convert.ToDateTime(TextDate1.Text));
-      Report.SetParameterValue(&quot;p_TDate&quot;, Convert.ToDateTime(TextDate2.Text));
-      
-      Report.SetParameterValue(&quot;p_Fproduct&quot;, ComboBox3.Text.Split(' ')[0].ToString());
-      Report.SetParameterValue(&quot;p_Tproduct&quot;, ComboBox4.Text.Split(' ')[0].ToString());
-      
-      Report.SetParameterValue(&quot;p_Flocation&quot;, ComboBox5.Text.Split(' ')[0].ToString());
-      Report.SetParameterValue(&quot;p_Tlocation&quot;, ComboBox6.Text.Split(' ')[0].ToString());
-      
-      if (CheckBox1.Checked==true)
-      {
-        Report.SetParameterValue(&quot;p_showonhand&quot;,1);
-        Report.SetParameterValue(&quot;p_show&quot;,&quot;Show Onhand Only&quot;);
-      }
-      else
-      {
-        Report.SetParameterValue(&quot;p_showonhand&quot;,0);
-        Report.SetParameterValue(&quot;p_show&quot;,&quot;Show All&quot;);
-      }
-      
-      
-    }
-
 
 
   }
 }
 </ScriptText>
   <Dictionary>
-    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqCvlJxRoS3oNe5N3zvkC4LscjN4M91F+6CPFywpt9uADk/Abhdg5uWs7y8aZIkCxxCE05FWEW2ZU0ZBzUDG9NMsAMumjxxGs7DcMBtz2MkO4=">
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqOYTMYw5/jEQg4pS6MrJhvSjd+onlOlG0B3xpKosCDlvCbaX6JpBfe3ceRpTN/5kFYFVVZzLlBfu1as7v9iCElp14c3PQ6ZQJVHFfjLqs5LH+dc8gUcfO5+mL4ghKycUi">
       <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;">
         <Column Name="BuCode" DataType="System.String"/>
         <Column Name="Name" DataType="System.String"/>
@@ -77,7 +47,7 @@ namespace FastReport
         <Column Name="BackOfficeModel" DataType="System.String"/>
         <Column Name="BuLogo" DataType="System.Byte[]" BindableControl="Picture"/>
       </TableDataSource>
-      <TableDataSource Name="Table" Alias="msa" DataType="System.Int32" Enabled="true" SelectCommand="IF 1=0&#13;&#10;SET FMTONLY OFF&#13;&#10;&#13;&#10;EXEC [RPT].rptMainStoreAudit&#13;&#10;@FDATE=@p_FDate,@TDATE=@p_TDate,&#13;&#10;@FLOCATION=@p_Flocation,@TLOCATION=@p_Tlocation,&#13;&#10;@FPRODUCT=@p_Fproduct,@TPRODUCT=@p_Tproduct,&#13;&#10;@ONLYONHAND=@p_showonhand&#13;&#10;">
+      <TableDataSource Name="Table" Alias="data" DataType="System.Int32" Enabled="true" SelectCommand="IF 1=0&#13;&#10;SET FMTONLY OFF&#13;&#10;&#13;&#10;EXEC [RPT].rptMainStoreAudit&#13;&#10;@FDATE=@p_FDate,&#13;&#10;@TDATE=@p_TDate,&#13;&#10;@FLOCATION=@p_FLocation,&#13;&#10;@TLOCATION=@p_TLocation,&#13;&#10;@FPRODUCT=@p_FProduct,&#13;&#10;@TPRODUCT=@p_TProduct,&#13;&#10;@ONLYONHAND=@p_ShowOnhand&#13;&#10;">
         <Column Name="productCode" DataType="System.String"/>
         <Column Name="RecQty" DataType="System.Decimal"/>
         <Column Name="LocationCode" DataType="System.String"/>
@@ -106,74 +76,65 @@ namespace FastReport
         <Column Name="ProductDesc1" DataType="System.String"/>
         <Column Name="ProductDesc11" DataType="System.String"/>
         <Column Name="InventoryUnit" DataType="System.String"/>
+        <Column Name="CnAmt2" DataType="System.Decimal"/>
         <CommandParameter Name="p_FDate" DataType="4" Expression="[p_FDate]" DefaultValue="10/10/13"/>
         <CommandParameter Name="p_TDate" DataType="4" Expression="[p_TDate]" DefaultValue="10/10/13"/>
-        <CommandParameter Name="p_Flocation" DataType="22" Expression="[p_Flocation]"/>
-        <CommandParameter Name="p_Tlocation" DataType="22" Expression="[p_Tlocation]"/>
-        <CommandParameter Name="p_Fproduct" DataType="22" Expression="[p_Fproduct]"/>
-        <CommandParameter Name="p_Tproduct" DataType="22" Expression="[p_Tproduct]"/>
-        <CommandParameter Name="p_showonhand" DataType="8" Expression="[p_showonhand]" DefaultValue="0"/>
-      </TableDataSource>
-      <TableDataSource Name="Table7" Alias="FCAT" DataType="System.Int32" Enabled="true" SelectCommand="select CategoryCode+' '+CategoryName&#13;&#10;from [IN].ProductCategory&#13;&#10;where ParentNo='0'&#13;&#10;Order By CategoryCode">
-        <Column Name="Column1" DataType="System.String"/>
-      </TableDataSource>
-      <TableDataSource Name="Table8" Alias="TCAT" DataType="System.Int32" Enabled="true" SelectCommand="select CategoryCode+' '+CategoryName&#13;&#10;from [IN].ProductCategory&#13;&#10;where ParentNo='0'&#13;&#10;Order By CategoryCode">
-        <Column Name="Column1" DataType="System.String"/>
-      </TableDataSource>
-      <TableDataSource Name="Table9" Alias="FPRODUCT" DataType="System.Int32" Enabled="true" SelectCommand="select ProductCode+' '+ProductDesc1&#13;&#10;from [IN].Product&#13;&#10;Order By ProductCode">
-        <Column Name="Column1" DataType="System.String"/>
-      </TableDataSource>
-      <TableDataSource Name="Table10" Alias="TPRODUCT" DataType="System.Int32" Enabled="true" SelectCommand="select ProductCode+' '+ProductDesc1&#13;&#10;from [IN].Product&#13;&#10;Order By ProductCode">
-        <Column Name="Column1" DataType="System.String"/>
-      </TableDataSource>
-      <TableDataSource Name="Table11" Alias="FLOCATION" DataType="System.Int32" Enabled="true" SelectCommand="exec rpt.listlocationbytype 1">
-        <Column Name="Item" DataType="System.String"/>
-      </TableDataSource>
-      <TableDataSource Name="Table12" Alias="TLOCATION" DataType="System.Int32" Enabled="true" SelectCommand="exec rpt.listlocationbytype 1">
-        <Column Name="Item" DataType="System.String"/>
+        <CommandParameter Name="p_FLocation" DataType="12" Expression="[p_FLocation]"/>
+        <CommandParameter Name="p_TLocation" DataType="12" Expression="[p_TLocation]"/>
+        <CommandParameter Name="p_FProduct" DataType="12" Expression="[p_FProduct]"/>
+        <CommandParameter Name="p_TProduct" DataType="12" Expression="[p_TProduct]"/>
+        <CommandParameter Name="p_ShowOnhand" DataType="8" Expression="[p_ShowOnhand]" DefaultValue="0"/>
       </TableDataSource>
     </MsSqlDataConnection>
     <Parameter Name="p_FDate" DataType="System.DateTime"/>
     <Parameter Name="p_TDate" DataType="System.DateTime"/>
-    <Parameter Name="p_Flocation" DataType="System.String"/>
-    <Parameter Name="p_Tlocation" DataType="System.String"/>
+    <Parameter Name="p_FLocation" DataType="System.String"/>
+    <Parameter Name="p_TLocation" DataType="System.String"/>
     <Parameter Name="p_Fcat" DataType="System.String"/>
     <Parameter Name="p_Tcat" DataType="System.String"/>
-    <Parameter Name="p_Fproduct" DataType="System.String"/>
-    <Parameter Name="p_Tproduct" DataType="System.String"/>
-    <Parameter Name="p_showonhand" DataType="System.Int32"/>
-    <Parameter Name="p_show" DataType="System.String"/>
-    <Total Name="SumLocation_OpenAmt" Expression="[msa.OpenAmt]" Evaluator="Data1" PrintOn="GroupFooter1" ResetOnReprint="true"/>
-    <Total Name="SumLocation_RecAmt" Expression="[msa.RecAmt]" Evaluator="Data1" PrintOn="GroupFooter1" ResetOnReprint="true"/>
-    <Total Name="SumLocation_CnAmt" Expression="[msa.CnAmt]" Evaluator="Data1" PrintOn="GroupFooter1" ResetOnReprint="true"/>
-    <Total Name="SumLocation_SrInAmt" Expression="[msa.SrInAmt]" Evaluator="Data1" PrintOn="GroupFooter1" ResetOnReprint="true"/>
-    <Total Name="SumLocation_SrOutAmt" Expression="[msa.SrOutAmt]" Evaluator="Data1" PrintOn="GroupFooter1" ResetOnReprint="true"/>
-    <Total Name="SumLocation_StkInAmt" Expression="[msa.StkInAmt]" Evaluator="Data1" PrintOn="GroupFooter1" ResetOnReprint="true"/>
-    <Total Name="SumLocation_StkOutAmt" Expression="[msa.StkOutAmt]" Evaluator="Data1" PrintOn="GroupFooter1" ResetOnReprint="true"/>
-    <Total Name="SumLocation_EopInAmt" Expression="[msa.EopInAmt]" Evaluator="Data1" PrintOn="GroupFooter1" ResetOnReprint="true"/>
-    <Total Name="SumLocation_EopOutAmt" Expression="[msa.EopOutAmt]" Evaluator="Data1" PrintOn="GroupFooter1" ResetOnReprint="true"/>
-    <Total Name="SumLocation_AdjustAmt" Expression="[msa.AdjustAmt]" Evaluator="Data1" PrintOn="GroupFooter1" ResetOnReprint="true"/>
-    <Total Name="SumLocation_CloseAmt" Expression="[msa.CloseAmt]" Evaluator="Data1" PrintOn="GroupFooter1" ResetOnReprint="true"/>
-    <Total Name="SumGrand_OpenAmt" Expression="[msa.OpenAmt]" Evaluator="Data1" PrintOn="ReportSummary1"/>
-    <Total Name="SumGrand_RecAmt" Expression="[msa.RecAmt]" Evaluator="Data1" PrintOn="ReportSummary1"/>
-    <Total Name="SumGrand_CnAmt" Expression="[msa.CnAmt]" Evaluator="Data1" PrintOn="ReportSummary1"/>
-    <Total Name="SumGrand_SrInAmt" Expression="[msa.SrInAmt]" Evaluator="Data1" PrintOn="ReportSummary1"/>
-    <Total Name="SumGrand_SrOutAmt" Expression="[msa.SrOutAmt]" Evaluator="Data1" PrintOn="ReportSummary1"/>
-    <Total Name="SumGrand_StkInAmt" Expression="[msa.StkInAmt]" Evaluator="Data1" PrintOn="ReportSummary1"/>
-    <Total Name="SumGrand_StkOutAmt" Expression="[msa.StkOutAmt]" Evaluator="Data1" PrintOn="ReportSummary1"/>
-    <Total Name="SumGrand_EopInAmt" Expression="[msa.EopInAmt]" Evaluator="Data1" PrintOn="ReportSummary1"/>
-    <Total Name="SumGrand_EopOutAmt" Expression="[msa.EopOutAmt]" Evaluator="Data1" PrintOn="ReportSummary1"/>
-    <Total Name="SumGrand_AdjustAmt" Expression="[msa.AdjustAmt]" Evaluator="Data1" PrintOn="ReportSummary1"/>
-    <Total Name="SumGrand_CloseAmt" Expression="[msa.CloseAmt]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+    <Parameter Name="p_FProduct" DataType="System.String"/>
+    <Parameter Name="p_TProduct" DataType="System.String"/>
+    <Parameter Name="p_ShowOnhand" DataType="System.Int32"/>
+    <Total Name="SumLocation_OpenAmt" Expression="[data.OpenAmt]" Evaluator="Data1" PrintOn="GroupFooter1" ResetOnReprint="true"/>
+    <Total Name="SumLocation_RecAmt" Expression="[data.RecAmt]" Evaluator="Data1" PrintOn="GroupFooter1" ResetOnReprint="true"/>
+    <Total Name="SumLocation_CnAmt" Expression="[data.CnAmt]" Evaluator="Data1" PrintOn="GroupFooter1" ResetOnReprint="true"/>
+    <Total Name="SumLocation_SrInAmt" Expression="[data.SrInAmt]" Evaluator="Data1" PrintOn="GroupFooter1" ResetOnReprint="true"/>
+    <Total Name="SumLocation_SrOutAmt" Expression="[data.SrOutAmt]" Evaluator="Data1" PrintOn="GroupFooter1" ResetOnReprint="true"/>
+    <Total Name="SumLocation_StkInAmt" Expression="[data.StkInAmt]" Evaluator="Data1" PrintOn="GroupFooter1" ResetOnReprint="true"/>
+    <Total Name="SumLocation_StkOutAmt" Expression="[data.StkOutAmt]" Evaluator="Data1" PrintOn="GroupFooter1" ResetOnReprint="true"/>
+    <Total Name="SumLocation_EopInAmt" Expression="[data.EopInAmt]" Evaluator="Data1" PrintOn="GroupFooter1" ResetOnReprint="true"/>
+    <Total Name="SumLocation_EopOutAmt" Expression="[data.EopOutAmt]" Evaluator="Data1" PrintOn="GroupFooter1" ResetOnReprint="true"/>
+    <Total Name="SumLocation_AdjustAmt" Expression="[data.AdjustAmt]" Evaluator="Data1" PrintOn="GroupFooter1" ResetOnReprint="true"/>
+    <Total Name="SumLocation_CloseAmt" Expression="[data.CloseAmt]" Evaluator="Data1" PrintOn="GroupFooter1" ResetOnReprint="true"/>
+    <Total Name="SumGrand_OpenAmt" Expression="[data.OpenAmt]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+    <Total Name="SumGrand_RecAmt" Expression="[data.RecAmt]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+    <Total Name="SumGrand_CnAmt" Expression="[data.CnAmt]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+    <Total Name="SumGrand_SrInAmt" Expression="[data.SrInAmt]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+    <Total Name="SumGrand_SrOutAmt" Expression="[data.SrOutAmt]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+    <Total Name="SumGrand_StkInAmt" Expression="[data.StkInAmt]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+    <Total Name="SumGrand_StkOutAmt" Expression="[data.StkOutAmt]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+    <Total Name="SumGrand_EopInAmt" Expression="[data.EopInAmt]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+    <Total Name="SumGrand_EopOutAmt" Expression="[data.EopOutAmt]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+    <Total Name="SumGrand_AdjustAmt" Expression="[data.AdjustAmt]" Evaluator="Data1" PrintOn="ReportSummary1"/>
+    <Total Name="SumGrand_CloseAmt" Expression="[data.CloseAmt]" Evaluator="Data1" PrintOn="ReportSummary1"/>
   </Dictionary>
   <ReportPage Name="Page1" Landscape="true" PaperWidth="420.1" PaperHeight="296.9" RawPaperSize="8" LeftMargin="5" RightMargin="5">
-    <PageHeaderBand Name="PageHeader1" Width="1550.18" Height="132.3" Border.Lines="Bottom">
+    <PageHeaderBand Name="PageHeader1" Width="1550.18" Height="122.85" Border.Lines="Bottom" CanGrow="true">
       <PictureObject Name="Picture1" Width="217.35" Height="94.5" DataColumn="ADMIN_Bu.BuLogo"/>
-      <TextObject Name="Text3" Left="557.74" Top="20.79" Width="415.8" Height="28.35" Text="Inventory Movement (Detailed)" HorzAlign="Center" Font="Tahoma, 14pt, style=Bold"/>
-      <TextObject Name="Text4" Top="94.5" Width="330.75" Height="18.9" Text="[ADMIN_Bu.Name]" Font="Tahoma, 8pt"/>
-      <TextObject Name="Text44" Left="1196.15" Top="66.15" Width="283.5" Height="56.7" Text="Date From [TextDate1.Text] To [TextDate2.Text]&#13;&#10;Location From [p_Flocation] To [p_Tlocation]&#13;&#10;SKU# From [p_Fproduct]  To  [p_Tproduct]&#13;&#10;Type [p_show]" HorzAlign="Right" Font="Tahoma, 8pt"/>
+      <TextObject Name="Text3" Left="567.19" Top="20.79" Width="415.8" Height="28.35" Text="Inventory Movement (Detail)" HorzAlign="Center" Font="Tahoma, 14pt, style=Bold"/>
+      <TextObject Name="Text4" Top="103.95" Width="567" Height="18.9" Text="[ADMIN_Bu.Name]" Font="Tahoma, 8pt, style=Bold"/>
+      <TextObject Name="Text44" Left="1167.8" Width="378" Height="56.7" CanGrow="true" CanBreak="false" Text="Date from [ToDateTime([p_FDate])] to [ToDateTime([p_TDate])]&#13;&#10;Location from [p_FLocation] to [p_TLocation]&#13;&#10;Product from [p_FProduct] to [p_TProduct]&#13;&#10;Show transction as [IIf([p_ShowOnhand]==&quot;0&quot;,&quot;All&quot;,&quot;Only Active&quot;)]" HorzAlign="Right" Font="Tahoma, 8pt">
+        <Formats>
+          <DateFormat/>
+          <DateFormat/>
+          <GeneralFormat/>
+          <GeneralFormat/>
+          <GeneralFormat/>
+          <GeneralFormat/>
+        </Formats>
+      </TextObject>
     </PageHeaderBand>
-    <ColumnHeaderBand Name="ColumnHeader1" Top="136.3" Width="1550.18" Height="56.7">
+    <ColumnHeaderBand Name="ColumnHeader1" Top="125.5" Width="1550.18" Height="56.7">
       <TextObject Name="Text5" Width="152.18" Height="28.35" Border.Lines="All" Fill.Color="Gainsboro" Text="Location" VertAlign="Center" Font="Tahoma, 7pt, style=Bold"/>
       <TextObject Name="Text7" Left="213.57" Width="37.8" Height="56.7" Border.Lines="All" Fill.Color="Gainsboro" Text="Unit" HorzAlign="Center" VertAlign="Center" Font="Tahoma, 7pt, style=Bold"/>
       <TextObject Name="Text9" Left="251.37" Width="122.85" Height="28.35" Border.Lines="All" Fill.Color="Gainsboro" Text="Openning" HorzAlign="Center" VertAlign="Center" Font="Tahoma, 7pt, style=Bold"/>
@@ -210,129 +171,129 @@ namespace FastReport
       <TextObject Name="Text127" Left="1290.87" Top="28.35" Width="66.15" Height="28.35" Border.Lines="All" Fill.Color="Gainsboro" Text="Amt" HorzAlign="Center" VertAlign="Center" Font="Tahoma, 7pt, style=Bold"/>
       <TextObject Name="Text125" Left="1234.17" Width="122.85" Height="28.35" Border.Lines="All" Fill.Color="Gainsboro" Text="EOP (OUT)" HorzAlign="Center" VertAlign="Center" Font="Tahoma, 7pt, style=Bold"/>
       <TextObject Name="Text130" Left="151.2" Width="62.37" Height="56.7" Border.Lines="All" Fill.Color="Gainsboro" Text="Cost" HorzAlign="Center" VertAlign="Center" Font="Tahoma, 7pt, style=Bold"/>
-      <ChildBand Name="Child_ColumnHeader1" Top="197" Width="1550.18" Height="3.78"/>
+      <ChildBand Name="Child_ColumnHeader1" Top="184.85" Width="1550.18" Height="3.78"/>
     </ColumnHeaderBand>
-    <GroupHeaderBand Name="GroupHeader1" Top="204.78" Width="1550.18" Height="28.35" Border.Lines="All" KeepWithData="true" RepeatOnEveryPage="true" Condition="[msa.LocationCode]" SortOrder="None">
-      <TextObject Name="Text8" Left="77.05" Width="141.75" Height="28.35" CanGrow="true" CanBreak="false" Text="[msa.LocationCode] : [msa.LocationName]" AutoWidth="true" VertAlign="Center" WordWrap="false" Font="Tahoma, 7pt"/>
+    <GroupHeaderBand Name="GroupHeader1" Top="191.27" Width="1550.18" Height="28.35" Border.Lines="All" KeepWithData="true" RepeatOnEveryPage="true" Condition="[data.LocationCode]" SortOrder="None">
+      <TextObject Name="Text8" Left="77.05" Width="141.75" Height="28.35" CanGrow="true" CanBreak="false" Text="[data.LocationCode] : [data.LocationName]" AutoWidth="true" VertAlign="Center" WordWrap="false" Font="Tahoma, 7pt"/>
       <TextObject Name="Text11" Width="75.6" Height="28.35" Text="Location :" VertAlign="Center" Font="Tahoma, 7pt, style=Bold"/>
-      <DataBand Name="Data1" Top="237.13" Width="1550.18" Height="22.68" CanGrow="true" BeforePrintEvent="Data1_BeforePrint" DataSource="Table">
-        <TextObject Name="Text14" Width="49.14" Height="22.68" Border.Lines="Left" GrowToBottom="true" CanBreak="false" Text="[msa.ProductCode]" Padding="2, 1, 2, 0" WordWrap="false" Font="Tahoma, 7pt"/>
-        <TextObject Name="Text95" Left="213.57" Width="37.8" Height="22.68" Border.Lines="Left, Right" GrowToBottom="true" CanBreak="false" Text="[msa.InventoryUnit]" Padding="2, 1, 2, 0" HorzAlign="Center" WordWrap="false" Font="Tahoma, 7pt"/>
-        <TextObject Name="Text96" Left="308.07" Width="66.15" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[msa.OpenAmt]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
+      <DataBand Name="Data1" Top="222.27" Width="1550.18" Height="22.68" CanGrow="true" BeforePrintEvent="Data1_BeforePrint" DataSource="Table">
+        <TextObject Name="Text14" Width="49.14" Height="22.68" Border.Lines="Left" GrowToBottom="true" CanBreak="false" Text="[data.ProductCode]" Padding="2, 1, 2, 0" WordWrap="false" Font="Tahoma, 7pt"/>
+        <TextObject Name="Text95" Left="213.57" Width="37.8" Height="22.68" Border.Lines="Left, Right" GrowToBottom="true" CanBreak="false" Text="[data.InventoryUnit]" Padding="2, 1, 2, 0" HorzAlign="Center" WordWrap="false" Font="Tahoma, 7pt"/>
+        <TextObject Name="Text96" Left="308.07" Width="66.15" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[data.OpenAmt]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
           <Highlight>
             <Condition Expression="Value &lt; 0"/>
           </Highlight>
         </TextObject>
-        <TextObject Name="Text97" Left="251.37" Width="56.7" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[msa.OpenQty]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
+        <TextObject Name="Text97" Left="251.37" Width="56.7" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[data.OpenQty]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
           <Highlight>
             <Condition Expression="Value &lt; 0"/>
           </Highlight>
         </TextObject>
-        <TextObject Name="Text98" Left="430.92" Width="66.15" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[msa.RecAmt]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
+        <TextObject Name="Text98" Left="430.92" Width="66.15" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[data.RecAmt]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
           <Highlight>
             <Condition Expression="Value &lt; 0"/>
           </Highlight>
         </TextObject>
-        <TextObject Name="Text99" Left="374.22" Width="56.7" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[msa.RecQty]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
+        <TextObject Name="Text99" Left="374.22" Width="56.7" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[data.RecQty]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
           <Highlight>
             <Condition Expression="Value &lt; 0"/>
           </Highlight>
         </TextObject>
-        <TextObject Name="Text100" Left="553.77" Width="66.15" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[msa.CnAmt]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
+        <TextObject Name="Text100" Left="553.77" Width="66.15" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[data.CnAmt]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
           <Highlight>
             <Condition Expression="Value &lt; 0"/>
           </Highlight>
         </TextObject>
-        <TextObject Name="Text101" Left="497.07" Width="56.7" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[msa.CnQty]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
+        <TextObject Name="Text101" Left="497.07" Width="56.7" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[data.CnQty]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
           <Highlight>
             <Condition Expression="Value &lt; 0"/>
           </Highlight>
         </TextObject>
-        <TextObject Name="Text102" Left="676.62" Width="66.15" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[msa.SrInAmt]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
+        <TextObject Name="Text102" Left="676.62" Width="66.15" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[data.SrInAmt]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
           <Highlight>
             <Condition Expression="Value &lt; 0"/>
           </Highlight>
         </TextObject>
-        <TextObject Name="Text103" Left="619.92" Width="56.7" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[msa.SrInQty]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
+        <TextObject Name="Text103" Left="619.92" Width="56.7" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[data.SrInQty]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
           <Highlight>
             <Condition Expression="Value &lt; 0"/>
           </Highlight>
         </TextObject>
-        <TextObject Name="Text104" Left="799.47" Width="66.15" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[msa.SrOutAmt]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
+        <TextObject Name="Text104" Left="799.47" Width="66.15" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[data.SrOutAmt]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
           <Highlight>
             <Condition Expression="Value &lt; 0"/>
           </Highlight>
         </TextObject>
-        <TextObject Name="Text105" Left="742.77" Width="56.7" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[msa.SrOutQty]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
+        <TextObject Name="Text105" Left="742.77" Width="56.7" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[data.SrOutQty]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
           <Highlight>
             <Condition Expression="Value &lt; 0"/>
           </Highlight>
         </TextObject>
-        <TextObject Name="Text106" Left="922.32" Width="66.15" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[msa.StkInAmt]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
+        <TextObject Name="Text106" Left="922.32" Width="66.15" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[data.StkInAmt]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
           <Highlight>
             <Condition Expression="Value &lt; 0"/>
           </Highlight>
         </TextObject>
-        <TextObject Name="Text107" Left="865.62" Width="56.7" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[msa.StkInQty]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
+        <TextObject Name="Text107" Left="865.62" Width="56.7" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[data.StkInQty]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
           <Highlight>
             <Condition Expression="Value &lt; 0"/>
           </Highlight>
         </TextObject>
-        <TextObject Name="Text111" Left="988.47" Width="56.7" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[msa.StkOutQty]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
+        <TextObject Name="Text111" Left="988.47" Width="56.7" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[data.StkOutQty]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
           <Highlight>
             <Condition Expression="Value &lt; 0"/>
           </Highlight>
         </TextObject>
-        <TextObject Name="Text112" Left="1357.02" Width="66.15" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[msa.AdjustAmt]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
+        <TextObject Name="Text112" Left="1357.02" Width="66.15" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[data.AdjustAmt]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
           <Highlight>
             <Condition Expression="Value &lt; 0"/>
           </Highlight>
         </TextObject>
-        <TextObject Name="Text113" Left="1423.17" Width="56.7" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[msa.CloseQty]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
+        <TextObject Name="Text113" Left="1423.17" Width="56.7" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[data.CloseQty]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
           <Highlight>
             <Condition Expression="Value &lt; 0"/>
           </Highlight>
         </TextObject>
-        <TextObject Name="Text114" Left="1479.87" Width="69.93" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[msa.CloseAmt]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
+        <TextObject Name="Text114" Left="1479.87" Width="69.93" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[data.CloseAmt]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
           <Highlight>
             <Condition Expression="Value &lt; 0"/>
           </Highlight>
         </TextObject>
-        <TextObject Name="Text110" Left="1045.17" Width="66.15" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[msa.StkOutAmt]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
+        <TextObject Name="Text110" Left="1045.17" Width="66.15" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[data.StkOutAmt]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
           <Highlight>
             <Condition Expression="Value &lt; 0"/>
           </Highlight>
         </TextObject>
-        <TextObject Name="Text119" Left="151.2" Width="62.37" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[msa.UnitCost]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
+        <TextObject Name="Text119" Left="151.2" Width="62.37" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[data.UnitCost]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
           <Highlight>
             <Condition Expression="Value &lt; 0"/>
           </Highlight>
         </TextObject>
-        <TextObject Name="Text123" Left="1111.32" Width="56.7" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[msa.EopInQty]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
+        <TextObject Name="Text123" Left="1111.32" Width="56.7" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[data.EopInQty]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
           <Highlight>
             <Condition Expression="Value &lt; 0"/>
           </Highlight>
         </TextObject>
-        <TextObject Name="Text124" Left="1168.02" Width="66.15" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[msa.EopInAmt]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
+        <TextObject Name="Text124" Left="1168.02" Width="66.15" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[data.EopInAmt]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
           <Highlight>
             <Condition Expression="Value &lt; 0"/>
           </Highlight>
         </TextObject>
-        <TextObject Name="Text128" Left="1234.17" Width="56.7" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[msa.EopOutQty]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
+        <TextObject Name="Text128" Left="1234.17" Width="56.7" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[data.EopOutQty]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
           <Highlight>
             <Condition Expression="Value &lt; 0"/>
           </Highlight>
         </TextObject>
-        <TextObject Name="Text129" Left="1290.87" Width="66.15" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[msa.EopOutAmt]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
+        <TextObject Name="Text129" Left="1290.87" Width="66.15" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[data.EopOutAmt]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
           <Highlight>
             <Condition Expression="Value &lt; 0"/>
           </Highlight>
         </TextObject>
-        <TextObject Name="Text131" Left="49.14" Width="102.06" Height="22.68" Border.Lines="Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[msa.ProductDesc1]" Padding="2, 1, 2, 0" Font="Tahoma, 7pt"/>
+        <TextObject Name="Text131" Left="49.14" Width="102.06" Height="22.68" Border.Lines="Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[data.ProductDesc1]" Padding="2, 1, 2, 0" Font="Tahoma, 7pt"/>
       </DataBand>
-      <GroupFooterBand Name="GroupFooter1" Top="263.81" Width="1550.18" Height="28.35" Border.Lines="All" Fill.Color="WhiteSmoke">
+      <GroupFooterBand Name="GroupFooter1" Top="247.6" Width="1550.18" Height="28.35" Border.Lines="All" Fill.Color="WhiteSmoke">
         <TextObject Name="Text6" Width="75.6" Height="28.35" Text="Total :" VertAlign="Center" WordWrap="false" Font="Tahoma, 7pt, style=Bold"/>
-        <TextObject Name="Text115" Left="77.05" Width="141.75" Height="28.35" CanGrow="true" CanBreak="false" Text="[msa.LocationCode] : [msa.LocationName]" AutoWidth="true" VertAlign="Center" WordWrap="false" Font="Tahoma, 7pt"/>
+        <TextObject Name="Text115" Left="77.05" Width="141.75" Height="28.35" CanGrow="true" CanBreak="false" Text="[data.LocationCode] : [data.LocationName]" AutoWidth="true" VertAlign="Center" WordWrap="false" Font="Tahoma, 7pt"/>
         <TextObject Name="Text28" Left="1423.17" Width="126.63" Height="28.35" Text="[SumLocation_CloseAmt]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 7pt, style=Bold">
           <Highlight>
             <Condition Expression="Value &lt; 0"/>
@@ -388,10 +349,10 @@ namespace FastReport
             <Condition Expression="Value &lt; 0"/>
           </Highlight>
         </TextObject>
-        <ChildBand Name="Child_GroupFooter1" Top="296.16" Width="1550.18" Height="3.78"/>
+        <ChildBand Name="Child_GroupFooter1" Top="278.6" Width="1550.18" Height="3.78"/>
       </GroupFooterBand>
     </GroupHeaderBand>
-    <ReportSummaryBand Name="ReportSummary1" Top="303.94" Width="1550.18" Height="28.35" Fill.Color="Gainsboro">
+    <ReportSummaryBand Name="ReportSummary1" Top="285.03" Width="1550.18" Height="28.35" Fill.Color="Gainsboro">
       <TextObject Name="Text116" Width="170.1" Height="28.35" Text="Grand Total :" VertAlign="Center" Font="Tahoma, 7pt, style=Bold"/>
       <TextObject Name="Text36" Left="1423.17" Width="126.63" Height="28.35" CanGrow="true" CanBreak="false" Text="[SumGrand_CloseAmt]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 7pt, style=Bold">
         <Highlight>
@@ -449,26 +410,9 @@ namespace FastReport
         </Highlight>
       </TextObject>
     </ReportSummaryBand>
-    <PageFooterBand Name="PageFooter1" Top="336.29" Width="1550.18" Height="47.25">
+    <PageFooterBand Name="PageFooter1" Top="316.02" Width="1550.18" Height="47.25">
       <TextObject Name="Text1" Top="18.9" Width="132.3" Height="28.35" Text="Report summary&#13;&#10;Print on [Date]" Format="Date" Format.Format="d" WordWrap="false" Font="Arial, 8pt"/>
       <TextObject Name="Text2" Left="1237.95" Top="18.9" Width="292.95" Height="28.35" Text="Page [Page#] of [TotalPages#]" HorzAlign="Right" WordWrap="false" Font="Arial, 8pt"/>
     </PageFooterBand>
   </ReportPage>
-  <DialogPage Name="ReportDialog" Width="450" Height="422" AcceptButton="btnOk" CancelButton="btnCancel" LoadEvent="">
-    <ButtonControl Name="btnOk" Left="242" Top="350" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="0" Text="OK" ClickEvent="btnOk_Click" DialogResult="OK"/>
-    <ButtonControl Name="btnCancel" Left="353" Top="350" Anchor="Bottom, Right" Font="Tahoma, 8pt" TabIndex="1" Text="Cancel" DialogResult="Cancel"/>
-    <TextBoxControl Name="TextDate1" Left="128" Top="16" Width="300" Font="Tahoma, 8pt" TabIndex="3"/>
-    <LabelControl Name="Label1" Left="36" Top="16" Width="57" Height="13" Font="Tahoma, 8pt" TabIndex="4" Text="From Date"/>
-    <LabelControl Name="Label2" Left="36" Top="60" Width="45" Height="13" Font="Tahoma, 8pt" TabIndex="4" Text="To Date"/>
-    <TextBoxControl Name="TextDate2" Left="128" Top="60" Width="300" Font="Tahoma, 8pt" TabIndex="3"/>
-    <ComboBoxControl Name="ComboBox3" Left="128" Top="104" Width="300" Font="Tahoma, 8pt" TabIndex="2" DataColumn="FPRODUCT.Column1" DropDownWidth="300" ItemHeight="13"/>
-    <ComboBoxControl Name="ComboBox4" Left="128" Top="152" Width="300" Font="Tahoma, 8pt" TabIndex="2" DataColumn="TPRODUCT.Column1" DropDownWidth="300" ItemHeight="13"/>
-    <ComboBoxControl Name="ComboBox5" Left="128" Top="204" Width="300" Font="Tahoma, 8pt" TabIndex="2" DataColumn="FLOCATION.Item" DropDownWidth="300" ItemHeight="13"/>
-    <ComboBoxControl Name="ComboBox6" Left="128" Top="252" Width="300" Font="Tahoma, 8pt" TabIndex="2" DataColumn="TLOCATION.Item" DropDownWidth="300" ItemHeight="13"/>
-    <LabelControl Name="Label5" Left="36" Top="104" Width="71" Height="13" Font="Tahoma, 8pt" TabIndex="7" Text="Product From"/>
-    <LabelControl Name="Label6" Left="36" Top="152" Width="59" Height="13" Font="Tahoma, 8pt" TabIndex="8" Text="Product To"/>
-    <LabelControl Name="Label7" Left="36" Top="204" Width="74" Height="13" Font="Tahoma, 8pt" TabIndex="9" Text="Location From"/>
-    <LabelControl Name="Label8" Left="36" Top="252" Width="62" Height="13" Font="Tahoma, 8pt" TabIndex="10" Text="Location To"/>
-    <CheckBoxControl Name="CheckBox1" Left="128" Top="300" Width="136" Height="17" Font="Tahoma, 8pt" TabIndex="11" Text="Show Transaction Only"/>
-  </DialogPage>
 </Report>

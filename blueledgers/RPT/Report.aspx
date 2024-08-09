@@ -16,18 +16,67 @@
         body
         {
             padding: 20px;
-            margin-bottom: 40px;
-            background-color: #f3f2f4;
         }
-        .panel-dialog
+    </style>
+    <%--Flex--%>
+    <style>
+        .flex
         {
-            padding-top: 10px;
-            padding-bottom: 10px;
-            padding-left: 20px;
-            padding-right: 20px;
             display: flex !important;
-            flex-direction: column !important;
         }
+        
+        .flex-justify-content-start
+        {
+            justify-content: flex-start;
+        }
+        .flex-justify-content-end
+        {
+            justify-content: flex-end;
+        }
+        .flex-justify-content-center
+        {
+            justify-content: center;
+        }
+        .flex-justify-content-between
+        {
+            justify-content: space-between;
+        }
+        .flex-row
+        {
+            flex-flow: row !important;
+        }
+        .flex-columm
+        {
+            flex-flow: column !important;
+        }
+        
+        .mt-10
+        {
+            margin-top: 10px;
+        }
+        .mt-20
+        {
+            margin-top: 20px;
+        }
+        .mt-30
+        {
+            margin-top: 30px;
+        }
+        .mb-10
+        {
+            margin-bottom: 10px;
+        }
+        .mb-20
+        {
+            margin-bottom: 20px;
+        }
+        .mb-30
+        {
+            margin-bottom: 30px;
+        }
+    </style>
+    <%--Dialog Controls--%>
+    <style>
         .dialog-div
         {
             margin-bottom: 10px;
@@ -36,10 +85,10 @@
         }
         .dialog-label
         {
-            font-size: 1rem;
+            font-size: 0.8rem;
             font-weight: bold;
-            padding-top: 10px;
-            padding-bottom: 5px;
+            margin-top: 10px;
+            margin-bottom: 5px;
         }
         
         .dialog-select
@@ -47,11 +96,53 @@
             width: 100%;
             font-size: 1rem;
         }
+    </style>
+    <%--Dialog Panel--%>
+    <style>
+        .accordion
+        {
+            width: 100%;
+            padding: 10px 0;
+            margin-bottom: 0;
+            background-color: #04AA6D; /* Green */
+            border: none;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        
+        .active, .accordion:hover
+        {
+            background-color: #ccc;
+        }
+        
+        .panel
+        {
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.2s ease-out;
+        }
+        
+        .panel-parameter
+        {
+            background-color: #F5F5F5;
+            width: auto;
+            height: auto;
+            padding: 0 20px;
+            margin-bottom: 10px;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        
         .btn-view
         {
-            font-size: 1rem;
-            padding: 5px;
             width: 100px;
+            margin: 0 0 20px 20px;
+            font-size: 0.8rem;
+            padding: 5px;
         }
     </style>
 </head>
@@ -63,25 +154,33 @@
         }
     </style>
     <form id="form1" runat="server">
-    <div style="margin-bottom: 14px; text-align: center;">
+    <div style="text-align: center;">
         <asp:Label runat="server" ID="lbl_Title" Font-Bold="true" Font-Size="X-Large" />
         <br />
         <asp:Label runat="server" ID="lbl_Bu" Font-Size="small" />
     </div>
     <hr />
-    <div style="display: flex; align-items: center; flex-direction: column; with: 100%; margin-bottom: 20px;">
-        <asp:Panel runat="server" ID="panel_Dialog" ClientIDMode="Static" CssClass="panel-dialog" BackColor="WhiteSmoke" Width="640">
+    <br />
+    <div class="flex flex-justify-content-center">
+        <asp:Panel runat="server" ID="panel_Dialog" CssClass="" Width="640">
+            <button type="button" id='btn_Dialog' class="accordion">
+                Dialog
+            </button>
+            <div id="dialog" class="panel ">
+                <asp:Panel runat="server" ID="panel_Parameters" ClientIDMode="Static" CssClass="panel-parameter">
+                </asp:Panel>
+                <div class="flex flex-justify-content-center">
+                    <button type="button" id="btn_View" class="btn-view">
+                        View
+                    </button>
+                </div>
+            </div>
         </asp:Panel>
-        <hr />
-        <button type="button" id="btn_submit" class="btn-view">
-            View
-        </button>
     </div>
-    <div style="display: flex; justify-content: center; width: 100%;">
-        <br />
+    <br />
+    <div class="flex flex-justify-content-center">
         <fr:WebReport ID="WebReport1" runat="server" Height="800px" Width="320px" ToolbarStyle="Small" ToolbarIconsStyle="Blue" OnStartReport="WebReport1_StartReport" />
     </div>
-    <asp:Label runat="server" ID="lbl_test" />
     </form>
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -90,11 +189,23 @@
             // Init
             $('.dialog-select').select2();
 
+
             const query = window.location.search;
             const urlParams = new URLSearchParams(query);
+
+
+            if (!urlParams.get('parameters')){
+                showDialog();
+            }
             
             // Event(s)
-            $('#btn_submit').on('click', function () { 
+            $('#btn_Dialog').on('click', function(){
+                $(this).toggleClass('active');
+                showDialog();
+            });
+
+
+            $('#btn_View').on('click', function () { 
                 let parameters = [];
 
                 $('.parameter').each(function(){
@@ -124,7 +235,7 @@
                         value: value
                    });
                 });
-
+                //console.log(parameters);
 
                 let id = urlParams.get('id');
                 let param = btoa(JSON.stringify(parameters));
@@ -132,9 +243,21 @@
                 location.href = `${path}?id=${id}&parameters=${param}`;
 
                 //console.log(id, param);
-             });
+            });
 
             // Method(s)
+            function showDialog(){
+                let panel = document.getElementById('dialog');
+
+                if (panel.style.maxHeight){
+                    panel.style.maxHeight = null;
+                }else{
+                    let height = panel.scrollHeight + 100;
+                    panel.style.maxHeight = height + "px";
+                }
+
+            }
+
 
         });
     </script>
