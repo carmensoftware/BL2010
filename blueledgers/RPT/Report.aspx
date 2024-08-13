@@ -20,60 +20,7 @@
     </style>
     <%--Flex--%>
     <style>
-        .flex
-        {
-            display: flex !important;
-        }
         
-        .flex-justify-content-start
-        {
-            justify-content: flex-start;
-        }
-        .flex-justify-content-end
-        {
-            justify-content: flex-end;
-        }
-        .flex-justify-content-center
-        {
-            justify-content: center;
-        }
-        .flex-justify-content-between
-        {
-            justify-content: space-between;
-        }
-        .flex-row
-        {
-            flex-flow: row !important;
-        }
-        .flex-columm
-        {
-            flex-flow: column !important;
-        }
-        
-        .mt-10
-        {
-            margin-top: 10px;
-        }
-        .mt-20
-        {
-            margin-top: 20px;
-        }
-        .mt-30
-        {
-            margin-top: 30px;
-        }
-        .mb-10
-        {
-            margin-bottom: 10px;
-        }
-        .mb-20
-        {
-            margin-bottom: 20px;
-        }
-        .mb-30
-        {
-            margin-bottom: 30px;
-        }
     </style>
     <%--Dialog Controls--%>
     <style>

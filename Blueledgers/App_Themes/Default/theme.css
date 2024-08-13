@@ -16,16 +16,15 @@ body
     background-color: var(--background-color);
     width: 100%;
     margin: 0 auto;
-    padding:0px;
+    padding: 0px;
 }
 
 .master-menu-bar
 {
     clear: both;
-    display: block;
-    /*margin: 0 0 0 25px;*/
+    display: block; /*margin: 0 0 0 25px;*/
     margin-bottom: 10px;
-    width:100%;
+    width: 100%;
 }
 
 .master-logo
@@ -46,13 +45,13 @@ body
     vertical-align: top;
     float: right;
     position: absolute;
-    right:20px;
+    right: 20px;
 }
 
 
 .master-info-bar
 {
-    clear: both; 
+    clear: both;
     margin: 0 0 0 25px;
     margin-bottom: 10px;
     font-size: 1.25em;
@@ -119,17 +118,16 @@ body
 
     .master-info-bar
     {
-        clear:both;
-        display:block;
+        clear: both;
+        display: block;
     }
 
     .master-user
     {
-        display:inline-block;
-        float:left;
-        position:absolute;
-        left:25px;
-        
+        display: inline-block;
+        float: left;
+        position: absolute;
+        left: 25px;
     }
 
     .master-option-sm
@@ -158,4 +156,122 @@ body
         left: 0;
         top: 0;
     }
+}
+/* Title bar */
+.title-bar
+{
+    background-color: #4D4D4D;
+    color: White;
+    height: 28px;
+    width: 100%;
+}
+
+
+/* Flex */
+.flex
+{
+    display: flex !important;
+}
+
+.flex-justify-content-start
+{
+    justify-content: flex-start;
+}
+.flex-justify-content-end
+{
+    justify-content: flex-end;
+}
+.flex-justify-content-center
+{
+    justify-content: center;
+}
+.flex-justify-content-between
+{
+    justify-content: space-between !important;
+}
+.flex-row
+{
+    flex-flow: row !important;
+}
+.flex-columm
+{
+    flex-flow: column !important;
+}
+.flex-align-items-start
+{
+    align-items: flex-start;
+}
+.flex-align-items-end
+{
+    align-items: flex-end;
+}
+.flex-align-items-center
+{
+    align-items: center;
+}
+.flex-align-items-baseline
+{
+    align-items: baseline;
+}
+
+.ms-10
+{
+    margin-left: 10px;
+}
+.ms-20
+{
+    margin-left: 20px;
+}
+.ms-30
+{
+    margin-left: 30px;
+}
+.me-10
+{
+    margin-right: 10px;
+}
+.me-20
+{
+    margin-right: 20px;
+}
+.me-30
+{
+    margin-right: 30px;
+}
+
+.mt-10
+{
+    margin-top: 10px;
+}
+.mt-20
+{
+    margin-top: 20px;
+}
+.mt-30
+{
+    margin-top: 30px;
+}
+.mb-10
+{
+    margin-bottom: 10px;
+}
+.mb-20
+{
+    margin-bottom: 20px;
+}
+.mb-30
+{
+    margin-bottom: 30px;
+}
+
+.width-100
+{
+    width: 100% !important;
+}
+
+/* --- */
+.table
+{
+    border: none !important;
+    border-spacing: 5px;
 }
