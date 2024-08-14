@@ -197,6 +197,12 @@ body
 {
     flex-flow: column !important;
 }
+
+.flex-wrap
+{
+    flex-wrap: wrap !important;
+}
+
 .flex-align-items-start
 {
     align-items: flex-start;

@@ -11,7 +11,21 @@
         {
             padding: 0 0 0 3px;
         }
+        .badge
+        {
+            display: inline-block;
+            padding: 2px 6px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #fff;
+            background-color: #337ab7;
+            border-radius: 2px;
+            margin-right: 1em;
+        }
     </style>
+    <!-- Hidden Field(s) -->
+    <asp:HiddenField ID="hf_ConnStr" runat="server" />
+    <%--<asp:HiddenField ID="hf_BaseCurrency" runat="server" />--%>
     <!-- Title / Action buttons -->
     <div class="flex flex-justify-content-between title-bar mb-10">
         <div class="ms-10">
@@ -48,72 +62,58 @@
     <!-- Header -->
     <table class="table width-100 mb-10">
         <tr>
-            <td style="width: 80px;">
-                <asp:Label ID="lbl_Type_Nm" runat="server" SkinID="LBL_HD">Type</asp:Label>
+            <td style="width: 7%;">
+                <asp:Label ID="lbl_RecNo_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, lbl_RecNo_Nm %>" SkinID="LBL_HD"></asp:Label>
             </td>
-            <td style="width: 100px;">
-                <asp:Label ID="lbl_Type" runat="server" SkinID="LBL_HD">From Purchase Order</asp:Label>
+            <td style="width: 13%;">
+                <asp:Label ID="lbl_RecNo" runat="server" SkinID="LBL_NR" Font-Size="Small" Font-Bold="true"></asp:Label>
             </td>
-            <td style="width: 80px;">
+            <td colspan="2" style="width: 20%;">
+                <asp:Label ID="lbl_PoSource" runat="server" CssClass="badge" Text="by Purchase Order" />
             </td>
-            <td style="width: 160px;">
-            </td>
-            <td style="width: 80px;">
+            <%--<td style="width: 160px;">
+            </td>--%>
+            <td style="width: 7%;">
                 <asp:Label ID="lbl_Receiver_Nm" runat="server" Text="<%$ Resources:PC_REC_Rec, lbl_Receiver_Nm %>" SkinID="LBL_HD"></asp:Label>
             </td>
-            <td style="width: 120px;">
+            <td style="width: 13%;">
                 <asp:Label ID="lbl_Receiver" runat="server" SkinID="LBL_NR"></asp:Label>
             </td>
-            <td style="width: 120px;">
-                <asp:Label ID="lbl_CommitDate_Nm" runat="server" SkinID="LBL_HD">Committed Date:</asp:Label>
+            <td style="width: 7%;">
+                <asp:Label ID="lbl_CommitDate_Nm" runat="server" SkinID="LBL_HD">Committed :</asp:Label>
             </td>
-            <td>
+            <td style="width: 13%;">
                 <asp:Label ID="lbl_CommitDate" runat="server" SkinID="LBL_NR_BLUE"></asp:Label>
             </td>
-            <td style="width: 60px;">
+            <td style="width: 7%;">
                 <asp:Label ID="lbl_Status_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, lbl_Status_Nm %>" SkinID="LBL_HD"></asp:Label>
             </td>
-            <td style="width: 120px;">
+            <td style="width: 13%;">
                 <asp:Label ID="lbl_DocStatus" runat="server" SkinID="LBL_NR" Text="STATUS"></asp:Label>
             </td>
         </tr>
         <tr>
             <td>
-                <asp:Label ID="lbl_RecNo_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, lbl_RecNo_Nm %>" SkinID="LBL_HD"></asp:Label>
-            </td>
-            <td>
-                <asp:Label ID="lbl_RecNo" runat="server" SkinID="LBL_NR"></asp:Label>
-            </td>
-            <td>
                 <asp:Label ID="lbl_RecDate_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, lbl_RecDate_Nm %>" SkinID="LBL_HD"></asp:Label>
             </td>
             <td>
-                <dx:ASPxDateEdit ID="de_RecDate" runat="server" Width="170" DisplayFormatString="dd/MM/yyyy" EditFormatString="dd/MM/yyyy" ShowShadow="False">
-                    <ValidationSettings Display="Dynamic">
-                        <ErrorFrameStyle ImageSpacing="4px">
-                            <ErrorTextPaddings PaddingLeft="4px" />
-                        </ErrorFrameStyle>
-                        <RequiredField IsRequired="True" />
-                    </ValidationSettings>
-                </dx:ASPxDateEdit>
+                <dx:ASPxDateEdit ID="de_RecDate" runat="server" DisplayFormatString="dd/MM/yyyy" EditFormatString="dd/MM/yyyy" ShowShadow="False" />
+            </td>
+            <td>
+            </td>
+            <td>
             </td>
             <td>
                 <asp:Label ID="lbl_VendorCode_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, lbl_VendorCode_Nm %>" SkinID="LBL_HD"></asp:Label>
             </td>
-            <td>
-                <dx:ASPxComboBox ID="ddl_Vendor" runat="server" Width="340" ValueField="Code" TextField="Name" IncrementalFilteringMode="Contains">
-                </dx:ASPxComboBox>
+            <td colspan="3">
+                <dx:ASPxComboBox ID="ddl_Vendor" runat="server" Width="90%" ValueField="Code" TextField="Name" IncrementalFilteringMode="Contains" />
             </td>
             <td>
                 <asp:Label ID="lbl_DeliPoing_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, lbl_DeliPoing_Nm %>" SkinID="LBL_HD"></asp:Label>
             </td>
             <td>
-                <dx:ASPxComboBox ID="ddl_DeliPoint" runat="server" Width="98%" ValueField="Code" TextField="Name" IncrementalFilteringMode="Contains">
-                </dx:ASPxComboBox>
-            </td>
-            <td>
-            </td>
-            <td>
+                <dx:ASPxComboBox ID="ddl_DeliPoint" runat="server" Width="100%" ValueField="Code" TextField="Name" IncrementalFilteringMode="Contains" />
             </td>
         </tr>
         <tr>
@@ -121,7 +121,7 @@
                 <asp:Label ID="lbl_InvDate_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, lbl_InvNo_Nm1 %>" SkinID="LBL_HD"></asp:Label>
             </td>
             <td>
-                <dx:ASPxDateEdit ID="de_InvDate" runat="server" Width="140" DisplayFormatString="dd/MM/yyyy" EditFormatString="dd/MM/yyyy" ShowShadow="False">
+                <dx:ASPxDateEdit ID="de_InvDate" runat="server" DisplayFormatString="dd/MM/yyyy" EditFormatString="dd/MM/yyyy" ShowShadow="False">
                     <ValidationSettings Display="Dynamic">
                         <ErrorFrameStyle>
                             <ErrorTextPaddings PaddingLeft="4px" />
@@ -136,31 +136,31 @@
                 <asp:TextBox ID="txt_InvNo" runat="server" Width="160" SkinID="TXT_V1" MaxLength="30"></asp:TextBox>
             </td>
             <td>
-                <asp:Label ID="lbl_CashConsign_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, lbl_DeliPoing_Nm0 %>" SkinID="LBL_HD"></asp:Label>
+                <asp:Label ID="lbl_CashConsign_Nm" runat="server" AssociatedControlID="chk_CashConsign" Text="<%$ Resources:PC_REC_RecEdit, lbl_DeliPoing_Nm0 %>" SkinID="LBL_HD"></asp:Label>
             </td>
             <td>
-                <asp:CheckBox ID="chk_CashConsign" runat="server" Enabled="true" SkinID="CHK_V1" />
+                <asp:CheckBox ID="chk_CashConsign" runat="server" SkinID="CHK_V1" Font-Size="Large" />
+            </td>
+            <td>
+            </td>
+            <td>
             </td>
             <td>
                 <asp:Label ID="lbl_Currency_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, lbl_Currency_Nm %>" SkinID="LBL_HD"></asp:Label>
             </td>
-            <td colspan="3" class="flex">
+            <td class="flex">
                 <dx:ASPxComboBox ID="ddl_Currency" runat="server" ValueField="Code" TextField="Name" IncrementalFilteringMode="Contains" OnSelectedIndexChanged="ddl_Currency_SelectedIndexChanged">
                 </dx:ASPxComboBox>
                 <asp:Label runat="server" Font-Size="Large" Text="@" />
-                <dx:ASPxSpinEdit runat="server" ID="se_CurrencyRate" MinValue="0" NullText="1.00" SpinButtons-ShowIncrementButtons="False" />
+                <dx:ASPxSpinEdit runat="server" ID="se_CurrencyRate" MinValue="0" NullText="1.00" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right" />
             </td>
-            <%--<td>
-                    </td>
-                    <td>
-                    </td>--%>
         </tr>
         <tr>
             <td>
                 <asp:Label ID="lbl_Desc_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, lbl_Desc_Nm %>" SkinID="LBL_HD"></asp:Label>
             </td>
             <td colspan="9">
-                <asp:TextBox ID="txt_Desc" runat="server" Width="98%" SkinID="TXT_V1"></asp:TextBox>
+                <asp:TextBox ID="txt_Desc" runat="server" Width="100%" SkinID="TXT_V1"></asp:TextBox>
             </td>
         </tr>
         <tr>
@@ -168,8 +168,8 @@
                 <asp:Label ID="lbl_TotalExtraCost" runat="server" Text="Extra Cost" SkinID="LBL_HD" />
             </td>
             <td>
-                <dx:ASPxSpinEdit ID="se_TotalExtraCost" runat="server" DisplayFormatString=",0.00" NullText="0" SpinButtons-ShowIncrementButtons="False" DecimalPlaces="2"
-                    ReadOnly="true" />
+                <dx:ASPxSpinEdit ID="se_TotalExtraCost" runat="server" DisplayFormatString=",0.00" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right"
+                    DecimalPlaces="2" ReadOnly="true" />
             </td>
             <td>
                 <asp:Button ID="btn_AllocateExtraCost" runat="server" Text="Allocate" OnClick="btn_AllocateExtraCost_Click" />
@@ -195,386 +195,395 @@
     <!-- Details -->
     <asp:UpdatePanel ID="UpdatePanel_Detail" runat="server">
         <ContentTemplate>
-            <asp:GridView ID="gv_Detail" runat="server" Width="100%" SkinID="GRD_V1" AutoGenerateColumns="False" EmptyDataText="No Data">
+            <asp:GridView ID="gv_Detail" runat="server" Width="100%" SkinID="GRD_V1" AutoGenerateColumns="false" EmptyDataText="No Data" OnRowDataBound="gv_Detail_RowDataBound"
+                OnRowEditing="gv_Detail_RowEditing" OnRowCancelingEdit="gv_Detail_RowCancelingEdit">
+                <HeaderStyle HorizontalAlign="Left" Height="24" />
+                <RowStyle HorizontalAlign="Left" Height="30" />
                 <Columns>
+                    <%--Expand button--%>
                     <asp:TemplateField>
-                        <HeaderStyle Width="17px" HorizontalAlign="Left" />
-                        <ItemStyle Width="17px" VerticalAlign="Top" HorizontalAlign="Left" />
+                        <ItemStyle Width="17px" VerticalAlign="Middle" />
                         <ItemTemplate>
-                            <%--CommandName="ShowDetail"--%>
                             <asp:ImageButton ID="Img_Btn" runat="server" ImageUrl="~/App_Themes/Default/Images/master/in/Default/Plus.jpg" OnClientClick="expandDetailsInGrid(this);return false;" />
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <%--CommandName="ShowDetail"--%>
                             <asp:ImageButton ID="Img_Btn" runat="server" ImageUrl="~/App_Themes/Default/Images/master/in/Default/Plus.jpg" OnClientClick="expandDetailsInGrid(this);return false;" />
                         </EditItemTemplate>
                     </asp:TemplateField>
-                    <asp:TemplateField>
-                        <HeaderTemplate>
-                            
-                        </HeaderTemplate>
+                    <%--Location--%>
+                    <asp:TemplateField HeaderText="Location">
                         <ItemTemplate>
-                            
+                            <asp:Label runat="server" ID="lbl_Location" />
                         </ItemTemplate>
                         <EditItemTemplate>
-                            
+                            <dx:ASPxComboBox ID="ddl_Location" runat="server" Width="90%" IncrementalFilteringMode="Contains" />
                         </EditItemTemplate>
-                        <FooterTemplate>
-                            <table border="0" cellpadding="3" cellspacing="0" width="100%" style="margin: auto;">
-                                <tr>
-                                    <td colspan="3">
-                                        <asp:Label ID="lbl_CurrGrandTitle_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, TitleCurrency %>" SkinID="LBL_HD_W"></asp:Label>
-                                        <asp:Label ID="lbl_CurrGrandTitle" runat="server" SkinID="LBL_HD_W"></asp:Label>
-                                    </td>
-                                    <td colspan="3">
-                                        <asp:Label ID="lbl_BaseGrandTitle_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, TitleBaseCurrency %>" SkinID="LBL_HD_W"></asp:Label>
-                                        <asp:Label ID="lbl_BaseGrandTitle" runat="server" SkinID="LBL_HD_W"></asp:Label>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td align="left" style="width: 15%; white-space: nowrap;">
-                                        <asp:Label ID="lbl_CurrGrandTotalNet_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, lbl_TotalRec_Nm %>" SkinID="LBL_HD_W"></asp:Label>
-                                    </td>
-                                    <td width="8%" align="right">
-                                        <asp:Label ID="lbl_CurrGrandTotalNet" runat="server" SkinID="LBL_HD_W"></asp:Label>
-                                    </td>
-                                    <td width="7%">
-                                    </td>
-                                    <td align="left" style="width: 15%; white-space: nowrap;">
-                                        <%-- Width="100px" 100px--%>
-                                        <asp:Label ID="lbl_GrandTotalNet_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, lbl_TotalRec_Nm %>" SkinID="LBL_HD_W"></asp:Label>
-                                    </td>
-                                    <td width="8%" align="right">
-                                        <%--70pxWidth="8%"--%>
-                                        <asp:Label ID="lbl_GrandTotalNet" runat="server" SkinID="LBL_HD_W"></asp:Label>
-                                    </td>
-                                    <td width="3%">
-                                    </td>
-                                    <%--65px--%>
-                                </tr>
-                                <tr>
-                                    <td align="left">
-                                        <asp:Label ID="lbl_CurrGrandTotalTax_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, lbl_TotalTax_Nm %>" SkinID="LBL_HD_W"></asp:Label>
-                                    </td>
-                                    <td align="right">
-                                        <asp:Label ID="lbl_CurrGrandTotalTax" runat="server" SkinID="LBL_HD_W"></asp:Label>
-                                    </td>
-                                    <td>
-                                    </td>
-                                    <td align="left">
-                                        <asp:Label ID="lbl_GrandTotalTax_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, lbl_TotalTax_Nm %>" SkinID="LBL_HD_W"></asp:Label><%-- Width="100px"--%>
-                                    </td>
-                                    <td align="right">
-                                        <asp:Label ID="lbl_GrandTotalTax" runat="server" SkinID="LBL_HD_W"></asp:Label><%-- Width="70px"--%>
-                                    </td>
-                                    <td>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td align="left" style="padding-right: 5px; white-space: nowrap;">
-                                        <asp:Label ID="lbl_CurrGrandTotalAmt_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, lbl_GrandTotal %>" SkinID="LBL_HD_W"></asp:Label>
-                                    </td>
-                                    <td align="right">
-                                        <asp:Label ID="lbl_CurrGrandTotalAmt" runat="server" SkinID="LBL_HD_W"></asp:Label>
-                                    </td>
-                                    <td>
-                                    </td>
-                                    <td align="left" style="padding-right: 5px; white-space: nowrap;">
-                                        <asp:Label ID="lbl_GrandTotalAmt_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, lbl_GrandTotal %>" SkinID="LBL_HD_W"></asp:Label><%-- Width="100px"--%>
-                                    </td>
-                                    <td align="right">
-                                        <asp:Label ID="lbl_GrandTotalAmt" runat="server" SkinID="LBL_HD_W"></asp:Label><%-- Width="70px"--%>
-                                    </td>
-                                    <td>
-                                    </td>
-                                </tr>
-                            </table>
-                        </FooterTemplate>
                     </asp:TemplateField>
-                    <asp:TemplateField HeaderStyle-Width="0%">
+                    <%--Product--%>
+                    <asp:TemplateField HeaderText="Product">
                         <ItemTemplate>
-                            <tr id="TR_Summmary" runat="server" style="display: none; margin: auto;">
-                                <td colspan="5" style="padding-left: 10px; padding-right: 0px">
-                                    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: auto;">
+                            <asp:Label runat="server" ID="lbl_Product" />
+                        </ItemTemplate>
+                        <EditItemTemplate>
+                            <dx:ASPxComboBox ID="ddl_Product" runat="server" Width="90%" IncrementalFilteringMode="Contains" />
+                        </EditItemTemplate>
+                    </asp:TemplateField>
+                    <%--Order Unit--%>
+                    <asp:TemplateField HeaderText="Unit">
+                        <ItemTemplate>
+                            <asp:Label runat="server" ID="lbl_OrdUnit" />
+                        </ItemTemplate>
+                        <EditItemTemplate>
+                            <asp:Label runat="server" ID="lbl_OrdUnit" />
+                        </EditItemTemplate>
+                    </asp:TemplateField>
+                    <%--Order Qty--%>
+                    <asp:TemplateField HeaderText="Order">
+                        <HeaderStyle HorizontalAlign="Right" />
+                        <ItemStyle HorizontalAlign="Right" />
+                        <ItemTemplate>
+                            <asp:Label runat="server" ID="lbl_OrdQty" />
+                        </ItemTemplate>
+                        <EditItemTemplate>
+                            <asp:Label runat="server" ID="lbl_OrdQty" />
+                        </EditItemTemplate>
+                    </asp:TemplateField>
+                    <%--Receive--%>
+                    <asp:TemplateField HeaderText="Receive">
+                        <HeaderStyle HorizontalAlign="Right" />
+                        <ItemStyle HorizontalAlign="Right" />
+                        <ItemTemplate>
+                            <asp:Label runat="server" ID="lbl_RecQty" />
+                        </ItemTemplate>
+                        <EditItemTemplate>
+                            <dx:ASPxSpinEdit runat="server" ID="se_RecQty" Width="60" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right" />
+                        </EditItemTemplate>
+                    </asp:TemplateField>
+                    <%--FOC--%>
+                    <asp:TemplateField HeaderText="FOC">
+                        <HeaderStyle HorizontalAlign="Right" />
+                        <ItemStyle HorizontalAlign="Right" />
+                        <ItemTemplate>
+                            <asp:Label runat="server" ID="lbl_FocQty" />
+                        </ItemTemplate>
+                        <EditItemTemplate>
+                            <dx:ASPxSpinEdit runat="server" ID="se_FocQty" Width="60" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right" />
+                        </EditItemTemplate>
+                    </asp:TemplateField>
+                    <%--Price--%>
+                    <asp:TemplateField HeaderText="Price">
+                        <HeaderStyle HorizontalAlign="Right" />
+                        <ItemStyle HorizontalAlign="Right" />
+                        <ItemTemplate>
+                            <asp:Label runat="server" ID="lbl_Price" />
+                        </ItemTemplate>
+                        <EditItemTemplate>
+                            <dx:ASPxSpinEdit runat="server" ID="se_Price" Width="60" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right" />
+                        </EditItemTemplate>
+                    </asp:TemplateField>
+                    <%--Discount--%>
+                    <asp:TemplateField HeaderText="Discount">
+                        <HeaderStyle HorizontalAlign="Right" />
+                        <ItemStyle HorizontalAlign="Right" />
+                        <ItemTemplate>
+                            <asp:Label runat="server" ID="lbl_DiscAmt" />
+                        </ItemTemplate>
+                        <EditItemTemplate>
+                        </EditItemTemplate>
+                    </asp:TemplateField>
+                    <%--Net--%>
+                    <asp:TemplateField HeaderText="Net">
+                        <HeaderStyle HorizontalAlign="Right" />
+                        <ItemStyle HorizontalAlign="Right" />
+                        <ItemTemplate>
+                            <asp:Label runat="server" ID="lbl_NetAmt" />
+                        </ItemTemplate>
+                        <EditItemTemplate>
+                        </EditItemTemplate>
+                    </asp:TemplateField>
+                    <%--Tax--%>
+                    <asp:TemplateField HeaderText="Tax">
+                        <HeaderStyle HorizontalAlign="Right" />
+                        <ItemStyle HorizontalAlign="Right" />
+                        <ItemTemplate>
+                            <asp:Label runat="server" ID="lbl_TaxAmt" />
+                        </ItemTemplate>
+                        <EditItemTemplate>
+                        </EditItemTemplate>
+                    </asp:TemplateField>
+                    <%--Extra Cost--%>
+                    <asp:TemplateField HeaderText="Extra Cost">
+                        <HeaderStyle HorizontalAlign="Right" />
+                        <ItemStyle HorizontalAlign="Right" />
+                        <ItemTemplate>
+                            <asp:Label runat="server" ID="lbl_ExtCost" />
+                        </ItemTemplate>
+                        <EditItemTemplate>
+                            <asp:Label runat="server" ID="lbl_ExtCost" />
+                        </EditItemTemplate>
+                    </asp:TemplateField>
+                    <%--Total--%>
+                    <asp:TemplateField HeaderText="Total">
+                        <HeaderStyle HorizontalAlign="Right" />
+                        <ItemStyle HorizontalAlign="Right" />
+                        <ItemTemplate>
+                            <asp:Label runat="server" ID="lbl_TotalAmt" />
+                        </ItemTemplate>
+                        <EditItemTemplate>
+                        </EditItemTemplate>
+                    </asp:TemplateField>
+                    <%--Expiry Date--%>
+                    <asp:TemplateField HeaderText="Expiry Date">
+                        <ItemTemplate>
+                            <asp:Label runat="server" ID="lbl_ExpiryDate" />
+                        </ItemTemplate>
+                        <EditItemTemplate>
+                            <dx:ASPxDateEdit ID="de_ExpiryDate" runat="server" DisplayFormatString="dd/MM/yyyy" EditFormatString="dd/MM/yyyy" ShowShadow="False" />
+                        </EditItemTemplate>
+                    </asp:TemplateField>
+                    <%--Expand Information--%>
+                    <asp:TemplateField>
+                        <HeaderStyle Width="0" />
+                        <ItemTemplate>
+                            <tr id="TR_Summary" runat="server" style="display: none;">
+                                <td colspan="15">
+                                    <div style="width: 100%; height: 3px; border-bottom: 1px dashed;">
+                                    </div>
+                                    <!--Extra information-->
+                                    <table class="table width-100 mt-10">
                                         <tr>
-                                            <td style="vertical-align: top; width: 100%">
-                                                <%--Transaction Details--%>
-                                                <table border="0" cellpadding="0" cellspacing="0" class="TABLE_HD" width="100%" style="margin: auto;">
-                                                    <tr>
-                                                        <td style="width: 6%">
-                                                            <asp:Label ID="lbl_Receive_Nm" runat="server" SkinID="LBL_HD_GRD" Text="<%$ Resources:PC_REC_RecEdit, lbl_Receive_Nm %>"></asp:Label>
-                                                        </td>
-                                                        <td style="width: 7%;" align="right">
-                                                            <asp:Label ID="lbl_Receive" runat="server" SkinID="LBL_NR_1"></asp:Label>
-                                                        </td>
-                                                        <td style="width: 5%; padding-left: 10px;" align="left">
-                                                            <asp:Label ID="lbl_RcvUnit_Expand" runat="server" SkinID="LBL_NR_1"></asp:Label>
-                                                        </td>
-                                                        <td colspan="2">
-                                                        </td>
-                                                        <td style="width: 5%;">
-                                                        </td>
-                                                        <td colspan="3">
-                                                            <asp:Label ID="lbl_CurrCurrDt_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, TitleCurrency %>" SkinID="LBL_HD_GRD"></asp:Label>
-                                                            <asp:Label ID="lbl_CurrCurrDt" runat="server" SkinID="LBL_HD_GRD"></asp:Label>
-                                                        </td>
-                                                        <td colspan="2">
-                                                            <asp:Label ID="lbl_BaseCurrDt_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, TitleBaseCurrency %>" SkinID="LBL_HD_GRD"></asp:Label>
-                                                            <asp:Label ID="lbl_BaseCurrDt" runat="server" SkinID="LBL_HD_GRD"></asp:Label>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>
-                                                            <asp:Label ID="lbl_ConvertRate_Nm" runat="server" SkinID="LBL_HD_GRD" Text="<%$ Resources:PC_REC_RecEdit, lbl_ConvertRate_Nm %>"></asp:Label>
-                                                        </td>
-                                                        <td align="right">
-                                                            <asp:Label ID="lbl_ConvertRate" runat="server" SkinID="LBL_NR_1"></asp:Label>
-                                                        </td>
-                                                        <td>
-                                                        </td>
-                                                        <td colspan="2">
-                                                        </td>
-                                                        <td>
-                                                        </td>
-                                                        <td class="TD_LINE_GRD" style="width: 10%;">
-                                                            <asp:Label ID="lbl_CurrNetAmt_Nm" runat="server" SkinID="LBL_HD_GRD" Text="<%$ Resources:PC_REC_RecEdit, lbl_NetAmt_Nm %>"></asp:Label>
-                                                        </td>
-                                                        <td class="TD_LINE_GRD" align="right" style="width: 15%;">
-                                                            <asp:Label ID="lbl_CurrNetAmt" runat="server" SkinID="LBL_NR_1"></asp:Label>
-                                                        </td>
-                                                        <td class="TD_LINE_GRD" style="width: 5%;">
-                                                        </td>
-                                                        <td class="TD_LINE_GRD" style="width: 10%;">
-                                                            <asp:Label ID="lbl_NetAmt_Nm" runat="server" SkinID="LBL_HD_GRD" Text="<%$ Resources:PC_REC_RecEdit, lbl_NetAmt_Nm %>"></asp:Label>
-                                                        </td>
-                                                        <td class="TD_LINE_GRD" align="right" style="width: 15%;">
-                                                            <asp:Label ID="lbl_NetAmt" runat="server" SkinID="LBL_NR_1"></asp:Label>
-                                                        </td>
-                                                        <%-- <td class="TD_LINE_GRD" align="center" style="width: 7%;">
-                                                                            <asp:Label ID="lbl_NetAcc_Nm" runat="server" SkinID="LBL_HD_GRD" Text="<%$ Resources:PC_REC_RecEdit, lbl_NetAcc_Nm %>"></asp:Label>
-                                                                        </td>
-                                                                        <td class="TD_LINE_GRD" style="width: 10%;">
-                                                                            <asp:Label ID="lbl_NetAcc" runat="server" SkinID="LBL_NR_1"></asp:Label>
-                                                                        </td>--%>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>
-                                                            <asp:Label ID="lbl_BaseQty_Nm" runat="server" SkinID="LBL_HD_GRD" Text="<%$ Resources:PC_REC_RecEdit, lbl_BaseQty_Nm %>"></asp:Label>
-                                                        </td>
-                                                        <td align="right">
-                                                            <asp:Label ID="lbl_BaseQty" runat="server" SkinID="LBL_NR_1"></asp:Label>
-                                                        </td>
-                                                        <td style="padding-left: 10px;">
-                                                            <asp:Label ID="lbl_BaseUnit" runat="server" SkinID="LBL_NR_1"></asp:Label>
-                                                        </td>
-                                                        <td>
-                                                        </td>
-                                                        <td colspan="2">
-                                                        </td>
-                                                        <td>
-                                                            <asp:Label ID="lbl_CurrDiscAmt_Nm" runat="server" SkinID="LBL_HD_GRD" Text="<%$ Resources:PC_REC_RecEdit, lbl_DiscAmt_Nm %>"></asp:Label>
-                                                        </td>
-                                                        <td align="right">
-                                                            <asp:Label ID="lbl_CurrDiscAmt" runat="server" SkinID="LBL_NR_1"></asp:Label>
-                                                        </td>
-                                                        <td>
-                                                        </td>
-                                                        <td>
-                                                            <asp:Label ID="lbl_DiscAmt_Nm" runat="server" SkinID="LBL_HD_GRD" Text="<%$ Resources:PC_REC_RecEdit, lbl_DiscAmt_Nm %>"></asp:Label>
-                                                        </td>
-                                                        <td align="right">
-                                                            <asp:Label ID="lbl_DiscAmt" runat="server" SkinID="LBL_NR_1"></asp:Label>
-                                                        </td>
-                                                        <%-- <td colspan="2">
-                                                                        </td>--%>
-                                                    </tr>
-                                                    <tr>
-                                                        <td colspan="2">
-                                                            <asp:CheckBox ID="chk_DiscAdj" runat="server" SkinID="CHK_V1" Text=" Adj. Discount" Enabled="false" Height="15px" />
-                                                        </td>
-                                                        <td style="width: 8%;">
-                                                            <asp:Label ID="lbl_Disc_Nm" runat="server" SkinID="LBL_HD_GRD" Text="<%$ Resources:PC_REC_RecEdit, lbl_Disc_Nm %>"></asp:Label>
-                                                        </td>
-                                                        <td>
-                                                            <asp:Label ID="lbl_Disc" runat="server" SkinID="LBL_NR_1"></asp:Label>
-                                                            <asp:Label ID="lbl_DiscPercent" runat="server" SkinID="LBL_NR_1" Text="<%$ Resources:PC_REC_RecEdit, lbl_Percent %>"></asp:Label>
-                                                        </td>
-                                                        <td>
-                                                        </td>
-                                                        <td>
-                                                        </td>
-                                                        <td class="TD_LINE_GRD">
-                                                            <asp:Label ID="lbl_CurrTaxAmt_Nm" runat="server" SkinID="LBL_HD_GRD" Text="<%$ Resources:PC_REC_RecEdit, lbl_TaxAmt_Nm %>"></asp:Label>
-                                                        </td>
-                                                        <td class="TD_LINE_GRD" align="right">
-                                                            <asp:Label ID="lbl_CurrTaxAmt" runat="server"></asp:Label>
-                                                        </td>
-                                                        <td class="TD_LINE_GRD">
-                                                        </td>
-                                                        <td class="TD_LINE_GRD">
-                                                            <asp:Label ID="lbl_TaxAmt_Nm" runat="server" SkinID="LBL_HD_GRD" Text="<%$ Resources:PC_REC_RecEdit, lbl_TaxAmt_Nm %>"></asp:Label>
-                                                        </td>
-                                                        <td class="TD_LINE_GRD" align="right">
-                                                            <asp:Label ID="lbl_TaxAmt" runat="server" SkinID="LBL_NR_1"></asp:Label>
-                                                        </td>
-                                                        <%--<td class="TD_LINE_GRD" align="center">
-                                                                            <asp:Label ID="lbl_TaxAcc_Nm" runat="server" SkinID="LBL_HD_GRD" Text="<%$ Resources:PC_REC_RecEdit, lbl_TaxAcc_Nm %>"></asp:Label>
-                                                                        </td>
-                                                                        <td class="TD_LINE_GRD">
-                                                                            <asp:Label ID="lbl_TaxAcc" runat="server" SkinID="LBL_NR_1"></asp:Label>
-                                                                        </td>--%>
-                                                    </tr>
-                                                    <tr>
-                                                        <td colspan="2">
-                                                            <asp:CheckBox ID="chk_TaxAdj" runat="server" SkinID="CHK_V1" Text=" Adj. Tax" Enabled="false" />
-                                                        </td>
-                                                        <td>
-                                                            <asp:Label ID="lbl_TaxType_Nm" runat="server" SkinID="LBL_HD_GRD" Text="<%$ Resources:PC_REC_RecEdit, lbl_TaxType_Nm %>"></asp:Label>
-                                                        </td>
-                                                        <td>
-                                                            <asp:Label ID="lbl_TaxType" runat="server" SkinID="LBL_NR_1"></asp:Label>
-                                                        </td>
-                                                        <td>
-                                                        </td>
-                                                        <td>
-                                                        </td>
-                                                        <td>
-                                                            <asp:Label ID="lbl_CurrTotalAmtDt_Nm" runat="server" SkinID="LBL_HD_GRD" Text="<%$ Resources:PC_REC_RecEdit, lbl_TotalAmtDt_Nm %>"></asp:Label>
-                                                        </td>
-                                                        <td align="right">
-                                                            <asp:Label ID="lbl_CurrTotalAmtDt" runat="server" SkinID="LBL_NR_1"></asp:Label>
-                                                        </td>
-                                                        <td>
-                                                        </td>
-                                                        <td>
-                                                            <asp:Label ID="lbl_TotalAmtDt_Nm" runat="server" SkinID="LBL_HD_GRD" Text="<%$ Resources:PC_REC_RecEdit, lbl_TotalAmtDt_Nm %>"></asp:Label>
-                                                        </td>
-                                                        <td align="right">
-                                                            <asp:Label ID="lbl_TotalAmtDt" runat="server" SkinID="LBL_NR_1"></asp:Label>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td colspan="2">
-                                                        </td>
-                                                        <td>
-                                                            <asp:Label ID="lbl_TaxRate_Edit_Nm" runat="server" SkinID="LBL_HD_GRD" Text="<%$ Resources:PC_REC_RecEdit, lbl_TaxRate_Edit_Nm %>"></asp:Label>
-                                                        </td>
-                                                        <td>
-                                                            <asp:Label ID="lbl_TaxRate" runat="server" SkinID="LBL_NR_1"></asp:Label>
-                                                            <asp:Label ID="lbl_Percent" runat="server" SkinID="LBL_NR_1" Text="<%$ Resources:PC_REC_RecEdit, lbl_Percent %>"></asp:Label>
-                                                        </td>
-                                                        <td>
-                                                        </td>
-                                                        <td>
-                                                        </td>
-                                                        <td colspan="3">
-                                                        </td>
-                                                        <td colspan="2">
-                                                        </td>
-                                                    </tr>
-                                                    <tr align="right">
-                                                        <td colspan="10">
-                                                        </td>
-                                                        <td align="right">
-                                                            <table border="0" cellpadding="2" cellspacing="0" style="margin: auto;">
-                                                                <tr>
-                                                                    <td valign="bottom">
-                                                                        <asp:LinkButton ID="lnkb_Edit" runat="server" CausesValidation="False" CommandName="Edit" SkinID="LNKB_NORMAL" Text="Edit"></asp:LinkButton>
-                                                                    </td>
-                                                                    <td valign="bottom">
-                                                                        <asp:LinkButton ID="lnkb_Del" runat="server" CausesValidation="false" CommandName="Delete" SkinID="LNKB_NORMAL" Text="Delete"></asp:LinkButton>
-                                                                    </td>
-                                                                </tr>
-                                                            </table>
-                                                        </td>
-                                                    </tr>
-                                                </table>
+                                            <td rowspan="5" style="width: 30%; vertical-align: top;">
+                                                <!-- Base Qty -->
+                                                <div class="mb-10">
+                                                    <asp:Label ID="Label1" runat="server" SkinID="LBL_HD_GRD" Text="Base Qty : " />
+                                                    <asp:Label ID="lbl_BaseQty" runat="server" SkinID="LBL_NR_1" Text="" />
+                                                </div>
+                                                <!--PR-->
+                                                <div class="mb-10">
+                                                    <asp:Label ID="Label3" runat="server" SkinID="LBL_HD_GRD" Text="PR : " />
+                                                    <asp:Label ID="lbl_PrNo" runat="server" SkinID="LBL_NR_1" />
+                                                    <span>&nbsp;/&nbsp;</span>
+                                                    <asp:Label ID="Label2" runat="server" SkinID="LBL_HD_GRD" Text="PO : " />
+                                                    <asp:Label ID="lbl_PoNo" runat="server" SkinID="LBL_NR_1" />
+                                                </div>
+                                                <!--Onhand-->
+                                                <div class="mb-10">
+                                                    <asp:Label ID="Label6" runat="server" SkinID="LBL_HD_GRD" Text="Onhand : " />
+                                                    <asp:Label ID="lbl_Onhand" runat="server" SkinID="LBL_NR_1" />
+                                                </div>
+                                                <!--Last Price-->
+                                                <div class="mb-10">
+                                                    <asp:Label ID="Label10" runat="server" SkinID="LBL_HD_GRD" Text="Last Price : " />
+                                                    <asp:Label ID="lbl_LastPrice" runat="server" SkinID="LBL_NR_1" />
+                                                </div>
+                                                <!--Last Vendor-->
+                                                <div class="mb-10">
+                                                    <asp:Label ID="Label11" runat="server" SkinID="LBL_HD_GRD" Text="Last Vendor : " />
+                                                    <asp:Label ID="lbl_LastVendor" runat="server" SkinID="LBL_NR_1" />
+                                                </div>
+                                                <!---->
+                                                <div class="mb-10">
+                                                </div>
                                             </td>
-                                        </tr>
-                                    </table>
-                                    <table border="0" cellpadding="3" cellspacing="0" class="TABLE_HD" width="100%" style="margin: auto;">
-                                        <tr>
-                                            <td style="width: 6%" class="TD_LINE_GRD">
-                                                <asp:Label ID="lbl_OnHand_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, lbl_OnHand_Nm %>" SkinID="LBL_HD_GRD"></asp:Label>
+                                            <td style="width: 20%;">
                                             </td>
-                                            <td style="width: 6%" class="TD_LINE_GRD">
-                                                <asp:Label ID="lbl_OnHand" runat="server" SkinID="LBL_NR_1"></asp:Label>
+                                            <!-- Currency & Base -->
+                                            <td style="width: 10%;">
                                             </td>
-                                            <td style="width: 6%" class="TD_LINE_GRD">
-                                                <asp:Label ID="lbl_OnOrder_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, lbl_OnOrder_Nm %>" SkinID="LBL_HD_GRD"></asp:Label>
+                                            <td style="width: 20%; text-align: right; border-bottom: 1px solid;">
+                                                <asp:Label ID="Label4" runat="server" SkinID="LBL_HD_GRD">Currency (<%= ddl_Currency.Text %>)</asp:Label>
                                             </td>
-                                            <td style="width: 6%; padding-left: 5px;" class="TD_LINE_GRD">
-                                                <asp:Label ID="lbl_OnOrder" runat="server" SkinID="LBL_NR_1"></asp:Label>
-                                            </td>
-                                            <td style="width: 6%" class="TD_LINE_GRD">
-                                                <asp:Label ID="lbl_Reorder_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, lbl_Reorder_Nm %>" SkinID="LBL_HD_GRD"></asp:Label>
-                                            </td>
-                                            <td style="width: 6%" class="TD_LINE_GRD">
-                                                <asp:Label ID="lbl_Reorder" runat="server" SkinID="LBL_NR_1"></asp:Label>
-                                            </td>
-                                            <td style="width: 6%; padding-left: 5px;" class="TD_LINE_GRD">
-                                                <asp:Label ID="lbl_Restock_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, lbl_Restock_Nm %>" SkinID="LBL_HD_GRD"></asp:Label>
-                                            </td>
-                                            <td style="width: 6%" class="TD_LINE_GRD">
-                                                <asp:Label ID="lbl_Restock" runat="server" SkinID="LBL_NR_1"></asp:Label>
-                                            </td>
-                                            <td style="width: 6%; white-space: nowrap;" class="TD_LINE_GRD">
-                                                <asp:Label ID="lbl_LastPrice_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, lbl_LastPrice_Nm %>" SkinID="LBL_HD_GRD"></asp:Label>
-                                            </td>
-                                            <td style="width: 6%" class="TD_LINE_GRD">
-                                                <asp:Label ID="lbl_LastPrice" runat="server" SkinID="LBL_NR_1"></asp:Label>
-                                            </td>
-                                            <td style="width: 10%; white-space: nowrap; padding-left: 5px;" class="TD_LINE_GRD">
-                                                <asp:Label ID="lbl_LastVendor_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, lbl_LastVendor_Nm %>" SkinID="LBL_HD_GRD"></asp:Label>
-                                            </td>
-                                            <td style="width: 30%; white-space: nowrap; overflow: hidden" class="TD_LINE_GRD">
-                                                <asp:Label ID="lbl_LastVendor" runat="server" SkinID="LBL_NR_1" Width="200px"></asp:Label>
+                                            <td style="width: 20%; text-align: right; border-bottom: 1px solid;">
+                                                <asp:Label ID="Label5" runat="server" SkinID="LBL_HD_GRD">Base (<%= _default.Currency %>)</asp:Label>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td class="TD_LINE_GRD">
-                                                <asp:Label ID="lbl_PoRef_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, lbl_PoRef_Nm %>" SkinID="LBL_HD_GRD"></asp:Label>
-                                            </td>
-                                            <td class="TD_LINE_GRD" colspan="3">
-                                                <asp:Label ID="lbl_PoRef" runat="server" SkinID="LBL_NR_1"></asp:Label>
-                                            </td>
-                                            <td class="TD_LINE_GRD">
-                                                <asp:Label ID="lbl_PrRef_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, lbl_PrRef_Nm %>" SkinID="LBL_HD_GRD"></asp:Label>
-                                            </td>
-                                            <td class="TD_LINE_GRD" colspan="3">
-                                                <asp:Label ID="lbl_PrRef" runat="server" SkinID="LBL_NR_1"></asp:Label>
-                                            </td>
-                                            <td class="TD_LINE_GRD" colspan="4">
-                                            </td>
-                                        </tr>
-                                    </table>
-                                    <%--Comment--%>
-                                    <table class="TABLE_HD" width="100%" style="margin: auto;">
-                                        <tr style="background-color: #DADADA; height: 17px">
+                                            <%--<td></td>--%>
                                             <td>
-                                                <asp:Label ID="lbl_DtrComment_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, lbl_DtrComment_Nm %>" SkinID="LBL_HD_1"></asp:Label>
+                                            </td>
+                                            <!-- Net -->
+                                            <td style="text-align: right">
+                                                <asp:Label ID="Label7" runat="server" SkinID="LBL_HD_GRD" Text="Net" />
+                                            </td>
+                                            <td style="text-align: right">
+                                                <asp:Label ID="Label8" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("CurrNetAmt")) %></asp:Label>
+                                            </td>
+                                            <td style="text-align: right">
+                                                <asp:Label ID="Label9" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("NetAmt")) %></asp:Label>
                                             </td>
                                         </tr>
                                         <tr>
+                                            <%--<td></td>--%>
                                             <td>
-                                                <asp:Label ID="lbl_DtrComment" runat="server" SkinID="LBL_NR_1"></asp:Label>
+                                                <asp:Label ID="Label13" runat="server" SkinID="LBL_HD_GRD" Text="Discount % : " />
+                                                <asp:Label ID="Label14" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("Discount")) %></asp:Label>
+                                                <asp:CheckBox ID="CheckBox1" runat="server" Checked='<%# Eval("DiscAdj").ToString()=="1" %>' Text='Adjustment' Enabled="false" />
+                                            </td>
+                                            <!-- Discount -->
+                                            <td style="text-align: right">
+                                                <asp:Label ID="Label15" runat="server" SkinID="LBL_HD_GRD" Text="Discount" />
+                                            </td>
+                                            <td style="text-align: right">
+                                                <asp:Label ID="Label16" runat="server" SkinID="LBL_NR_1" ForeColor="Red">(<%# FormatAmt(Eval("CurrDiscAmt")) %>)</asp:Label>
+                                            </td>
+                                            <td style="text-align: right">
+                                                <asp:Label ID="Label17" runat="server" SkinID="LBL_NR_1" ForeColor="Red">(<%# FormatAmt(Eval("DiccountAmt"))%>)</asp:Label>
                                             </td>
                                         </tr>
-                                    </table>
-                                    <table border="0" cellpadding="0" cellspacing="0" width="100%" class="TABLE_HD" style="margin: auto;">
                                         <tr>
+                                            <%--<td></td>--%>
                                             <td>
-                                                <uc2:StockMovement ID="uc_StockMovement" runat="server" />
+                                                <asp:Label ID="Label18" runat="server" SkinID="LBL_HD_GRD" Text="Tax : " />
+                                                <asp:Label ID="Label19" runat="server" SkinID="LBL_NR_1"><%# Eval("TaxTypeName") %></asp:Label>
+                                                <asp:Label ID="Label20" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("TaxRate")) %></asp:Label>
+                                                <asp:CheckBox ID="CheckBox2" runat="server" Checked='<%# Eval("TaxAdj").ToString()=="1" %>' Text='Adjustment' Enabled="false" />
+                                            </td>
+                                            <!-- Tax -->
+                                            <td style="text-align: right">
+                                                <asp:Label ID="Label21" runat="server" SkinID="LBL_HD_GRD" Text="Tax" />
+                                            </td>
+                                            <td style="text-align: right">
+                                                <asp:Label ID="Label22" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("CurrTaxAmt")) %></asp:Label>
+                                            </td>
+                                            <td style="text-align: right">
+                                                <asp:Label ID="Label23" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("TaxAmt"))%></asp:Label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <%--<td></td>--%>
+                                            <td>
+                                            </td>
+                                            <!-- Total -->
+                                            <td style="text-align: right">
+                                                <asp:Label ID="Label24" runat="server" SkinID="LBL_HD_GRD" Text="Total" />
+                                            </td>
+                                            <td style="text-align: right; border-top: 1px solid;">
+                                                <asp:Label ID="Label25" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("CurrTotalAmt")) %></asp:Label>
+                                            </td>
+                                            <td style="text-align: right; border-top: 1px solid;">
+                                                <asp:Label ID="Label26" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("TotalAmt"))%></asp:Label>
                                             </td>
                                         </tr>
                                     </table>
+                                    <!--Comment-->
+                                    <div class="flex flex-columm mb-10">
+                                        <asp:Label runat="server" SkinID="LBL_HD_1" Text="Comment" />
+                                        <asp:TextBox runat="server" Width="100%" ReadOnly="true" Text='<%# Eval("Comment") %>' />
+                                    </div>
+                                    <!-- Action Buttons Edit/Delete -->
+                                    <div class="flex flex-justify-content-end" style="padding: 10px 0; background-color: #F5F5F5;">
+                                        <asp:LinkButton runat="server" ID="btn_Edit" CommandName="Edit" SkinID="LNKB_NORMAL" Text="Edit" />
+                                        &nbsp;&nbsp;&nbsp;&nbsp;
+                                        <asp:LinkButton runat="server" ID="btn_Delete" CommandName="Delete" SkinID="LNKB_NORMAL" Text="Delete" />
+                                    </div>
+                                    <!-- Stock Movement -->
+                                    <div class="mt-10" style="padding-bottom: 10px; border-bottom: 1px dashed;">
+                                        <uc2:StockMovement ID="uc_StockMovement" runat="server" />
+                                    </div>
                                 </td>
                             </tr>
                         </ItemTemplate>
                         <EditItemTemplate>
-                            
+                            <tr id="TR_Summary" runat="server">
+                                <td colspan="15">
+                                    <!--Extra information-->
+                                    <table class="table width-100 mt-10">
+                                        <tr>
+                                            <td style="width: 30%; vertical-align: top;">
+                                            </td>
+                                            <td style="width: 20%;">
+                                            </td>
+                                            <!-- Currency & Base -->
+                                            <td style="width: 10%;">
+                                            </td>
+                                            <td style="width: 20%; text-align: right; border-bottom: 1px solid;">
+                                                <asp:Label ID="Label4" runat="server" SkinID="LBL_HD_GRD">Currency (<%= ddl_Currency.Text %>)</asp:Label>
+                                            </td>
+                                            <td style="width: 20%; text-align: right; border-bottom: 1px solid;">
+                                                <asp:Label ID="Label5" runat="server" SkinID="LBL_HD_GRD">Base (<%= _default.Currency %>)</asp:Label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                            </td>
+                                            <td>
+                                            </td>
+                                            <!-- Net -->
+                                            <td style="text-align: right">
+                                                <asp:Label ID="Label7" runat="server" SkinID="LBL_HD_GRD" Text="Net" />
+                                            </td>
+                                            <td style="text-align: right">
+                                                <asp:Label ID="Label12" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("NetAmt")) %></asp:Label>
+                                            </td>
+                                            <td style="text-align: right">
+                                                <asp:Label ID="Label9" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("NetAmt")) %></asp:Label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                            </td>
+                                            <td>
+                                                <asp:Label ID="Label13" runat="server" SkinID="LBL_HD_GRD" Text="Discount % : " />
+                                                <asp:Label ID="Label14" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("Discount")) %></asp:Label>
+                                                <asp:CheckBox ID="CheckBox1" runat="server" Checked='<%# Eval("DiscAdj").ToString()=="1" %>' Text='Adjustment' Enabled="false" />
+                                            </td>
+                                            <!-- Discount -->
+                                            <td style="text-align: right">
+                                                <asp:Label ID="Label15" runat="server" SkinID="LBL_HD_GRD" Text="Discount" />
+                                            </td>
+                                            <td style="text-align: right">
+                                                <dx:ASPxSpinEdit runat="server" ID="se_CurrDiscAmt" Width="100%" ForeColor="Red" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right" />
+                                            </td>
+                                            <td style="text-align: right">
+                                                <asp:Label ID="Label17" runat="server" SkinID="LBL_NR_1" ForeColor="Red">(<%# FormatAmt(Eval("DiccountAmt"))%>)</asp:Label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                            </td>
+                                            <td>
+                                                <asp:Label ID="Label18" runat="server" SkinID="LBL_HD_GRD" Text="Tax : " />
+                                                <asp:Label ID="Label19" runat="server" SkinID="LBL_NR_1"><%# Eval("TaxTypeName") %></asp:Label>
+                                                <asp:Label ID="Label20" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("TaxRate")) %></asp:Label>
+                                                <asp:CheckBox ID="CheckBox2" runat="server" Checked='<%# Eval("TaxAdj").ToString()=="1" %>' Text='Adjustment' Enabled="false" />
+                                            </td>
+                                            <!-- Tax -->
+                                            <td style="text-align: right">
+                                                <asp:Label ID="Label21" runat="server" SkinID="LBL_HD_GRD" Text="Tax" />
+                                            </td>
+                                            <td style="text-align: right">
+                                                <dx:ASPxSpinEdit runat="server" ID="se_CurrTaxAmt" Width="100%" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right" />
+                                            </td>
+                                            <td style="text-align: right">
+                                                <asp:Label ID="Label23" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("TaxAmt"))%></asp:Label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                            </td>
+                                            <td>
+                                            </td>
+                                            <!-- Total -->
+                                            <td style="text-align: right">
+                                                <asp:Label ID="Label24" runat="server" SkinID="LBL_HD_GRD" Text="Total" />
+                                            </td>
+                                            <td style="text-align: right; border-top: 1px solid;">
+                                                <asp:Label ID="Label25" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("CurrTotalAmt")) %></asp:Label>
+                                            </td>
+                                            <td style="text-align: right; border-top: 1px solid;">
+                                                <asp:Label ID="Label26" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("TotalAmt"))%></asp:Label>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <!-- Action Buttons Edit/Delete -->
+                                    <div class="flex flex-justify-content-end width-100 mt-10" style="padding: 10px 0; background-color: #F5F5F5;">
+                                        <asp:LinkButton runat="server" ID="btn_Save" CommandName="Update" SkinID="LNKB_NORMAL" Text="Save" />
+                                        &nbsp;&nbsp;&nbsp;&nbsp;
+                                        <asp:LinkButton runat="server" ID="btn_Cancel" CommandName="Cancel" SkinID="LNKB_NORMAL" Text="Cancel" />
+                                    </div>
+                                </td>
+                            </tr>
                         </EditItemTemplate>
-                        <HeaderStyle Width="0%"></HeaderStyle>
                     </asp:TemplateField>
                 </Columns>
             </asp:GridView>
@@ -582,11 +591,12 @@
         <Triggers>
         </Triggers>
     </asp:UpdatePanel>
+    <asp:Label runat="server" ID="lbl_Test" Font-Size="Large" />
     <script type="text/javascript">
         function expandDetailsInGrid(_this) {
             var id = _this.id;
             var imgelem = document.getElementById(_this.id);
-            var currowid = id.replace("Img_Btn", "TR_Summmary") //GETTING THE ID OF SUMMARY ROW
+            var currowid = id.replace("Img_Btn", "TR_Summary") //GETTING THE ID OF SUMMARY ROW
 
             var rowdetelemid = currowid;
             var rowdetelem = document.getElementById(rowdetelemid);
