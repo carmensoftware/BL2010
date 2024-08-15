@@ -10,25 +10,25 @@ using System.Web.UI.WebControls;
 using BlueLedger.PL.BaseClass;
 using DevExpress.Web;
 using DevExpress.Web.ASPxEditors;
+using System.Drawing;
 
 namespace BlueLedger.PL.IN.REC
 {
     public partial class RECEdit : BasePage
     {
+        #region --URL Parameters--
+
+        protected string _BuCode { get { return Request.Params["BuCode"].ToString() ?? ""; } }
+        protected string _VID { get { return Request.Params["VID"] == null ? "" : Request.Params["VID"].ToString() ?? ""; } }
+        protected string _ID { get { return Request.Params["ID"] == null ? "" : Request.Params["ID"].ToString() ?? ""; } }
+        protected string _MODE { get { return Request.Params["Mode"] == null ? "" : Request.Params["Mode"].ToString().ToLower(); } }
+
+        #endregion
+
         private string _connStr;
 
         private readonly Blue.BL.dbo.Bu bu = new Blue.BL.dbo.Bu();
         private readonly Blue.BL.APP.Config config = new Blue.BL.APP.Config();
-
-
-        #region --URL Parameters--
-
-        private string _BuCode { get { return Request.Params["BuCode"].ToString() ?? ""; } }
-        private string _VID { get { return Request.Params["VID"].ToString() ?? ""; } }
-        private string _ID { get { return Request.Params["ID"].ToString() ?? ""; } }
-
-        private string _MODE { get { return Request.Params["Mode"] == null ? "" : Request.Params["Mode"].ToString().ToLower(); } }
-        #endregion
 
         protected DataTable dtRec
         {
@@ -93,8 +93,6 @@ namespace BlueLedger.PL.IN.REC
         private void Page_Retrieve()
         {
 
-
-
             switch (_MODE)
             {
                 case "new":
@@ -106,13 +104,17 @@ namespace BlueLedger.PL.IN.REC
                     break;
                 case "fpo":
                     SetFromPO();
+                    // Set disable controls
+                    // header
+                    ddl_Vendor.Enabled = false;
+                    ddl_Currency.Enabled = false;
+
                     break;
             }
 
             SetHeader(dtRec);
             SetDetails(dtRecDt);
-
-
+            SetGrandTotal();
         }
 
         private void Page_Setting()
@@ -123,6 +125,7 @@ namespace BlueLedger.PL.IN.REC
         // Title / Action bar
         protected void btn_Save_Click(object sender, EventArgs e)
         {
+            Save();
         }
 
         protected void btn_Commit_Click(object sender, EventArgs e)
@@ -151,6 +154,47 @@ namespace BlueLedger.PL.IN.REC
         // Header
         protected void ddl_Currency_SelectedIndexChanged(object sender, EventArgs e)
         {
+            var ddl = sender as ASPxComboBox;
+            var code = ddl.Text;
+
+
+            if (code == _default.Currency)
+            {
+                se_CurrencyRate.Text = "1.00";
+                se_CurrencyRate.Enabled = false;
+            }
+            else
+            {
+
+                var date = de_RecDate.Date.Date;
+                var query = "SELECT TOP(1) CurrencyRate FROM [Ref].[CurrencyExchange] WHERE CurrencyCode=@code AND CAST(UpdatedDate AS DATE) <= CAST(@date as DATE) ORDER BY UpdatedDate DESC";
+
+                var dt = new Helpers.SQL(hf_ConnStr.Value).ExecuteQuery(query, new SqlParameter[]
+            {
+                new SqlParameter("Code", code),
+                new SqlParameter("Date", date)
+            });
+
+                var rate = 0m;
+
+                if (dt != null || dt.Rows.Count > 0)
+                {
+                    rate = Convert.ToDecimal(dt.Rows[0][0]);
+                }
+
+                se_CurrencyRate.Value = rate;
+                se_CurrencyRate.Enabled = true;
+
+            }
+
+            Calculate_CurrencyRate((decimal)se_CurrencyRate.Value);
+
+
+        }
+
+        protected void se_CurrencyRate_NumberChanged(object sender, EventArgs e)
+        {
+            Calculate_CurrencyRate((decimal)se_CurrencyRate.Value);
         }
 
         protected void btn_AllocateExtraCost_Click(object sender, EventArgs e)
@@ -159,15 +203,14 @@ namespace BlueLedger.PL.IN.REC
 
         protected void btn_ExtraCostDetail_Click(object sender, EventArgs e)
         {
+
         }
 
         // Add Item / PO
-        protected void btn_AddPo_Click(object sender, EventArgs e)
-        {
-        }
 
         protected void btn_AddItem_Click(object sender, EventArgs e)
         {
+            ShowAlert("test");
         }
 
 
@@ -176,14 +219,19 @@ namespace BlueLedger.PL.IN.REC
         {
             if (e.Row.RowType == DataControlRowType.DataRow)
             {
+                var dataItem = e.Row.DataItem;
+
                 var sql = new Helpers.SQL(hf_ConnStr.Value);
+                var query = string.Empty;
 
                 var docDate = de_RecDate.Date;
-                var poNo = DataBinder.Eval(e.Row.DataItem, "PoNo").ToString();
-                var poDtNo = DataBinder.Eval(e.Row.DataItem, "PoDtNo").ToString();
+                var poNo = DataBinder.Eval(e.Row.DataItem, "PoNo") == DBNull.Value ? "" : DataBinder.Eval(e.Row.DataItem, "PoNo").ToString();
+                var poDtNo = DataBinder.Eval(e.Row.DataItem, "PoDtNo") == DBNull.Value ? "0" : DataBinder.Eval(e.Row.DataItem, "PoDtNo").ToString();
                 var locationCode = DataBinder.Eval(e.Row.DataItem, "LocationCode").ToString();
                 var productCode = DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString();
                 var inventoryUnit = DataBinder.Eval(e.Row.DataItem, "InventoryUnit").ToString();
+                var unitCode = DataBinder.Eval(dataItem, "UnitCode");
+                var orderQty = Convert.ToDecimal(DataBinder.Eval(e.Row.DataItem, "OrderQty"));
 
 
                 // Location
@@ -295,23 +343,23 @@ namespace BlueLedger.PL.IN.REC
                 }
 
                 // Discount
-                if (e.Row.FindControl("lbl_DiscAmt") != null)
+                if (e.Row.FindControl("lbl_CurrDiscAmt") != null)
                 {
-                    var label = e.Row.FindControl("lbl_DiscAmt") as Label;
+                    var label = e.Row.FindControl("lbl_CurrDiscAmt") as Label;
 
                     label.Text = FormatAmt(DataBinder.Eval(e.Row.DataItem, "CurrDiscAmt"));
                 }
                 // Net
-                if (e.Row.FindControl("lbl_NetAmt") != null)
+                if (e.Row.FindControl("lbl_CurrNetAmt") != null)
                 {
-                    var label = e.Row.FindControl("lbl_NetAmt") as Label;
+                    var label = e.Row.FindControl("lbl_CurrNetAmt") as Label;
 
                     label.Text = FormatAmt(DataBinder.Eval(e.Row.DataItem, "CurrNetAmt"));
                 }
                 // Tax
-                if (e.Row.FindControl("lbl_TaxAmt") != null)
+                if (e.Row.FindControl("lbl_CurrTaxAmt") != null)
                 {
-                    var label = e.Row.FindControl("lbl_TaxAmt") as Label;
+                    var label = e.Row.FindControl("lbl_CurrTaxAmt") as Label;
 
                     label.Text = FormatAmt(DataBinder.Eval(e.Row.DataItem, "CurrTaxAmt"));
                 }
@@ -324,11 +372,18 @@ namespace BlueLedger.PL.IN.REC
                     label.Text = FormatAmt(DataBinder.Eval(e.Row.DataItem, "ExtraCost"));
                 }
                 // Total
+                if (e.Row.FindControl("lbl_CurrTotalAmt") != null)
+                {
+                    var label = e.Row.FindControl("lbl_CurrTotalAmt") as Label;
+
+                    label.Text = FormatAmt(DataBinder.Eval(e.Row.DataItem, "CurrTotalAmt"));
+                }
+                // Total
                 if (e.Row.FindControl("lbl_TotalAmt") != null)
                 {
                     var label = e.Row.FindControl("lbl_TotalAmt") as Label;
 
-                    label.Text = FormatAmt(DataBinder.Eval(e.Row.DataItem, "CurrTotalAmt"));
+                    label.Text = FormatAmt(DataBinder.Eval(e.Row.DataItem, "TotalAmt"));
                 }
                 // Expiry date
                 if (e.Row.FindControl("lbl_ExpiryDate") != null)
@@ -344,27 +399,29 @@ namespace BlueLedger.PL.IN.REC
 
                     de.Text = FormatDate(DataBinder.Eval(e.Row.DataItem, "ExpiryDate"));
                 }
-
-
-                #region --Extra Information--
-                
+                #region
                 // Base Qty
                 if (e.Row.FindControl("lbl_BaseQty") != null)
                 {
-                    var label = e.Row.FindControl("lbl_BaseQty") as Label;
-                    var ordQty = Convert.ToDecimal(DataBinder.Eval(e.Row.DataItem, "OrderQty"));
-                    var rate = Convert.ToDecimal(DataBinder.Eval(e.Row.DataItem, "UnitRate"));
-                    var qty = FormatQty(ordQty * rate);
+
+                    var dt = sql.ExecuteQuery(string.Format("SELECT TOP(1) [Rate] FROM [IN].ProdUnit WHERE UnitType IN ('I','O') AND ProductCode='{0}' AND OrderUnit='{1}' ", productCode, unitCode));
+                    var rate = dt != null && dt.Rows.Count > 0 ? Convert.ToDecimal(dt.Rows[0][0]) : 0m;
+                    var qty = FormatQty(orderQty * rate);
+
                     var text = string.Format("{0} {1} (rate : {2})",
                         qty,
                         DataBinder.Eval(e.Row.DataItem, "InventoryUnit").ToString(),
                         rate);
 
+                    var label = e.Row.FindControl("lbl_BaseQty") as Label;
+
                     label.Text = text;
                 }
+                #endregion
+
+                #region --Additional Information--
 
                 // PoNo
-
                 if (e.Row.FindControl("lbl_PoNo") != null)
                 {
                     var label = e.Row.FindControl("lbl_PoNo") as Label;
@@ -384,18 +441,44 @@ namespace BlueLedger.PL.IN.REC
                 // Onhand
                 if (e.Row.FindControl("lbl_Onhand") != null)
                 {
-                    var dt = sql.ExecuteQuery(string.Format("SELECT SUM([IN]-[OUT]) FROM [IN].Inventory WHERE [Location]='{0}' AND ProductCode='{1}' AND CAST(CommittedDate as DATE)<='{2}'",
+                    var dt = sql.ExecuteQuery(string.Format("SELECT ISNULL(SUM([IN]-[OUT]),0) FROM [IN].Inventory WHERE [Location]='{0}' AND ProductCode='{1}' AND CAST(CommittedDate as DATE)<='{2}'",
                         locationCode,
                         productCode,
                         FormatSqlDate(docDate)));
+
                     var qty = dt != null && dt.Rows.Count > 0 ? Convert.ToDecimal(dt.Rows[0][0]) : 0m;
 
                     var label = e.Row.FindControl("lbl_Onhand") as Label;
 
-                    label.Text = string.Format("{0} {1} @{2}", FormatQty(qty), inventoryUnit, FormatDate(docDate));
+                    label.Text = string.Format("{0} {1} <span style='color:#999999'>*{2}</span>", FormatQty(qty), inventoryUnit, FormatDate(docDate));
                 }
 
-                var query = @"
+                // On order
+                if (e.Row.FindControl("lbl_OnOrder") != null)
+                {
+                    query = @"
+SELECT 
+	SUM(podt.OrdQty - ISNULL(RcvQty,0)) as Qty
+FROM      
+	PC.PODt
+    JOIN PC.PO 
+			ON podt.PoNo=po.PoNo
+WHERE   
+	po.DocStatus IN ('Printed','Partial')
+	AND RcvQty < OrdQty
+	AND podt.[Product] = '{0}'";
+                    var dt = sql.ExecuteQuery(string.Format(query, productCode));
+                    var qty = dt != null && dt.Rows.Count > 0 ? Convert.ToDecimal(dt.Rows[0][0]) : 0m;
+
+                    var label = e.Row.FindControl("lbl_OnOrder") as Label;
+
+                    label.Text = string.Format("{0}", FormatQty(qty));
+                }
+
+
+
+                #region -- Last vendor /price --
+                query = @"
 SELECT
 	TOP(1)
 	rec.RecNo,
@@ -434,13 +517,14 @@ ORDER BY
                     lastVendor = string.Format("{0} : {1}", dr["VendorCode"], dr["VendorName"]);
                     lastDocNo = dr["RecNo"].ToString();
                 }
+                #endregion
 
                 // Last Price
                 if (e.Row.FindControl("lbl_LastPrice") != null)
                 {
                     var label = e.Row.FindControl("lbl_LastPrice") as Label;
 
-                    label.Text = string.Format("{0} #{1}", FormatAmt(lastPrice), lastDocNo);
+                    label.Text = string.Format("{0} <span style='color:#999999'>*{1}</span>", FormatAmt(lastPrice), lastDocNo);
                 }
 
                 // Last Vendor
@@ -460,6 +544,9 @@ ORDER BY
         {
             var gv = sender as GridView;
 
+            gv.EditRowStyle.BackColor = Color.FromArgb(254, 249, 231);
+
+
             gv.DataSource = dtRecDt;
             gv.EditIndex = e.NewEditIndex;
             gv.DataBind();
@@ -467,9 +554,8 @@ ORDER BY
             var Img_Btn = gv.Rows[gv.EditIndex].FindControl("Img_Btn") as ImageButton;
             Img_Btn.Visible = false;
 
-            SetEditDetail(gv, true);
+            ShowHideColumns(gv, true);
         }
-
 
         protected void gv_Detail_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e)
         {
@@ -479,7 +565,7 @@ ORDER BY
             gv.EditIndex = -1;
             gv.DataBind();
 
-            SetEditDetail(gv, false);
+            ShowHideColumns(gv, false);
         }
 
 
@@ -487,12 +573,43 @@ ORDER BY
 
         #endregion
 
+        private void Save()
+        {
+            var error = ValidateDataBeforeSave();
+
+            if (!string.IsNullOrEmpty(error))
+            {
+                ShowAlert(error);
+                return;
+            }
+
+
+            if (_MODE.ToLower() == "edit")
+            {
+                // Header
+
+
+            }
+            else // create new one
+            {
+            }
+
+
+            
+
+        }
+
+        private void Commit()
+        {
+        }
+
         #region -- Private method(s)--
 
         protected string FormatSqlDate(object date)
         {
             return date == null || date == DBNull.Value ? "" : Convert.ToDateTime(date).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
         }
+
         protected string FormatDate(object date)
         {
             return date == null || date == DBNull.Value ? "" : Convert.ToDateTime(date).ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
@@ -509,8 +626,15 @@ ORDER BY
         {
             var f = string.Format("N{0}", _default.DigitAmt);
 
-            return value == null ? "0.00" : Convert.ToDecimal(value).ToString(f);
+            return value == null || value == DBNull.Value ? "0.00" : Convert.ToDecimal(value).ToString(f);
         }
+
+        private decimal RoundAmt(decimal value)
+        {
+            return Math.Round(value, _default.DigitAmt, MidpointRounding.AwayFromZero);
+        }
+
+        // ----------------------------------
 
         private void SetNew()
         {
@@ -523,6 +647,7 @@ ORDER BY
 
 
         }
+
         private void SetEdit(string id)
         {
             var query = new Helpers.SQL(hf_ConnStr.Value);
@@ -536,7 +661,6 @@ SELECT
 	p.ProductDesc1,
 	p.ProductDesc2,
 	p.InventoryUnit,
-	pu.Rate as UnitRate,
 	CASE d.TaxType
 		WHEN 'I' THEN 'Include'
 		WHEN 'A' THEN 'Add'
@@ -546,11 +670,11 @@ FROM
 	PC.RecDt d
 	LEFT JOIN [IN].StoreLocation l ON l.LocationCode=d.LocationCode
 	LEFT JOIN [IN].Product p ON p.ProductCode=d.ProductCode
-	LEFT JOIN [IN].ProdUnit pu ON pu.ProductCode=d.ProductCode AND pu.OrderUnit=d.UnitCode AND UnitType='O'
 WHERE 
 	RecNo=@id 
 ORDER BY 
 	RecDtNo";
+
             dtRecDt = query.ExecuteQuery(sql, new SqlParameter[] { new SqlParameter("id", id) });
         }
 
@@ -562,6 +686,84 @@ ORDER BY
             dtPo = dsPo.Tables["PoDt"].Copy();
             dtRec = dsPo.Tables["REC"].Copy();
             dtRecDt = dsPo.Tables["RECDt"].Copy();
+
+            // Add some fields to dtRecDt
+            // LocationName
+            // ProductDesc1
+            // ProductDesc2
+            // InventoryUnit
+            // TaxTypeName
+            var locationName = new DataColumn
+            {
+                DataType = typeof(string),
+                ColumnName = "LocationName",
+                AllowDBNull = true,
+                Unique = false
+            };
+            var productDesc1 = new DataColumn
+            {
+                DataType = typeof(string),
+                ColumnName = "ProductDesc1",
+                AllowDBNull = true,
+                Unique = false
+            };
+            var productDesc2 = new DataColumn
+            {
+                DataType = typeof(string),
+                ColumnName = "ProductDesc2",
+                AllowDBNull = true,
+                Unique = false
+            };
+
+            var InventoryUnit = new DataColumn
+            {
+                DataType = typeof(string),
+                ColumnName = "InventoryUnit",
+                AllowDBNull = true,
+                Unique = false
+            };
+
+            var TaxTypeName = new DataColumn
+            {
+                DataType = typeof(string),
+                ColumnName = "TaxTypeName",
+                AllowDBNull = true,
+                Unique = false
+            };
+
+
+            dtRecDt.Columns.AddRange(new DataColumn[]
+            {
+                locationName,
+                productDesc1,
+                productDesc2,
+                InventoryUnit,
+                TaxTypeName
+            });
+
+
+            foreach (DataRow dr in dtRecDt.Rows)
+            {
+                var locationCode = dr["LocationCode"].ToString();
+                var productCode = dr["ProductCode"].ToString();
+
+                var sql = new Helpers.SQL(hf_ConnStr.Value);
+
+                var query = "SELECT LocationName FROM [IN].StoreLocation WHERE LocationCode=@code";
+                var dt = sql.ExecuteQuery(query, new SqlParameter[] { new SqlParameter("code", locationCode) });
+
+                dr["LocationName"] = dt != null && dt.Rows.Count > 0 ? dt.Rows[0][0].ToString() : "";
+
+                query = "SELECT ProductDesc1, ProductDesc2, InventoryUnit FROM [IN].Product WHERE ProductCode=@code";
+                dt = sql.ExecuteQuery(query, new SqlParameter[] { new SqlParameter("code", productCode) });
+
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    dr["ProductDesc1"] = dt.Rows[0]["ProductDesc1"].ToString();
+                    dr["ProductDesc2"] = dt.Rows[0]["ProductDesc2"].ToString();
+                    dr["InventoryUnit"] = dt.Rows[0]["InventoryUnit"].ToString();
+                }
+            }
         }
 
 
@@ -581,17 +783,18 @@ ORDER BY
 
             de_InvDate.Text = dr["InvoiceDate"] == DBNull.Value ? "" : FormatDate(Convert.ToDateTime(dr["InvoiceDate"]));
             txt_InvNo.Text = dr["InvoiceNo"].ToString();
-            chk_CashConsign.Checked = Convert.ToBoolean(dr["IsCashConsign"]);
-            SetCurrencyCode(dr["CurrencyCode"].ToString());
+            chk_CashConsign.Checked = dr["IsCashConsign"] == DBNull.Value ? false : Convert.ToBoolean(dr["IsCashConsign"]);
+            var date = de_RecDate.Date.Date;
+            SetCurrencyCode(dr["CurrencyCode"].ToString(), date);
             se_CurrencyRate.Text = dr["CurrencyRate"].ToString();
 
             txt_Desc.Text = dr["Description"].ToString();
 
-            se_TotalExtraCost.Value = Convert.ToDecimal(dr["TotalExtraCost"]);
+            se_TotalExtraCost.Value = dr["TotalExtraCost"] == DBNull.Value ? 0m : Convert.ToDecimal(dr["TotalExtraCost"]);
             rdb_ExtraCostByAmt.Checked = true;
             rdb_ExtraCostByQty.Checked = true;
 
-            lbl_PoSource.Text = string.IsNullOrEmpty(dr["PoSource"].ToString()) ? "by manually created" : "by Purchase Order";
+            lbl_PoSource.Text = string.IsNullOrEmpty(dr["PoSource"].ToString()) ? "Manually created" : "by Purchase Order";
 
         }
 
@@ -603,7 +806,7 @@ ORDER BY
 
         }
 
-        private void SetEditDetail(GridView gv, bool isEdit)
+        private void ShowHideColumns(GridView gv, bool isEdit)
         {
             // Header
 
@@ -632,8 +835,52 @@ ORDER BY
                 .Cast<DataControlField>()
                 .Where(fld => fld.HeaderText == "Total")
                 .SingleOrDefault()).Visible = !isEdit;
+            // Total
+            ((DataControlField)gv.Columns
+                .Cast<DataControlField>()
+                .Where(fld => fld.HeaderText == "Base")
+                .SingleOrDefault()).Visible = !isEdit;
         }
 
+        private void Calculate_CurrencyRate(decimal rate)
+        {
+            foreach (DataRow dr in dtRecDt.Rows)
+            {
+                dr["DiccountAmt"] = RoundAmt(Convert.ToDecimal(dr["CurrDiscAmt"]) * rate);
+                dr["TaxAmt"] = RoundAmt(Convert.ToDecimal(dr["CurrTaxAmt"]) * rate);
+                dr["NetAmt"] = RoundAmt(Convert.ToDecimal(dr["CurrNetAmt"]) * rate);
+                dr["TotalAmt"] = RoundAmt(Convert.ToDecimal(dr["CurrTotalAmt"]) * rate);
+            }
+
+            SetGrandTotal();
+            gv_Detail.DataSource = dtRecDt;
+            gv_Detail.DataBind();
+        }
+
+
+        private void SetGrandTotal()
+        {
+            var currDiscAmt = dtRecDt.AsEnumerable().Select(x => x.Field<decimal>("CurrDiscAmt")).Sum();
+            var currNetAmt = dtRecDt.AsEnumerable().Select(x => x.Field<decimal>("CurrNetAmt")).Sum();
+            var currTaxAmt = dtRecDt.AsEnumerable().Select(x => x.Field<decimal>("CurrTaxAmt")).Sum();
+            var currTotalAmt = dtRecDt.AsEnumerable().Select(x => x.Field<decimal>("CurrTotalAmt")).Sum();
+
+            var discAmt = dtRecDt.AsEnumerable().Select(x => x.Field<decimal>("DiccountAmt")).Sum();
+            var netAmt = dtRecDt.AsEnumerable().Select(x => x.Field<decimal>("NetAmt")).Sum();
+            var taxAmt = dtRecDt.AsEnumerable().Select(x => x.Field<decimal>("TaxAmt")).Sum();
+            var totalAmt = dtRecDt.AsEnumerable().Select(x => x.Field<decimal>("TotalAmt")).Sum();
+
+            lbl_GrandCurrDiscAmt.Text = FormatAmt(currDiscAmt);
+            lbl_GrandCurrNetAmt.Text = FormatAmt(currNetAmt);
+            lbl_GrandCurrTaxAmt.Text = FormatAmt(currTaxAmt);
+            lbl_GrandCurrTotalAmt.Text = FormatAmt(currTotalAmt);
+
+            lbl_GrandDiscAmt.Text = FormatAmt(discAmt);
+            lbl_GrandNetAmt.Text = FormatAmt(netAmt);
+            lbl_GrandTaxAmt.Text = FormatAmt(taxAmt);
+            lbl_GrandTotalAmt.Text = FormatAmt(totalAmt);
+
+        }
 
         private void GetCurrencyRate(string currencyCode, DateTime date)
         {
@@ -653,6 +900,28 @@ ORDER BY
             ddl_Currency.Items.AddRange(items);
         }
 
+
+        private string ValidateDataBeforeSave()
+        {
+            var message = "";
+
+            if ((decimal)se_CurrencyRate.Value <= 0m)
+            {
+                return "Invalid currency rate.";
+            }
+
+
+
+            return message;
+        }
+
+        // Popup
+
+        private void ShowAlert(string text)
+        {
+            lbl_Pop_Alert.Text = text;
+            pop_Alert.ShowOnPageLoad = true;
+        }
 
         // Dropdown(s)
 
@@ -692,16 +961,35 @@ ORDER BY
             ddl_DeliPoint.Items.AddRange(items);
         }
 
-        private void SetCurrencyCode(string value)
+        private void SetCurrencyCode(string value, DateTime date)
         {
-            var dt = new Helpers.SQL(hf_ConnStr.Value).ExecuteQuery("SELECT CurrencyCode as [Value], CurrencyCode as [Text] FROM [Ref].Currency WHERE IsActived=1 ORDER BY CurrencyCode");
+            var query = @"
+;WITH
+ex AS(
+	SELECT
+		DISTINCT CurrencyCode
+	FROM
+		[REF].CurrencyExchange
+)
+SELECT
+	c.CurrencyCode Code
+FROM
+	[REF].Currency c
+	JOIN ex ON ex.CurrencyCode=c.CurrencyCode 
+WHERE
+	c.IsActived=1
+ORDER BY
+	c.CurrencyCode";
+
+            //var dt = new Helpers.SQL(hf_ConnStr.Value).ExecuteQuery("SELECT CurrencyCode as [Value], CurrencyCode as [Text] FROM [Ref].Currency WHERE IsActived=1 ORDER BY CurrencyCode");
+            var dt = new Helpers.SQL(hf_ConnStr.Value).ExecuteQuery(query);
 
             var items = dt.AsEnumerable()
                 .Select(x => new DevExpress.Web.ASPxEditors.ListEditItem
                 {
-                    Value = x.Field<string>("Value"),
-                    Text = x.Field<string>("Text"),
-                    Selected = x.Field<string>("Value") == value
+                    Value = x.Field<string>("Code"),
+                    Text = x.Field<string>("Code"),
+                    Selected = x.Field<string>("Code") == value
                 })
                 .ToArray();
 
@@ -790,6 +1078,7 @@ ORDER BY
             public int DigitQty { get; set; }
             public decimal TaxRate { get; set; }
         }
+
     }
 
 }

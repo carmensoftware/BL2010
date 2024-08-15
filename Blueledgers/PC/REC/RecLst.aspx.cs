@@ -136,7 +136,7 @@ namespace BlueLedger.PL.IN.REC
                     case "ME":
                         Response.Redirect("RecEdit.aspx?MODE=new" + "&VID=" + ListPage2.VID);
                         break;
-                    //ต้องแก้เพื่อ Ipact เพิ่ม Create Manual
+                    //ต้องแก้เพื่อ Impact เพิ่ม Create Manual
                     case "POMANUAL":
                         Response.Redirect("RecCreateManual.aspx?BuCode=" + LoginInfo.BuInfo.BuCode + "&MODE=new" + "&VID=" + ListPage2.VID);
                         //Response.Redirect("RecEdit.aspx?BuCode=" + LoginInfo.BuInfo.BuCode + "&MODE=new"); //
@@ -673,19 +673,12 @@ namespace BlueLedger.PL.IN.REC
             if (dt.Rows.Count > 0)
             {
 
-                ddl_Vendor.DataSource = dt; //po.GetVendorByPOStatus(statusPrint, statusPartial, LoginInfo.BuInfo.BuCode, LoginInfo.ConnStr);
+                ddl_Vendor.DataSource = dt;
                 Session.Remove("vendor");
                 Session["vendor"] = dt;
 
-                //if (!IsPostBack)
-                //{
-                //    ddl_Vendor.SelectedIndex = 0;
-                //}
-
                 ddl_Vendor.ValueField = "VendorCode";
                 ddl_Vendor.DataBind();
-
-
 
                 // Display maket list data
                 pop_SelectVendor.HeaderText = "Purchase Order List";
@@ -1123,7 +1116,9 @@ namespace BlueLedger.PL.IN.REC
                 var drPo = dsPo.Tables[po.TableName].Rows[0];
 
                 // Insert to rec
+                #region
                 var drRec = dsRec.Tables[rec.TableName].NewRow();
+
                 drRec["RecNo"] = rec.GetNewID(ServerDateTime, LoginInfo.ConnStr);
                 drRec["RecDate"] = ServerDateTime;
                 drRec["DeliPoint"] =
@@ -1165,8 +1160,10 @@ namespace BlueLedger.PL.IN.REC
                     poDt.GetPoDtByPoNoForReceiving(dsPo, ref MsError, values[i], LoginInfo.BuInfo.BuCode, location, LoginInfo.ConnStr);
                     poDt.GetListByPoNo(dsRec, ref MsError, values[i], LoginInfo.ConnStr);
                 }
+                #endregion
 
                 // Insert to RecDt (For HQ multiple PO(s)
+                #region
                 foreach (DataRow drSelected in dsPo.Tables[poDt.TableName].Rows)
                 {
                     if (drSelected["PoNo"].ToString() == values[i])
@@ -1231,7 +1228,7 @@ namespace BlueLedger.PL.IN.REC
                             drRecDt["RecQty"] = recQty;
 
 
-                            decimal amount = RoundAmt( recQty * price);
+                            decimal amount = RoundAmt(recQty * price);
                             decimal discAmt = RoundAmt(discRate == 0 ? 0 : amount * discRate / 100);
 
                             currDiscAmt = discAmt;
@@ -1273,6 +1270,8 @@ namespace BlueLedger.PL.IN.REC
                         dsRec.Tables[recDt.TableName].Rows.Add(drRecDt);
                     }
                 }
+                #endregion
+
             }
 
             dsRec.Tables[poDt.TableName].Clear();
@@ -1290,11 +1289,13 @@ namespace BlueLedger.PL.IN.REC
             pop_SelectVendor.ShowOnPageLoad = false;
             pop_SelectLocation.ShowOnPageLoad = false;
         }
+        
         #endregion
 
         // Added on: 17/08/2017, By: Fon
         // Note: If U cannot find value of ddl_location, it's mean your PoNo didn't exist in [pc].[Prdt]
-        #region Abour Currency
+        
+        #region About Currency
         protected void comb_CurrCode_Init(object sender, EventArgs e)
         {
             Bind_comb_Currency(sender);
