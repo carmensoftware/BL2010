@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Report ScriptLanguage="CSharp" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="08/09/2024 18:00:12" ReportInfo.CreatorVersion="2013.4.11.0">
+<Report ScriptLanguage="CSharp" StartReportEvent="_StartReport" ReportInfo.Created="10/29/2013 11:32:55" ReportInfo.Modified="08/16/2024 13:05:24" ReportInfo.CreatorVersion="2013.4.11.0">
   <ScriptText>using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -28,7 +28,7 @@ namespace FastReport
 }
 </ScriptText>
   <Dictionary>
-    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqOYTMYw5/jEQg4pS6MrJhvSjd+onlOlG0B3xpKosCDlvCbaX6JpBfe3ceRpTN/5kFYFVVZzLlBfu1as7v9iCElp14c3PQ6ZQJVHFfjLqs5LH+dc8gUcfO5+mL4ghKycUi">
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqCvlJxRoS3oNe5N3zvkC4Lt58hmOUZRAN2lF/7kH5snCyWswRc5oy7W3eRXMlgYYqEy/RKZrTtjlhGQpk+dAZwP7TCAFlgtxF8pOYgGq4JdU1dTzyROm7pcxCbG4MFuDi">
       <TableDataSource Name="ADMIN_Bu" DataType="System.Int32" Enabled="true" TableName="ADMIN.&quot;Bu&quot;">
         <Column Name="BuCode" DataType="System.String"/>
         <Column Name="Name" DataType="System.String"/>
@@ -47,16 +47,17 @@ namespace FastReport
         <Column Name="BackOfficeModel" DataType="System.String"/>
         <Column Name="BuLogo" DataType="System.Byte[]" BindableControl="Picture"/>
       </TableDataSource>
-      <TableDataSource Name="Table" Alias="data" DataType="System.Int32" Enabled="true" SelectCommand="IF 1=0&#13;&#10;SET FMTONLY OFF&#13;&#10;&#13;&#10;EXEC [RPT].rptMainStoreAudit&#13;&#10;@FDATE=@p_FDate,&#13;&#10;@TDATE=@p_TDate,&#13;&#10;@FLOCATION=@p_FLocation,&#13;&#10;@TLOCATION=@p_TLocation,&#13;&#10;@FPRODUCT=@p_FProduct,&#13;&#10;@TPRODUCT=@p_TProduct,&#13;&#10;@ONLYONHAND=@p_ShowOnhand&#13;&#10;">
+      <TableDataSource Name="Table" Alias="data" DataType="System.Int32" Enabled="true" SelectCommand="IF 1=0&#13;&#10;SET FMTONLY OFF&#13;&#10;&#13;&#10;EXEC [RPT].rptInventoryMovementDetail&#13;&#10;@Year=@p_Year,&#13;&#10;@Month=@p_Month,&#13;&#10;@FLocation=@p_FLocation,&#13;&#10;@TLocation=@p_TLocation,&#13;&#10;@FItemGroup=@p_FItemGroup,&#13;&#10;@TItemGroup=@p_TItemGroup,&#13;&#10;@FProduct=@p_FProduct,&#13;&#10;@TProduct=@p_TProduct&#13;&#10;&#13;&#10;">
         <Column Name="productCode" DataType="System.String"/>
-        <Column Name="RecQty" DataType="System.Decimal"/>
         <Column Name="LocationCode" DataType="System.String"/>
         <Column Name="UnitCost" DataType="System.Decimal"/>
         <Column Name="OpenQty" DataType="System.Decimal"/>
         <Column Name="OpenAmt" DataType="System.Decimal"/>
+        <Column Name="RecQty" DataType="System.Decimal"/>
         <Column Name="RecAmt" DataType="System.Decimal"/>
         <Column Name="CnQty" DataType="System.Decimal"/>
         <Column Name="CnAmt" DataType="System.Decimal"/>
+        <Column Name="CnAmt2" DataType="System.Decimal"/>
         <Column Name="SrInQty" DataType="System.Decimal"/>
         <Column Name="SrInAmt" DataType="System.Decimal"/>
         <Column Name="SrOutQty" DataType="System.Decimal"/>
@@ -74,27 +75,26 @@ namespace FastReport
         <Column Name="AdjustAmt" DataType="System.Decimal"/>
         <Column Name="LocationName" DataType="System.String"/>
         <Column Name="ProductDesc1" DataType="System.String"/>
-        <Column Name="ProductDesc11" DataType="System.String"/>
+        <Column Name="ProductDesc2" DataType="System.String"/>
         <Column Name="InventoryUnit" DataType="System.String"/>
-        <Column Name="CnAmt2" DataType="System.Decimal"/>
-        <CommandParameter Name="p_FDate" DataType="4" Expression="[p_FDate]" DefaultValue="10/10/13"/>
-        <CommandParameter Name="p_TDate" DataType="4" Expression="[p_TDate]" DefaultValue="10/10/13"/>
+        <CommandParameter Name="p_Year" DataType="22" Expression="[p_Year]" DefaultValue="2024"/>
+        <CommandParameter Name="p_Month" DataType="22" Expression="[p_Month]" DefaultValue="5"/>
         <CommandParameter Name="p_FLocation" DataType="12" Expression="[p_FLocation]"/>
         <CommandParameter Name="p_TLocation" DataType="12" Expression="[p_TLocation]"/>
+        <CommandParameter Name="p_FItemGroup" DataType="12" Expression="[p_FItemGroup]"/>
+        <CommandParameter Name="p_TItemGroup" DataType="12" Expression="[p_TItemGroup]"/>
         <CommandParameter Name="p_FProduct" DataType="12" Expression="[p_FProduct]"/>
         <CommandParameter Name="p_TProduct" DataType="12" Expression="[p_TProduct]"/>
-        <CommandParameter Name="p_ShowOnhand" DataType="8" Expression="[p_ShowOnhand]" DefaultValue="0"/>
       </TableDataSource>
     </MsSqlDataConnection>
-    <Parameter Name="p_FDate" DataType="System.DateTime"/>
-    <Parameter Name="p_TDate" DataType="System.DateTime"/>
+    <Parameter Name="p_Year" DataType="System.String"/>
+    <Parameter Name="p_Month" DataType="System.String"/>
     <Parameter Name="p_FLocation" DataType="System.String"/>
     <Parameter Name="p_TLocation" DataType="System.String"/>
-    <Parameter Name="p_Fcat" DataType="System.String"/>
-    <Parameter Name="p_Tcat" DataType="System.String"/>
+    <Parameter Name="p_FItemGroup" DataType="System.String"/>
+    <Parameter Name="p_TItemGroup" DataType="System.String"/>
     <Parameter Name="p_FProduct" DataType="System.String"/>
     <Parameter Name="p_TProduct" DataType="System.String"/>
-    <Parameter Name="p_ShowOnhand" DataType="System.Int32"/>
     <Total Name="SumLocation_OpenAmt" Expression="[data.OpenAmt]" Evaluator="Data1" PrintOn="GroupFooter1" ResetOnReprint="true"/>
     <Total Name="SumLocation_RecAmt" Expression="[data.RecAmt]" Evaluator="Data1" PrintOn="GroupFooter1" ResetOnReprint="true"/>
     <Total Name="SumLocation_CnAmt" Expression="[data.CnAmt]" Evaluator="Data1" PrintOn="GroupFooter1" ResetOnReprint="true"/>
@@ -123,7 +123,7 @@ namespace FastReport
       <PictureObject Name="Picture1" Width="217.35" Height="94.5" DataColumn="ADMIN_Bu.BuLogo"/>
       <TextObject Name="Text3" Left="567.19" Top="20.79" Width="415.8" Height="28.35" Text="Inventory Movement (Detail)" HorzAlign="Center" Font="Tahoma, 14pt, style=Bold"/>
       <TextObject Name="Text4" Top="103.95" Width="567" Height="18.9" Text="[ADMIN_Bu.Name]" Font="Tahoma, 8pt, style=Bold"/>
-      <TextObject Name="Text44" Left="1167.8" Width="378" Height="56.7" CanGrow="true" CanBreak="false" Text="Date from [ToDateTime([p_FDate])] to [ToDateTime([p_TDate])]&#13;&#10;Location from [p_FLocation] to [p_TLocation]&#13;&#10;Product from [p_FProduct] to [p_TProduct]&#13;&#10;Show transction as [IIf([p_ShowOnhand]==&quot;0&quot;,&quot;All&quot;,&quot;Only Active&quot;)]" HorzAlign="Right" Font="Tahoma, 8pt">
+      <TextObject Name="Text44" Left="1167.8" Width="378" Height="56.7" CanGrow="true" CanBreak="false" Text="Period [p_Month]/[p_Year]&#13;&#10;Location from [p_FLocation] to [p_TLocation]&#13;&#10;Item Group from [p_FItemGroup] to [p_TItemGroup]&#13;&#10;Product from [p_FProduct] to [p_TProduct]&#13;&#10;" HorzAlign="Right" Font="Tahoma, 8pt">
         <Formats>
           <DateFormat/>
           <DateFormat/>
@@ -134,7 +134,7 @@ namespace FastReport
         </Formats>
       </TextObject>
     </PageHeaderBand>
-    <ColumnHeaderBand Name="ColumnHeader1" Top="125.5" Width="1550.18" Height="56.7">
+    <ColumnHeaderBand Name="ColumnHeader1" Top="126.85" Width="1550.18" Height="56.7">
       <TextObject Name="Text5" Width="152.18" Height="28.35" Border.Lines="All" Fill.Color="Gainsboro" Text="Location" VertAlign="Center" Font="Tahoma, 7pt, style=Bold"/>
       <TextObject Name="Text7" Left="213.57" Width="37.8" Height="56.7" Border.Lines="All" Fill.Color="Gainsboro" Text="Unit" HorzAlign="Center" VertAlign="Center" Font="Tahoma, 7pt, style=Bold"/>
       <TextObject Name="Text9" Left="251.37" Width="122.85" Height="28.35" Border.Lines="All" Fill.Color="Gainsboro" Text="Openning" HorzAlign="Center" VertAlign="Center" Font="Tahoma, 7pt, style=Bold"/>
@@ -171,12 +171,12 @@ namespace FastReport
       <TextObject Name="Text127" Left="1290.87" Top="28.35" Width="66.15" Height="28.35" Border.Lines="All" Fill.Color="Gainsboro" Text="Amt" HorzAlign="Center" VertAlign="Center" Font="Tahoma, 7pt, style=Bold"/>
       <TextObject Name="Text125" Left="1234.17" Width="122.85" Height="28.35" Border.Lines="All" Fill.Color="Gainsboro" Text="EOP (OUT)" HorzAlign="Center" VertAlign="Center" Font="Tahoma, 7pt, style=Bold"/>
       <TextObject Name="Text130" Left="151.2" Width="62.37" Height="56.7" Border.Lines="All" Fill.Color="Gainsboro" Text="Cost" HorzAlign="Center" VertAlign="Center" Font="Tahoma, 7pt, style=Bold"/>
-      <ChildBand Name="Child_ColumnHeader1" Top="184.85" Width="1550.18" Height="3.78"/>
+      <ChildBand Name="Child_ColumnHeader1" Top="187.55" Width="1550.18" Height="3.78"/>
     </ColumnHeaderBand>
-    <GroupHeaderBand Name="GroupHeader1" Top="191.27" Width="1550.18" Height="28.35" Border.Lines="All" KeepWithData="true" RepeatOnEveryPage="true" Condition="[data.LocationCode]" SortOrder="None">
+    <GroupHeaderBand Name="GroupHeader1" Top="195.33" Width="1550.18" Height="28.35" Border.Lines="All" KeepWithData="true" RepeatOnEveryPage="true" Condition="[data.LocationCode]" SortOrder="None">
       <TextObject Name="Text8" Left="77.05" Width="141.75" Height="28.35" CanGrow="true" CanBreak="false" Text="[data.LocationCode] : [data.LocationName]" AutoWidth="true" VertAlign="Center" WordWrap="false" Font="Tahoma, 7pt"/>
       <TextObject Name="Text11" Width="75.6" Height="28.35" Text="Location :" VertAlign="Center" Font="Tahoma, 7pt, style=Bold"/>
-      <DataBand Name="Data1" Top="222.27" Width="1550.18" Height="22.68" CanGrow="true" BeforePrintEvent="Data1_BeforePrint" DataSource="Table">
+      <DataBand Name="Data1" Top="227.68" Width="1550.18" Height="22.68" CanGrow="true" BeforePrintEvent="Data1_BeforePrint" DataSource="Table">
         <TextObject Name="Text14" Width="49.14" Height="22.68" Border.Lines="Left" GrowToBottom="true" CanBreak="false" Text="[data.ProductCode]" Padding="2, 1, 2, 0" WordWrap="false" Font="Tahoma, 7pt"/>
         <TextObject Name="Text95" Left="213.57" Width="37.8" Height="22.68" Border.Lines="Left, Right" GrowToBottom="true" CanBreak="false" Text="[data.InventoryUnit]" Padding="2, 1, 2, 0" HorzAlign="Center" WordWrap="false" Font="Tahoma, 7pt"/>
         <TextObject Name="Text96" Left="308.07" Width="66.15" Height="22.68" Border.Lines="Left, Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[data.OpenAmt]" Padding="2, 1, 2, 0" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" WordWrap="false" Font="Tahoma, 7pt">
@@ -291,7 +291,7 @@ namespace FastReport
         </TextObject>
         <TextObject Name="Text131" Left="49.14" Width="102.06" Height="22.68" Border.Lines="Right" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[data.ProductDesc1]" Padding="2, 1, 2, 0" Font="Tahoma, 7pt"/>
       </DataBand>
-      <GroupFooterBand Name="GroupFooter1" Top="247.6" Width="1550.18" Height="28.35" Border.Lines="All" Fill.Color="WhiteSmoke">
+      <GroupFooterBand Name="GroupFooter1" Top="254.36" Width="1550.18" Height="28.35" Border.Lines="All" Fill.Color="WhiteSmoke">
         <TextObject Name="Text6" Width="75.6" Height="28.35" Text="Total :" VertAlign="Center" WordWrap="false" Font="Tahoma, 7pt, style=Bold"/>
         <TextObject Name="Text115" Left="77.05" Width="141.75" Height="28.35" CanGrow="true" CanBreak="false" Text="[data.LocationCode] : [data.LocationName]" AutoWidth="true" VertAlign="Center" WordWrap="false" Font="Tahoma, 7pt"/>
         <TextObject Name="Text28" Left="1423.17" Width="126.63" Height="28.35" Text="[SumLocation_CloseAmt]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 7pt, style=Bold">
@@ -349,10 +349,10 @@ namespace FastReport
             <Condition Expression="Value &lt; 0"/>
           </Highlight>
         </TextObject>
-        <ChildBand Name="Child_GroupFooter1" Top="278.6" Width="1550.18" Height="3.78"/>
+        <ChildBand Name="Child_GroupFooter1" Top="286.71" Width="1550.18" Height="3.78"/>
       </GroupFooterBand>
     </GroupHeaderBand>
-    <ReportSummaryBand Name="ReportSummary1" Top="285.03" Width="1550.18" Height="28.35" Fill.Color="Gainsboro">
+    <ReportSummaryBand Name="ReportSummary1" Top="294.49" Width="1550.18" Height="28.35" Fill.Color="Gainsboro">
       <TextObject Name="Text116" Width="170.1" Height="28.35" Text="Grand Total :" VertAlign="Center" Font="Tahoma, 7pt, style=Bold"/>
       <TextObject Name="Text36" Left="1423.17" Width="126.63" Height="28.35" CanGrow="true" CanBreak="false" Text="[SumGrand_CloseAmt]" Format="Custom" Format.Format="#,##0.00;(#,##0.00);&quot;-&quot;;" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Tahoma, 7pt, style=Bold">
         <Highlight>
@@ -410,7 +410,7 @@ namespace FastReport
         </Highlight>
       </TextObject>
     </ReportSummaryBand>
-    <PageFooterBand Name="PageFooter1" Top="316.02" Width="1550.18" Height="47.25">
+    <PageFooterBand Name="PageFooter1" Top="326.84" Width="1550.18" Height="47.25">
       <TextObject Name="Text1" Top="18.9" Width="132.3" Height="28.35" Text="Report summary&#13;&#10;Print on [Date]" Format="Date" Format.Format="d" WordWrap="false" Font="Arial, 8pt"/>
       <TextObject Name="Text2" Left="1237.95" Top="18.9" Width="292.95" Height="28.35" Text="Page [Page#] of [TotalPages#]" HorzAlign="Right" WordWrap="false" Font="Arial, 8pt"/>
     </PageFooterBand>

@@ -48,6 +48,7 @@ namespace Blue.BL.dbo
             2024-12-31 = waltonsuitessukhumvitbangkok = 5
             2024-12-31 = surestaytheiconic = 4+7=11
             2024-12-31 = celessamui = 25
+            2024-12-31 = thenappathong = 8
 
             2024-11-30 = wyndhamgardennaithon = 21
             2024-11-30 = skyviewresortphuket = 11
@@ -91,8 +92,8 @@ namespace Blue.BL.dbo
             2023-01-31 = SPM = 20 
         
         */
-        private DateTime licenseExpiredDate = new DateTime(2025, 03, 31);
-        private int licenseActiveUser = 122;
+        private DateTime licenseExpiredDate = new DateTime(2024, 12, 31);
+        private int licenseActiveUser = 80;
 
         public User()
         {

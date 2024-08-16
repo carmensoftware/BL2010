@@ -48,7 +48,8 @@ public partial class Report : System.Web.UI.Page
         {
             if (Session["LoginInfo"] == null)
             {
-                Session["PreviousPage"] = HttpContext.Current.Request.Url.AbsoluteUri;
+                //Session["PreviousPage"] = HttpContext.Current.Request.Url.AbsoluteUri;
+                Session["PreviousPage"] = "RPT/ReportList2.aspx";
                 Response.Redirect("~/ErrorPages/SessionTimeOut.aspx");
             }
 
@@ -56,9 +57,9 @@ public partial class Report : System.Web.UI.Page
 
             Page_Setup();
         }
-        catch
+        catch (Exception ex)
         {
-            Response.Redirect("~/Option/User/Default.aspx");
+            throw new Exception(ex.Message, ex.InnerException);
         }
     }
 
@@ -397,7 +398,7 @@ public partial class Report : System.Web.UI.Page
 
         // Set the value
 
-
+        var value = string.Empty;
         var index = options.Count == 0 ? -1 : 0;
 
         if (string.IsNullOrEmpty(parameter_value))
@@ -410,6 +411,40 @@ public partial class Report : System.Web.UI.Page
                 case "first":
                     index = 0;
                     break;
+                case "this_year":
+                    value = DateTime.Today.Year.ToString();
+
+                    index = options.FindIndex(x => x.Value == value);
+                    break;
+                case "last_year":
+                    value = DateTime.Today.Year.ToString();
+
+                    index = options.FindIndex(x => x.Value == value) - 1;
+                    break;
+                case "next_year":
+                    value = DateTime.Today.Year.ToString();
+
+                    index = options.FindIndex(x => x.Value == value) + 1;
+                    break;
+                case "this_month":
+                    value = DateTime.Today.Month.ToString();
+
+                    index = options.FindIndex(x => x.Value == value);
+                    break;
+                case "last_month":
+                    value = DateTime.Today.Month.ToString();
+
+                    index = options.FindIndex(x => x.Value == value) - 1;
+
+                    index = index < 0 ? 0 : index;
+                    break;
+                case "next_month":
+                    value = DateTime.Today.Month.ToString();
+
+                    index = options.FindIndex(x => x.Value == value) + 1;
+                    index = index > 12 ? 12 : index;
+                    break;
+
                 default:
                     if (Int32.TryParse(item.Value, out index))
                     {
@@ -519,6 +554,8 @@ public partial class Report : System.Web.UI.Page
             WebReport1.Report.SetParameterValue(item.Name, item.Value);
         }
 
+        //WebReport1.Report.Prepare();
+
 
     }
 
@@ -533,37 +570,40 @@ public partial class Report : System.Web.UI.Page
 
     private void SetReportPage(string filename)
     {
-        // Set Page size dynamic with Report Paper Size
-        XmlDocument xDoc = new XmlDocument();
-        XmlNodeList report;
-        xDoc.Load(Server.MapPath(filename));  //Load frx File
-        report = xDoc.GetElementsByTagName("ReportPage"); //Get Tagname (ReportPage)
-
-        double paperWidth = 0;
-        double paperHeigth = 0;
-        try
-        {
-            double convRate = 3.77;    // coefficient mm*3.77 =Pixel
-
-            for (int i = 0; i < report.Count; i++)
-            {
-                paperWidth = Convert.ToDouble(report[i].Attributes["PaperWidth"].Value) * convRate;  //PaperWidth
-                paperHeigth = Convert.ToDouble(report[i].Attributes["PaperHeight"].Value) * convRate; //PaperHeight
-
-            }
-        }
-        catch     //If Not Find
-        {
-            paperWidth = 980;  //PaperWidth
-            paperHeigth = 620;  //PaperHeight
-        }
-
-        WebReport1.Width = Convert.ToInt16(paperWidth);
-        WebReport1.Height = Convert.ToInt16(paperHeigth);
-
         WebReport1.AutoHeight = true;
         WebReport1.AutoWidth = true;
 
+
+        WebReport1.Height = Unit.Percentage(100);
+        WebReport1.Width = Unit.Percentage(100);
+
+        // Set Page size dynamic with Report Paper Size
+        // XmlDocument xDoc = new XmlDocument();
+        // XmlNodeList report;
+        // xDoc.Load(Server.MapPath(filename));  //Load frx File
+        // report = xDoc.GetElementsByTagName("ReportPage"); //Get Tagname (ReportPage)
+
+        // double paperWidth = 0;
+        // double paperHeigth = 0;
+        // try
+        // {
+        // double convRate = 3.77;    // coefficient mm*3.77 =Pixel
+
+        // for (int i = 0; i < report.Count; i++)
+        // {
+        // paperWidth = Convert.ToDouble(report[i].Attributes["PaperWidth"].Value) * convRate;  //PaperWidth
+        // paperHeigth = Convert.ToDouble(report[i].Attributes["PaperHeight"].Value) * convRate; //PaperHeight
+
+        // }
+        // }
+        // catch     //If Not Find
+        // {
+        // paperWidth = 800;  //PaperWidth
+        // paperHeigth = 620;  //PaperHeight
+        // }
+
+        // WebReport1.Width = Convert.ToInt16(paperWidth);
+        // WebReport1.Height = Convert.ToInt16(paperHeigth);
 
     }
     #endregion

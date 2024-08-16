@@ -3,7 +3,7 @@
 <%@ Register Assembly="FastReport.Web" Namespace="FastReport.Web" TagPrefix="fr" %>
 <!DOCTYPE html>
 <html>
-<head runat="server">
+<head id="Head1" runat="server">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,7 +20,64 @@
     </style>
     <%--Flex--%>
     <style>
+        .flex
+        {
+            display: flex !important;
+        }
         
+        .flex-justify-content-start
+        {
+            justify-content: flex-start;
+        }
+        .flex-justify-content-end
+        {
+            justify-content: flex-end;
+        }
+        .flex-justify-content-center
+        {
+            justify-content: center;
+        }
+        .flex-justify-content-between
+        {
+            justify-content: space-between;
+        }
+        .flex-row
+        {
+            flex-flow: row !important;
+        }
+        .flex-columm
+        {
+            flex-flow: column !important;
+        }
+        
+        .mt-10
+        {
+            margin-top: 10px;
+        }
+        .mt-20
+        {
+            margin-top: 20px;
+        }
+        .mt-30
+        {
+            margin-top: 30px;
+        }
+        .mb-10
+        {
+            margin-bottom: 10px;
+        }
+        .mb-20
+        {
+            margin-bottom: 20px;
+        }
+        .mb-30
+        {
+            margin-bottom: 30px;
+        }
+        .width-100
+        {
+            width: 100% !important;
+        }
     </style>
     <%--Dialog Controls--%>
     <style>
@@ -91,6 +148,16 @@
             font-size: 0.8rem;
             padding: 5px;
         }
+        
+        .layered.box {
+    box-shadow:
+      0 1px 1px hsl(0deg 0% 0% / 0.075),
+      0 2px 2px hsl(0deg 0% 0% / 0.075),
+      0 4px 4px hsl(0deg 0% 0% / 0.075),
+      0 8px 8px hsl(0deg 0% 0% / 0.075),
+      0 16px 16px hsl(0deg 0% 0% / 0.075)
+    ;
+  }
     </style>
 </head>
 <body>
@@ -125,8 +192,10 @@
         </asp:Panel>
     </div>
     <br />
-    <div class="flex flex-justify-content-center">
-        <fr:WebReport ID="WebReport1" runat="server" Height="800px" Width="320px" ToolbarStyle="Small" ToolbarIconsStyle="Blue" OnStartReport="WebReport1_StartReport" />
+    <div class="flex flex-justify-content-center width-100">
+        <div class="layered box" style="overflow:auto; padding:0 20px 20px 20px ">
+            <fr:WebReport ID="WebReport1" runat="server" ToolbarStyle="Small" ToolbarIconsStyle="Blue" OnStartReport="WebReport1_StartReport" />
+        </div>
     </div>
     </form>
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
