@@ -41,7 +41,7 @@
                     <asp:BoundField DataField="InvoiceNo" HeaderText="Invoice No." />
                     <asp:TemplateField HeaderText="Invoice Date">
                         <ItemTemplate>
-                            <%# DateTime.Parse(Eval("InvoiceDate").ToString()).ToShortDateString() %>
+                            <%# Eval("InvoiceDate") == DBNull.Value ? "" : DateTime.Parse(Eval("InvoiceDate").ToString()).ToShortDateString() %>
                         </ItemTemplate>
                     </asp:TemplateField>
                     <asp:BoundField DataField="Description" HeaderText="Description" />

@@ -173,7 +173,7 @@ namespace BlueLedger.PL.PC
                     FROM
 	                    [IN].StoreLocation l
 	                    LEFT JOIN [IN].Eop eop 
-		                    ON eop.StoreId = l.LocationCode AND CAST(eop.EndDate as DATE) = '{0}'
+		                    ON eop.StoreId = l.LocationCode AND CAST(eop.EndDate as DATE) = @Date
                     WHERE
 	                    l.EOP = 1
                     )
@@ -186,7 +186,8 @@ namespace BlueLedger.PL.PC
             //period.
             sql = string.Format(sql, endPeriodDate.ToString("yyyy-MM-dd"));
 
-            return period.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
+            return period.DbExecuteQuery(@sql, null, LoginInfo.ConnStr);
+
         }
 
 

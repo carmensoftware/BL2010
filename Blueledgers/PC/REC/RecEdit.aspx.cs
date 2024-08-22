@@ -11,6 +11,7 @@ using BlueLedger.PL.BaseClass;
 using DevExpress.Web;
 using DevExpress.Web.ASPxEditors;
 using System.Drawing;
+using System.ComponentModel.DataAnnotations;
 
 namespace BlueLedger.PL.IN.REC
 {
@@ -26,9 +27,16 @@ namespace BlueLedger.PL.IN.REC
         #endregion
 
         private string _connStr;
+        private enum DocStatus
+        {
+            Received,
+            Committed,
+            Voided
+        }
 
-        private readonly Blue.BL.dbo.Bu bu = new Blue.BL.dbo.Bu();
-        private readonly Blue.BL.APP.Config config = new Blue.BL.APP.Config();
+        private readonly Blue.BL.dbo.Bu _bu = new Blue.BL.dbo.Bu();
+        private readonly Blue.BL.APP.Config _config = new Blue.BL.APP.Config();
+        private readonly Blue.BL.PC.REC.REC _rec = new Blue.BL.PC.REC.REC();
 
         protected DataTable dtRec
         {
@@ -48,6 +56,12 @@ namespace BlueLedger.PL.IN.REC
             set { ViewState["dtPo"] = value; }
         }
 
+        protected DataTable dtExtraCost
+        {
+            get { return ViewState["dtExtraCost"] as DataTable; }
+            set { ViewState["dtExtraCost"] = value; }
+        }
+
         protected DefaultValues _default
         {
             get { return ViewState["DefaultValues"] as DefaultValues; }
@@ -59,12 +73,12 @@ namespace BlueLedger.PL.IN.REC
 
         protected void Page_Init(object sender, EventArgs e)
         {
-            hf_ConnStr.Value = bu.GetConnectionString(_BuCode);
+            hf_ConnStr.Value = _bu.GetConnectionString(_BuCode);
 
-            var currency = config.GetValue("APP", "BU", "DefaultCurrency", hf_ConnStr.Value);
-            var digitAmt = config.GetValue("APP", "Default", "DigitAmt", hf_ConnStr.Value);
-            var digitQty = config.GetValue("APP", "Default", "DigitQty", hf_ConnStr.Value);
-            var taxRate = config.GetValue("APP", "Default", "TaxRate", hf_ConnStr.Value);
+            var currency = _config.GetValue("APP", "BU", "DefaultCurrency", hf_ConnStr.Value);
+            var digitAmt = _config.GetValue("APP", "Default", "DigitAmt", hf_ConnStr.Value);
+            var digitQty = _config.GetValue("APP", "Default", "DigitQty", hf_ConnStr.Value);
+            var taxRate = _config.GetValue("APP", "Default", "TaxRate", hf_ConnStr.Value);
 
             _default = new DefaultValues
             {
@@ -82,7 +96,7 @@ namespace BlueLedger.PL.IN.REC
             if (!IsPostBack)
             {
                 Page_Retrieve();
-                Page_Setting();
+
             }
 
 
@@ -99,10 +113,15 @@ namespace BlueLedger.PL.IN.REC
                     SetNew();
                     break;
                 case "edit":
-                    var recNo = _ID;
-                    SetEdit(recNo);
+                    SetEdit(_ID);
                     break;
                 case "fpo":
+                    if (Session["dsPo"] == null)
+                    {
+                        pop_SessionTimeout.ShowOnPageLoad = true;
+                        return;
+                    }
+
                     SetFromPO();
                     // Set disable controls
                     // header
@@ -114,7 +133,15 @@ namespace BlueLedger.PL.IN.REC
 
             SetHeader(dtRec);
             SetDetails(dtRecDt);
-            SetGrandTotal();
+
+            var recNo = dtRec.Rows[0]["RecNo"].ToString();
+
+            dtExtraCost = new Helpers.SQL(hf_ConnStr.Value).ExecuteQuery(string.Format("SELECT e.*, t.TypeName FROM PC.RecExtCost e JOIN PC.ExtCostType t ON t.TypeId=e.TypeId WHERE e.RecNo='{0}'", recNo));
+            gv_ExtraCost.DataSource = dtExtraCost;
+            gv_ExtraCost.DataBind();
+
+
+            Page_Setting();
         }
 
         private void Page_Setting()
@@ -126,6 +153,16 @@ namespace BlueLedger.PL.IN.REC
         protected void btn_Save_Click(object sender, EventArgs e)
         {
             Save();
+
+            //if (!string.IsNullOrEmpty(recNo))
+            //{
+            //    RedirectToView(recNo);
+            //}
+            //else
+            //{
+            //    Response.Redirect("RecLst.aspx");
+            //};
+
         }
 
         protected void btn_Commit_Click(object sender, EventArgs e)
@@ -458,7 +495,7 @@ namespace BlueLedger.PL.IN.REC
                 {
                     query = @"
 SELECT 
-	SUM(podt.OrdQty - ISNULL(RcvQty,0)) as Qty
+	ISNULL(SUM(ISNULL(podt.OrdQty,0) - ISNULL(RcvQty,0)), 0) as Qty
 FROM      
 	PC.PODt
     JOIN PC.PO 
@@ -568,35 +605,423 @@ ORDER BY
             ShowHideColumns(gv, false);
         }
 
+        protected void gv_Detail_RowDeleting(object sender, GridViewDeleteEventArgs e)
+        {
+            var gv = sender as GridView;
+            var hf_RecDtNo = gv.Rows[e.RowIndex].FindControl("hf_RecDtNo") as HiddenField;
+            var recDtNo = Convert.ToInt32( hf_RecDtNo.Value);
 
+            var item = dtRecDt.AsEnumerable().FirstOrDefault(x => x.Field<int>("RecDtNo")==recDtNo);
+            if (item != null)
+                item.Delete();
+
+            //gv_Detail.DataSource = dtRecDt;
+            //gv_Detail.DataBind();
+            SetDetails(dtRecDt);
+
+
+        }
+
+        // pop_SessionTimeout
+        protected void btn_SessionTimeout_Ok_Click(object sender, EventArgs e)
+        {
+            pop_SessionTimeout.ShowOnPageLoad = false;
+            Response.Redirect("RecLst.aspx");
+        }
 
 
         #endregion
 
+
+        private string CreateHeader(DataTable dataTable)
+        {
+            DataRow dr = dataTable.Rows[0];
+            var query = @"
+DECLARE @dt AS TABLE( RecNo nvarchar(20) NOT NULL)
+INSERT INTO @dt(RecNo) EXEC [PC].[RecGetNewID] @AtDate=@RecDate
+DECLARE @RecNo nvarchar(20) = (SELECT TOP(1) RecNo FROM @dt)
+
+INSERT INTO PC.REC (RecNo, RecDate, VendorCode, InvoiceNo, InvoiceDate, [Description], PoSource, DeliPoint, CurrencyCode, CurrencyRate, TotalExtraCost, ExtraCostBy, IsCashConsign, DocStatus, ExportStatus, CreatedBy, CreatedDate, UpdatedBy, UpdatedDate)
+OUTPUT Inserted.RecNo
+VALUES (@RecNo, @RecDate, @VendorCode, @InvoiceNo, @InvoiceDate, @Description, @PoSource, @DeliPoint, @CurrencyCode, @CurrencyRate, @TotalExtraCost, @ExtraCostBy, @IsCashConsign, @DocStatus, 0, @Username, GETDATE(), @Username, GETDATE())
+";
+            var parameters = new SqlParameter[]
+            {
+                new SqlParameter("RecDate", dr["RecDate"]),
+                new SqlParameter("VendorCode", dr["VendorCode"].ToString()),
+                new SqlParameter("InvoiceNo", dr["InvoiceNo"].ToString()),
+                new SqlParameter("InvoiceDate", dr["InvoiceDate"]),
+                new SqlParameter("Description", dr["Description"]),
+                new SqlParameter("PoSource", dr["PoSource"]),
+                new SqlParameter("DeliPoint",dr["DeliPoint"]),
+                new SqlParameter("CurrencyCode",dr["CurrencyCode"]),
+                new SqlParameter("CurrencyRate",dr["CurrencyRate"]),
+                new SqlParameter("TotalExtraCost",dr["TotalExtraCost"]),
+                new SqlParameter("ExtraCostBy",dr["ExtraCostBy"]),
+                new SqlParameter("IsCashConsign",dr["IsCashConsign"]),
+                new SqlParameter("DocStatus",dr["DocStatus"]),
+                new SqlParameter("Username", LoginInfo.LoginName)
+            };
+
+            var dt = new Helpers.SQL(hf_ConnStr.Value).ExecuteQuery(query, parameters);
+
+
+            var recNo = dt != null && dt.Rows.Count > 0 ? dt.Rows[0][0].ToString() : "";
+
+            return recNo;
+        }
+
+        private void CreateDetails(string recNo, DataTable dt)
+        {
+            new Helpers.SQL(hf_ConnStr.Value).ExecuteQuery("DELETE FROM PC.RecDt WHERE RecNo=@RecNo", new SqlParameter[] { new SqlParameter("RecNo", recNo) });
+
+            var query = @"
+INSERT INTO PC.RECDt (
+	RecNo, 
+	RecDtNo, 
+	LocationCode, 
+	ProductCode, 
+	UnitCode, 
+	OrderQty, 
+	FOCQty, 
+    RecQty,
+	RcvUnit, 
+	Rate, 
+	Price, 
+	
+	DiscAdj,
+	Discount,
+	TaxAdj,
+	TaxType,
+	TaxRate,
+	CurrDiscAmt,
+	CurrTaxAmt,
+	CurrNetAmt,
+	CurrTotalAmt,
+	DiccountAmt,
+	TaxAmt,
+	NetAmt,
+	TotalAmt,
+
+	ExpiryDate,
+	ExtraCost,
+	PoNo,
+	PoDtNo,
+	ExportStatus,
+	Comment
+)
+VALUES ";
+
+            var values = new StringBuilder();
+            var parameters = new List<SqlParameter>();
+
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                if (dt.Rows[i].RowState == DataRowState.Deleted)
+                    continue;
+
+                var dr = dt.Rows[i];
+                var dtNo = i + 1;
+
+                values.AppendFormat(
+@"(
+	@RecNo, 
+	{0}, 
+	@LocationCode{0}, 
+	@ProductCode{0}, 
+	@UnitCode{0}, 
+	@OrderQty{0}, 
+	@FOCQty{0}, 
+	@RecQty{0}, 
+	@RcvUnit{0}, 
+	@Rate{0}, 
+	@Price{0}, 
+	
+	@DiscAdj{0},
+	@Discount{0},
+	@TaxAdj{0},
+	@TaxType{0},
+	@TaxRate{0},
+	@CurrDiscAmt{0},
+	@CurrTaxAmt{0},
+	@CurrNetAmt{0},
+	@CurrTotalAmt{0},
+	@DiccountAmt{0},
+	@TaxAmt{0},
+	@NetAmt{0},
+	@TotalAmt{0},
+
+	@ExpiryDate{0},
+	@ExtraCost{0},
+	@PoNo{0},
+	@PoDtNo{0},
+	0,
+	@Comment{0}),", dtNo.ToString());
+                parameters.Add(new SqlParameter(string.Format("LocationCode{0}", dtNo), dr["LocationCode"].ToString()));
+                parameters.Add(new SqlParameter(string.Format("ProductCode{0}", dtNo), dr["ProductCode"].ToString()));
+                parameters.Add(new SqlParameter(string.Format("UnitCode{0}", dtNo), dr["UnitCode"].ToString()));
+                parameters.Add(new SqlParameter(string.Format("OrderQty{0}", dtNo), dr["OrderQty"]));
+                parameters.Add(new SqlParameter(string.Format("FOCQty{0}", dtNo), dr["FocQty"]));
+                parameters.Add(new SqlParameter(string.Format("RecQty{0}", dtNo), dr["RecQty"]));
+                parameters.Add(new SqlParameter(string.Format("RcvUnit{0}", dtNo), dr["RcvUnit"]));
+                parameters.Add(new SqlParameter(string.Format("Rate{0}", dtNo), dr["Rate"]));
+                parameters.Add(new SqlParameter(string.Format("Price{0}", dtNo), dr["Price"]));
+                parameters.Add(new SqlParameter(string.Format("DiscAdj{0}", dtNo), dr["DiscAdj"]));
+                parameters.Add(new SqlParameter(string.Format("Discount{0}", dtNo), dr["Discount"]));
+                parameters.Add(new SqlParameter(string.Format("TaxAdj{0}", dtNo), dr["TaxAdj"]));
+                parameters.Add(new SqlParameter(string.Format("TaxType{0}", dtNo), dr["TaxType"].ToString()));
+                parameters.Add(new SqlParameter(string.Format("TaxRate{0}", dtNo), dr["TaxRate"]));
+                parameters.Add(new SqlParameter(string.Format("CurrDiscAmt{0}", dtNo), dr["CurrDiscAmt"]));
+                parameters.Add(new SqlParameter(string.Format("CurrTaxAmt{0}", dtNo), dr["CurrTaxAmt"]));
+                parameters.Add(new SqlParameter(string.Format("CurrNetAmt{0}", dtNo), dr["CurrNetAmt"]));
+                parameters.Add(new SqlParameter(string.Format("CurrTotalAmt{0}", dtNo), dr["CurrTotalAmt"]));
+                parameters.Add(new SqlParameter(string.Format("DiccountAmt{0}", dtNo), dr["DiccountAmt"]));
+                parameters.Add(new SqlParameter(string.Format("TaxAmt{0}", dtNo), dr["TaxAmt"]));
+                parameters.Add(new SqlParameter(string.Format("NetAmt{0}", dtNo), dr["NetAmt"]));
+                parameters.Add(new SqlParameter(string.Format("TotalAmt{0}", dtNo), dr["TotalAmt"]));
+                parameters.Add(new SqlParameter(string.Format("ExpiryDate{0}", dtNo), dr["ExpiryDate"]));
+                parameters.Add(new SqlParameter(string.Format("ExtraCost{0}", dtNo), dr["ExtraCost"]));
+                parameters.Add(new SqlParameter(string.Format("PoNo{0}", dtNo), dr["PoNo"]));
+                parameters.Add(new SqlParameter(string.Format("PoDtNo{0}", dtNo), dr["PoDtNo"]));
+                parameters.Add(new SqlParameter(string.Format("Comment{0}", dtNo), dr["Comment"]));
+
+
+
+            }
+            parameters.Add(new SqlParameter("RecNo", recNo));
+
+            query = query + values.ToString().TrimEnd(',');
+
+            try
+            {
+                var dtResult = new Helpers.SQL(hf_ConnStr.Value).ExecuteQuery(query, parameters.ToArray());
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        private void SaveHeader(DataTable dataTable)
+        {
+            DataRow dr = dataTable.Rows[0];
+            var query = @"
+UPDATE
+    PC.Rec
+SET
+    RecDate=@RecDate,
+    VendorCode=@VendorCode,
+    InvoiceNo=@InvoiceNo,
+    InvoiceDate=@InvoiceDate,
+    [Description]=@Description,
+    DeliPoint=@DeliPoint,
+    CurrencyCode=@CurrencyCode,
+    CurrencyRate=@CurrencyRate,
+    TotalExtraCost=@TotalExtraCost,
+    ExtraCostBy=@ExtraCostBy,
+    IsCashConsign=@IsCashConsign,
+    UpdatedBy=@Username,
+    UpdatedDate=GETDATE()
+WHERE
+    RecNo=@RecNo
+";
+            var parameters = new SqlParameter[]
+            {
+                new SqlParameter("RecNo", dr["RecNo"]),
+                new SqlParameter("RecDate", dr["RecDate"]),
+                new SqlParameter("VendorCode", dr["VendorCode"].ToString()),
+                new SqlParameter("InvoiceNo", dr["InvoiceNo"].ToString()),
+                new SqlParameter("InvoiceDate", dr["InvoiceDate"]),
+                new SqlParameter("Description", dr["Description"]),
+                new SqlParameter("DeliPoint",dr["DeliPoint"]),
+                new SqlParameter("CurrencyCode",dr["CurrencyCode"]),
+                new SqlParameter("CurrencyRate",dr["CurrencyRate"]),
+                new SqlParameter("TotalExtraCost",dr["TotalExtraCost"]),
+                new SqlParameter("ExtraCostBy",dr["ExtraCostBy"]),
+                new SqlParameter("IsCashConsign",dr["IsCashConsign"]),
+                new SqlParameter("Username", LoginInfo.LoginName)
+            };
+
+            new Helpers.SQL(hf_ConnStr.Value).ExecuteQuery(query, parameters);
+        }
+
+      
+        private void UpdatePO(string recNo)
+        {
+            var query = @"
+DECLARE @po AS TABLE(
+	PoNo nvarchar(20) NOT NULL,
+	PoDtNo INT NOT NULL,
+	RecQty decimal(18,3) default 0,
+	FocQty decimal(18,3) default 0,
+
+	PRIMARY KEY (PoNo, PoDtNo)
+)
+
+;WITH
+po AS(
+	SELECT
+		PoNo,
+		PoDtNo,
+		RecQty
+	FROM
+		PC.RECDt
+	WHERE
+		RecNo=@RecNo
+)
+INSERT INTO @po (PoNo, PoDtNo, RecQty, FocQty)
+SELECT
+	recdt.PoNo,
+	recdt.PoDtNo,
+	SUM(recdt.RecQty) as RecQty,
+	SUM(recdt.FocQty) as FocQty
+FROM
+	PC.Rec
+	JOIN PC.RecDt
+		ON recdt.RecNo=rec.RecNo
+	JOIN po
+		ON po.PoNo=recdt.PoNo AND po.PoDtNo=recdt.PoDtNo
+WHERE
+	rec.DocStatus <> 'Voided'
+GROUP BY
+	recdt.PoNo,
+	recdt.PoDtNo
+
+UPDATE 
+	PC.PoDt
+SET
+	RcvQty=po.RecQty
+FROM
+	PC.PoDt
+	JOIN @po po
+		ON po.PoNo=podt.PoNo AND po.PoDtNo=podt.PoDt
+";
+            new Helpers.SQL(hf_ConnStr.Value).ExecuteQuery(query, new SqlParameter[] { new SqlParameter("RecNo", recNo) });
+        }
+
+        private void RestorePO(string recNo)
+        {
+            var query = @"
+DECLARE @po AS TABLE(
+	PoNo nvarchar(20) NOT NULL,
+	PoDtNo INT NOT NULL,
+	RecQty decimal(18,3) default 0,
+
+	PRIMARY KEY (PoNo, PoDtNo)
+)
+
+INSERT INTO @po (PoNo, PoDtNo)
+SELECT
+	PoNo,
+	PoDtNo
+FROM
+	PC.RECDt
+WHERE
+	RecNo=@RecNo
+GROUP BY
+	PoNo,
+	PoDtNo
+
+;WITH
+rc AS(
+	SELECT
+		recdt.PoNo,
+		recdt.PoDtNo,
+		SUM(recdt.RecQty) as RecQty
+	FROM
+		PC.REC
+		JOIN PC.RECDt
+			ON recdt.RecNo=rec.RecNo
+		JOIN @po po
+			ON po.PoNo=recdt.PoNo AND po.PoDtNo=recdt.PoDtNo
+
+	WHERE
+		rec.DocStatus <> 'Voided'
+		AND rec.RecNo <> @RecNo
+	GROUP BY
+		recdt.PoNo,
+		recdt.PoDtNo
+)
+UPDATE
+	@po
+SET
+	RecQty=rc.RecQty
+FROM
+	@po po
+	JOIN rc
+		ON rc.PoNo=po.PoNo AND rc.PoDtNo=po.PoDtNo
+
+UPDATE 
+	PC.PoDt
+SET
+	RcvQty=po.RecQty
+FROM
+	PC.PoDt
+	JOIN @po po
+		ON po.PoNo=podt.PoNo AND po.PoDtNo=podt.PoDt
+";
+            new Helpers.SQL(hf_ConnStr.Value).ExecuteQuery(query, new SqlParameter[] { new SqlParameter("RecNo", recNo) });
+        }
+
         private void Save()
         {
-            var error = ValidateDataBeforeSave();
+            var error = Validate_Data();
 
             if (!string.IsNullOrEmpty(error))
             {
                 ShowAlert(error);
+
                 return;
             }
 
+            var invoiceNo = txt_InvNo.Text.Trim();
 
-            if (_MODE.ToLower() == "edit")
+            // Assign Header's value
+            var drh = dtRec.Rows[0];
+            var recNo = drh["RecNo"].ToString();
+
+            drh["RecNo"] = recNo;
+            drh["RecDate"] = de_RecDate.Date.Date;
+            drh["VendorCode"] = ddl_Vendor.Value.ToString();
+            drh["InvoiceNo"] = invoiceNo;
+            if (string.IsNullOrEmpty(de_InvDate.Text))
+                drh["InvoiceDate"] = DBNull.Value;
+            else
+                drh["InvoiceDate"] = de_InvDate.Date.Date;
+            drh["Description"] = txt_Desc.Text.Trim();
+
+            //drh["PoSource"] = "";
+
+            drh["DeliPoint"] = ddl_DeliPoint.Value.ToString();
+            drh["CurrencyCode"] = ddl_Currency.Value.ToString();
+            drh["CurrencyRate"] = Convert.ToDecimal(se_CurrencyRate.Value);
+
+            drh["TotalExtraCost"] = 0;
+            drh["ExtraCostBy"] = ddl_ExtraCostBy.SelectedValue.ToString();
+
+            drh["IsCashConsign"] = chk_CashConsign.Checked;
+            drh["ExportStatus"] = 0;
+
+            drh["DocStatus"] = DocStatus.Received.ToString();
+
+            drh["UpdatedBy"] = LoginInfo.LoginName;
+            drh["UpdatedDate"] = ServerDateTime;
+
+            // Assign Details's value
+
+            if (string.IsNullOrEmpty(recNo)) // create
             {
-                // Header
-
-
+                recNo = CreateHeader(dtRec);
             }
-            else // create new one
+            else // edit
             {
+                RestorePO(recNo);
             }
 
+            CreateDetails(recNo, dtRecDt);
+            UpdatePO(recNo);
 
-            
-
+            RedirectToView(recNo);
         }
 
         private void Commit()
@@ -636,6 +1061,18 @@ ORDER BY
 
         // ----------------------------------
 
+        private void RedirectToView(string recNo)
+        {
+            Response.Redirect(string.Format("Rec.aspx?BuCode={0}&ID={1}&VID={2}", _BuCode, recNo, _VID));
+        }
+
+        private void RedirectToList()
+        {
+            Response.Redirect(string.Format("RecLst.aspx"));
+        }
+
+
+        // ---------------------------------
         private void SetNew()
         {
             var sql = new Helpers.SQL(hf_ConnStr.Value);
@@ -645,16 +1082,15 @@ ORDER BY
 
             dtRec.NewRow();
 
-
         }
 
         private void SetEdit(string id)
         {
-            var query = new Helpers.SQL(hf_ConnStr.Value);
+            var sql = new Helpers.SQL(hf_ConnStr.Value);
 
-            dtRec = query.ExecuteQuery("SELECT * FROM PC.Rec WHERE RecNo=@id", new SqlParameter[] { new SqlParameter("id", id) });
+            dtRec = sql.ExecuteQuery("SELECT * FROM PC.Rec WHERE RecNo=@id", new SqlParameter[] { new SqlParameter("id", id) });
 
-            var sql = @"
+            var query = @"
 SELECT 
 	d.*,
 	l.LocationName,
@@ -675,7 +1111,9 @@ WHERE
 ORDER BY 
 	RecDtNo";
 
-            dtRecDt = query.ExecuteQuery(sql, new SqlParameter[] { new SqlParameter("id", id) });
+            dtRecDt = sql.ExecuteQuery(query, new SqlParameter[] { new SqlParameter("id", id) });
+
+
         }
 
         private void SetFromPO()
@@ -686,6 +1124,10 @@ ORDER BY
             dtPo = dsPo.Tables["PoDt"].Copy();
             dtRec = dsPo.Tables["REC"].Copy();
             dtRecDt = dsPo.Tables["RECDt"].Copy();
+
+
+            // Set RecNo = "";
+            dtRec.Rows[0]["RecNo"] = "";
 
             // Add some fields to dtRecDt
             // LocationName
@@ -764,6 +1206,8 @@ ORDER BY
                     dr["InventoryUnit"] = dt.Rows[0]["InventoryUnit"].ToString();
                 }
             }
+
+
         }
 
 
@@ -791,8 +1235,10 @@ ORDER BY
             txt_Desc.Text = dr["Description"].ToString();
 
             se_TotalExtraCost.Value = dr["TotalExtraCost"] == DBNull.Value ? 0m : Convert.ToDecimal(dr["TotalExtraCost"]);
-            rdb_ExtraCostByAmt.Checked = true;
-            rdb_ExtraCostByQty.Checked = true;
+            var extraCostBy = dr["ExtraCostBy"] == DBNull.Value ? "Q" : dr["ExtraCostBy"].ToString();
+            //rdb_ExtraCostByAmt.Checked = extraCostBy.ToUpper() == "Q";
+            //rdb_ExtraCostByQty.Checked = extraCostBy.ToUpper() == "A";
+            ddl_ExtraCostBy.SelectedValue = extraCostBy;
 
             lbl_PoSource.Text = string.IsNullOrEmpty(dr["PoSource"].ToString()) ? "Manually created" : "by Purchase Order";
 
@@ -800,10 +1246,11 @@ ORDER BY
 
         private void SetDetails(DataTable dt)
         {
+            dtRecDt.AcceptChanges();
+
             gv_Detail.DataSource = dtRecDt;
             gv_Detail.DataBind();
-
-
+            SetGrandTotal();
         }
 
         private void ShowHideColumns(GridView gv, bool isEdit)
@@ -857,7 +1304,6 @@ ORDER BY
             gv_Detail.DataBind();
         }
 
-
         private void SetGrandTotal()
         {
             var currDiscAmt = dtRecDt.AsEnumerable().Select(x => x.Field<decimal>("CurrDiscAmt")).Sum();
@@ -900,17 +1346,117 @@ ORDER BY
             ddl_Currency.Items.AddRange(items);
         }
 
+        private string CheckDuplicateInvocieNo(string recNo, string vendorCode, string invoiceNo)
+        {
+            var query = "SELECT TOP(1) RecNo FROM PC.REC WHERE VendorCode=@VendorCode AND InvoiceNo=@InvoiceNo AND  CASE WHEN ISNULL(RecNo,'')='' THEN '' ELSE RecNo END  <> @RecNo";
+            var parameters = new SqlParameter[]
+            {
+                new SqlParameter("VendorCode", vendorCode),
+                new SqlParameter("InvoiceNo", invoiceNo),
+                new SqlParameter("RecNo",recNo)
+            };
 
-        private string ValidateDataBeforeSave()
+            var dt = new Helpers.SQL(hf_ConnStr.Value).ExecuteQuery(query, parameters);
+
+            if (dt != null && dt.Rows.Count > 0)
+                return dt.Rows[0][0].ToString();
+            else
+                return string.Empty;
+        }
+
+        private DateTime GetClosedPeriod()
+        {
+            var query = "SELECT TOP(1) EndDate FROM [IN].[Period] WHERE IsClose=1 ORDER BY EndDate DESC";
+            var dt = new Helpers.SQL(hf_ConnStr.Value).ExecuteQuery(query);
+
+            if (dt != null && dt.Rows.Count > 0)
+                return Convert.ToDateTime(dt.Rows[0][0]);
+            else
+            {
+                return new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddDays(-1);
+            }
+        }
+
+        private Deviation GetDeviation(string productCode)
+        {
+            var result = new Deviation
+            {
+                Price = 0,
+                Qty = 0
+            };
+
+            var query = "SELECT ISNULL(PriceDeviation,0) Price, ISNULL(QuantityDeviation,0) Qty FROM [IN].[Product] WHERE ProductCode=@ProductCode";
+            var dt = new Helpers.SQL(hf_ConnStr.Value).ExecuteQuery(query);
+
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                var dr = dt.Rows[0];
+
+                result.Qty = Convert.ToDecimal(dr["Qty"]);
+                result.Price = Convert.ToDecimal(dr["Price"]);
+            }
+
+
+            return result;
+        }
+
+        private string Validate_Data()
         {
             var message = "";
+            var recNo = dtRec != null && dtRec.Rows.Count > 0 ? dtRec.Rows[0]["RecNo"].ToString() : "";
 
+
+            // Header
+            // Required fields
+            
+            // Vendor
+            if (ddl_Vendor.Value == null)
+            {
+                return "Vendor is required.";
+            }
+
+            // DeliveryPoint
+            if (ddl_DeliPoint.Value == null)
+            {
+                return "Delivery point is required.";
+            }
+
+            // Currency
+            if (ddl_Currency.Value == null)
+            {
+                return "Currency is required.";
+            }
+            // Currency rate
             if ((decimal)se_CurrencyRate.Value <= 0m)
             {
                 return "Invalid currency rate.";
             }
 
+            // -------------------------------------------------------------
+            var closedPeriod = GetClosedPeriod();
+            var recDate = de_RecDate.Date.Date;
+            var vendorCode = ddl_Vendor.Value.ToString();
+            var invoiceNo = txt_InvNo.Text.Trim();
 
+            // Document date
+            if (recDate <= closedPeriod)
+            {
+                return string.Format("Document date must not be during the closed period.", FormatDate(closedPeriod));
+            }
+
+            // Invoice no
+            var docNo = CheckDuplicateInvocieNo(recNo, vendorCode, invoiceNo);
+            if (!string.IsNullOrEmpty(docNo))
+            {
+                return string.Format("Duplicate invocie no, it was used on '{0}'.", docNo);
+            }
+
+
+            // Details
+            if (dtRecDt.Rows.Count == 0)
+            {
+                return "Please add any item.";
+            }
 
             return message;
         }
@@ -1071,6 +1617,13 @@ ORDER BY
 
         #endregion
 
+        #region -- Model --
+        enum ItemAction
+        {
+            CREATE,
+            UPDATE,
+            DELETE
+        }
         public class DefaultValues
         {
             public string Currency { get; set; }
@@ -1079,6 +1632,20 @@ ORDER BY
             public decimal TaxRate { get; set; }
         }
 
+        public class Deviation
+        {
+            public Deviation()
+            {
+                Price = 0m;
+                Qty = 0m;
+            }
+
+            public decimal Price { get; set; }
+            public decimal Qty { get; set; }
+        }
+
+
+        #endregion
     }
 
 }

@@ -49,6 +49,7 @@ namespace Blue.BL.dbo
             2024-12-31 = surestaytheiconic = 4+7=11
             2024-12-31 = celessamui = 25
             2024-12-31 = thenappathong = 8
+            2024-12-31 = thekaset = 10
 
             2024-11-30 = wyndhamgardennaithon = 21
             2024-11-30 = skyviewresortphuket = 11
@@ -72,15 +73,14 @@ namespace Blue.BL.dbo
             2024-08-31 = Diamond Cottage = 15+5=20
 
          
+
+
+          
+            --------- Expired -------------
             2024-07-31 = Nexen = 20
             2024-07-31 = Public House = 6
             2024-07-31 = rxvwellness = 35
 
-
-          
-            
-
-            --------- Expired -------------
             2024-05-31 = tribehotels = 8 *ย้ายไปรวมกับ siamese
 
             2024-03-31 = homa = 24
@@ -93,7 +93,7 @@ namespace Blue.BL.dbo
         
         */
         private DateTime licenseExpiredDate = new DateTime(2024, 12, 31);
-        private int licenseActiveUser = 80;
+        private int licenseActiveUser = 110;
 
         public User()
         {

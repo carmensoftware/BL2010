@@ -74,8 +74,7 @@
                     </td>
                     <td colspan="2" style="width: 20%;">
                     </td>
-                    <%--<td style="width: 160px;">
-            </td>--%>
+                    <%--<td style="width: 160px;"></td>--%>
                     <td style="width: 7%;">
                         <asp:Label ID="lbl_Receiver_Nm" runat="server" Text="<%$ Resources:PC_REC_Rec, lbl_Receiver_Nm %>" SkinID="LBL_HD"></asp:Label>
                     </td>
@@ -142,7 +141,7 @@
                         <asp:Label ID="lbl_CashConsign_Nm" runat="server" AssociatedControlID="chk_CashConsign" Text="<%$ Resources:PC_REC_RecEdit, lbl_DeliPoing_Nm0 %>" SkinID="LBL_HD"></asp:Label>
                     </td>
                     <td>
-                        <asp:CheckBox ID="chk_CashConsign" runat="server" SkinID="CHK_V1" Font-Size="Large" />
+                        <asp:CheckBox ID="chk_CashConsign" runat="server" SkinID="CHK_V1" Font-Size="Large" Font-Italic="true" ToolTip="When selected, this document will not be posted to AP" />
                     </td>
                     <td>
                     </td>
@@ -176,17 +175,28 @@
                             DecimalPlaces="2" ReadOnly="true" />
                     </td>
                     <td>
-                        <asp:Button ID="btn_AllocateExtraCost" runat="server" Text="Allocate" OnClick="btn_AllocateExtraCost_Click" />
+                        <asp:DropDownList runat="server" ID="ddl_ExtraCostBy" Width="100">
+                            <asp:ListItem Value="Q" Text="Quantity" />
+                            <asp:ListItem Value="A" Text="Amount" />
+                        </asp:DropDownList>
                     </td>
                     <td>
-                        <asp:RadioButton ID="rdb_ExtraCostByQty" runat="server" Text="Quantity" GroupName="Group_ExtraCost" />
-                        <asp:RadioButton ID="rdb_ExtraCostByAmt" runat="server" Text="Amount" GroupName="Group_ExtraCost" />
+                        <asp:Button ID="btn_AllocateExtraCost" runat="server" Text="Calculate extra costs" OnClick="btn_AllocateExtraCost_Click" />
                     </td>
                     <td colspan="6">
+                        <asp:Button runat="server" ID="btn_AddExtraCost" Text="+" />
                         <asp:Button ID="btn_ExtraCostDetail" runat="server" Text="Detail" Width="100px" OnClick="btn_ExtraCostDetail_Click" />
                     </td>
                 </tr>
             </table>
+            <div class="mb-10">
+                <asp:GridView ID="gv_ExtraCost" runat="server" Width="100%" AutoGenerateColumns="false">
+                    <Columns>
+                        <asp:BoundField DataField="TypeName" />
+                        <asp:BoundField DataField="Amount" ItemStyle-HorizontalAlign="Right" DataFormatString="{0:n}" />
+                    </Columns>
+                </asp:GridView>
+            </div>
             <!-- Add Item(s) -->
             <div class="flex flex-justify-content-end mb-10" style="background-color: #f5f5f5; padding: 10px;">
                 <div>
@@ -195,7 +205,7 @@
             </div>
             <!-- Details -->
             <asp:GridView ID="gv_Detail" runat="server" Width="100%" SkinID="GRD_V1" AutoGenerateColumns="false" EmptyDataText="No Data" OnRowDataBound="gv_Detail_RowDataBound"
-                OnRowEditing="gv_Detail_RowEditing" OnRowCancelingEdit="gv_Detail_RowCancelingEdit">
+                OnRowEditing="gv_Detail_RowEditing" OnRowCancelingEdit="gv_Detail_RowCancelingEdit" OnRowDeleting="gv_Detail_RowDeleting">
                 <HeaderStyle HorizontalAlign="Left" Height="24" />
                 <RowStyle HorizontalAlign="Left" Height="30" />
                 <Columns>
@@ -204,6 +214,7 @@
                         <ItemStyle Width="17px" VerticalAlign="Middle" />
                         <ItemTemplate>
                             <asp:ImageButton ID="Img_Btn" runat="server" ImageUrl="~/App_Themes/Default/Images/master/in/Default/Plus.jpg" OnClientClick="expandDetailsInGrid(this);return false;" />
+                            <asp:HiddenField runat="server" ID="hf_RecDtNo" Value='<%# Eval("RecDtNo") %>' />
                         </ItemTemplate>
                         <EditItemTemplate>
                             <asp:ImageButton ID="Img_Btn" runat="server" ImageUrl="~/App_Themes/Default/Images/master/in/Default/Plus.jpg" OnClientClick="expandDetailsInGrid(this);return false;" />
@@ -746,6 +757,20 @@
                     </dx:PopupControlContentControl>
                 </ContentCollection>
             </dx:ASPxPopupControl>
+            <dx:ASPxPopupControl ID="pop_SessionTimeout" runat="server" Width="360" HeaderText="<%$ Resources:PC_REC_RecEdit, Warning %>" Modal="True" ShowCloseButton="true"
+                CloseAction="CloseButton" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowPageScrollbarWhenModal="True">
+                <HeaderStyle BackColor="#ffffcc" />
+                <ContentCollection>
+                    <dx:PopupControlContentControl ID="PopupControlContentControl1" runat="server">
+                        <div class="flex flex-justify-content-center mt-20 mb-20 width-100">
+                            <asp:Label ID="Label27" runat="server" SkinID="LBL_NR" Text="Session is timeout." />
+                        </div>
+                        <div class="flex flex-justify-content-center mt-20 width-100">
+                            <asp:Button runat="server" ID="btn_SessionTimeout_Ok" Width="100" Text="Ok" OnClick="btn_SessionTimeout_Ok_Click" />
+                        </div>
+                    </dx:PopupControlContentControl>
+                </ContentCollection>
+            </dx:ASPxPopupControl>
         </ContentTemplate>
         <Triggers>
             <%--<asp:PostBackTrigger ControlID="btn_Save" />
@@ -754,6 +779,7 @@
         </Triggers>
     </asp:UpdatePanel>
     <script type="text/javascript">
+
         function expandDetailsInGrid(_this) {
             var id = _this.id;
             var imgelem = document.getElementById(_this.id);
