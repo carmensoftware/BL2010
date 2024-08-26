@@ -186,6 +186,7 @@ namespace BlueLedger.PL.PC
             //period.
             sql = string.Format(sql, endPeriodDate.ToString("yyyy-MM-dd"));
 
+            
             return period.DbExecuteQuery(@sql, null, LoginInfo.ConnStr);
 
         }

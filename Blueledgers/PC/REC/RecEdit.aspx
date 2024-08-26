@@ -25,6 +25,7 @@
     </style>
     <!-- Hidden Field(s) -->
     <asp:HiddenField ID="hf_ConnStr" runat="server" />
+    <asp:HiddenField runat="server" ID="hf_PoSource" />
     <asp:UpdatePanel runat="server" ID="UpdatePanel">
         <ContentTemplate>
             <!-- Title / Action buttons -->
@@ -205,7 +206,7 @@
             </div>
             <!-- Details -->
             <asp:GridView ID="gv_Detail" runat="server" Width="100%" SkinID="GRD_V1" AutoGenerateColumns="false" EmptyDataText="No Data" OnRowDataBound="gv_Detail_RowDataBound"
-                OnRowEditing="gv_Detail_RowEditing" OnRowCancelingEdit="gv_Detail_RowCancelingEdit" OnRowDeleting="gv_Detail_RowDeleting">
+                OnRowEditing="gv_Detail_RowEditing" OnRowCancelingEdit="gv_Detail_RowCancelingEdit" OnRowUpdating="gv_Detail_RowUpdating" OnRowDeleting="gv_Detail_RowDeleting">
                 <HeaderStyle HorizontalAlign="Left" Height="24" />
                 <RowStyle HorizontalAlign="Left" Height="30" />
                 <Columns>
@@ -226,13 +227,13 @@
                             <asp:Label runat="server" ID="lbl_Location" />
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <% if (_MODE.ToLower() == "fpo")
+                            <% if (!string.IsNullOrEmpty(hf_PoSource.Value))
                                { %>
                             <asp:Label runat="server" ID="lbl_Location" />
                             <% }
                                else
                                { %>
-                            <dx:ASPxComboBox ID="ddl_Location" runat="server" Width="90%" IncrementalFilteringMode="Contains" />
+                            <dx:ASPxComboBox ID="ddl_Location" runat="server" AutoPostBack="true" Width="90%" IncrementalFilteringMode="Contains" OnSelectedIndexChanged="ddl_Location_SelectedIndexChanged" />
                             <%} %>
                         </EditItemTemplate>
                     </asp:TemplateField>
@@ -242,7 +243,8 @@
                             <asp:Label runat="server" ID="lbl_Product" />
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <% if (_MODE.ToLower() == "fpo")
+                            <asp:HiddenField runat="server" ID="hf_ProductCode" />
+                            <% if (!string.IsNullOrEmpty(hf_PoSource.Value))
                                { %>
                             <asp:Label runat="server" ID="lbl_Product" />
                             <% }
@@ -269,6 +271,7 @@
                             <asp:Label runat="server" ID="lbl_OrdQty" />
                         </ItemTemplate>
                         <EditItemTemplate>
+                            <asp:HiddenField runat="server" ID="hf_OrdQty" />
                             <asp:Label runat="server" ID="lbl_OrdQty" />
                         </EditItemTemplate>
                     </asp:TemplateField>
@@ -280,7 +283,9 @@
                             <asp:Label runat="server" ID="lbl_RecQty" />
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <dx:ASPxSpinEdit runat="server" ID="se_RecQty" Width="60" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right" />
+                            <asp:HiddenField runat="server" ID="hf_RecQty" />
+                            <dx:ASPxSpinEdit runat="server" ID="se_RecQty" AutoPostBack="true" Width="60" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right"
+                                OnNumberChanged="se_RecQty_NumberChanged" />
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%--FOC--%>
@@ -302,7 +307,9 @@
                             <asp:Label runat="server" ID="lbl_Price" />
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <dx:ASPxSpinEdit runat="server" ID="se_Price" Width="60" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right" />
+                            <asp:HiddenField runat="server" ID="hf_Price" />
+                            <dx:ASPxSpinEdit runat="server" ID="se_Price" AutoPostBack="true" Width="60" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right"
+                                OnNumberChanged="se_Price_NumberChanged" />
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%--Curr Discount--%>
@@ -313,6 +320,7 @@
                             <asp:Label runat="server" ID="lbl_CurrDiscAmt" />
                         </ItemTemplate>
                         <EditItemTemplate>
+                            <asp:Label runat="server" ID="lbl_CurrDiscAmt" />
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%--Curr Net--%>
@@ -323,6 +331,7 @@
                             <asp:Label runat="server" ID="lbl_CurrNetAmt" />
                         </ItemTemplate>
                         <EditItemTemplate>
+                            <asp:Label runat="server" ID="lbl_CurrNetAmt" />
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%--Curr Tax--%>
@@ -333,6 +342,7 @@
                             <asp:Label runat="server" ID="lbl_CurrTaxAmt" />
                         </ItemTemplate>
                         <EditItemTemplate>
+                            <asp:Label runat="server" ID="lbl_CurrTaxAmt" />
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%--Extra Cost--%>
@@ -354,6 +364,7 @@
                             <asp:Label runat="server" ID="lbl_CurrTotalAmt" />
                         </ItemTemplate>
                         <EditItemTemplate>
+                            <asp:Label runat="server" ID="lbl_CurrTotalAmt" />
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%--Total Base--%>
@@ -364,6 +375,7 @@
                             <asp:Label runat="server" ID="lbl_TotalAmt" />
                         </ItemTemplate>
                         <EditItemTemplate>
+                            <asp:Label runat="server" ID="lbl_TotalAmt" />
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%--Expiry Date--%>
@@ -403,24 +415,9 @@
                                         <tr>
                                             <%--<td></td>--%>
                                             <td>
-                                            </td>
-                                            <!-- Net -->
-                                            <td style="text-align: right">
-                                                <asp:Label ID="Label7" runat="server" SkinID="LBL_HD_GRD" Text="Net" />
-                                            </td>
-                                            <td style="text-align: right">
-                                                <asp:Label ID="Label8" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("CurrNetAmt")) %></asp:Label>
-                                            </td>
-                                            <td style="text-align: right">
-                                                <asp:Label ID="Label9" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("NetAmt")) %></asp:Label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <%--<td></td>--%>
-                                            <td>
+                                                <asp:CheckBox ID="chk_AdjDisc" runat="server" Checked='<%# Eval("DiscAdj").ToString()=="1" %>' Text='Adjust' Enabled="false" />
                                                 <asp:Label ID="Label13" runat="server" SkinID="LBL_HD_GRD" Text="Discount % : " />
                                                 <asp:Label ID="Label14" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("Discount")) %></asp:Label>
-                                                <asp:CheckBox ID="CheckBox1" runat="server" Checked='<%# Eval("DiscAdj").ToString()=="1" %>' Text='Adjustment' Enabled="false" />
                                             </td>
                                             <!-- Discount -->
                                             <td style="text-align: right">
@@ -436,10 +433,25 @@
                                         <tr>
                                             <%--<td></td>--%>
                                             <td>
+                                            </td>
+                                            <!-- Net -->
+                                            <td style="text-align: right">
+                                                <asp:Label ID="Label7" runat="server" SkinID="LBL_HD_GRD" Text="Net" />
+                                            </td>
+                                            <td style="text-align: right">
+                                                <asp:Label ID="Label8" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("CurrNetAmt")) %></asp:Label>
+                                            </td>
+                                            <td style="text-align: right">
+                                                <asp:Label ID="Label9" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("NetAmt")) %></asp:Label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <%--<td></td>--%>
+                                            <td>
+                                                <asp:CheckBox ID="chk_AdjTax" runat="server" Checked='<%# Eval("TaxAdj").ToString()=="1" %>' Text='Adjust' Enabled="false" />
                                                 <asp:Label ID="Label18" runat="server" SkinID="LBL_HD_GRD" Text="Tax : " />
                                                 <asp:Label ID="Label19" runat="server" SkinID="LBL_NR_1"><%# Eval("TaxTypeName") %></asp:Label>
                                                 <asp:Label ID="Label20" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("TaxRate")) %></asp:Label>
-                                                <asp:CheckBox ID="CheckBox2" runat="server" Checked='<%# Eval("TaxAdj").ToString()=="1" %>' Text='Adjustment' Enabled="false" />
                                             </td>
                                             <!-- Tax -->
                                             <td style="text-align: right">
@@ -464,7 +476,7 @@
                                                 <asp:Label ID="Label25" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("CurrTotalAmt")) %></asp:Label>
                                             </td>
                                             <td style="text-align: right; border-top: 1px solid;">
-                                                <asp:Label ID="Label26" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("TotalAmt"))%></asp:Label>
+                                                <asp:Label ID="label26" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("TotalAmt"))%></asp:Label>
                                             </td>
                                         </tr>
                                     </table>
@@ -547,26 +559,15 @@
                                             <tr>
                                                 <td>
                                                 </td>
-                                                <td>
-                                                </td>
-                                                <!-- Net -->
-                                                <td style="text-align: right">
-                                                    <asp:Label ID="Label7" runat="server" SkinID="LBL_HD_GRD" Text="Net" />
-                                                </td>
-                                                <td style="text-align: right">
-                                                    <asp:Label ID="Label12" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("NetAmt")) %></asp:Label>
-                                                </td>
-                                                <td style="text-align: right">
-                                                    <asp:Label ID="Label9" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("NetAmt")) %></asp:Label>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                </td>
-                                                <td>
-                                                    <asp:Label ID="Label13" runat="server" SkinID="LBL_HD_GRD" Text="Discount % : " />
-                                                    <asp:Label ID="Label14" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("Discount")) %></asp:Label>
-                                                    <asp:CheckBox ID="CheckBox1" runat="server" Checked='<%# Eval("DiscAdj").ToString()=="1" %>' Text='Adjustment' Enabled="false" />
+                                                <td class="flex flex-align-items-baseline">
+                                                    <asp:HiddenField runat="server" ID="hf_DiscAdj" />
+                                                    <asp:HiddenField runat="server" ID="hf_Discount" />
+                                                    <asp:CheckBox ID="chk_AdjDisc" runat="server" AutoPostBack="true" Checked='<%# Eval("DiscAdj").ToString()=="1" %>' Text='Adjust' OnCheckedChanged="chk_AdjDisc_CheckedChanged" />
+                                                    &nbsp;&nbsp;&nbsp;&nbsp;
+                                                    <asp:Label ID="Label13" runat="server" SkinID="LBL_HD_GRD" Text="Discount (%) : " />
+                                                    &nbsp;&nbsp;
+                                                    <dx:ASPxSpinEdit runat="server" ID="se_DiscRate" AutoPostBack="true" Width="40" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right"
+                                                        Enabled='<%# Eval("DiscAdj")=="1" %>' Number='<%# Eval("Discount") %>' OnNumberChanged="se_DiscRate_NumberChanged" />
                                                 </td>
                                                 <!-- Discount -->
                                                 <td style="text-align: right">
@@ -583,10 +584,39 @@
                                                 <td>
                                                 </td>
                                                 <td>
+                                                </td>
+                                                <!-- Net -->
+                                                <td style="text-align: right">
+                                                    <asp:Label ID="Label7" runat="server" SkinID="LBL_HD_GRD" Text="Net" />
+                                                </td>
+                                                <td style="text-align: right">
+                                                    <asp:Label ID="lbl_CurrNetAmt_Dt" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("NetAmt")) %></asp:Label>
+                                                </td>
+                                                <td style="text-align: right">
+                                                    <asp:Label ID="lbl_NetAmt_Dt" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("NetAmt")) %></asp:Label>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                </td>
+                                                <td class="flex flex-align-items-baseline">
+                                                    <asp:HiddenField runat="server" ID="hf_TaxAdj" />
+                                                    <asp:HiddenField runat="server" ID="hf_TaxType" />
+                                                    <asp:HiddenField runat="server" ID="hf_TaxRate" />
+                                                    <asp:CheckBox ID="chk_AdjTax" runat="server" AutoPostBack="true" Checked='<%# Eval("TaxAdj").ToString()=="1" %>' Text='Adjust' OnCheckedChanged="chk_AdjTax_CheckedChanged" />
+                                                    &nbsp;&nbsp;&nbsp;&nbsp;
                                                     <asp:Label ID="Label18" runat="server" SkinID="LBL_HD_GRD" Text="Tax : " />
-                                                    <asp:Label ID="Label19" runat="server" SkinID="LBL_NR_1"><%# Eval("TaxTypeName") %></asp:Label>
-                                                    <asp:Label ID="Label20" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("TaxRate")) %></asp:Label>
-                                                    <asp:CheckBox ID="CheckBox2" runat="server" Checked='<%# Eval("TaxAdj").ToString()=="1" %>' Text='Adjustment' Enabled="false" />
+                                                    &nbsp;
+                                                    <asp:DropDownList runat="server" ID="ddl_TaxType" AutoPostBack="true" OnSelectedIndexChanged="ddl_TaxType_SelectedIndexChanged" Enabled='<%# Eval("TaxAdj")=="1" %>'>
+                                                        <asp:ListItem Value="N" Text="None" />
+                                                        <asp:ListItem Value="A" Text="Add" />
+                                                        <asp:ListItem Value="I" Text="Include" />
+                                                    </asp:DropDownList>
+                                                    &nbsp;
+                                                    <asp:Label ID="Label28" runat="server" SkinID="LBL_HD_GRD" Text="Rate : " />
+                                                    &nbsp;
+                                                    <dx:ASPxSpinEdit runat="server" ID="se_TaxRate" AutoPostBack="true" Width="40" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right"
+                                                        Enabled='<%# Eval("TaxAdj")=="1" %>' Number='<%# Eval("TaxRate") %>' OnNumberChanged="se_TaxRate_NumberChanged" />
                                                 </td>
                                                 <!-- Tax -->
                                                 <td style="text-align: right">
@@ -596,7 +626,7 @@
                                                     <dx:ASPxSpinEdit runat="server" ID="se_CurrTaxAmt" Width="100%" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right" />
                                                 </td>
                                                 <td style="text-align: right">
-                                                    <asp:Label ID="Label23" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("TaxAmt"))%></asp:Label>
+                                                    <asp:Label ID="lbl_TaxAmt_Dt" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("TaxAmt"))%></asp:Label>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -609,10 +639,10 @@
                                                     <asp:Label ID="Label24" runat="server" SkinID="LBL_HD_GRD" Text="Total" />
                                                 </td>
                                                 <td style="text-align: right; border-top: 1px solid;">
-                                                    <asp:Label ID="Label25" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("CurrTotalAmt")) %></asp:Label>
+                                                    <asp:Label ID="lbl_CurrTotalAmt_Dt" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("CurrTotalAmt")) %></asp:Label>
                                                 </td>
                                                 <td style="text-align: right; border-top: 1px solid;">
-                                                    <asp:Label ID="Label26" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("TotalAmt"))%></asp:Label>
+                                                    <asp:Label ID="lbl_TotalAmt_Dt" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("TotalAmt"))%></asp:Label>
                                                 </td>
                                             </tr>
                                         </table>

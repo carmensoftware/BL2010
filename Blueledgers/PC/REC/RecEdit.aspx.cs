@@ -114,6 +114,10 @@ namespace BlueLedger.PL.IN.REC
                     break;
                 case "edit":
                     SetEdit(_ID);
+
+                    //de_RecDate.Enabled = false;
+                    ddl_Vendor.Enabled = false;
+
                     break;
                 case "fpo":
                     if (Session["dsPo"] == null)
@@ -128,11 +132,12 @@ namespace BlueLedger.PL.IN.REC
                     ddl_Vendor.Enabled = false;
                     ddl_Currency.Enabled = false;
 
+
                     break;
             }
 
-            SetHeader(dtRec);
-            SetDetails(dtRecDt);
+            BindHeader(dtRec);
+            BindDetails();
 
             var recNo = dtRec.Rows[0]["RecNo"].ToString();
 
@@ -311,8 +316,15 @@ namespace BlueLedger.PL.IN.REC
 
                     ddl.Items.Clear();
                     ddl.Items.AddRange(GetProductsOnLocation(locationCode, code).ToArray());
+
                 }
 
+                if (e.Row.FindControl("hf_ProductCode") != null)
+                {
+                    var hf = e.Row.FindControl("hf_ProductCode") as HiddenField;
+
+                    hf.Value = DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString();
+                }
 
                 // Order Unit
                 if (e.Row.FindControl("lbl_OrdUnit") != null)
@@ -328,8 +340,15 @@ namespace BlueLedger.PL.IN.REC
                     var label = e.Row.FindControl("lbl_OrdQty") as Label;
 
                     label.Text = FormatQty(DataBinder.Eval(e.Row.DataItem, "OrderQty"));
+
                 }
 
+                if (e.Row.FindControl("hf_OrdQty") != null)
+                {
+                    var hf = e.Row.FindControl("hf_OrdQty") as HiddenField;
+
+                    hf.Value = DataBinder.Eval(e.Row.DataItem, "OrderQty").ToString();
+                }
 
                 // Receive
                 if (e.Row.FindControl("lbl_RecQty") != null)
@@ -345,6 +364,13 @@ namespace BlueLedger.PL.IN.REC
 
                     se.Value = Convert.ToDecimal(DataBinder.Eval(e.Row.DataItem, "RecQty"));
                     se.DecimalPlaces = _default.DigitQty;
+                }
+
+                if (e.Row.FindControl("hf_RecQty") != null)
+                {
+                    var hf = e.Row.FindControl("hf_RecQty") as HiddenField;
+
+                    hf.Value = DataBinder.Eval(e.Row.DataItem, "RecQty").ToString();
                 }
 
                 // Foc
@@ -377,7 +403,16 @@ namespace BlueLedger.PL.IN.REC
 
                     se.Value = Convert.ToDecimal(DataBinder.Eval(e.Row.DataItem, "Price"));
                     se.DecimalPlaces = _default.DigitAmt;
+
                 }
+
+                if (e.Row.FindControl("hf_Price") != null)
+                {
+                    var hf = e.Row.FindControl("hf_Price") as HiddenField;
+
+                    hf.Value = DataBinder.Eval(e.Row.DataItem, "Price").ToString();
+                }
+
 
                 // Discount
                 if (e.Row.FindControl("lbl_CurrDiscAmt") != null)
@@ -454,6 +489,77 @@ namespace BlueLedger.PL.IN.REC
 
                     label.Text = text;
                 }
+
+                //if (e.Row.FindControl("chk_AdjDisc") != null)
+                //{
+                //    var chk = e.Row.FindControl("chk_AdjDisc") as CheckBox;
+                //    var value = Convert.ToBoolean(DataBinder.Eval(dataItem, "DiscAdj"));
+
+                //    chk.Checked = value;
+                //}
+
+                if (e.Row.FindControl("hf_DiscAdj") != null)
+                {
+                    var hf = e.Row.FindControl("hf_DiscAdj") as HiddenField;
+
+                    hf.Value = DataBinder.Eval(e.Row.DataItem, "DiscAdj").ToString();
+                }
+
+                if (e.Row.FindControl("hf_Discount") != null)
+                {
+                    var hf = e.Row.FindControl("hf_Discount") as HiddenField;
+
+                    hf.Value = DataBinder.Eval(e.Row.DataItem, "Discount").ToString();
+                }
+                if (e.Row.FindControl("hf_TaxAdj") != null)
+                {
+                    var hf = e.Row.FindControl("hf_TaxAdj") as HiddenField;
+
+                    hf.Value = DataBinder.Eval(e.Row.DataItem, "TaxAdj").ToString();
+                }
+
+
+                if (e.Row.FindControl("ddl_TaxType") != null)
+                {
+                    var ddl = e.Row.FindControl("ddl_TaxType") as DropDownList;
+                    var value = DataBinder.Eval(dataItem, "TaxType").ToString();
+
+                    ddl.SelectedValue = value;
+
+
+                }
+
+                if (e.Row.FindControl("hf_TaxType") != null)
+                {
+                    var hf = e.Row.FindControl("hf_TaxType") as HiddenField;
+
+                    hf.Value = DataBinder.Eval(e.Row.DataItem, "TaxType").ToString();
+                }
+
+                if (e.Row.FindControl("hf_TaxRate") != null)
+                {
+                    var hf = e.Row.FindControl("hf_TaxRate") as HiddenField;
+
+                    hf.Value = DataBinder.Eval(e.Row.DataItem, "TaxRate").ToString();
+                }
+
+                if (e.Row.FindControl("") != null)
+                {
+                    var lbl = e.Row.FindControl("") as Label;
+                }
+
+
+                if (e.Row.FindControl("") != null)
+                {
+                }
+                if (e.Row.FindControl("") != null)
+                {
+                }
+                if (e.Row.FindControl("") != null)
+                {
+                }
+
+
                 #endregion
 
                 #region --Additional Information--
@@ -577,47 +683,375 @@ ORDER BY
             }
         }
 
-        protected void gv_Detail_RowEditing(object sender, GridViewEditEventArgs e)
-        {
-            var gv = sender as GridView;
-
-            gv.EditRowStyle.BackColor = Color.FromArgb(254, 249, 231);
-
-
-            gv.DataSource = dtRecDt;
-            gv.EditIndex = e.NewEditIndex;
-            gv.DataBind();
-
-            var Img_Btn = gv.Rows[gv.EditIndex].FindControl("Img_Btn") as ImageButton;
-            Img_Btn.Visible = false;
-
-            ShowHideColumns(gv, true);
-        }
-
         protected void gv_Detail_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e)
         {
             var gv = sender as GridView;
+
+
 
             gv.DataSource = dtRecDt;
             gv.EditIndex = -1;
             gv.DataBind();
 
-            ShowHideColumns(gv, false);
+            //ShowHideColumns(gv, false);
+        }
+
+        protected void gv_Detail_RowEditing(object sender, GridViewEditEventArgs e)
+        {
+            var gv = sender as GridView;
+
+            gv.EditRowStyle.BackColor = Color.FromArgb(254, 249, 231);
+            gv.EditIndex = e.NewEditIndex;
+            gv.DataSource = dtRecDt;
+            gv.DataBind();
+
+            var row = gv.Rows[e.NewEditIndex];
+
+            var Img_Btn = row.FindControl("Img_Btn") as ImageButton;
+            var ddl_Location = row.FindControl("ddl_Location") as ASPxComboBox;
+
+            Img_Btn.Visible = false;
+
+            //ShowHideColumns(gv, true);
+        }
+
+        protected void gv_Detail_RowUpdating(object sender, GridViewUpdateEventArgs e)
+        {
+            var gv = sender as GridView;
+            var row = gv.Rows[e.RowIndex];
+
+            //if (!IsCreatedManual()) // created from PO, control deviation
+            //{
+            //    var hf_ProductCode = row.FindControl("hf_ProductCode") as HiddenField;
+            //    var hf_OrdQty = row.FindControl("hf_OrdQty") as HiddenField;
+            //    var hf_Price = row.FindControl("hf_Price") as HiddenField;
+            //    var se_RecQty = row.FindControl("se_RecQty") as ASPxSpinEdit;
+            //    var se_Price = row.FindControl("se_Price") as ASPxSpinEdit;
+
+            //    var productCode = hf_ProductCode.Value;
+            //    var qty = string.IsNullOrEmpty(hf_OrdQty.Value) ? 0m : Convert.ToDecimal(hf_OrdQty.Value);
+            //    var price = string.IsNullOrEmpty(hf_Price.Value) ? 0m : Convert.ToDecimal(hf_Price.Value);
+            //    var rate = GetDeviation(productCode);
+
+            //    var devQty = qty * rate.Qty / 100;
+            //    var devPrice = price * rate.Price / 100;
+
+            //    var maxQty = qty + devQty;
+            //    var maxPrice = price + devPrice;
+
+            //    var recQty = (decimal) se_RecQty.Value;
+            //    var price1 = (decimal)se_Price.Value;
+
+
+            //    if (recQty > maxQty)
+            //    {
+            //        ShowAlert(string.Format("Quantity is over deivation.<br />Maxiumum is {0}", FormatQty(maxQty)));
+            //        e.Cancel = true;
+            //    }
+
+            //    if (price1 > maxPrice)
+            //    {
+            //        ShowAlert(string.Format("Price is over deivation.<br />Maxiumum is {0}", FormatAmt(maxPrice)));
+            //        e.Cancel = true;
+            //    }
+
+
+
+
+            //}
+
+
+            gv.EditIndex = -1;
+            BindDetails();
         }
 
         protected void gv_Detail_RowDeleting(object sender, GridViewDeleteEventArgs e)
         {
             var gv = sender as GridView;
-            var hf_RecDtNo = gv.Rows[e.RowIndex].FindControl("hf_RecDtNo") as HiddenField;
-            var recDtNo = Convert.ToInt32( hf_RecDtNo.Value);
 
-            var item = dtRecDt.AsEnumerable().FirstOrDefault(x => x.Field<int>("RecDtNo")==recDtNo);
+            var hf_RecDtNo = gv.Rows[e.RowIndex].FindControl("hf_RecDtNo") as HiddenField;
+            var recDtNo = Convert.ToInt32(hf_RecDtNo.Value);
+            var item = dtRecDt.AsEnumerable().FirstOrDefault(x => x.Field<int>("RecDtNo") == recDtNo);
+
             if (item != null)
                 item.Delete();
 
-            //gv_Detail.DataSource = dtRecDt;
-            //gv_Detail.DataBind();
-            SetDetails(dtRecDt);
+            BindDetails();
+        }
+
+
+        // Controls on gv_Detail
+        protected void ddl_Location_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var ddl = sender as ASPxComboBox;
+            var row = ddl.NamingContainer;
+
+            var ddl_Product = row.FindControl("ddl_Product") as ASPxComboBox;
+
+            var locationCode = ddl.Value.ToString();
+            var productCode = ddl_Product.SelectedIndex >= 0 ? ddl_Product.Value.ToString() : "";
+
+            ddl_Product.Items.Clear();
+            ddl_Product.Items.AddRange(GetProductsOnLocation(locationCode, productCode).ToArray());
+
+            if (ddl_Product.SelectedIndex < 0)
+            {
+                ddl_Product.Value = "";
+            }
+        }
+
+        protected void se_RecQty_NumberChanged(object sender, EventArgs e)
+        {
+            var item = sender as ASPxSpinEdit;
+            var row = item.NamingContainer as GridViewRow;
+
+            if (!IsCreatedManual()) // created from PO, control deviation
+            {
+                var hf_ProductCode = row.FindControl("hf_ProductCode") as HiddenField;
+                var hf_OrdQty = row.FindControl("hf_OrdQty") as HiddenField;
+
+                var productCode = hf_ProductCode.Value;
+                var qty = string.IsNullOrEmpty(hf_OrdQty.Value) ? 0m : Convert.ToDecimal(hf_OrdQty.Value);
+                var rate = GetDeviation(productCode);
+
+                var devQty = qty * rate.Qty / 100;
+
+                var maxQty = qty + devQty;
+
+                var recQty = (decimal)item.Value;
+
+                if (recQty > maxQty)
+                {
+                    item.Text = hf_OrdQty.Value;
+                    ShowAlert(string.Format("Quantity is over deivation.<br />Maxiumum is {0}", FormatQty(maxQty)));
+                }
+            }
+        }
+
+        protected void se_Price_NumberChanged(object sender, EventArgs e)
+        {
+            var item = sender as ASPxSpinEdit;
+            var row = item.NamingContainer as GridViewRow;
+
+            if (!IsCreatedManual()) // created from PO, control deviation
+            {
+                var hf_ProductCode = row.FindControl("hf_ProductCode") as HiddenField;
+                var hf_Price = row.FindControl("hf_Price") as HiddenField;
+
+                var productCode = hf_ProductCode.Value;
+                var price = string.IsNullOrEmpty(hf_Price.Value) ? 0m : Convert.ToDecimal(hf_Price.Value);
+                var rate = GetDeviation(productCode);
+
+                var devPrice = price * rate.Price / 100;
+                var maxPrice = price + devPrice;
+
+                var price1 = (decimal)item.Value;
+
+                if (price1 > maxPrice)
+                {
+                    item.Text = hf_Price.Value;
+                    ShowAlert(string.Format("Price is over deivation.<br />Maxiumum is {0}", FormatAmt(maxPrice)));
+                }
+
+
+            }
+        }
+
+        protected void se_DiscRate_NumberChanged(object sender, EventArgs e)
+        {
+            var se = sender as ASPxSpinEdit;
+            var row = se.NamingContainer as GridViewRow;
+
+            if (!IsCreatedManual()) // created from PO, control deviation
+            {
+                var hf_ProductCode = row.FindControl("hf_ProductCode") as HiddenField;
+                var hf_Price = row.FindControl("hf_Price") as HiddenField;
+
+                var productCode = hf_ProductCode.Value;
+                var price = string.IsNullOrEmpty(hf_Price.Value) ? 0m : Convert.ToDecimal(hf_Price.Value);
+                var rate = GetDeviation(productCode);
+
+                var devPrice = price * rate.Price / 100;
+                var maxPrice = price + devPrice;
+
+                var price1 = (decimal)se.Value;
+
+                if (price1 > maxPrice)
+                {
+                    se.Text = hf_Price.Value;
+                    ShowAlert(string.Format("Price is over deivation.<br />Maxiumum is {0}", FormatAmt(maxPrice)));
+                }
+
+
+            }
+        }
+
+        protected void chk_AdjDisc_CheckedChanged(object sender, EventArgs e)
+        {
+            var item = sender as CheckBox;
+            var row = item.NamingContainer as GridViewRow;
+
+            var se_DiscRate = row.FindControl("se_DiscRate") as ASPxSpinEdit;
+
+            se_DiscRate.Enabled = item.Checked;
+
+            if (!item.Checked)
+            {
+                var hf_Discount = row.FindControl("hf_Discount") as HiddenField;
+
+                se_DiscRate.Value = hf_Discount.Value;
+            }
+
+        }
+
+        protected void chk_AdjTax_CheckedChanged(object sender, EventArgs e)
+        {
+            var item = sender as CheckBox;
+            var row = item.NamingContainer as GridViewRow;
+
+            var ddl_TaxType = row.FindControl("ddl_TaxType") as DropDownList;
+            var se_TaxRate = row.FindControl("se_TaxRate") as ASPxSpinEdit;
+
+            ddl_TaxType.Enabled = item.Checked;
+            se_TaxRate.Enabled = item.Checked;
+
+            if (!item.Checked)
+            {
+                var hf_TaxType = row.FindControl("hf_TaxType") as HiddenField;
+                var hf_TaxRate = row.FindControl("hf_TaxRate") as HiddenField;
+
+                ddl_TaxType.SelectedValue = hf_TaxType.Value;
+                se_TaxRate.Value = hf_TaxRate.Value;
+            }
+
+        }
+
+        protected void ddl_TaxType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var ddl = sender as DropDownList;
+            var row = ddl.NamingContainer as GridViewRow;
+
+            var se_TaxRate = row.FindControl("se_TaxRate") as ASPxSpinEdit;
+
+            var taxType = ddl.SelectedValue.ToString();
+            var taxRate = Convert.ToDecimal(se_TaxRate.Value);
+
+            se_TaxRate.Enabled = taxType != "N";
+
+            if (taxType == "N")
+                se_TaxRate.Value = 0m;
+            else
+                se_TaxRate.Value = taxRate == 0 ? _default.TaxRate : taxRate;
+
+            CalculateItem(ddl);
+
+        }
+
+        protected void se_TaxRate_NumberChanged(object sender, EventArgs e)
+        {
+            var item = sender as ASPxSpinEdit;
+            var row = item.NamingContainer as GridViewRow;
+
+        }
+
+        private void RecQtyChanged(ASPxSpinEdit se_RecQty)
+        {
+            var row = se_RecQty.NamingContainer as GridViewRow;
+
+            var se_Price = row.FindControl("se_Price") as ASPxSpinEdit;
+
+            var qty = Convert.ToDecimal(se_RecQty.Value);
+            var price = Convert.ToDecimal(se_Price.Value);
+
+            //var taxType = 
+
+
+
+
+            var lbl_CurrNetAmt = row.FindControl("") as Label;
+            var lbl_CurrTaxAmt = row.FindControl("") as Label;
+            var lbl_CurrTotalAmt = row.FindControl("") as Label;
+            var lbl_ExtraCost = row.FindControl("") as Label;
+
+        }
+
+
+
+
+        private void CalculateItem(object sender)
+        {
+            var row = (sender as Control).NamingContainer;
+
+            var se_RecQty = row.FindControl("se_RecQty") as ASPxSpinEdit;
+            var se_Price = row.FindControl("se_Price") as ASPxSpinEdit;
+
+            var chk_AdjDisc = row.FindControl("chk_AdjDisc") as CheckBox;
+            var se_DiscRate = row.FindControl("se_DiscRate") as ASPxSpinEdit;
+
+            var chk_AdjTax = row.FindControl("chk_AdjTax") as CheckBox;
+            var ddl_TaxType = row.FindControl("ddl_TaxType") as DropDownList;
+            var se_TaxRate = row.FindControl("se_TaxRate") as ASPxSpinEdit;
+
+            var se_CurrDiscAmt = row.FindControl("se_CurrDiscAmt") as ASPxSpinEdit;
+            var se_CurrTaxAmt = row.FindControl("se_CurrTaxAmt") as ASPxSpinEdit;
+
+            var qty = se_RecQty.Number;
+            var price = se_Price.Number;
+
+            var adjDisc = chk_AdjDisc.Checked;
+            var discRate = se_DiscRate.Number;
+
+            var adjTax = chk_AdjTax.Checked;
+            var taxType = ddl_TaxType.SelectedValue.ToString();
+            var taxRate = se_TaxRate.Number;
+
+
+            var totalPrice = RoundAmt(qty * price);
+
+            var currDiscAmt = se_CurrDiscAmt.Number;
+            var currTaxAmt = se_CurrTaxAmt.Number;
+            var currNetAmt = 0m;
+            var currTotalAmt = 0m;
+
+
+            if (taxType == "A")
+            {
+                currNetAmt = totalPrice - currDiscAmt;
+                currTaxAmt = RoundAmt(currNetAmt * taxRate / 100);
+                currTotalAmt = currNetAmt + currTaxAmt;
+            }
+            else
+            {
+                var total = totalPrice - currDiscAmt;
+                currTaxAmt = RoundAmt(total * taxRate / (taxRate + 100));
+                currNetAmt = total - currTaxAmt;
+                currTotalAmt = total;
+            }
+
+            currTotalAmt = currNetAmt - currTaxAmt;
+
+
+
+
+            var lbl_CurrNetAmt = row.FindControl("lbl_CurrNetAmt") as Label;
+            var lbl_CurrTotalAmt = row.FindControl("lbl_CurrTotalAmt") as Label;
+
+            var lbl_CurrNetAmt_Dt = row.FindControl("lbl_CurrNetAmt_Dt") as Label;
+            var lbl_CurrTotalAmt_Dt = row.FindControl("lbl_CurrTotalAmt_Dt") as Label;
+
+            var lbl_DiscAmt_Dt = row.FindControl("lbl_DiscAmt_Dt") as Label;
+            var lbl_NetAmt_Dt = row.FindControl("lbl_NetAmt_Dt") as Label;
+            var lbl_TaxAmt_Dt = row.FindControl("lbl_TaxAmt_Dt") as Label;
+            var lbl_TotalAmt_Dt = row.FindControl("lbl_TotalAmt_Dt") as Label;
+
+            lbl_CurrNetAmt.Text = FormatAmt(currNetAmt);
+            lbl_CurrTotalAmt.Text = FormatAmt(currTotalAmt);
+
+            lbl_CurrNetAmt_Dt.Text = lbl_CurrNetAmt.Text;
+            lbl_CurrTotalAmt_Dt.Text = lbl_CurrTotalAmt.Text;
+
+
+            //var currNetAmt =
 
 
         }
@@ -845,7 +1279,6 @@ WHERE
             new Helpers.SQL(hf_ConnStr.Value).ExecuteQuery(query, parameters);
         }
 
-      
         private void UpdatePO(string recNo)
         {
             var query = @"
@@ -1015,6 +1448,7 @@ FROM
             }
             else // edit
             {
+                SaveHeader(dtRec);
                 RestorePO(recNo);
             }
 
@@ -1211,7 +1645,7 @@ ORDER BY
         }
 
 
-        private void SetHeader(DataTable dt)
+        private void BindHeader(DataTable dt)
         {
             var dr = dt.Rows[0];
 
@@ -1240,11 +1674,13 @@ ORDER BY
             //rdb_ExtraCostByQty.Checked = extraCostBy.ToUpper() == "A";
             ddl_ExtraCostBy.SelectedValue = extraCostBy;
 
+            hf_PoSource.Value = dr["PoSource"].ToString();
             lbl_PoSource.Text = string.IsNullOrEmpty(dr["PoSource"].ToString()) ? "Manually created" : "by Purchase Order";
+
 
         }
 
-        private void SetDetails(DataTable dt)
+        private void BindDetails()
         {
             dtRecDt.AcceptChanges();
 
@@ -1253,40 +1689,59 @@ ORDER BY
             SetGrandTotal();
         }
 
+        private void SetItemEdit(GridViewRow row)
+        {
+            var ddl_Location = row.FindControl("ddl_Location") as ASPxComboBox;
+
+            ddl_Location.Enabled = false;
+        }
+
         private void ShowHideColumns(GridView gv, bool isEdit)
         {
+            //var isFPO = !string.IsNullOrEmpty(dtRec.Rows[0]["PoSource"].ToString());
+
             // Header
 
             ddl_Currency.Enabled = !isEdit;
             se_CurrencyRate.Enabled = !isEdit;
 
-
             // Detail
+
+
             // Discount
-            ((DataControlField)gv.Columns
-                .Cast<DataControlField>()
-                .Where(fld => fld.HeaderText == "Discount")
-                .SingleOrDefault()).Visible = !isEdit;
-            // Net
-            ((DataControlField)gv.Columns
-                .Cast<DataControlField>()
-                .Where(fld => fld.HeaderText == "Net")
-                .SingleOrDefault()).Visible = !isEdit;
-            // Tax
-            ((DataControlField)gv.Columns
-                .Cast<DataControlField>()
-                .Where(fld => fld.HeaderText == "Tax")
-                .SingleOrDefault()).Visible = !isEdit;
-            // Total
-            ((DataControlField)gv.Columns
-                .Cast<DataControlField>()
-                .Where(fld => fld.HeaderText == "Total")
-                .SingleOrDefault()).Visible = !isEdit;
-            // Total
-            ((DataControlField)gv.Columns
-                .Cast<DataControlField>()
-                .Where(fld => fld.HeaderText == "Base")
-                .SingleOrDefault()).Visible = !isEdit;
+            //var currDisc = ((DataControlField)gv.Columns
+            //    .Cast<DataControlField>()
+            //    .Where(fld => fld.HeaderText == "Discount")
+            //    .SingleOrDefault());
+            //// Net
+            //var currNet = ((DataControlField)gv.Columns
+            //    .Cast<DataControlField>()
+            //    .Where(fld => fld.HeaderText == "Net")
+            //    .SingleOrDefault());
+
+            //// Tax
+            //var currTax = ((DataControlField)gv.Columns
+            //    .Cast<DataControlField>()
+            //    .Where(fld => fld.HeaderText == "Tax")
+            //    .SingleOrDefault());
+            //// Total
+            //var currTotal = ((DataControlField)gv.Columns
+            //    .Cast<DataControlField>()
+            //    .Where(fld => fld.HeaderText == "Total")
+            //    .SingleOrDefault());
+            //// Total
+            //var total = ((DataControlField)gv.Columns
+            //    .Cast<DataControlField>()
+            //    .Where(fld => fld.HeaderText == "Base")
+            //    .SingleOrDefault());
+
+            // -------------------------------
+
+            //currDisc.Visible = !isEdit;
+            //currNet.Visible = !isEdit;
+            //currTax.Visible = !isEdit;
+            //currTotal.Visible = !isEdit;
+            //total.Visible = !isEdit;
         }
 
         private void Calculate_CurrencyRate(decimal rate)
@@ -1299,9 +1754,10 @@ ORDER BY
                 dr["TotalAmt"] = RoundAmt(Convert.ToDecimal(dr["CurrTotalAmt"]) * rate);
             }
 
-            SetGrandTotal();
-            gv_Detail.DataSource = dtRecDt;
-            gv_Detail.DataBind();
+            BindDetails();
+            //SetGrandTotal();
+            //gv_Detail.DataSource = dtRecDt;
+            //gv_Detail.DataBind();
         }
 
         private void SetGrandTotal()
@@ -1377,29 +1833,13 @@ ORDER BY
             }
         }
 
-        private Deviation GetDeviation(string productCode)
+
+        private bool IsCreatedManual()
         {
-            var result = new Deviation
-            {
-                Price = 0,
-                Qty = 0
-            };
-
-            var query = "SELECT ISNULL(PriceDeviation,0) Price, ISNULL(QuantityDeviation,0) Qty FROM [IN].[Product] WHERE ProductCode=@ProductCode";
-            var dt = new Helpers.SQL(hf_ConnStr.Value).ExecuteQuery(query);
-
-            if (dt != null && dt.Rows.Count > 0)
-            {
-                var dr = dt.Rows[0];
-
-                result.Qty = Convert.ToDecimal(dr["Qty"]);
-                result.Price = Convert.ToDecimal(dr["Price"]);
-            }
-
-
-            return result;
+            return string.IsNullOrEmpty(hf_PoSource.Value);
         }
 
+        // Validation
         private string Validate_Data()
         {
             var message = "";
@@ -1408,7 +1848,7 @@ ORDER BY
 
             // Header
             // Required fields
-            
+
             // Vendor
             if (ddl_Vendor.Value == null)
             {
@@ -1461,6 +1901,29 @@ ORDER BY
             return message;
         }
 
+        private Deviation GetDeviation(string productCode)
+        {
+            var result = new Deviation
+            {
+                Price = 0,
+                Qty = 0
+            };
+
+            var query = "SELECT TOP(1) ISNULL(PriceDeviation,0) Price, ISNULL(QuantityDeviation,0) Qty FROM [IN].[Product] WHERE ProductCode=@ProductCode";
+            var dt = new Helpers.SQL(hf_ConnStr.Value).ExecuteQuery(query, new SqlParameter[] { new SqlParameter("ProductCode", productCode) });
+
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                var dr = dt.Rows[0];
+
+                result.Qty = Convert.ToDecimal(dr["Qty"]);
+                result.Price = Convert.ToDecimal(dr["Price"]);
+            }
+
+
+            return result;
+        }
+
         // Popup
 
         private void ShowAlert(string text)
@@ -1491,20 +1954,22 @@ ORDER BY
 
         private void SetDeliveryPoints(string value)
         {
-            var dt = new Helpers.SQL(hf_ConnStr.Value).ExecuteQuery("SELECT DptCode as [Value], [Name] as [Text] FROM [IN].DeliveryPoint WHERE IsActived=1 ORDER BY DptCode");
+            var dt = new Helpers.SQL(hf_ConnStr.Value).ExecuteQuery("SELECT CAST(DptCode as VARCHAR) as [Value], [Name] as [Text] FROM [IN].DeliveryPoint WHERE IsActived=1 ORDER BY DptCode");
 
             var items = dt.AsEnumerable()
                 .Select(x => new DevExpress.Web.ASPxEditors.ListEditItem
                 {
-                    Value = x.Field<Int32>("Value"),
+                    Value = x.Field<string>("Value"),
                     Text = x.Field<string>("Text"),
-                    Selected = x.Field<Int32>("Value").ToString() == value
+                    Selected = x.Field<string>("Value") == value
                 })
                 .ToArray();
 
 
             ddl_DeliPoint.Items.Clear();
             ddl_DeliPoint.Items.AddRange(items);
+
+
         }
 
         private void SetCurrencyCode(string value, DateTime date)
@@ -1581,7 +2046,7 @@ WHERE
             return items;
         }
 
-        private IEnumerable<ListEditItem> GetProductsOnLocation(string locationCode, string value)
+        private IEnumerable<ListEditItem> GetProductsOnLocation(string locationCode, string value = "")
         {
             var items = new List<ListEditItem>();
             var query = @"
@@ -1610,6 +2075,8 @@ ORDER BY
                     })
                     .ToList();
             }
+
+
 
             return items;
         }
