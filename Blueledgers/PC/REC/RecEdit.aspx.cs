@@ -1027,7 +1027,7 @@ ORDER BY
                 currNetAmt = total - currTaxAmt;
                 currTotalAmt = total;
             }
-
+            
             currTotalAmt = currNetAmt - currTaxAmt;
 
 

@@ -164,7 +164,7 @@
                         <asp:Label ID="lbl_Desc_Nm" runat="server" Text="<%$ Resources:PC_REC_RecEdit, lbl_Desc_Nm %>" SkinID="LBL_HD"></asp:Label>
                     </td>
                     <td colspan="9">
-                        <asp:TextBox ID="txt_Desc" runat="server" Width="100%" SkinID="TXT_V1"></asp:TextBox>
+                        <asp:TextBox ID="txt_Desc" runat="server" TextMode="MultiLine" Rows="2" Width="100%" SkinID="TXT_V1"></asp:TextBox>
                     </td>
                 </tr>
                 <tr>
