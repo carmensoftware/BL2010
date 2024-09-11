@@ -27,6 +27,7 @@ namespace BlueLedger.PL.IN.REC
         #endregion
 
         private string _connStr;
+
         private enum DocStatus
         {
             Received,
@@ -38,25 +39,25 @@ namespace BlueLedger.PL.IN.REC
         private readonly Blue.BL.APP.Config _config = new Blue.BL.APP.Config();
         private readonly Blue.BL.PC.REC.REC _rec = new Blue.BL.PC.REC.REC();
 
-        protected DataTable dtRec
+        protected DataTable _dtRec
         {
             get { return ViewState["dtRec"] as DataTable; }
             set { ViewState["dtRec"] = value; }
         }
 
-        protected DataTable dtRecDt
+        protected DataTable _dtRecDt
         {
             get { return ViewState["dtRecDt"] as DataTable; }
             set { ViewState["dtRecDt"] = value; }
         }
 
-        protected DataTable dtPo
+        protected DataTable _dtPo
         {
             get { return ViewState["dtPo"] as DataTable; }
             set { ViewState["dtPo"] = value; }
         }
 
-        protected DataTable dtExtraCost
+        protected DataTable _dtExtraCost
         {
             get { return ViewState["dtExtraCost"] as DataTable; }
             set { ViewState["dtExtraCost"] = value; }
@@ -68,6 +69,10 @@ namespace BlueLedger.PL.IN.REC
             set { ViewState["DefaultValues"] = value; }
         }
 
+        //protected bool IsCreatedManual
+        //{
+        //    get { return string.IsNullOrEmpty(dtRec.Rows[0]["PoSource"].ToString()); }
+        //}
 
         #region --Event(s)--
 
@@ -136,13 +141,13 @@ namespace BlueLedger.PL.IN.REC
                     break;
             }
 
-            BindHeader(dtRec);
+            BindHeader(_dtRec);
             BindDetails();
 
-            var recNo = dtRec.Rows[0]["RecNo"].ToString();
+            var recNo = _dtRec.Rows[0]["RecNo"].ToString();
 
-            dtExtraCost = new Helpers.SQL(hf_ConnStr.Value).ExecuteQuery(string.Format("SELECT e.*, t.TypeName FROM PC.RecExtCost e JOIN PC.ExtCostType t ON t.TypeId=e.TypeId WHERE e.RecNo='{0}'", recNo));
-            gv_ExtraCost.DataSource = dtExtraCost;
+            _dtExtraCost = new Helpers.SQL(hf_ConnStr.Value).ExecuteQuery(string.Format("SELECT e.*, t.TypeName FROM PC.RecExtCost e JOIN PC.ExtCostType t ON t.TypeId=e.TypeId WHERE e.RecNo='{0}'", recNo));
+            gv_ExtraCost.DataSource = _dtExtraCost;
             gv_ExtraCost.DataBind();
 
 
@@ -252,8 +257,63 @@ namespace BlueLedger.PL.IN.REC
 
         protected void btn_AddItem_Click(object sender, EventArgs e)
         {
-            ShowAlert("test");
+            if (IsCreatedManual())
+            {
+            }
+            else // from PO
+            {
+                var vendorCode = ddl_Vendor.SelectedItem.Value.ToString();
+                var locationCode = _dtRecDt.Rows.Count > 0 ? _dtRecDt.Rows[0]["LocationCode"].ToString() : "";
+                var currencyCode = ddl_Currency.SelectedItem.Value.ToString();
+                var dtPoList = new Helpers.SQL(hf_ConnStr.Value).ExecuteQuery(string.Format("EXEC [PC].[GetAddPoList] '{0}', '{1}', '{2}', '{3}'",
+                    _BuCode,
+                    vendorCode,
+                    locationCode,
+                    currencyCode));
+
+                if (dtPoList != null && dtPoList.Rows.Count > 0)
+                {
+                    pop_PoList.ShowOnPageLoad = true;
+                    lbl_PoList_Vendor.Text = string.Format("Vendor : {0}", ddl_Vendor.Text);
+                    lbl_PoList_Currency.Text = string.Format("Currency : {0}", ddl_Currency.Text);
+
+                    gv_PoList.DataSource = dtPoList;
+                    gv_PoList.DataBind();
+
+                }
+                else
+                {
+                    var message = string.Format("No PO available for vendor '{0}' on location '{1}'", vendorCode, locationCode);
+                    ShowAlert(message);
+                }
+            }
+
         }
+
+        protected void btn_PoList_Ok_Click(object sender, EventArgs e)
+        {
+            var poList = new List<string>();
+
+            foreach (GridViewRow row in gv_PoList.Rows)
+            {
+                var chk = row.FindControl("chk_PoItem") as CheckBox;
+                var hf = row.FindControl("hf_PoList_PoNo") as HiddenField;
+
+                if (chk.Checked)
+                {
+                    poList.Add(hf.Value.Trim());
+                }
+            }
+
+            if (poList.Count == 0)
+                return;
+
+            AddPoToRecDt(poList);
+
+
+        }
+
+
 
 
         // gv_Deatail
@@ -689,7 +749,7 @@ ORDER BY
 
 
 
-            gv.DataSource = dtRecDt;
+            gv.DataSource = _dtRecDt;
             gv.EditIndex = -1;
             gv.DataBind();
 
@@ -702,7 +762,7 @@ ORDER BY
 
             gv.EditRowStyle.BackColor = Color.FromArgb(254, 249, 231);
             gv.EditIndex = e.NewEditIndex;
-            gv.DataSource = dtRecDt;
+            gv.DataSource = _dtRecDt;
             gv.DataBind();
 
             var row = gv.Rows[e.NewEditIndex];
@@ -771,7 +831,7 @@ ORDER BY
 
             var hf_RecDtNo = gv.Rows[e.RowIndex].FindControl("hf_RecDtNo") as HiddenField;
             var recDtNo = Convert.ToInt32(hf_RecDtNo.Value);
-            var item = dtRecDt.AsEnumerable().FirstOrDefault(x => x.Field<int>("RecDtNo") == recDtNo);
+            var item = _dtRecDt.AsEnumerable().FirstOrDefault(x => x.Field<int>("RecDtNo") == recDtNo);
 
             if (item != null)
                 item.Delete();
@@ -1027,7 +1087,7 @@ ORDER BY
                 currNetAmt = total - currTaxAmt;
                 currTotalAmt = total;
             }
-            
+
             currTotalAmt = currNetAmt - currTaxAmt;
 
 
@@ -1410,7 +1470,7 @@ FROM
             var invoiceNo = txt_InvNo.Text.Trim();
 
             // Assign Header's value
-            var drh = dtRec.Rows[0];
+            var drh = _dtRec.Rows[0];
             var recNo = drh["RecNo"].ToString();
 
             drh["RecNo"] = recNo;
@@ -1444,15 +1504,15 @@ FROM
 
             if (string.IsNullOrEmpty(recNo)) // create
             {
-                recNo = CreateHeader(dtRec);
+                recNo = CreateHeader(_dtRec);
             }
             else // edit
             {
-                SaveHeader(dtRec);
+                SaveHeader(_dtRec);
                 RestorePO(recNo);
             }
 
-            CreateDetails(recNo, dtRecDt);
+            CreateDetails(recNo, _dtRecDt);
             UpdatePO(recNo);
 
             RedirectToView(recNo);
@@ -1511,10 +1571,10 @@ FROM
         {
             var sql = new Helpers.SQL(hf_ConnStr.Value);
 
-            dtRec = sql.ExecuteQuery("SELECT TOP(1) * FROM PC.Rec WHERE RecNo='*'");
-            dtRecDt = sql.ExecuteQuery("SELECT TOP(1) * FROM PC.RecDt WHERE RecNo='*'");
+            _dtRec = sql.ExecuteQuery("SELECT TOP(1) * FROM PC.Rec WHERE RecNo='*'");
+            _dtRecDt = sql.ExecuteQuery("SELECT TOP(1) * FROM PC.RecDt WHERE RecNo='*'");
 
-            dtRec.NewRow();
+            _dtRec.NewRow();
 
         }
 
@@ -1522,7 +1582,7 @@ FROM
         {
             var sql = new Helpers.SQL(hf_ConnStr.Value);
 
-            dtRec = sql.ExecuteQuery("SELECT * FROM PC.Rec WHERE RecNo=@id", new SqlParameter[] { new SqlParameter("id", id) });
+            _dtRec = sql.ExecuteQuery("SELECT * FROM PC.Rec WHERE RecNo=@id", new SqlParameter[] { new SqlParameter("id", id) });
 
             var query = @"
 SELECT 
@@ -1545,7 +1605,7 @@ WHERE
 ORDER BY 
 	RecDtNo";
 
-            dtRecDt = sql.ExecuteQuery(query, new SqlParameter[] { new SqlParameter("id", id) });
+            _dtRecDt = sql.ExecuteQuery(query, new SqlParameter[] { new SqlParameter("id", id) });
 
 
         }
@@ -1555,13 +1615,13 @@ ORDER BY
             var dsPo = Session["dsPo"] as DataSet;
 
 
-            dtPo = dsPo.Tables["PoDt"].Copy();
-            dtRec = dsPo.Tables["REC"].Copy();
-            dtRecDt = dsPo.Tables["RECDt"].Copy();
+            _dtPo = dsPo.Tables["PoDt"].Copy();
+            _dtRec = dsPo.Tables["REC"].Copy();
+            _dtRecDt = dsPo.Tables["RECDt"].Copy();
 
 
             // Set RecNo = "";
-            dtRec.Rows[0]["RecNo"] = "";
+            _dtRec.Rows[0]["RecNo"] = "";
 
             // Add some fields to dtRecDt
             // LocationName
@@ -1608,7 +1668,7 @@ ORDER BY
             };
 
 
-            dtRecDt.Columns.AddRange(new DataColumn[]
+            _dtRecDt.Columns.AddRange(new DataColumn[]
             {
                 locationName,
                 productDesc1,
@@ -1618,7 +1678,7 @@ ORDER BY
             });
 
 
-            foreach (DataRow dr in dtRecDt.Rows)
+            foreach (DataRow dr in _dtRecDt.Rows)
             {
                 var locationCode = dr["LocationCode"].ToString();
                 var productCode = dr["ProductCode"].ToString();
@@ -1682,9 +1742,9 @@ ORDER BY
 
         private void BindDetails()
         {
-            dtRecDt.AcceptChanges();
+            _dtRecDt.AcceptChanges();
 
-            gv_Detail.DataSource = dtRecDt;
+            gv_Detail.DataSource = _dtRecDt;
             gv_Detail.DataBind();
             SetGrandTotal();
         }
@@ -1746,7 +1806,7 @@ ORDER BY
 
         private void Calculate_CurrencyRate(decimal rate)
         {
-            foreach (DataRow dr in dtRecDt.Rows)
+            foreach (DataRow dr in _dtRecDt.Rows)
             {
                 dr["DiccountAmt"] = RoundAmt(Convert.ToDecimal(dr["CurrDiscAmt"]) * rate);
                 dr["TaxAmt"] = RoundAmt(Convert.ToDecimal(dr["CurrTaxAmt"]) * rate);
@@ -1762,15 +1822,15 @@ ORDER BY
 
         private void SetGrandTotal()
         {
-            var currDiscAmt = dtRecDt.AsEnumerable().Select(x => x.Field<decimal>("CurrDiscAmt")).Sum();
-            var currNetAmt = dtRecDt.AsEnumerable().Select(x => x.Field<decimal>("CurrNetAmt")).Sum();
-            var currTaxAmt = dtRecDt.AsEnumerable().Select(x => x.Field<decimal>("CurrTaxAmt")).Sum();
-            var currTotalAmt = dtRecDt.AsEnumerable().Select(x => x.Field<decimal>("CurrTotalAmt")).Sum();
+            var currDiscAmt = _dtRecDt.AsEnumerable().Select(x => x.Field<decimal>("CurrDiscAmt")).Sum();
+            var currNetAmt = _dtRecDt.AsEnumerable().Select(x => x.Field<decimal>("CurrNetAmt")).Sum();
+            var currTaxAmt = _dtRecDt.AsEnumerable().Select(x => x.Field<decimal>("CurrTaxAmt")).Sum();
+            var currTotalAmt = _dtRecDt.AsEnumerable().Select(x => x.Field<decimal>("CurrTotalAmt")).Sum();
 
-            var discAmt = dtRecDt.AsEnumerable().Select(x => x.Field<decimal>("DiccountAmt")).Sum();
-            var netAmt = dtRecDt.AsEnumerable().Select(x => x.Field<decimal>("NetAmt")).Sum();
-            var taxAmt = dtRecDt.AsEnumerable().Select(x => x.Field<decimal>("TaxAmt")).Sum();
-            var totalAmt = dtRecDt.AsEnumerable().Select(x => x.Field<decimal>("TotalAmt")).Sum();
+            var discAmt = _dtRecDt.AsEnumerable().Select(x => x.Field<decimal>("DiccountAmt")).Sum();
+            var netAmt = _dtRecDt.AsEnumerable().Select(x => x.Field<decimal>("NetAmt")).Sum();
+            var taxAmt = _dtRecDt.AsEnumerable().Select(x => x.Field<decimal>("TaxAmt")).Sum();
+            var totalAmt = _dtRecDt.AsEnumerable().Select(x => x.Field<decimal>("TotalAmt")).Sum();
 
             lbl_GrandCurrDiscAmt.Text = FormatAmt(currDiscAmt);
             lbl_GrandCurrNetAmt.Text = FormatAmt(currNetAmt);
@@ -1843,7 +1903,7 @@ ORDER BY
         private string Validate_Data()
         {
             var message = "";
-            var recNo = dtRec != null && dtRec.Rows.Count > 0 ? dtRec.Rows[0]["RecNo"].ToString() : "";
+            var recNo = _dtRec != null && _dtRec.Rows.Count > 0 ? _dtRec.Rows[0]["RecNo"].ToString() : "";
 
 
             // Header
@@ -1893,7 +1953,7 @@ ORDER BY
 
 
             // Details
-            if (dtRecDt.Rows.Count == 0)
+            if (_dtRecDt.Rows.Count == 0)
             {
                 return "Please add any item.";
             }
@@ -2081,6 +2141,191 @@ ORDER BY
             return items;
         }
 
+        private void AddPoToRecDt(IEnumerable<string> poList)
+        {
+            var query = @"
+;WITH
+unit AS(
+	SELECT
+		ProductCode,
+		OrderUnit,
+		MAX(Rate) AS Rate
+	FROM
+		[IN].ProdUnit
+	WHERE
+		UnitType='O'
+	GROUP BY
+		ProductCode,
+		OrderUnit
+)
+SELECT 
+	PoNo,
+	PoDt,
+	BuCode,
+	[Location], 
+	l.LocationName,
+	[Product],
+	p.ProductDesc1,
+	p.ProductDesc2,
+	Unit,
+	InventoryUnit,
+	ISNULL(u.Rate, 0) as Rate,
+	OrdQty,
+	RcvQty,
+	FocQty,
+	Price,
+	podt.TaxType,
+	podt.TaxRate,
+	Discount,
+	CurrDiscAmt,
+	CurrTaxAmt,
+	CurrNetAmt,
+	CurrTotalAmt,
+	DiscountAmt,
+	NetAmt,
+	TaxAmt,
+	TotalAmt,
+	Comment
+FROM 
+	PC.PoDt 
+	LEFT JOIN [IN].Product p
+		ON p.ProductCode=podt.Product
+	LEFT JOIN [IN].StoreLocation l
+		ON l.LocationCode=podt.Location
+	LEFT JOIN unit u
+		On u.ProductCode=podt.Product AND u.OrderUnit=podt.Unit
+
+WHERE 
+	PoNo IN ({0}) 
+	AND RcvQty < OrdQty-CancelQty 
+	AND RcvQty >= 0
+";
+            var poListText = "'" + string.Join("','", poList) + "'";
+            query = string.Format(query, poListText);
+            var dtPo = new Helpers.SQL(hf_ConnStr.Value).ExecuteQuery(query);
+
+            var existItems = _dtRecDt.AsEnumerable()
+                .Select(x => new
+                {
+                    PoNo = x.Field<string>("PoNo"),
+                    PoDtNo = x.Field<int>("PoDtNo")
+                }
+                ).ToArray();
+
+            var newItems = dtPo.AsEnumerable()
+                .Select(x => new
+                {
+                    PoNo = x.Field<string>("PoNo"),
+                    PoDtNo = x.Field<int>("PoDt")
+                }
+                ).ToArray();
+
+            // get po do not exists in current
+            var recNo = lbl_RecNo.Text;
+            var items = newItems.Except(existItems);
+
+            foreach (var item in items)
+            {
+                var poNo = item.PoNo;
+                var poDtNo = item.PoDtNo;
+
+                var poItems = dtPo.AsEnumerable()
+                    .Where(x => x.Field<string>("PoNo") == poNo && x.Field<int>("PoDt") == poDtNo)
+                    .Select(x => new RecDt
+                    {
+                        RecNo = recNo,
+                        LocationCode = x.Field<string>("Location"),
+                        LocationName = x.Field<string>("LocationName"),
+                        ProductCode = x.Field<string>("Product"),
+                        ProductDesc1 = x.Field<string>("ProductDesc1"),
+                        ProductDesc2 = x.Field<string>("ProductDesc2"),
+
+
+                        RcvUnit = x.Field<string>("Unit"),
+                        OrderQty = x.Field<decimal>("OrdQty"),
+                        FocQty = x.Field<decimal>("FocQty"),
+                        Price = x.Field<decimal>("Price"),
+                        Discount = x.Field<decimal>("Discount"),
+                        TaxType = x.Field<string>("TaxType"),
+                        TaxRate = x.Field<decimal>("TaxRate"),
+
+                        CurrDiscAmt = x.Field<decimal>("CurrDiscAmt"),
+                        CurrTaxAmt = x.Field<decimal>("CurrTaxAmt"),
+                        CurrNetAmt = x.Field<decimal>("CurrNetAmt"),
+                        CurrTotalAmt = x.Field<decimal>("CurrTotalAmt"),
+
+                        DiccountAmt = x.Field<decimal>("DiscountAmt"),
+                        TaxAmt = x.Field<decimal>("TaxAmt"),
+                        NetAmt = x.Field<decimal>("NetAmt"),
+                        TotalAmt = x.Field<decimal>("TotalAmt"),
+
+                        PoNo = x.Field<string>("PoNo"),
+                        PoDtNo = x.Field<int>("PoDt"),
+                    })
+                    .ToArray();
+
+                InsertToRecDt(poItems);
+
+
+            }
+
+            pop_PoList.ShowOnPageLoad = false;
+            BindDetails();
+
+
+        }
+
+        private void InsertToRecDt(IEnumerable<RecDt> items)
+        {
+            foreach (var item in items)
+            {
+                var dr = _dtRecDt.NewRow();
+
+                dr["RecNo"] = item.RecNo;
+                dr["RecDtNo"] = 0;
+                dr["LocationCode"] = item.LocationCode;
+                dr["LocationName"] = item.LocationName;
+                dr["ProductCode"] = item.ProductCode;
+                dr["ProductDesc1"] = item.ProductDesc1;
+                dr["ProductDesc2"] = item.ProductDesc2;
+                dr["UnitCode"] = item.UnitCode;
+                dr["OrderQty"] = item.OrderQty;
+                dr["FocQty"] = item.FocQty;
+                dr["RecQty"] = item.RecQty;
+                dr["RcvUnit"] = item.RcvUnit;
+                dr["Rate"] = item.Rate;
+                dr["Price"] = item.Price;
+                dr["DiscAdj"] = item.DiscAdj;
+                dr["Discount"] = item.Discount;
+                dr["TaxAdj"] = item.TaxAdj;
+                dr["TaxType"] = item.TaxType;
+                dr["TaxRate"] = item.TaxRate;
+                dr["CurrDiscAmt"] = item.CurrDiscAmt;
+                dr["CurrTaxAmt"] = item.CurrTaxAmt;
+                dr["CurrNetAmt"] = item.CurrNetAmt;
+                dr["CurrTotalAmt"] = item.CurrTotalAmt;
+                dr["DiccountAmt"] = item.DiccountAmt;
+                dr["TaxAmt"] = item.TaxAmt;
+                dr["NetAmt"] = item.NetAmt;
+                dr["TotalAmt"] = item.TotalAmt;
+                if (item.ExpiryDate == null)
+                    dr["ExpiryDate"] = DBNull.Value;
+                else
+                    dr["ExpiryDate"] = item.ExpiryDate;
+                dr["ExtraCost"] = item.ExtraCost;
+                dr["PoNo"] = item.PoNo;
+                if (item.PoDtNo == null)
+                    dr["PoDtNo"] = DBNull.Value;
+                else
+                    dr["PoDtNo"] = item.PoDtNo;
+                dr["Comment"] = item.Comment;
+
+                dr["Status"] = item.Status;
+                dr["ExportStatus"] = item.ExportStatus;
+
+                _dtRecDt.Rows.Add(dr);
+            }
+        }
 
         #endregion
 
@@ -2111,6 +2356,70 @@ ORDER BY
             public decimal Qty { get; set; }
         }
 
+
+        public class RecDt
+        {
+            public RecDt()
+            {
+                OrderQty = 0;
+                FocQty = 0;
+                RecQty = 0;
+                Rate = 1;
+                Price = 0;
+                TaxAdj = false;
+                DiscAdj = false;
+
+                PoNo = null;
+                PoDtNo = null;
+                ExpiryDate = null;
+                Status = "Received";
+                ExtraCost = 0;
+                ExportStatus = false;
+            }
+
+            public string RecNo { get; set; }
+            public int RecDtno { get; set; }
+            public string LocationCode { get; set; }
+            public string LocationName { get; set; }
+            public string ProductCode { get; set; }
+            public string ProductDesc1 { get; set; }
+            public string ProductDesc2 { get; set; }
+            public string UnitCode { get; set; }
+            public decimal OrderQty { get; set; }
+            public decimal FocQty { get; set; }
+            public decimal RecQty { get; set; }
+            public string RcvUnit { get; set; }
+            public decimal Rate { get; set; }
+            public decimal Price { get; set; }
+            public bool DiscAdj { get; set; }
+            public decimal Discount { get; set; }
+            public bool TaxAdj { get; set; }
+            public string TaxType { get; set; }
+            public decimal TaxRate { get; set; }
+            public decimal CurrDiscAmt { get; set; }
+            public decimal CurrTaxAmt { get; set; }
+            public decimal CurrNetAmt { get; set; }
+            public decimal CurrTotalAmt { get; set; }
+            public decimal DiccountAmt { get; set; }
+            public decimal TaxAmt { get; set; }
+            public decimal NetAmt { get; set; }
+            public decimal TotalAmt { get; set; }
+            public Nullable<DateTime> ExpiryDate { get; set; }
+            public decimal ExtraCost { get; set; }
+            public string PoNo { get; set; }
+            public Nullable<int> PoDtNo { get; set; }
+            public string Status { get; set; }
+            public bool ExportStatus { get; set; }
+            public string Comment { get; set; }
+
+
+
+
+
+
+
+
+        }
 
         #endregion
     }

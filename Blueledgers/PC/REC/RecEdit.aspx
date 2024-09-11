@@ -771,6 +771,20 @@
                 </table>
             </div>
             <!-- Popup(s)-->
+            <dx:ASPxPopupControl ID="pop_SessionTimeout" runat="server" Width="360" HeaderText="<%$ Resources:PC_REC_RecEdit, Warning %>" Modal="True" ShowCloseButton="true"
+                CloseAction="CloseButton" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowPageScrollbarWhenModal="True">
+                <HeaderStyle BackColor="#ffffcc" />
+                <ContentCollection>
+                    <dx:PopupControlContentControl ID="PopupControlContentControl1" runat="server">
+                        <div class="flex flex-justify-content-center mt-20 mb-20 width-100">
+                            <asp:Label ID="Label27" runat="server" SkinID="LBL_NR" Text="Session is timeout." />
+                        </div>
+                        <div class="flex flex-justify-content-center mt-20 width-100">
+                            <asp:Button runat="server" ID="btn_SessionTimeout_Ok" Width="100" Text="Ok" OnClick="btn_SessionTimeout_Ok_Click" />
+                        </div>
+                    </dx:PopupControlContentControl>
+                </ContentCollection>
+            </dx:ASPxPopupControl>
             <dx:ASPxPopupControl ID="pop_Alert" ClientInstanceName="pop_Alert" runat="server" Width="360" HeaderText="<%$ Resources:PC_REC_RecEdit, Warning %>" Modal="True"
                 ShowCloseButton="true" CloseAction="CloseButton" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowPageScrollbarWhenModal="True">
                 <HeaderStyle BackColor="#ffffcc" />
@@ -787,16 +801,48 @@
                     </dx:PopupControlContentControl>
                 </ContentCollection>
             </dx:ASPxPopupControl>
-            <dx:ASPxPopupControl ID="pop_SessionTimeout" runat="server" Width="360" HeaderText="<%$ Resources:PC_REC_RecEdit, Warning %>" Modal="True" ShowCloseButton="true"
-                CloseAction="CloseButton" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowPageScrollbarWhenModal="True">
-                <HeaderStyle BackColor="#ffffcc" />
+            <dx:ASPxPopupControl ID="pop_PoList" runat="server" Width="640" HeaderText="Purchase Order List" Modal="True" ShowCloseButton="true" CloseAction="CloseButton"
+                PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowPageScrollbarWhenModal="True">
                 <ContentCollection>
-                    <dx:PopupControlContentControl ID="PopupControlContentControl1" runat="server">
-                        <div class="flex flex-justify-content-center mt-20 mb-20 width-100">
-                            <asp:Label ID="Label27" runat="server" SkinID="LBL_NR" Text="Session is timeout." />
+                    <dx:PopupControlContentControl ID="PopupControlContentControl2" runat="server">
+                        <div class="flex flex-justify-content-between width-100">
+                            <div>
+                                <asp:Label ID="lbl_PoList_Vendor" runat="server" SkinID="LBL_NR" Text="" />
+                            </div>
+                            <div>
+                                <asp:Label ID="lbl_PoList_Currency" runat="server" SkinID="LBL_NR" Text="" />
+                            </div>
                         </div>
-                        <div class="flex flex-justify-content-center mt-20 width-100">
-                            <asp:Button runat="server" ID="btn_SessionTimeout_Ok" Width="100" Text="Ok" OnClick="btn_SessionTimeout_Ok_Click" />
+                        <br />
+                        <asp:GridView runat="server" ID="gv_PoList" Width="100%" SkinID="GRD_V1" AutoGenerateColumns="False">
+                            <HeaderStyle HorizontalAlign="Left" />
+                            <Columns>
+                                <asp:TemplateField>
+                                    <ItemTemplate>
+                                        <asp:CheckBox ID="chk_PoItem" runat="server" SkinID="CHK_V1" AutoPostBack="false" />
+                                        <asp:HiddenField runat="server" ID="hf_PoList_PoNo" Value='<%# Eval("PoNo") %>' />
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                                <asp:TemplateField HeaderText="<%$ Resources:PC_REC_RecEdit, DeliveryDate %>">
+                                    <ItemTemplate>
+                                        <asp:Label runat="server" SkinID="LBL_NR"><%# Convert.ToDateTime(Eval("DeliveryDate")).ToString("dd/MM/yyyy") %></asp:Label>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                                <asp:TemplateField HeaderText="<%$ Resources:PC_REC_RecEdit, PoNo %>">
+                                    <ItemTemplate>
+                                        <asp:Label runat="server" SkinID="LBL_NR"><%# Eval("PoNo") %></asp:Label>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                                <asp:TemplateField HeaderText="<%$ Resources:PC_REC_RecEdit, Status %>">
+                                    <ItemTemplate>
+                                        <asp:Label runat="server" SkinID="LBL_NR"><%# Eval("DocStatus")%></asp:Label>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                            </Columns>
+                        </asp:GridView>
+                        <br />
+                        <div class="flex flex-justify-content-end me-10">
+                            <asp:Button runat="server" ID="btn_PoList_Ok" Width="80" Text="OK" OnClick="btn_PoList_Ok_Click" />
                         </div>
                     </dx:PopupControlContentControl>
                 </ContentCollection>
@@ -830,5 +876,7 @@
 
             return false;
         }
+
+
     </script>
 </asp:Content>
