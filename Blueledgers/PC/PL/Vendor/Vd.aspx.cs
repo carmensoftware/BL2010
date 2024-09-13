@@ -644,33 +644,39 @@ namespace BlueLedger.PL.PC.PL.Vendor
 
         protected void btn_ConfirmDeletePL_Click(object sender, EventArgs e)
         {
-            var PL = Request.Params["ID"];
+            var id = Request.Params["ID"];
+            var query = "DELETE FROM [IN].PLDt WHERE PriceLstNo=@Id; DELETE FROM [IN].PL WHERE PriceLstNo=@Id;";
 
-            if (dsPL.Tables[plDt.TableName].Rows.Count > 0 &&
-                prDt.CountByVendorCode(dsPL.Tables[pl.TableName].Rows[0]["VendorCode"].ToString(), dsPL.Tables[plDt.TableName].Rows[0]["ProductCode"].ToString(), LoginInfo.ConnStr) > 0)
-            {
-                pop_CannotDelete.ShowOnPageLoad = true;
-                return;
-            }
+            pl.DbExecuteQuery(query, new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@Id", id.ToString()) }, LoginInfo.ConnStr);
 
-            foreach (DataRow drPLDt in dsPL.Tables[plDt.TableName].Rows)
-            {
-                drPLDt.Delete();
-            }
+            Response.Redirect("VdList.aspx");
 
-            foreach (DataRow drPL in dsPL.Tables[pl.TableName].Rows)
-            {
-                drPL.Delete();
-            }
+            //var PL = Request.Params["ID"];
+            //if (dsPL.Tables[plDt.TableName].Rows.Count > 0 &&
+            //    prDt.CountByVendorCode(dsPL.Tables[pl.TableName].Rows[0]["VendorCode"].ToString(), dsPL.Tables[plDt.TableName].Rows[0]["ProductCode"].ToString(), LoginInfo.ConnStr) > 0)
+            //{
+            //    pop_CannotDelete.ShowOnPageLoad = true;
+            //    return;
+            //}
 
-            //Save To DataBase.
-            var savePL = pl.Delete(dsPL, LoginInfo.ConnStr);
+            //foreach (DataRow drPLDt in dsPL.Tables[plDt.TableName].Rows)
+            //{
+            //    drPLDt.Delete();
+            //}
 
-            if (savePL)
-            {
-                pop_ConfirmDeletePL.ShowOnPageLoad = false;
-                Response.Redirect("VdList.aspx");
-            }
+            //foreach (DataRow drPL in dsPL.Tables[pl.TableName].Rows)
+            //{
+            //    drPL.Delete();
+            //}
+
+            ////Save To DataBase.
+            //var savePL = pl.Delete(dsPL, LoginInfo.ConnStr);
+
+            //if (savePL)
+            //{
+            //    pop_ConfirmDeletePL.ShowOnPageLoad = false;
+            //    Response.Redirect("VdList.aspx");
+            //}
         }
 
         protected void btn_CancelDeletePL_Click(object sender, EventArgs e)

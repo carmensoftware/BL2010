@@ -2171,7 +2171,7 @@ SELECT
 	InventoryUnit,
 	ISNULL(u.Rate, 0) as Rate,
 	OrdQty,
-	RcvQty,
+	OrdQty-RcvQty+CancelQty as RemainQty,
 	FocQty,
 	Price,
 	podt.TaxType,
@@ -2240,10 +2240,11 @@ WHERE
                         ProductDesc1 = x.Field<string>("ProductDesc1"),
                         ProductDesc2 = x.Field<string>("ProductDesc2"),
 
-
+                        UnitCode = x.Field<string>("InventoryUnit"),
                         RcvUnit = x.Field<string>("Unit"),
                         OrderQty = x.Field<decimal>("OrdQty"),
                         FocQty = x.Field<decimal>("FocQty"),
+                        RecQty = x.Field<decimal>("RemainQty"),
                         Price = x.Field<decimal>("Price"),
                         Discount = x.Field<decimal>("Discount"),
                         TaxType = x.Field<string>("TaxType"),
@@ -2263,6 +2264,60 @@ WHERE
                         PoDtNo = x.Field<int>("PoDt"),
                     })
                     .ToArray();
+
+                // Recalculation if partial qty
+                var currencyRate = se_CurrencyRate.Number;
+                foreach (var po in poItems)
+                {
+                    if (po.OrderQty != po.RecQty)
+                    {
+                        var qty = po.RecQty;
+                        var price = po.Price;
+                        var taxType = po.TaxType;
+                        var taxRate = po.TaxRate;
+                        var discRate = po.Discount;
+                        var currDisc = 0m;
+                        var currNet = 0m;
+                        var currTax = 0m;
+                        var currTotal = 0m;
+                        var amt = RoundAmt(price * qty);
+
+                        switch (taxType.ToUpper())
+                        {
+                            case "I":
+                                currDisc = RoundAmt(amt * discRate / 100);
+                                var net = RoundAmt( amt - currDisc);
+                                currTax = RoundAmt(net * (taxRate / (taxRate + 100)));
+                                currNet = net - currTax;
+                                
+                                break;
+                            case "A":
+                                currDisc = RoundAmt(amt * discRate / 100);
+                                currNet = amt - currDisc;
+                                currTax = RoundAmt(currNet * taxRate / 100);
+
+                                break;
+                            default:
+                                currDisc = RoundAmt(amt * discRate / 100);
+                                currNet = amt - currDisc;
+                                currTax = 0m;
+                                break;
+                        }
+
+                        currTotal = currNet + currTax;
+
+                        po.CurrDiscAmt = currDisc;
+                        po.CurrNetAmt = currNet;
+                        po.CurrTaxAmt = currTax;
+                        po.TotalAmt = currTotal;
+
+                        po.DiccountAmt = RoundAmt(po.CurrDiscAmt * currencyRate);
+                        po.NetAmt = RoundAmt(po.CurrNetAmt * currencyRate);
+                        po.TaxAmt = RoundAmt(po.CurrTaxAmt * currencyRate);
+                        po.TotalAmt = RoundAmt(po.CurrTotalAmt * currencyRate);
+                    }
+                }
+
 
                 InsertToRecDt(poItems);
 
