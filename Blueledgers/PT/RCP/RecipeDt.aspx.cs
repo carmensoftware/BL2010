@@ -263,14 +263,10 @@ namespace BlueLedger.PL.PT.RCP
                     break;
 
                 case "PRINT":
-                    //    var objArrList = new ArrayList();
-                    //    objArrList.Add("'" + dsStockIn.Tables[stockIn.TableName].Rows[0]["RefID"] + "'");
-                    //    Session["s_arrNo"] = objArrList;
-                    //    var reportLink1 = "../../RPT/ReportCriteria.aspx?category=012&reportid=327" + "&BuCode=" +
-                    //                      Request.Params["BuCode"];
-                    //    ClientScript.RegisterStartupScript(GetType(), "newWindow",
-                    //        "<script>window.open('" + reportLink1 + "','_blank')</script>");
-                    ScriptManager.RegisterClientScriptBlock(this, GetType(), "print", "window.print();", true);
+                    //ScriptManager.RegisterClientScriptBlock(this, GetType(), "print", "window.print();", true);
+
+                    var pageFile = "../../RPT/PrintForm.aspx?ID=" + Request.Params["ID"] + "&Report=RecipeForm";
+                    ClientScript.RegisterStartupScript(GetType(), "newWindow", "<script>window.open('" + pageFile + "','_blank')</script>");
                     break;
 
                 case "BACK":

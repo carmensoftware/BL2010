@@ -138,8 +138,8 @@ namespace BlueLedger.PL.IN.REC
                         break;
                     //ต้องแก้เพื่อ Impact เพิ่ม Create Manual
                     case "POMANUAL":
-                        Response.Redirect("RecCreateManual.aspx?BuCode=" + LoginInfo.BuInfo.BuCode + "&MODE=new" + "&VID=" + ListPage2.VID);
-                        //Response.Redirect("RecEdit.aspx?BuCode=" + LoginInfo.BuInfo.BuCode + "&MODE=new"); //
+                        //Response.Redirect("RecCreateManual.aspx?BuCode=" + LoginInfo.BuInfo.BuCode + "&MODE=new" + "&VID=" + ListPage2.VID);
+                        Response.Redirect("RecEdit.aspx?BuCode=" + LoginInfo.BuInfo.BuCode + "&MODE=new"); //
                         break;
 
                     case "PO":

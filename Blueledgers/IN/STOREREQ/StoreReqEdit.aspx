@@ -697,7 +697,7 @@
                                             <asp:Label ID="lbl_QtyRequested" runat="server" SkinID="LBL_NR_GRD"></asp:Label>
                                         </td>
                                         <td style="width: 8%; padding-right: 5px;" align="right">
-                                            <asp:TextBox ID="txt_QtyAppr" runat="server" Width="95%" MaxLength="29" SkinID="TXT_NUM_V1" AutoPostBack="True"></asp:TextBox>
+                                            <asp:TextBox ID="txt_QtyAppr" runat="server" Width="95%" MaxLength="29" SkinID="TXT_NUM_V1" AutoPostBack="True" OnTextChanged="txt_QtyAppr_TextChanged"></asp:TextBox>
                                         </td>
                                         <td style="width: 8%; padding-right: 5px;" align="right">
                                             <asp:TextBox ID="txt_QtyAllocate" runat="server" Width="95%" MaxLength="29" SkinID="TXT_NUM_V1" Visible="false" AutoPostBack="True" OnTextChanged="txt_QtyAllocate_TextChanged"></asp:TextBox>

@@ -436,7 +436,7 @@ namespace BlueLedger.PL.IN.STOREREQ
 
             drUpdating["RequestQty"] = RoundQty(decimal.Parse(txtQtyRequested.Text));
             drUpdating["ApprQty"] = RoundQty(decimal.Parse(txtQtyRequested.Text));
-            //drUpdating["AllocateQty"] = RoundQty(decimal.Parse(txtQtyRequested.Text));
+            drUpdating["AllocateQty"] = RoundQty(decimal.Parse(txtQtyRequested.Text));
             drUpdating["RequestUnit"] = lblUnit.Text;
             drUpdating["DebitACCode"] = null;
             drUpdating["CreditACCode"] = null;
@@ -571,6 +571,7 @@ namespace BlueLedger.PL.IN.STOREREQ
                 drUpdating["ProductCode"] = productCode;
                 drUpdating["RequestQty"] = decimal.Parse(txtQtyRequested.Text);
                 drUpdating["ApprQty"] = decimal.Parse(txtQtyRequested.Text);
+                drUpdating["AllocateQty"] = decimal.Parse(txtQtyRequested.Text);
                 if (lblUnit != null) drUpdating["RequestUnit"] = lblUnit.Text;
                 drUpdating["DebitACCode"] = null;
                 drUpdating["CreditACCode"] = null;
@@ -1690,8 +1691,9 @@ namespace BlueLedger.PL.IN.STOREREQ
 
         protected void txt_QtyAppr_TextChanged(object sender, EventArgs e)
         {
-            //var txtQtyAppr = grd_StoreReqAppr.Rows[grd_StoreReqAppr.EditIndex].FindControl("txt_QtyAppr") as TextBox;
-            //var hfProductCode = grd_StoreReqAppr.Rows[grd_StoreReqAppr.EditIndex].FindControl("hf_ProductCode") as HiddenField;
+            var txt_QtyAllocate = grd_StoreReqAppr.Rows[grd_StoreReqAppr.EditIndex].FindControl("txt_QtyAllocate") as TextBox;
+
+            txt_QtyAllocate.Text = (sender as TextBox).Text;
         }
 
         protected void txt_QtyAllocate_TextChanged(object sender, EventArgs e)

@@ -5,7 +5,7 @@
 <%@ Register Src="../../UserControl/ViewHandler/ListPage2.ascx" TagName="ListPage2"
     TagPrefix="uc2" %>
 <asp:Content ID="Content1" runat="server" ContentPlaceHolderID="cph_Main">
-    <uc2:ListPage2 ID="ListPage2" runat="server" PageCode="[PT].[vRcpList]" EditPageURL="RecipeEdit.aspx"
+    <uc2:ListPage2 ID="ListPage2" runat="server" PageCode="[PT].[vRcpList]" 
         DetailPageURL="RecipeDt.aspx" KeyFieldName="RcpCode" AllowDelete="False" AllowPrint="False"  Module="PT"
         SubModule="Recipe"
         Title="Recipe" />

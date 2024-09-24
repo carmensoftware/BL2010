@@ -310,8 +310,10 @@
                     <asp:Label ID="lbl_TaxRate" runat="server" SkinID="LBL_NR_BLUE" Font-Size="Small" />
                 </td>
                 <td>
+                    <asp:Label ID="Label1" runat="server" SkinID="LBL_HD" Text="Tax Account" />
                 </td>
                 <td>
+                    <asp:Label ID="lbl_TaxAccCode" runat="server" SkinID="LBL_NR_BLUE" Font-Size="Small" />
                 </td>
             </tr>
             <tr>

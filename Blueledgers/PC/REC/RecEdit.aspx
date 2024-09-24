@@ -22,6 +22,11 @@
             border-radius: 2px;
             margin-right: 1em;
         }
+        
+        .mt-10
+        {
+            margin-top: 10px !important;
+        }
     </style>
     <!-- Hidden Field(s) -->
     <asp:HiddenField ID="hf_ConnStr" runat="server" />
@@ -167,7 +172,7 @@
                         <asp:TextBox ID="txt_Desc" runat="server" TextMode="MultiLine" Rows="2" Width="100%" SkinID="TXT_V1"></asp:TextBox>
                     </td>
                 </tr>
-                <tr>
+                <tr style="display: none;">
                     <td>
                         <asp:Label ID="lbl_TotalExtraCost" runat="server" Text="Extra Cost" SkinID="LBL_HD" />
                     </td>
@@ -208,11 +213,11 @@
             <asp:GridView ID="gv_Detail" runat="server" Width="100%" SkinID="GRD_V1" AutoGenerateColumns="false" EmptyDataText="No Data" OnRowDataBound="gv_Detail_RowDataBound"
                 OnRowEditing="gv_Detail_RowEditing" OnRowCancelingEdit="gv_Detail_RowCancelingEdit" OnRowUpdating="gv_Detail_RowUpdating" OnRowDeleting="gv_Detail_RowDeleting">
                 <HeaderStyle HorizontalAlign="Left" Height="24" />
-                <RowStyle HorizontalAlign="Left" Height="30" />
+                <RowStyle HorizontalAlign="Left" VerticalAlign="Middle" Height="40" />
                 <Columns>
                     <%--Expand button--%>
                     <asp:TemplateField>
-                        <ItemStyle Width="17px" VerticalAlign="Middle" />
+                        <ItemStyle Width="17px" />
                         <ItemTemplate>
                             <asp:ImageButton ID="Img_Btn" runat="server" ImageUrl="~/App_Themes/Default/Images/master/in/Default/Plus.jpg" OnClientClick="expandDetailsInGrid(this);return false;" />
                             <asp:HiddenField runat="server" ID="hf_RecDtNo" Value='<%# Eval("RecDtNo") %>' />
@@ -244,13 +249,14 @@
                         </ItemTemplate>
                         <EditItemTemplate>
                             <asp:HiddenField runat="server" ID="hf_ProductCode" />
+                            <asp:HiddenField runat="server" ID="hf_UnitCode" />
                             <% if (!string.IsNullOrEmpty(hf_PoSource.Value))
                                { %>
                             <asp:Label runat="server" ID="lbl_Product" />
                             <% }
                                else
                                { %>
-                            <dx:ASPxComboBox ID="ddl_Product" runat="server" Width="90%" IncrementalFilteringMode="Contains" />
+                            <dx:ASPxComboBox ID="ddl_Product" runat="server" Width="90%" AutoPostBack="true" IncrementalFilteringMode="Contains" OnSelectedIndexChanged="ddl_Product_SelectedIndexChanged" />
                             <%} %>
                         </EditItemTemplate>
                     </asp:TemplateField>
@@ -273,6 +279,16 @@
                         <EditItemTemplate>
                             <asp:HiddenField runat="server" ID="hf_OrdQty" />
                             <asp:Label runat="server" ID="lbl_OrdQty" />
+                        </EditItemTemplate>
+                    </asp:TemplateField>
+                    <%--Receive Unit--%>
+                    <asp:TemplateField HeaderText="Unit">
+                        <ItemTemplate>
+                            <asp:Label runat="server" ID="lbl_RcvUnit" />
+                        </ItemTemplate>
+                        <EditItemTemplate>
+                            <asp:HiddenField runat="server" ID="hf_Rate" />
+                            <asp:DropDownList runat="server" ID="ddl_RcvUnit" Width="80" />
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%--Receive--%>
@@ -361,10 +377,10 @@
                         <HeaderStyle HorizontalAlign="Right" />
                         <ItemStyle HorizontalAlign="Right" />
                         <ItemTemplate>
-                            <asp:Label runat="server" ID="lbl_CurrTotalAmt" />
+                            <asp:Label runat="server" ID="lbl_CurrTotalAmt_Row" />
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <asp:Label runat="server" ID="lbl_CurrTotalAmt" />
+                            <asp:Label runat="server" ID="lbl_CurrTotalAmt_Row" />
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%--Total Base--%>
@@ -372,10 +388,10 @@
                         <HeaderStyle HorizontalAlign="Right" />
                         <ItemStyle HorizontalAlign="Right" />
                         <ItemTemplate>
-                            <asp:Label runat="server" ID="lbl_TotalAmt" />
+                            <asp:Label runat="server" ID="lbl_TotalAmt_Row" />
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <asp:Label runat="server" ID="lbl_TotalAmt" />
+                            <asp:Label runat="server" ID="lbl_TotalAmt_Row" />
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%--Expiry Date--%>
@@ -384,7 +400,7 @@
                             <asp:Label runat="server" ID="lbl_ExpiryDate" />
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <dx:ASPxDateEdit ID="de_ExpiryDate" runat="server" DisplayFormatString="dd/MM/yyyy" EditFormatString="dd/MM/yyyy" ShowShadow="False" />
+                            <dx:ASPxDateEdit ID="de_ExpiryDate" runat="server" Width="120" DisplayFormatString="dd/MM/yyyy" EditFormatString="dd/MM/yyyy" ShowShadow="False" />
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%--Expand Information--%>
@@ -392,7 +408,7 @@
                         <HeaderStyle Width="0" />
                         <ItemTemplate>
                             <tr id="TR_Summary" runat="server" style="display: none;">
-                                <td colspan="15">
+                                <td colspan="16">
                                     <div style="width: 100%; height: 3px; border-bottom: 1px dashed;">
                                     </div>
                                     <!--Extra information-->
@@ -405,10 +421,10 @@
                                             <!-- Currency & Base -->
                                             <td style="width: 10%;">
                                             </td>
-                                            <td style="width: 20%; text-align: right; border-bottom: 1px solid;">
+                                            <td style="width: 20%; text-align: right;">
                                                 <asp:Label ID="Label4" runat="server" SkinID="LBL_HD_GRD">Currency (<%= ddl_Currency.Text %>)</asp:Label>
                                             </td>
-                                            <td style="width: 20%; text-align: right; border-bottom: 1px solid;">
+                                            <td style="width: 20%; text-align: right;">
                                                 <asp:Label ID="Label5" runat="server" SkinID="LBL_HD_GRD">Base (<%= _default.Currency %>)</asp:Label>
                                             </td>
                                         </tr>
@@ -450,7 +466,7 @@
                                             <td>
                                                 <asp:CheckBox ID="chk_AdjTax" runat="server" Checked='<%# Eval("TaxAdj").ToString()=="1" %>' Text='Adjust' Enabled="false" />
                                                 <asp:Label ID="Label18" runat="server" SkinID="LBL_HD_GRD" Text="Tax : " />
-                                                <asp:Label ID="Label19" runat="server" SkinID="LBL_NR_1"><%# Eval("TaxTypeName") %></asp:Label>
+                                                <%--<asp:Label ID="Label19" runat="server" SkinID="LBL_NR_1"><%# Eval("TaxTypeName") %></asp:Label>--%>
                                                 <asp:Label ID="Label20" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("TaxRate")) %></asp:Label>
                                             </td>
                                             <!-- Tax -->
@@ -537,7 +553,7 @@
                         </ItemTemplate>
                         <EditItemTemplate>
                             <tr id="TR_Summary" runat="server">
-                                <td colspan="15" style="border: 1px solid #ababab;">
+                                <td colspan="16" style="border: 1px solid #ababab;">
                                     <div style="margin: 5px;">
                                         <!--Extra information-->
                                         <table class="table width-100 mt-10">
@@ -549,10 +565,10 @@
                                                 <!-- Currency & Base -->
                                                 <td style="width: 10%;">
                                                 </td>
-                                                <td style="width: 20%; text-align: right; border-bottom: 1px solid;">
+                                                <td style="width: 20%; text-align: right;">
                                                     <asp:Label ID="Label4" runat="server" SkinID="LBL_HD_GRD">Currency (<%= ddl_Currency.Text %>)</asp:Label>
                                                 </td>
-                                                <td style="width: 20%; text-align: right; border-bottom: 1px solid;">
+                                                <td style="width: 20%; text-align: right;">
                                                     <asp:Label ID="Label5" runat="server" SkinID="LBL_HD_GRD">Base (<%= _default.Currency %>)</asp:Label>
                                                 </td>
                                             </tr>
@@ -577,7 +593,7 @@
                                                     <dx:ASPxSpinEdit runat="server" ID="se_CurrDiscAmt" Width="100%" ForeColor="Red" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right" />
                                                 </td>
                                                 <td style="text-align: right">
-                                                    <asp:Label ID="Label17" runat="server" SkinID="LBL_NR_1" ForeColor="Red">(<%# FormatAmt(Eval("DiccountAmt"))%>)</asp:Label>
+                                                    <asp:Label ID="lbl_DiscAmt" runat="server" SkinID="LBL_NR_1" ForeColor="Red">(<%# FormatAmt(Eval("DiccountAmt"))%>)</asp:Label>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -590,10 +606,10 @@
                                                     <asp:Label ID="Label7" runat="server" SkinID="LBL_HD_GRD" Text="Net" />
                                                 </td>
                                                 <td style="text-align: right">
-                                                    <asp:Label ID="lbl_CurrNetAmt_Dt" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("NetAmt")) %></asp:Label>
+                                                    <dx:ASPxSpinEdit runat="server" ID="se_CurrNetAmt" Width="100%"  MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right" ReadOnly="true" />
                                                 </td>
                                                 <td style="text-align: right">
-                                                    <asp:Label ID="lbl_NetAmt_Dt" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("NetAmt")) %></asp:Label>
+                                                    <asp:Label ID="lbl_NetAmt" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("NetAmt")) %></asp:Label>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -604,8 +620,8 @@
                                                     <asp:HiddenField runat="server" ID="hf_TaxType" />
                                                     <asp:HiddenField runat="server" ID="hf_TaxRate" />
                                                     <asp:CheckBox ID="chk_AdjTax" runat="server" AutoPostBack="true" Checked='<%# Eval("TaxAdj").ToString()=="1" %>' Text='Adjust' OnCheckedChanged="chk_AdjTax_CheckedChanged" />
-                                                    &nbsp;&nbsp;&nbsp;&nbsp;
-                                                    <asp:Label ID="Label18" runat="server" SkinID="LBL_HD_GRD" Text="Tax : " />
+                                                    &nbsp;&nbsp;
+                                                    <asp:Label ID="Label18" runat="server" SkinID="LBL_HD_GRD" Text="Tax" />
                                                     &nbsp;
                                                     <asp:DropDownList runat="server" ID="ddl_TaxType" AutoPostBack="true" OnSelectedIndexChanged="ddl_TaxType_SelectedIndexChanged" Enabled='<%# Eval("TaxAdj")=="1" %>'>
                                                         <asp:ListItem Value="N" Text="None" />
@@ -613,7 +629,7 @@
                                                         <asp:ListItem Value="I" Text="Include" />
                                                     </asp:DropDownList>
                                                     &nbsp;
-                                                    <asp:Label ID="Label28" runat="server" SkinID="LBL_HD_GRD" Text="Rate : " />
+                                                    <asp:Label ID="Label28" runat="server" SkinID="LBL_HD_GRD" Text="Rate" />
                                                     &nbsp;
                                                     <dx:ASPxSpinEdit runat="server" ID="se_TaxRate" AutoPostBack="true" Width="40" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right"
                                                         Enabled='<%# Eval("TaxAdj")=="1" %>' Number='<%# Eval("TaxRate") %>' OnNumberChanged="se_TaxRate_NumberChanged" />
@@ -626,7 +642,7 @@
                                                     <dx:ASPxSpinEdit runat="server" ID="se_CurrTaxAmt" Width="100%" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right" />
                                                 </td>
                                                 <td style="text-align: right">
-                                                    <asp:Label ID="lbl_TaxAmt_Dt" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("TaxAmt"))%></asp:Label>
+                                                    <asp:Label ID="lbl_TaxAmt" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("TaxAmt"))%></asp:Label>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -642,10 +658,15 @@
                                                     <asp:Label ID="lbl_CurrTotalAmt_Dt" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("CurrTotalAmt")) %></asp:Label>
                                                 </td>
                                                 <td style="text-align: right; border-top: 1px solid;">
-                                                    <asp:Label ID="lbl_TotalAmt_Dt" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("TotalAmt"))%></asp:Label>
+                                                    <asp:Label ID="lbl_TotalAmt" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("TotalAmt"))%></asp:Label>
                                                 </td>
                                             </tr>
                                         </table>
+                                        <!--Comment-->
+                                        <div class="flex flex-columm mb-10">
+                                            <asp:Label ID="Label12" runat="server" SkinID="LBL_HD_1" Text="Comment" />
+                                            <asp:TextBox ID="txt_Comment" runat="server" Width="99%" Text='<%# Eval("Comment") %>' />
+                                        </div>
                                         <!-- Action Buttons Edit/Delete -->
                                         <div class="flex flex-justify-content-end width-100 mt-10" style="padding: 10px 0; background-color: #F5F5F5;">
                                             <asp:LinkButton runat="server" ID="btn_Save" CommandName="Update" SkinID="LNKB_NORMAL" Text="Save" />

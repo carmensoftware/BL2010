@@ -403,82 +403,88 @@ namespace BlueLedger.PL.PC.CN
 
             string sql = string.Format("SELECT TOP(1) TaxType, TaxRate, RecQty, Rate, CurrNetAmt, CurrTaxAmt, CurrTotalAmt, NetAmt, TaxAmt, TotalAmt FROM PC.RECDt WHERE RecNo = '{0}' AND ProductCode = '{1}' ", ddl_Rec.Text, ddl_Product.Text.Split(' ')[0].Trim());
             DataTable dt = rec.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
-            DataRow dr = dt.Rows[0];
-            string recTaxType = dr["TaxType"].ToString();
-            decimal rectTaxRate = Convert.ToDecimal(dr["TaxRate"]);
 
-            // Check if CN Type is Qty. or Amount
-            if (ddl_CnType.SelectedIndex == CN_QTY_INDEX) // Qty
+            if (dt != null && dt.Rows.Count > 0)
             {
-                decimal cnQty = Convert.ToDecimal(se_RecQty.Value);
-                decimal unitRate = Convert.ToDecimal(dr["Rate"]);
-                decimal recQty = Convert.ToDecimal(dr["RecQty"]);
-                decimal recBaseQty = recQty * unitRate;
 
-                decimal recCurrNetAmt = Convert.ToDecimal(dr["CurrNetAmt"]);
-                decimal recCurrTaxAmt = Convert.ToDecimal(dr["CurrTaxAmt"]);
-                //decimal recCurrTotalAmt = Convert.ToDecimal(dr["CurrTotalAmt"]);
-                decimal recNetAmt = Convert.ToDecimal(dr["NetAmt"]);
-                decimal recTaxAmt = Convert.ToDecimal(dr["TaxAmt"]);
-                //decimal recTotalAmt = Convert.ToDecimal(dr["TotalAmt"]);
+                DataRow dr = dt.Rows[0];
+                string recTaxType = dr["TaxType"].ToString();
+                decimal rectTaxRate = Convert.ToDecimal(dr["TaxRate"]);
 
-
-                if (cnQty == recBaseQty) // Full return
+                // Check if CN Type is Qty. or Amount
+                if (ddl_CnType.SelectedIndex == CN_QTY_INDEX) // Qty
                 {
-                    currNetAmt = recCurrNetAmt;
-                    currTaxAmt = recCurrTaxAmt;
+                    decimal cnQty = Convert.ToDecimal(se_RecQty.Value);
+                    decimal unitRate = Convert.ToDecimal(dr["Rate"]);
+                    decimal recQty = Convert.ToDecimal(dr["RecQty"]);
+                    decimal recBaseQty = recQty * unitRate;
 
-                    netAmt = recNetAmt;
-                    taxAmt = recTaxAmt;
+                    decimal recCurrNetAmt = Convert.ToDecimal(dr["CurrNetAmt"]);
+                    decimal recCurrTaxAmt = Convert.ToDecimal(dr["CurrTaxAmt"]);
+                    //decimal recCurrTotalAmt = Convert.ToDecimal(dr["CurrTotalAmt"]);
+                    decimal recNetAmt = Convert.ToDecimal(dr["NetAmt"]);
+                    decimal recTaxAmt = Convert.ToDecimal(dr["TaxAmt"]);
+                    //decimal recTotalAmt = Convert.ToDecimal(dr["TotalAmt"]);
+
+
+                    if (cnQty == recBaseQty) // Full return
+                    {
+                        currNetAmt = recCurrNetAmt;
+                        currTaxAmt = recCurrTaxAmt;
+
+                        netAmt = recNetAmt;
+                        taxAmt = recTaxAmt;
+
+                    }
+                    else
+                    {
+                        decimal currNetPerUnit = RoundAmt(recCurrNetAmt / recBaseQty);
+                        decimal currTaxPerUnit = RoundAmt(recCurrTaxAmt / recBaseQty);
+
+                        currNetAmt = RoundAmt(currNetPerUnit * cnQty);
+                        currTaxAmt = RoundAmt(currTaxPerUnit * cnQty);
+
+                        netAmt = RoundAmt(currNetAmt * currRate);
+                        taxAmt = RoundAmt(currTaxAmt * currRate);
+
+                    }
+
+                    currTotalAmt = currNetAmt + currTaxAmt;
+                    totalAmt = netAmt + taxAmt;
+
 
                 }
-                else
+                else // Amount
                 {
-                    decimal currNetPerUnit = RoundAmt(recCurrNetAmt / recBaseQty);
-                    decimal currTaxPerUnit = RoundAmt(recCurrTaxAmt / recBaseQty);
 
-                    currNetAmt = RoundAmt(currNetPerUnit * cnQty);
-                    currTaxAmt = RoundAmt(currTaxPerUnit * cnQty);
+
+                    se_RecQty.Value = 0;
+                    currNetAmt = Convert.ToDecimal(se_CurrNetAmt.Text);
+                    currTaxAmt = Convert.ToDecimal(se_CurrTaxAmt.Text);
+                    currTotalAmt = currNetAmt + currTaxAmt;
 
                     netAmt = RoundAmt(currNetAmt * currRate);
                     taxAmt = RoundAmt(currTaxAmt * currRate);
+                    totalAmt = netAmt + taxAmt;
 
+                    //lbl_RecNetAmt.Text = se_CurrNetAmt.Text;
+                    //lbl_RecTaxAmt.Text = se_CurrTaxAmt.Text;
+                    //lbl_RecNetAmt.Text = (Convert.ToDecimal(se_CurrNetAmt.Text) + Convert.ToDecimal(se_CurrTaxAmt.Text)).ToString();
                 }
 
-                currTotalAmt = currNetAmt + currTaxAmt;
-                totalAmt = netAmt + taxAmt;
 
+                se_CurrNetAmt.Value = currNetAmt;
+                se_CurrTaxAmt.Value = currTaxAmt;
+                se_CurrTotalAmt.Value = currTotalAmt;
+
+                lbl_CurrNetAmt.Text = string.Format(DefaultAmtFmt, currNetAmt);
+                lbl_CurTaxAmt.Text = string.Format(DefaultAmtFmt, currTaxAmt);
+                lbl_CurrTotalAmt.Text = string.Format(DefaultAmtFmt, currTotalAmt);
+
+                lbl_NetAmt.Text = string.Format(DefaultAmtFmt, netAmt);
+                lbl_TaxAmt.Text = string.Format(DefaultAmtFmt, taxAmt);
+                lbl_TotalAmt.Text = string.Format(DefaultAmtFmt, totalAmt);
             }
-            else // Amount
-            {
-
-
-                se_RecQty.Value = 0;
-                currNetAmt = Convert.ToDecimal(se_CurrNetAmt.Text);
-                currTaxAmt = Convert.ToDecimal(se_CurrTaxAmt.Text);
-                currTotalAmt = currNetAmt + currTaxAmt;
-
-                netAmt = RoundAmt(currNetAmt * currRate);
-                taxAmt = RoundAmt(currTaxAmt * currRate);
-                totalAmt = netAmt + taxAmt;
-
-                //lbl_RecNetAmt.Text = se_CurrNetAmt.Text;
-                //lbl_RecTaxAmt.Text = se_CurrTaxAmt.Text;
-                //lbl_RecNetAmt.Text = (Convert.ToDecimal(se_CurrNetAmt.Text) + Convert.ToDecimal(se_CurrTaxAmt.Text)).ToString();
-            }
-
-            se_CurrNetAmt.Value = currNetAmt;
-            se_CurrTaxAmt.Value = currTaxAmt;
-            se_CurrTotalAmt.Value = currTotalAmt;
-
-            lbl_CurrNetAmt.Text = string.Format(DefaultAmtFmt, currNetAmt);
-            lbl_CurTaxAmt.Text = string.Format(DefaultAmtFmt, currTaxAmt);
-            lbl_CurrTotalAmt.Text = string.Format(DefaultAmtFmt, currTotalAmt);
-
-            lbl_NetAmt.Text = string.Format(DefaultAmtFmt, netAmt);
-            lbl_TaxAmt.Text = string.Format(DefaultAmtFmt, taxAmt);
-            lbl_TotalAmt.Text = string.Format(DefaultAmtFmt, totalAmt);
-
         }
 
         private double GetProductRemainQty(string recNo, string locationCode, string productCode)
@@ -2129,9 +2135,7 @@ namespace BlueLedger.PL.PC.CN
                 if (e.Row.FindControl("ddl_Unit") != null)
                 {
                     var ddl_Unit = e.Row.FindControl("ddl_Unit") as ASPxComboBox;
-                    ddl_Unit.DataSource =
-                        prodUnit.GetLookUp_ProductCode(DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString(),
-                            hf_ConnStr.Value);
+                    ddl_Unit.DataSource = prodUnit.GetLookUp_ProductCode(DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString(), hf_ConnStr.Value);
                     ddl_Unit.ValueField = "OrderUnit";
                     ddl_Unit.DataBind();
                     ddl_Unit.Value = DataBinder.Eval(e.Row.DataItem, "UnitCode");
@@ -2640,7 +2644,15 @@ namespace BlueLedger.PL.PC.CN
                 drCnDtEdited["RecNo"] = ddl_Rec.Value.ToString().Split(':')[0].Trim();
                 drCnDtEdited["Location"] = ddl_Location.Value.ToString().Split(':')[0].Trim();
                 drCnDtEdited["ProductCode"] = ddl_Product.Value.ToString().Split(':')[0].Trim();
-                drCnDtEdited["UnitCode"] = ddl_Unit.Value.ToString().Split(':')[0].Trim();
+                if (string.IsNullOrEmpty(ddl_Unit.Text))
+                {
+                    string sql = string.Format("SELECT TOP(1) RcvUnit FROM PC.RECDt WHERE RecNo = '{0}' AND ProductCode = '{1}' ", ddl_Rec.Text, ddl_Product.Text.Split(' ')[0].Trim());
+                    DataTable dt = rec.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
+
+                    drCnDtEdited["UnitCode"] = dt.Rows.Count == 0 ? "" : dt.Rows[0]["RcvUnit"].ToString();
+                }
+                else
+                    drCnDtEdited["UnitCode"] = ddl_Unit.Value.ToString().Split(':')[0].Trim();
                 drCnDtEdited["RecQty"] = se_RecQty.Value;
                 drCnDtEdited["FOCQty"] = 0;
                 drCnDtEdited["Price"] = Convert.ToDecimal(lbl_RecPrice.Text);

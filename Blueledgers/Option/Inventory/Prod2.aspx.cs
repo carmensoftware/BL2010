@@ -82,6 +82,7 @@ namespace BlueLedger.PL.Option.Inventory
 
                 lbl_TaxType.Text = taxType == "A" ? "Added" : taxType == "I" ? "Included" : "None";
                 lbl_TaxRate.Text = FormatAmt(taxRate, DefaultAmtDigit);
+                lbl_TaxAccCode.Text = drProduct["TaxAccCode"].ToString();
 
 
                 var stdCost = string.IsNullOrEmpty(drProduct["StandardCost"].ToString()) ? 0m : Convert.ToDecimal(drProduct["StandardCost"]);

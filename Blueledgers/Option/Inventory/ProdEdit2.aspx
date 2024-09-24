@@ -236,8 +236,10 @@
                             AllowNull="false" DecimalPlaces="2" DisplayFormatString="#,0.00" />
                     </td>
                     <td>
+                        <asp:Label ID="Label4" runat="server" SkinID="LBL_HD" Text="Tax Account"></asp:Label>
                     </td>
                     <td>
+                        <asp:TextBox ID="txt_TaxAccCode" runat="server" Width="90%" Font-Size="Small" />
                     </td>
                 </tr>
                 <tr>
@@ -257,7 +259,7 @@
                         <asp:Label ID="lbl_QuantityDeviation_Nm" runat="server" SkinID="LBL_HD" Text="<%$ Resources:Option.Inventory.Product, lbl_HeaderQuantityDeviation %>"></asp:Label>
                     </td>
                     <td>
-                        <dx:ASPxSpinEdit ID="se_QtyDev" runat="server"  Width="90%" Font-Size="Small" AutoPostBack="True" SpinButtons-ShowIncrementButtons="False" NullText="0"
+                        <dx:ASPxSpinEdit ID="se_QtyDev" runat="server" Width="90%" Font-Size="Small" AutoPostBack="True" SpinButtons-ShowIncrementButtons="False" NullText="0"
                             DisplayFormatString="#,0.###" />
                     </td>
                     <td>

@@ -202,6 +202,8 @@ namespace BlueLedger.PL.Option.Inventory
                 ddl_TaxType.SelectedValue = string.IsNullOrEmpty(taxType) ? "N" : taxType;
                 se_TaxRate.Value = ddl_TaxType.SelectedValue == "N" ? "0" : drProduct["TaxRate"].ToString();
                 se_TaxRate.Enabled = taxType != "N";
+                txt_TaxAccCode.Text = drProduct["TaxAccCode"].ToString();
+
 
                 se_QtyDev.Number = qtyDiv;
                 se_PriceDev.Number = priceDiv;
@@ -787,7 +789,7 @@ namespace BlueLedger.PL.Option.Inventory
 
             var reqHQAppr = 0;
             var accountCode = "";
-            var taxAccCode = "";
+            var taxAccCode = txt_TaxAccCode.Text;
             var lastCost = 0m;
             var min = 0;
             var max = 0;
