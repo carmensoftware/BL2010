@@ -41,14 +41,20 @@ namespace BlueLedger.PL.IN.REC
 
         protected DataTable _dtRec
         {
-            get { return ViewState["dtRec"] as DataTable; }
-            set { ViewState["dtRec"] = value; }
+            //get { return ViewState["dtRec"] as DataTable; }
+            //set { ViewState["dtRec"] = value; }
+            get { return ViewState["dtRec" + _ID] as DataTable; }
+            set { ViewState["dtRec" + _ID] = value; }
+
         }
 
         protected DataTable _dtRecDt
         {
-            get { return ViewState["dtRecDt"] as DataTable; }
-            set { ViewState["dtRecDt"] = value; }
+            //get { return ViewState["dtRecDt"] as DataTable; }
+            //set { ViewState["dtRecDt"] = value; }
+            get { return ViewState["dtRecDt" + _ID] as DataTable; }
+            set { ViewState["dtRecDt" + _ID] = value; }
+
         }
 
         protected DataTable _dtPo
@@ -101,11 +107,7 @@ namespace BlueLedger.PL.IN.REC
             if (!IsPostBack)
             {
                 Page_Retrieve();
-
             }
-
-
-
 
         }
 
@@ -259,11 +261,13 @@ namespace BlueLedger.PL.IN.REC
         {
             if (IsCreatedManual())
             {
+                var locationCode = _dtRecDt.Rows.Count == 0 ? "" : _dtRecDt.Rows[0]["LocationCode"].ToString();
+
                 var dr = _dtRecDt.NewRow();
 
                 dr["RecNo"] = lbl_RecNo.Text;
                 dr["RecDtNo"] = 0;
-                dr["LocationCode"] = "";
+                dr["LocationCode"] = locationCode;
                 dr["ProductCode"] = "";
                 dr["UnitCode"] = "";
                 dr["OrderQty"] = 0;
@@ -392,6 +396,9 @@ namespace BlueLedger.PL.IN.REC
                 var rate = string.IsNullOrEmpty(DataBinder.Eval(dataItem, "Rate").ToString()) ? 1 : Convert.ToDecimal(DataBinder.Eval(dataItem, "Rate"));
                 var price = string.IsNullOrEmpty(DataBinder.Eval(dataItem, "Price").ToString()) ? 0 : Convert.ToDecimal(DataBinder.Eval(dataItem, "Price"));
 
+                var discAdj = DataBinder.Eval(dataItem, "DiscAdj").ToString() == "1";
+                var taxAdj = DataBinder.Eval(dataItem, "TaxAdj").ToString() == "1";
+                var taxRate = Convert.ToDecimal(DataBinder.Eval(dataItem, "TaxRate"));
 
                 var currDiscAmt = Convert.ToDecimal(DataBinder.Eval(dataItem, "CurrDiscAmt"));
                 var currNetAmt = Convert.ToDecimal(DataBinder.Eval(dataItem, "CurrNetAmt"));
@@ -413,7 +420,18 @@ namespace BlueLedger.PL.IN.REC
                 var productDesc2 = productItem.ProductDesc2;
                 var inventoryUnit = productItem.InventoryUnit;
 
+                var displayFormatAmt = "0";
+                var displayFormatQty = "0";
 
+                for (int i = 1; i < _default.DigitAmt; i++)
+                    displayFormatAmt += "0";
+
+                displayFormatAmt = ",0." + displayFormatAmt;
+
+                for (int i = 1; i < _default.DigitQty; i++)
+                    displayFormatQty += "0";
+
+                displayFormatQty = ",0." + displayFormatAmt;
 
                 // Location
                 if (e.Row.FindControl("lbl_Location") != null)
@@ -487,6 +505,28 @@ namespace BlueLedger.PL.IN.REC
 
                     label.Text = rcvUnit;
                 }
+
+                if (e.Row.FindControl("ddl_RcvUnit") != null)
+                {
+                    var ddl = e.Row.FindControl("ddl_RcvUnit") as DropDownList;
+
+                    ddl.Items.Clear();
+
+                    if (!string.IsNullOrEmpty(productCode))
+                    {
+                        ddl.Items.AddRange(productItem.Units
+                            .Select(x => new ListItem
+                            {
+                                Text = x.UnitCode,
+                                Value = x.UnitRate.ToString()
+                            })
+                            .ToArray());
+                    }
+
+                    ddl.Text = rcvUnit;
+
+                }
+
 
                 // Receive
                 if (e.Row.FindControl("lbl_RecQty") != null)
@@ -629,19 +669,20 @@ namespace BlueLedger.PL.IN.REC
                     label.Text = text;
                 }
 
-                //if (e.Row.FindControl("chk_AdjDisc") != null)
-                //{
-                //    var chk = e.Row.FindControl("chk_AdjDisc") as CheckBox;
-                //    var value = Convert.ToBoolean(DataBinder.Eval(dataItem, "DiscAdj"));
+                // Discount
 
-                //    chk.Checked = value;
-                //}
+                if (e.Row.FindControl("chk_AdjDisc") != null)
+                {
+                    var chk = e.Row.FindControl("chk_AdjDisc") as CheckBox;
+
+                    chk.Checked = discAdj;
+                }
 
                 if (e.Row.FindControl("hf_DiscAdj") != null)
                 {
                     var hf = e.Row.FindControl("hf_DiscAdj") as HiddenField;
 
-                    hf.Value = DataBinder.Eval(e.Row.DataItem, "DiscAdj").ToString();
+                    hf.Value = discAdj.ToString();
                 }
 
                 if (e.Row.FindControl("hf_Discount") != null)
@@ -650,6 +691,31 @@ namespace BlueLedger.PL.IN.REC
 
                     hf.Value = DataBinder.Eval(e.Row.DataItem, "Discount").ToString();
                 }
+
+                if (e.Row.FindControl("se_DiscRate") != null)
+                {
+                    var se = e.Row.FindControl("se_DiscRate") as ASPxSpinEdit;
+
+                    se.Value = currDiscAmt;
+                    se.DecimalPlaces = _default.DigitAmt;
+                    //se.DisplayFormatString = displayFormatAmt;
+                    se.Enabled = discAdj;
+                }
+
+                if (e.Row.FindControl("se_CurrDiscAmt") != null)
+                {
+                    var se = e.Row.FindControl("se_CurrDiscAmt") as ASPxSpinEdit;
+
+                    se.Value = currDiscAmt;
+                    se.DecimalPlaces = _default.DigitAmt;
+                    se.Enabled = taxAdj;
+                    se.DisplayFormatString = displayFormatAmt;
+                }
+
+
+
+                // Tax
+
                 if (e.Row.FindControl("hf_TaxAdj") != null)
                 {
                     var hf = e.Row.FindControl("hf_TaxAdj") as HiddenField;
@@ -682,21 +748,40 @@ namespace BlueLedger.PL.IN.REC
                     hf.Value = DataBinder.Eval(e.Row.DataItem, "TaxRate").ToString();
                 }
 
-                if (e.Row.FindControl("") != null)
+                if (e.Row.FindControl("se_TaxRate") != null)
                 {
-                    var lbl = e.Row.FindControl("") as Label;
+                    var se = e.Row.FindControl("se_TaxRate") as ASPxSpinEdit;
+
+                    se.Value = taxRate;
+                    se.DecimalPlaces = _default.DigitAmt;
+                    se.Enabled = taxAdj;
+                }
+                if (e.Row.FindControl("se_CurrTaxAmt") != null)
+                {
+                    var se = e.Row.FindControl("se_CurrTaxAmt") as ASPxSpinEdit;
+
+                    se.Value = currTaxAmt;
+                    se.DecimalPlaces = _default.DigitAmt;
+                    se.DisplayFormatString = displayFormatAmt;
                 }
 
+                // Net
 
-                if (e.Row.FindControl("") != null)
+                if (e.Row.FindControl("se_CurrNetAmt") != null)
                 {
+                    var se = e.Row.FindControl("se_CurrNetAmt") as ASPxSpinEdit;
+
+                    se.Value = currNetAmt;
+                    se.DecimalPlaces = _default.DigitAmt;
+                    se.ReadOnly = true;
+                    se.DisplayFormatString = displayFormatAmt;
                 }
-                if (e.Row.FindControl("") != null)
-                {
-                }
-                if (e.Row.FindControl("") != null)
-                {
-                }
+
+                // Total
+
+
+
+
 
 
                 #endregion
@@ -856,6 +941,9 @@ ORDER BY
 
             Img_Btn.Visible = false;
 
+
+
+
             SetEditItem(true);
 
             //ShowHideColumns(gv, true);
@@ -878,9 +966,6 @@ ORDER BY
             var chk_AdjTax = row.FindControl("chk_AdjDisc") as CheckBox;
             var ddl_TaxType = row.FindControl("ddl_TaxType") as DropDownList;
             var se_TaxRate = row.FindControl("se_TaxRate") as ASPxSpinEdit;
-
-
-
 
             if (IsCreatedManual())
             {
@@ -912,7 +997,7 @@ ORDER BY
 
             var se_CurrDiscAmt = row.FindControl("se_CurrDiscAmt") as ASPxSpinEdit;
             var se_CurrTaxAmt = row.FindControl("se_CurrTaxAmt") as ASPxSpinEdit;
-            var lbl_CurrNetAmt = row.FindControl("lbl_CurrNetAmt") as Label;
+            var se_CurrNetAmt = row.FindControl("se_CurrNetAmt") as ASPxSpinEdit;
             var lbl_CurrTotalAmt_Row = row.FindControl("lbl_CurrTotalAmt_Row") as Label;
 
 
@@ -922,14 +1007,14 @@ ORDER BY
             var lbl_TotalAmt = row.FindControl("lbl_TotalAmt") as Label;
 
             dr["CurrDiscAmt"] = Convert.ToDecimal(se_CurrDiscAmt.Value);
-            dr["CurrNetAmt"] = Convert.ToDecimal(lbl_CurrNetAmt.Text);
+            dr["CurrNetAmt"] = Convert.ToDecimal(se_CurrNetAmt.Value);
             dr["CurrTaxAmt"] = Convert.ToDecimal(se_CurrTaxAmt.Value);
             dr["CurrTotalAmt"] = Convert.ToDecimal(lbl_CurrTotalAmt_Row.Text);
 
-            dr["DiccountAmt"] = Convert.ToDecimal(lbl_DiscAmt.Text);
-            dr["NetAmt"] = Convert.ToDecimal(lbl_NetAmt.Text);
-            dr["TaxAmt"] = Convert.ToDecimal(lbl_TaxAmt.Text);
-            dr["TotalAmt"] = Convert.ToDecimal(lbl_TotalAmt.Text);
+            dr["DiccountAmt"] = Convert.ToDecimal(lbl_DiscAmt.Text.Trim());
+            dr["NetAmt"] = Convert.ToDecimal(lbl_NetAmt.Text.Trim());
+            dr["TaxAmt"] = Convert.ToDecimal(lbl_TaxAmt.Text.Trim());
+            dr["TotalAmt"] = Convert.ToDecimal(lbl_TotalAmt.Text.Trim());
 
             var de_ExpiryDate = row.FindControl("de_ExpiryDate") as ASPxDateEdit;
             var txt_Comment = row.FindControl("txt_Comment") as TextBox;
@@ -2605,6 +2690,27 @@ WHERE
             btn_Commit.Visible = !isEdit;
         }
 
+        private IEnumerable<ProductUnit> GetProductUnit(string productCode, string connectionString)
+        {
+            var result = new List<ProductUnit>();
+
+            var dtOrderUnit = new Helpers.SQL(connectionString).ExecuteQuery("SELECT OrderUnit, [Rate] FROM [IN].ProdUnit WHERE UnitType='O' AND ProductCode=@code ORDER BY IsDefault DESC, OrderUnit", new SqlParameter[] { new SqlParameter("code", productCode) });
+
+            if (dtOrderUnit != null && dtOrderUnit.Rows.Count > 0)
+            {
+                result = dtOrderUnit.AsEnumerable()
+                    .Select(x => new ProductUnit
+                    {
+                        UnitCode = x.Field<string>("OrderUnit"),
+                        UnitRate = x.Field<decimal>("Rate"),
+                    })
+                    .ToList();
+            }
+
+
+            return result;
+        }
+
         #endregion
 
         #region -- Model --
@@ -2699,6 +2805,12 @@ WHERE
 
         }
 
+        public class ProductUnit
+        {
+            public string UnitCode { get; set; }
+            public decimal UnitRate { get; set; }
+        }
+
         public class ProductItem
         {
             private string _productCode = "";
@@ -2710,13 +2822,15 @@ WHERE
             private decimal _taxRate = 0;
             private decimal _priceDeviation = 0;
             private decimal _qtyDeviation = 0;
+            private IEnumerable<ProductUnit> _units = new List<ProductUnit>();
 
 
             public ProductItem(string code, string connectionString)
             {
                 _productCode = code;
+                var sql = new Helpers.SQL(connectionString);
 
-                var dt = new Helpers.SQL(connectionString).ExecuteQuery("SELECT * FROM [IN].Product WHERE ProductCode = @code", new SqlParameter[] { new SqlParameter("code", code) });
+                var dt = sql.ExecuteQuery("SELECT * FROM [IN].Product WHERE ProductCode = @code", new SqlParameter[] { new SqlParameter("code", code) });
 
                 if (dt != null && dt.Rows.Count > 0)
                 {
@@ -2730,6 +2844,9 @@ WHERE
                     _taxRate = string.IsNullOrEmpty(dr["TaxRate"].ToString()) ? 0m : Convert.ToDecimal(dr["TaxRate"]);
                     _priceDeviation = string.IsNullOrEmpty(dr["PriceDeviation"].ToString()) ? 0m : Convert.ToDecimal(dr["PriceDeviation"]);
                     _qtyDeviation = string.IsNullOrEmpty(dr["QuantityDeviation"].ToString()) ? 0m : Convert.ToDecimal(dr["QuantityDeviation"]);
+                    _units = GetProductUnit(code, connectionString);
+
+
 
                 }
 
@@ -2744,6 +2861,28 @@ WHERE
             public decimal TaxRate { get { return _taxRate; } }
             public decimal PriceDeviation { get { return _priceDeviation; } }
             public decimal QtyDeviation { get { return _qtyDeviation; } }
+            public IEnumerable<ProductUnit> Units { get { return _units; } }
+
+            public IEnumerable<ProductUnit> GetProductUnit(string productCode, string connectionString)
+            {
+                var result = new List<ProductUnit>();
+
+                var dtOrderUnit = new Helpers.SQL(connectionString).ExecuteQuery("SELECT OrderUnit, [Rate] FROM [IN].ProdUnit WHERE UnitType='O' AND ProductCode=@code ORDER BY IsDefault DESC, OrderUnit", new SqlParameter[] { new SqlParameter("code", productCode) });
+
+                if (dtOrderUnit != null && dtOrderUnit.Rows.Count > 0)
+                {
+                    result = dtOrderUnit.AsEnumerable()
+                        .Select(x => new ProductUnit
+                        {
+                            UnitCode = x.Field<string>("OrderUnit"),
+                            UnitRate = x.Field<decimal>("Rate"),
+                        })
+                        .ToList();
+                }
+
+
+                return result;
+            }
 
 
         }

@@ -300,8 +300,8 @@
                         </ItemTemplate>
                         <EditItemTemplate>
                             <asp:HiddenField runat="server" ID="hf_RecQty" />
-                            <dx:ASPxSpinEdit runat="server" ID="se_RecQty" AutoPostBack="true" Width="60" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right"
-                                OnNumberChanged="se_RecQty_NumberChanged" />
+                            <dx:ASPxSpinEdit runat="server" ID="se_RecQty" AutoPostBack="true" Width="60" DecimalPlaces="3" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false"
+                                HorizontalAlign="Right" OnNumberChanged="se_RecQty_NumberChanged" />
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%--FOC--%>
@@ -312,7 +312,7 @@
                             <asp:Label runat="server" ID="lbl_FocQty" />
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <dx:ASPxSpinEdit runat="server" ID="se_FocQty" Width="60" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right" />
+                            <dx:ASPxSpinEdit runat="server" ID="se_FocQty" Width="60" DecimalPlaces="3" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right" />
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%--Price--%>
@@ -324,8 +324,8 @@
                         </ItemTemplate>
                         <EditItemTemplate>
                             <asp:HiddenField runat="server" ID="hf_Price" />
-                            <dx:ASPxSpinEdit runat="server" ID="se_Price" AutoPostBack="true" Width="60" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right"
-                                OnNumberChanged="se_Price_NumberChanged" />
+                            <dx:ASPxSpinEdit runat="server" ID="se_Price" AutoPostBack="true" Width="60" DecimalPlaces="2" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false"
+                                HorizontalAlign="Right" OnNumberChanged="se_Price_NumberChanged" />
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%--Curr Discount--%>
@@ -572,6 +572,7 @@
                                                     <asp:Label ID="Label5" runat="server" SkinID="LBL_HD_GRD">Base (<%= _default.Currency %>)</asp:Label>
                                                 </td>
                                             </tr>
+                                            <!-- Discount -->
                                             <tr>
                                                 <td>
                                                 </td>
@@ -583,7 +584,7 @@
                                                     <asp:Label ID="Label13" runat="server" SkinID="LBL_HD_GRD" Text="Discount (%) : " />
                                                     &nbsp;&nbsp;
                                                     <dx:ASPxSpinEdit runat="server" ID="se_DiscRate" AutoPostBack="true" Width="40" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right"
-                                                        Enabled='<%# Eval("DiscAdj")=="1" %>' Number='<%# Eval("Discount") %>' OnNumberChanged="se_DiscRate_NumberChanged" />
+                                                        OnNumberChanged="se_DiscRate_NumberChanged" />
                                                 </td>
                                                 <!-- Discount -->
                                                 <td style="text-align: right">
@@ -593,9 +594,10 @@
                                                     <dx:ASPxSpinEdit runat="server" ID="se_CurrDiscAmt" Width="100%" ForeColor="Red" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right" />
                                                 </td>
                                                 <td style="text-align: right">
-                                                    <asp:Label ID="lbl_DiscAmt" runat="server" SkinID="LBL_NR_1" ForeColor="Red">(<%# FormatAmt(Eval("DiccountAmt"))%>)</asp:Label>
+                                                    <asp:Label ID="lbl_DiscAmt" runat="server" SkinID="LBL_NR_1" ForeColor="Red"><%# FormatAmt(Eval("DiccountAmt"))%></asp:Label>
                                                 </td>
                                             </tr>
+                                            <!-- Net -->
                                             <tr>
                                                 <td>
                                                 </td>
@@ -606,12 +608,14 @@
                                                     <asp:Label ID="Label7" runat="server" SkinID="LBL_HD_GRD" Text="Net" />
                                                 </td>
                                                 <td style="text-align: right">
-                                                    <dx:ASPxSpinEdit runat="server" ID="se_CurrNetAmt" Width="100%"  MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right" ReadOnly="true" />
+                                                    <dx:ASPxSpinEdit runat="server" ID="se_CurrNetAmt" Width="100%" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right"
+                                                        ReadOnly="true" />
                                                 </td>
                                                 <td style="text-align: right">
                                                     <asp:Label ID="lbl_NetAmt" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("NetAmt")) %></asp:Label>
                                                 </td>
                                             </tr>
+                                            <!-- Tax -->
                                             <tr>
                                                 <td>
                                                 </td>
@@ -632,19 +636,21 @@
                                                     <asp:Label ID="Label28" runat="server" SkinID="LBL_HD_GRD" Text="Rate" />
                                                     &nbsp;
                                                     <dx:ASPxSpinEdit runat="server" ID="se_TaxRate" AutoPostBack="true" Width="40" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right"
-                                                        Enabled='<%# Eval("TaxAdj")=="1" %>' Number='<%# Eval("TaxRate") %>' OnNumberChanged="se_TaxRate_NumberChanged" />
+                                                        OnNumberChanged="se_TaxRate_NumberChanged" />
                                                 </td>
                                                 <!-- Tax -->
                                                 <td style="text-align: right">
                                                     <asp:Label ID="Label21" runat="server" SkinID="LBL_HD_GRD" Text="Tax" />
                                                 </td>
                                                 <td style="text-align: right">
-                                                    <dx:ASPxSpinEdit runat="server" ID="se_CurrTaxAmt" Width="100%" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right" />
+                                                    <dx:ASPxSpinEdit runat="server" ID="se_CurrTaxAmt" Width="100%" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right"
+                                                        Enabled='<%# Eval("TaxAdj")=="1" %>' />
                                                 </td>
                                                 <td style="text-align: right">
                                                     <asp:Label ID="lbl_TaxAmt" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("TaxAmt"))%></asp:Label>
                                                 </td>
                                             </tr>
+                                            <!-- Total -->
                                             <tr>
                                                 <td>
                                                 </td>

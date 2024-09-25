@@ -139,7 +139,9 @@ namespace BlueLedger.PL.IN.REC
                     //ต้องแก้เพื่อ Impact เพิ่ม Create Manual
                     case "POMANUAL":
                         //Response.Redirect("RecCreateManual.aspx?BuCode=" + LoginInfo.BuInfo.BuCode + "&MODE=new" + "&VID=" + ListPage2.VID);
-                        Response.Redirect("RecEdit.aspx?BuCode=" + LoginInfo.BuInfo.BuCode + "&MODE=new"); //
+                        //var id = Guid.NewGuid().ToString();
+                        //Response.Redirect("RecEdit.aspx?BuCode=" + LoginInfo.BuInfo.BuCode + "&MODE=new"); //
+                        Response.Redirect(string.Format("RecEdit.aspx?BuCode={0}&VID={1}&MODE=new&ID={2}", LoginInfo.BuInfo.BuCode, ListPage2.VID, Guid.NewGuid().ToString())); //
                         break;
 
                     case "PO":
