@@ -12,6 +12,10 @@ namespace Blue.BL.dbo
         private readonly Blue.BL.ADMIN.UserStore userStore = new Blue.BL.ADMIN.UserStore();
 
         /* 
+            2025-09-30 = varanahotel = 16
+
+          
+          
             2025-07-31 = Zeavola = 28
 
           
@@ -24,6 +28,7 @@ namespace Blue.BL.dbo
             2025-05-31 = chi = 2
 
             2025-04-30 = bestwesternratchada = 10        
+            2025-04-30 = indochinephuket = 27
 
             2025-03-31 = silavadeepoolsparesort = 28
             2025-03-31 = wyndhamjomtienpattaya = 20 + 2 = 22
@@ -62,14 +67,13 @@ namespace Blue.BL.dbo
           
             2024-10-31 = rasahospitality = 73 + 17 = 90
             2024-10-31 = BlumonkeyKrabi = 6
+            2024-10-31 = MHRH = 3
+            2024-10-31 = twinlotus = 16
+            2024-10-31 = DeevanaPhuket = 65=> 69
+            2024-10-31 = kappasensesubud = 17
+            2024-10-31 = The Sarojin = 3
 
-            2024-09-30 = The Sarojin = 3
-            2024-09-30 = varanahotel = 16
-            2024-09-30 = MHRH = 3
-            2024-09-30 = indochinephuket = 27
             2024-09-30 = The Twin Lotus Hotel Co.,Ltd (on Permise) = 16
-            2024-09-30 = kappasensesubud = 17
-            2024-09-30 = DeevanaPhuket = 65=> 69
             2024-09-30 = BaanSamuiResort = 8
 
          
@@ -96,8 +100,8 @@ namespace Blue.BL.dbo
             2023-01-31 = SPM = 20 
         
         */
-        private DateTime licenseExpiredDate = new DateTime(2025, 1, 31);
-        private int licenseActiveUser = 156;
+        private DateTime licenseExpiredDate = new DateTime(2025, 09, 30);
+        private int licenseActiveUser = 16;
 
         public User()
         {
