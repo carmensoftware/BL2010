@@ -50,7 +50,7 @@ namespace Blue.BL.dbo
             2025-01-31 = ramadadmabangkok = 19
             2025-01-31 = maduzi = 20
             2025-01-31 = boulevardhotelbangkok = 10 + 17 = 27
-            2025-01-31 = palayanagroup = 2
+            2025-01-31 = palayanagroup = 2+20 = 22
 
             2024-12-31 = sztowerthai = 13
             2024-12-31 = blumonkeybangsaen = 5
@@ -68,14 +68,11 @@ namespace Blue.BL.dbo
             2024-10-31 = rasahospitality = 73 + 17 = 90
             2024-10-31 = BlumonkeyKrabi = 6
             2024-10-31 = MHRH = 3
-            2024-10-31 = twinlotus = 16
+            2024-10-31 = twinlotus (on permise) = 16
             2024-10-31 = DeevanaPhuket = 65=> 69
             2024-10-31 = kappasensesubud = 17
             2024-10-31 = The Sarojin = 3
-
-            2024-09-30 = The Twin Lotus Hotel Co.,Ltd (on Permise) = 16
-            2024-09-30 = BaanSamuiResort = 8
-
+            2024-10-31 = BaanSamuiResort = 8
          
             2024-08-31 = bestwesternclicksathorn11 = 10
             2024-08-31 = bwsanctuary = 10
@@ -100,8 +97,8 @@ namespace Blue.BL.dbo
             2023-01-31 = SPM = 20 
         
         */
-        private DateTime licenseExpiredDate = new DateTime(2025, 09, 30);
-        private int licenseActiveUser = 16;
+        private DateTime licenseExpiredDate = new DateTime(2025, 1, 31);
+        private int licenseActiveUser = 22;
 
         public User()
         {
