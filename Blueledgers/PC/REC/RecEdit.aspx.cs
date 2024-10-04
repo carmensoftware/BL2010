@@ -17,6 +17,10 @@ namespace BlueLedger.PL.IN.REC
 {
     public partial class RECEdit : BasePage
     {
+        private readonly Blue.BL.dbo.Bu _bu = new Blue.BL.dbo.Bu();
+        private readonly Blue.BL.APP.Config _config = new Blue.BL.APP.Config();
+        //private readonly Blue.BL.PC.REC.REC _rec = new Blue.BL.PC.REC.REC();
+
         #region --URL Parameters--
 
         protected string _BuCode { get { return Request.Params["BuCode"].ToString() ?? ""; } }
@@ -26,18 +30,6 @@ namespace BlueLedger.PL.IN.REC
 
         #endregion
 
-        private string _connStr;
-
-        private enum DocStatus
-        {
-            Received,
-            Committed,
-            Voided
-        }
-
-        private readonly Blue.BL.dbo.Bu _bu = new Blue.BL.dbo.Bu();
-        private readonly Blue.BL.APP.Config _config = new Blue.BL.APP.Config();
-        private readonly Blue.BL.PC.REC.REC _rec = new Blue.BL.PC.REC.REC();
 
         protected DataTable _dtRec
         {
@@ -75,11 +67,6 @@ namespace BlueLedger.PL.IN.REC
             set { ViewState["DefaultValues"] = value; }
         }
 
-        //protected bool IsCreatedManual
-        //{
-        //    get { return string.IsNullOrEmpty(dtRec.Rows[0]["PoSource"].ToString()); }
-        //}
-
         #region --Event(s)--
 
         protected void Page_Init(object sender, EventArgs e)
@@ -90,20 +77,20 @@ namespace BlueLedger.PL.IN.REC
             var digitAmt = _config.GetValue("APP", "Default", "DigitAmt", hf_ConnStr.Value);
             var digitQty = _config.GetValue("APP", "Default", "DigitQty", hf_ConnStr.Value);
             var taxRate = _config.GetValue("APP", "Default", "TaxRate", hf_ConnStr.Value);
+            var costMethod = _config.GetValue("IN", "SYS", "COST", hf_ConnStr.Value);
 
             _default = new DefaultValues
             {
                 Currency = currency,
                 DigitAmt = string.IsNullOrEmpty(digitAmt) ? 2 : Convert.ToInt32(digitAmt),
                 DigitQty = string.IsNullOrEmpty(digitQty) ? 2 : Convert.ToInt32(digitQty),
-                TaxRate = string.IsNullOrEmpty(taxRate) ? 0 : Convert.ToDecimal(taxRate)
+                TaxRate = string.IsNullOrEmpty(taxRate) ? 0 : Convert.ToDecimal(taxRate),
+                CostMethod = costMethod.ToUpper()
             };
         }
 
         protected override void Page_Load(object sender, EventArgs e)
         {
-            _connStr = LoginInfo.ConnStr;
-
             if (!IsPostBack)
             {
                 Page_Retrieve();
@@ -164,21 +151,13 @@ namespace BlueLedger.PL.IN.REC
         // Title / Action bar
         protected void btn_Save_Click(object sender, EventArgs e)
         {
-            Save();
-
-            //if (!string.IsNullOrEmpty(recNo))
-            //{
-            //    RedirectToView(recNo);
-            //}
-            //else
-            //{
-            //    Response.Redirect("RecLst.aspx");
-            //};
-
+            SaveAndCommit(false);
         }
+
 
         protected void btn_Commit_Click(object sender, EventArgs e)
         {
+            SaveAndCommit(true);
         }
 
         protected void btn_Back_Click(object sender, EventArgs e)
@@ -261,7 +240,7 @@ namespace BlueLedger.PL.IN.REC
         {
             if (IsCreatedManual())
             {
-                var locationCode = _dtRecDt.Rows.Count == 0 ? "" : _dtRecDt.Rows[0]["LocationCode"].ToString();
+                var locationCode = _dtRecDt.Rows.Count == 0 ? "" : _dtRecDt.Rows[_dtRecDt.Rows.Count - 1]["LocationCode"].ToString();
 
                 var dr = _dtRecDt.NewRow();
 
@@ -778,10 +757,6 @@ namespace BlueLedger.PL.IN.REC
                 }
 
                 // Total
-
-
-
-
 
 
                 #endregion
@@ -1746,9 +1721,9 @@ FROM
             new Helpers.SQL(hf_ConnStr.Value).ExecuteQuery(query, new SqlParameter[] { new SqlParameter("RecNo", recNo) });
         }
 
-        private void Save()
+        private void SaveAndCommit(bool isCommitted)
         {
-            var error = Validate_Data();
+            var error = VerifyDataBeforeSave();
 
             if (!string.IsNullOrEmpty(error))
             {
@@ -1762,6 +1737,7 @@ FROM
             // Assign Header's value
             var drh = _dtRec.Rows[0];
             var recNo = drh["RecNo"].ToString();
+            var poSource = drh["PoSource"].ToString();
 
             drh["RecNo"] = recNo;
             drh["RecDate"] = de_RecDate.Date.Date;
@@ -1799,17 +1775,184 @@ FROM
             else // edit
             {
                 SaveHeader(_dtRec);
-                RestorePO(recNo);
+
+                if (!string.IsNullOrEmpty(poSource))
+                    RestorePO(recNo);
             }
 
             CreateDetails(recNo, _dtRecDt);
-            UpdatePO(recNo);
+            if (!string.IsNullOrEmpty(poSource))
+                UpdatePO(recNo);
+
+            if (isCommitted)
+            {
+                error = Commit(recNo);
+
+                if (!string.IsNullOrEmpty(error))
+                {
+                    ShowAlert(error);
+
+                    return;
+                }
+            }
 
             RedirectToView(recNo);
         }
 
-        private void Commit()
+        private string Commit(string recNo)
         {
+            var error = "";
+
+            var sql = new Helpers.SQL(hf_ConnStr.Value);
+            try
+            {
+                sql.ExecuteQuery("DELETE FROM [IN].Inventory WHERE HdrNo=@DocNo", new SqlParameter[] { new SqlParameter("DocNo", recNo) });
+
+                if (_default.CostMethod == "FIFO")
+                {
+                    #region -- query--
+                    var query = @"
+        DECLARE @CommittedDate DATETIME = GETDATE()
+		DECLARE 
+			@DigitQty INT = APP.DigitQty(),
+			@DigitAmt INT = APP.DigitAmt(),
+			@Price decimal(18, 4),
+			@DiffAmt decimal(18, 4),
+			@DiffQty decimal(18, 3),
+			@Qty1 decimal(18,3),
+			@Qty2 decimal(18,3),
+			@Amt1 decimal(18,4),
+			@Amt2 decimal(18,4)
+
+		DECLARE 
+			@HdrNo nvarchar(20),
+			@DtNo INT,
+			@InvNo INT,
+			@ProductCode nvarchar(20),
+			@LocationCode nvarchar(20),
+			@Qty decimal(18,3),
+			@Total decimal(18,4) = 100
+
+		DECLARE rc_cursor CURSOR FOR
+		SELECT
+			RecNo,
+			RecDtNo,
+			ProductCode,
+			LocationCode,
+			ROUND(RecQty * Rate, @DigitQty) as Qty,
+			NetAmt + ISNULL(ExtraCost,0) as Total
+		FROM
+			PC.RECDt
+		WHERE
+			RecNo=@DocNo
+
+		OPEN rc_cursor
+		FETCH NEXT FROM rc_cursor INTO @HdrNo, @DtNo, @ProductCode, @LocationCode, @Qty, @Total
+
+		WHILE @@FETCH_STATUS=0
+		BEGIN
+			SET @Price  = ROUND(@Total/@Qty, APP.DigitAmt())
+			SET @DiffAmt = @Total - ROUND(@Price * @Qty, @DigitAmt)
+			SET @DiffQty = ABS( (@DiffAmt % 1) * POWER(10, APP.DigitQty()))
+
+			DECLARE @p decimal(18,4) = (CAST(1 as decimal(18,4))/POWER(10,@DigitAmt))
+
+			IF @DiffAmt <= 0
+			BEGIN
+				SET @Qty1 = @Qty - @DiffQty
+				SET @Amt1 = @Price
+
+				SET @Qty2 = @DiffQty
+				SET @Amt2 = @Price - @p
+			END
+			ELSE
+			BEGIN
+				SET @Qty1 = @DiffQty
+				SET @Amt1 = @Price + @p
+
+				SET @Qty2 = @Qty - @DiffQty
+				SET @Amt2 = @Price
+			END
+
+			INSERT INTO [IN].Inventory (HdrNo, DtNo, InvNo, ProductCode, Location, [IN], [OUT], Amount, PriceOnLots,[Type], CommittedDate) 
+			SELECT 
+				@HdrNo as HdrNo, 
+				@DtNo as DtNo,
+				1 as InvNo,
+				@ProductCode as ProductCode,
+				@LocationCode as [Location],
+				@Qty1 as [IN],
+				0 as [OUT],
+				@Amt1 as Amount,
+				ROUND(@Qty1 * @Amt1, @DigitAmt) as PriceOnLots,
+				'RC' as [Type],
+				@CommittedDate as CommittedDate
+
+			IF (@DiffQty <> 0)
+			BEGIN
+				INSERT INTO [IN].Inventory (HdrNo, DtNo, InvNo, ProductCode, Location, [IN], [OUT], Amount, PriceOnLots,[Type], CommittedDate) 
+				SELECT 
+					@HdrNo as HdrNo, 
+					@DtNo as DtNo,
+					2 as InvNo,
+					@ProductCode as ProductCode,
+					@LocationCode as [Location],
+					@Qty2 as [IN],
+					0 as [OUT],
+					@Amt2 as Amount,
+					ROUND(@Qty2 * @Amt2, @DigitAmt) as PriceOnLots,
+					'RC' as [Type],
+					@CommittedDate as CommittedDate
+			END
+
+			FETCH NEXT FROM rc_cursor INTO @HdrNo, @DtNo, @ProductCode, @LocationCode, @Qty, @Total
+		END
+
+		CLOSE rc_cursor
+		DEALLOCATE rc_cursor	
+";
+                    #endregion
+                    sql.ExecuteQuery(string.Format(query, _default.DigitQty, _default.DigitAmt), new SqlParameter[] { new SqlParameter("DocNo", recNo) });
+
+                }
+                else // Average
+                {
+                    #region -- query--
+                    var query = @"
+		INSERT INTO [IN].Inventory (HdrNo, DtNo, InvNo, ProductCode, Location, [IN], [OUT], Amount, PriceOnLots, [Type], CommittedDate) 
+		SELECT
+			d.RecNo,
+			d.RecDtNo,
+			1,
+			d.ProductCode,
+			d.LocationCode,
+			ROUND(RecQty * Rate, {0}) as [IN],
+			0 as [OUT],
+			ROUND(NetAmt/ROUND(RecQty * Rate, {0}), {1}) as [Amount],
+			NetAmt + ISNULL(ExtraCost,0) as [PriceOnLots],
+			'RC',
+			GETDATE()
+		FROM
+			PC.REC h
+			JOIN PC.RECDt d
+				ON d.RecNo=h.RecNo
+		WHERE
+			h.RecNo = @DocNo
+		
+		EXEC [IN].[UpdateAverageCost] @DocNo";
+                    #endregion
+                    sql.ExecuteQuery(string.Format(query, _default.DigitQty, _default.DigitAmt), new SqlParameter[] { new SqlParameter("DocNo", recNo) });
+                }
+
+                sql.ExecuteQuery("UPDATE PC.Rec SET DocStatus='Committed' WHERE RecNo=@DocNo", new SqlParameter[] { new SqlParameter("DocNo", recNo) });
+
+            }
+            catch (Exception ex)
+            {
+                error = ex.Message;
+            }
+
+            return error;
         }
 
         #region -- Private method(s)--
@@ -2201,13 +2344,24 @@ ORDER BY
         }
 
         // Validation
-        private string Validate_Data()
+        private string VerifyDataBeforeSave()
         {
             var message = "";
             var recNo = _dtRec != null && _dtRec.Rows.Count > 0 ? _dtRec.Rows[0]["RecNo"].ToString() : "";
+            var closedPeriod = GetClosedPeriod();
+            var recDate = de_RecDate.Date.Date;
+            var vendorCode = ddl_Vendor.Value.ToString();
+            var invoiceNo = txt_InvNo.Text.Trim();
 
 
             // Header
+
+            // Document date
+            if (recDate <= closedPeriod)
+            {
+                return string.Format("Document date must not be during the closed period.", FormatDate(closedPeriod));
+            }
+
             // Required fields
 
             // Vendor
@@ -2233,24 +2387,48 @@ ORDER BY
                 return "Invalid currency rate.";
             }
 
+            if (string.IsNullOrEmpty(de_InvDate.Text))
+            {
+                return "Invoice date is required.";
+            }
+
+            // Invocie No (no duplicate)
+            if (string.IsNullOrEmpty(invoiceNo))
+                return "Invoice no is required.";
+            else
+            {
+                var query = "SELECT TOP(1) RecNo FROM PC.REC WHERE DocStatus<>'Voided'AND VendorCode=@VendorCode AND InvoiceNo=@InvoiceNo AND RecNo<>@RecNo";
+
+                var parameters = new SqlParameter[]
+                    {
+                        new SqlParameter("VendorCode", vendorCode),
+                        new SqlParameter("InvoiceNo", invoiceNo),
+                        new SqlParameter("RecNo",recNo)
+                    };
+
+                var dt = new Helpers.SQL(hf_ConnStr.Value).ExecuteQuery(query, parameters);
+
+
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    var dupRecNo = dt.Rows[0][0].ToString();
+                    return string.Format("Invoice no. '{0}' already exists in receiving no. {1}", invoiceNo, dupRecNo); ;
+                }
+
+                //if (Convert.ToInt32(dt.Rows[0][0]) > 0) // duplicate
+                //    return string.Format("Invoice No '{0}' already exists.", invoiceNo); ;
+            }
+
+
             // -------------------------------------------------------------
-            var closedPeriod = GetClosedPeriod();
-            var recDate = de_RecDate.Date.Date;
-            var vendorCode = ddl_Vendor.Value.ToString();
-            var invoiceNo = txt_InvNo.Text.Trim();
 
-            // Document date
-            if (recDate <= closedPeriod)
-            {
-                return string.Format("Document date must not be during the closed period.", FormatDate(closedPeriod));
-            }
 
-            // Invoice no
-            var docNo = CheckDuplicateInvocieNo(recNo, vendorCode, invoiceNo);
-            if (!string.IsNullOrEmpty(docNo))
-            {
-                return string.Format("Duplicate invocie no, it was used on '{0}'.", docNo);
-            }
+            //// Invoice no
+            //var docNo = CheckDuplicateInvocieNo(recNo, vendorCode, invoiceNo);
+            //if (!string.IsNullOrEmpty(docNo))
+            //{
+            //    return string.Format("Duplicate invocie no, it was used on '{0}'.", docNo);
+            //}
 
 
             // Details
@@ -2711,9 +2889,20 @@ WHERE
             return result;
         }
 
+        // Inventory
+
+
         #endregion
 
-        #region -- Model --
+        #region -- Models --
+
+        private enum DocStatus
+        {
+            Received,
+            Committed,
+            Voided
+        }
+
         enum ItemAction
         {
             CREATE,
@@ -2726,6 +2915,7 @@ WHERE
             public int DigitAmt { get; set; }
             public int DigitQty { get; set; }
             public decimal TaxRate { get; set; }
+            public string CostMethod { get; set; }
         }
 
         public class Deviation
