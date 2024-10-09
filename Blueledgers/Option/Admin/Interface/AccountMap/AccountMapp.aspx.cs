@@ -2,17 +2,13 @@
 using System.Linq;
 using System.Data;
 using System.Data.SqlClient;
-using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Text;
-using System.IO;
 using BlueLedger.PL.BaseClass;
-//using System.Net.Http;
-//using System.Net.Http.Headers;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+using DevExpress.Web.ASPxEditors;
 using System.Collections.Generic;
+using System.Web.UI.HtmlControls;
 
 namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
 {
@@ -20,54 +16,59 @@ namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
     {
         #region "Attributes"
         private readonly Blue.BL.APP.Config config = new Blue.BL.APP.Config();
-        private readonly Blue.BL.Option.Inventory.StoreLct storeLct = new Blue.BL.Option.Inventory.StoreLct();
 
         #endregion
 
-        //private string _ViewId
-        //{
-        //    get { return Request.QueryString["id"] == null ? "" : Request.QueryString["id"].ToString(); }
-        //}
+        protected string _Type
+        {
+            get { return Request.QueryString["type"] == null ? "1" : Request.QueryString["type"].ToString(); }
+        }
 
-        //private string _TextSearch
-        //{
-        //    get { return Request.QueryString["search"] == null ? "" : Request.QueryString["search"].ToString(); }
-        //}
+        protected DataTable _dtDataView
+        {
+            get
+            {
+                return ViewState["_dtDataView"] as DataTable;
+            }
+            set
+            {
+                ViewState["_dtDataView"] = value;
+            }
+        }
 
+        protected DataTable _dtData
+        {
+            get
+            {
+                return ViewState["_dtData"] as DataTable;
+            }
+            set
+            {
+                ViewState["_dtData"] = value;
+            }
+        }
 
         protected override void Page_Load(object sender, EventArgs e)
         {
-
             if (!IsPostBack)
             {
                 Page_Retrieve();
             }
-
-
-
+         
 
         }
 
         private void Page_Retrieve()
         {
-            var dtView = new Helpers.SQL(LoginInfo.ConnStr).ExecuteQuery("SELECT ID, ViewName FROM [ADMIN].[AccountMappView] ORDER BY Id");
-
-            ddl_View.Items.Clear();
-            ddl_View.Items.AddRange(dtView.AsEnumerable()
-                .Select(x => new ListItem
-                {
-                    Value = x.Field<int>("Id").ToString(),
-                    Text = x.Field<string>("ViewName")
-                })
-                .ToArray());
-
-
+            _dtDataView = new Helpers.SQL(LoginInfo.ConnStr).ExecuteQuery("SELECT ID, ViewName FROM [ADMIN].[AccountMappView] ORDER BY Id");
+            GetData();
 
             Page_Setting();
         }
 
         private void Page_Setting()
         {
+            BindData();
         }
 
         // Event(s)
@@ -102,246 +103,296 @@ namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
             }
         }
 
-        protected void ddl_View_SelectedIndexChanged(object sender, EventArgs e)
+        // GridView
+
+        protected void gv_AP_PageIndexChanging(object sender, GridViewPageEventArgs e)
         {
+            (sender as GridView).PageIndex = e.NewPageIndex;
             BindData();
         }
 
-        protected void btn_CreateView_Click(object sender, EventArgs e)
+        protected void gv_AP_Sorting(object sender, GridViewSortEventArgs e)
         {
         }
 
-        protected void btn_EditView_Click(object sender, EventArgs e)
+        protected void gv_AP_RowDataBound(object sender, GridViewRowEventArgs e)
         {
+
+            if (e.Row.RowType == DataControlRowType.DataRow)
+            {
+                var dataItem = e.Row.DataItem;
+
+                // Main Keys
+
+                if (e.Row.FindControl("LocationCode") != null)
+                {
+                    (e.Row.FindControl("LocationCode") as Label).Text = DataBinder.Eval(dataItem, "LocationCode").ToString();
+                    (e.Row.FindControl("LocationName") as Label).Text = DataBinder.Eval(dataItem, "LocationName").ToString();
+                }
+
+                if (e.Row.FindControl("CategoryCode") != null)
+                {
+                    (e.Row.FindControl("CategoryCode") as Label).Text = DataBinder.Eval(dataItem, "CategoryCode").ToString();
+                    (e.Row.FindControl("CategoryName") as Label).Text = DataBinder.Eval(dataItem, "CategoryName").ToString();
+                }
+
+                if (e.Row.FindControl("SubCategoryCode") != null)
+                {
+                    (e.Row.FindControl("SubCategoryCode") as Label).Text = DataBinder.Eval(dataItem, "SubCategoryCode").ToString();
+                    (e.Row.FindControl("SubCategoryName") as Label).Text = DataBinder.Eval(dataItem, "SubCategoryName").ToString();
+                }
+
+                if (e.Row.FindControl("ItemGroupCode") != null)
+                {
+                    (e.Row.FindControl("ItemGroupCode") as Label).Text = DataBinder.Eval(dataItem, "ItemGroupCode").ToString();
+                    (e.Row.FindControl("ItemGroupName") as Label).Text = DataBinder.Eval(dataItem, "ItemGroupName").ToString();
+                }
+
+                // Alternate key
+                if (e.Row.FindControl("AdjCode") != null)
+                {
+                    (e.Row.FindControl("AdjCode") as Label).Text = DataBinder.Eval(dataItem, "AdjCode").ToString();
+                    (e.Row.FindControl("AdjName") as Label).Text = DataBinder.Eval(dataItem, "AdjName").ToString();
+                }
+
+
+
+                // Value(s)
+                // AP
+                if (e.Row.FindControl("DepCode") != null)
+                {
+                    (e.Row.FindControl("DepCode") as Label).Text = DataBinder.Eval(dataItem, "DepCode").ToString();
+                    (e.Row.FindControl("DepName") as Label).Text = DataBinder.Eval(dataItem, "DepName").ToString();
+                }
+
+                if (e.Row.FindControl("AccCode") != null)
+                {
+                    (e.Row.FindControl("AccCode") as Label).Text = DataBinder.Eval(dataItem, "AccCode").ToString();
+                    (e.Row.FindControl("AccName") as Label).Text = DataBinder.Eval(dataItem, "AccName").ToString();
+                }
+
+                // GL
+                if (e.Row.FindControl("DrDepCode") != null)
+                {
+                    (e.Row.FindControl("DrDepCode") as Label).Text = DataBinder.Eval(dataItem, "DrDepCode").ToString();
+                    (e.Row.FindControl("DrDepName") as Label).Text = DataBinder.Eval(dataItem, "DrDepName").ToString();
+                }
+
+                if (e.Row.FindControl("DrAccCode") != null)
+                {
+                    (e.Row.FindControl("DrAccCode") as Label).Text = DataBinder.Eval(dataItem, "DrAccCode").ToString();
+                    (e.Row.FindControl("DrAccName") as Label).Text = DataBinder.Eval(dataItem, "DrAccName").ToString();
+                }
+
+                if (e.Row.FindControl("CrDepCode") != null)
+                {
+                    (e.Row.FindControl("CrDepCode") as Label).Text = DataBinder.Eval(dataItem, "CrDepCode").ToString();
+                    (e.Row.FindControl("CrDepName") as Label).Text = DataBinder.Eval(dataItem, "CrDepName").ToString();
+                }
+
+                if (e.Row.FindControl("CrAccCode") != null)
+                {
+                    (e.Row.FindControl("CrAccCode") as Label).Text = DataBinder.Eval(dataItem, "CrAccCode").ToString();
+                    (e.Row.FindControl("CrAccName") as Label).Text = DataBinder.Eval(dataItem, "CrAccName").ToString();
+                }
+
+
+            }
         }
 
-
-        protected void btn_Search_Click(object sender, EventArgs e)
+        protected void gv_AP_RowEditing(object sender, GridViewEditEventArgs e)
         {
-            //var id = _ViewId;
-            //var search = txt_Search.Text;
-            //var url = string.Format("AccountMapp.aspx?id={0}&search={1}", id, search);
-
-            //Response.Redirect(url);
+            (sender as GridView).EditIndex = e.NewEditIndex;
+            BindData();
         }
 
-        // GridView
-        protected void gv_AccMap_OnRowDataBound(object sender, GridViewRowEventArgs e)
+        protected void gv_AP_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e)
         {
+            //Reset the edit index.
+            (sender as GridView).EditIndex = -1;
+            //Bind data to the GridView control.
+            BindData();
         }
-
-        protected void gv_AccMap_PageIndexChanging(object sender, GridViewPageEventArgs e)
+        protected void gv_AP_RowUpdating(object sender, GridViewUpdateEventArgs e)
         {
-        }
+            var row = (sender as GridView).Rows[e.RowIndex] as GridViewRow;
+            var hf_ID = row.FindControl("hf_ID") as HiddenField;
+            var ddl_DepCode = row.FindControl("ddl_DepCode") as DropDownList;
+            var txt_DepCode = row.FindControl("txt_DepCode") as TextBox;
+            var ddl_AccCode = row.FindControl("ddl_AccCode") as DropDownList;
+            var txt_AccCode = row.FindControl("txt_AccCode") as TextBox;
 
-        protected void gv_AccMap_Sorting(object sender, GridViewSortEventArgs e)
-        {
-        }
+            var sql = new Helpers.SQL(LoginInfo.ConnStr);
+            var query = @"UPDATE [ADMIN].AccountMapp SET A1=@DepCode, A2=@AccCode WHERE ID=@Id";
 
+            var id = hf_ID.Value;
+            var depCode = ddl_DepCode == null ? txt_DepCode.Text.Trim() : ddl_DepCode.SelectedValue.ToString();
+            var accCode = ddl_AccCode == null ? txt_AccCode.Text.Trim() : ddl_AccCode.SelectedValue.ToString(); ;
+
+            depCode = "GEN";
+            accCode = "617-0003";
+
+            sql.ExecuteQuery(query, new SqlParameter[]
+            {
+                new SqlParameter("ID", id),
+                new SqlParameter("DepCode", depCode),
+                new SqlParameter("AccCode", accCode)
+            });
+
+            var dt = _dtData;
+
+            foreach (DataRow dr in dt.Rows)
+            {
+                if (dr["ID"] == id)
+                {
+                    dr["DepCode"] = depCode;
+                    dr["AccCode"] = accCode;
+                    
+                    break;
+                }
+            }
+            dt.AcceptChanges();
+            _dtData = dt;
+
+            //var dr = _dtData.Rows.Find(id);
+            //var dr = _dtData.Select(string.Format("ID='{0}'", id)).FirstOrDefault();
+
+            //dr["DepCode"] = depCode;
+            //dr["AccCode"] = accCode;
+
+            //_dtData.AcceptChanges();
+
+            //Reset the edit index.
+            (sender as GridView).EditIndex = -1;
+
+            //Bind data to the GridView control.
+            BindData();
+        }
 
         #region -- Method(s)--
-        private void BindData()
+
+        private void GetData()
         {
-            var id = ddl_View.SelectedItem.Value.ToString();
-            var searchText = txt_Search.Text;
             var sql = new Helpers.SQL(LoginInfo.ConnStr);
 
-            var dtView = sql.ExecuteQuery("SELECT * FROM [ADMIN].[AccountMappView] WHERE ID =" + id);
-            var view = dtView.AsEnumerable()
-                .Select(x => new ViewItem
-                {
-                    Id = x.Field<int>("Id"),
-                    ViewName = x.Field<string>("ViewName"),
-                    StoreCode = x.Field<bool>("StoreCode"),
-                    CategoryCode = x.Field<bool>("CategoryCode"),
-                    SubCategoryCode = x.Field<bool>("SubCategoryCode"),
-                    itemGroupCode = x.Field<bool>("itemGroupCode"),
+            var dtView = sql.ExecuteQuery(string.Format("SELECT * FROM [ADMIN].[AccountMappView] WHERE ID = '{0}'", _Type));
 
-                    KeyA1 = x.Field<bool>("KeyA1"),
-                    KeyA2 = x.Field<bool>("KeyA2"),
-                    KeyA3 = x.Field<bool>("KeyA3"),
-                    KeyA4 = x.Field<bool>("KeyA4"),
-                    KeyA5 = x.Field<bool>("KeyA5"),
-                    KeyA6 = x.Field<bool>("KeyA6"),
-                    KeyA7 = x.Field<bool>("KeyA7"),
-                    KeyA8 = x.Field<bool>("KeyA8"),
-                    KeyA9 = x.Field<bool>("KeyA9"),
+            if (dtView.Rows.Count == 0)
+                return;
 
-                    DescKeyA1 = x.Field<string>("DescKeyA1"),
-                    DescKeyA2 = x.Field<string>("DescKeyA2"),
-                    DescKeyA3 = x.Field<string>("DescKeyA3"),
-                    DescKeyA4 = x.Field<string>("DescKeyA4"),
-                    DescKeyA5 = x.Field<string>("DescKeyA5"),
-                    DescKeyA6 = x.Field<string>("DescKeyA6"),
-                    DescKeyA7 = x.Field<string>("DescKeyA7"),
-                    DescKeyA8 = x.Field<string>("DescKeyA8"),
-                    DescKeyA9 = x.Field<string>("DescKeyA9"),
+            var dr = dtView.Rows[0];
+            var postType = dr["PostType"].ToString().ToUpper();
+            var query = "";
 
+            if (postType == "AP")
+            {
+                #region -- AP --
+                query = @";WITH
+map AS(
+	SELECT
+		ID,
+		StoreCode as LocationCode,
+		ItemGroupCode,
+		A1 as DepCode,
+		A2 as AccCode
+	FROM
+		[ADMIN].AccountMapp
+	WHERE
+		PostType=@PostType
+)
+SELECT
+	m.*,
 
-                    A1 = x.Field<bool>("A1"),
-                    A2 = x.Field<bool>("A2"),
-                    A3 = x.Field<bool>("A3"),
-                    A4 = x.Field<bool>("A4"),
-                    A5 = x.Field<bool>("A5"),
-                    A6 = x.Field<bool>("A6"),
-                    A7 = x.Field<bool>("A7"),
-                    A8 = x.Field<bool>("A8"),
-                    A9 = x.Field<bool>("A9"),
+	l.LocationName,
+	c.CategoryCode,
+	c.CategoryName,
+	c.SubCategoryCode,
+	c.SubCategoryName,
+	c.ItemGroupName,
 
-                    DescA1 = x.Field<string>("DescA1"),
-                    DescA2 = x.Field<string>("DescA2"),
-                    DescA3 = x.Field<string>("DescA3"),
-                    DescA4 = x.Field<string>("DescA4"),
-                    DescA5 = x.Field<string>("DescA5"),
-                    DescA6 = x.Field<string>("DescA6"),
-                    DescA7 = x.Field<string>("DescA7"),
-                    DescA8 = x.Field<string>("DescA8"),
-                    DescA9 = x.Field<string>("DescA9"),
+	d.DeptDesc as DepName,
+	a.AccDesc1 as AccName
+FROM
+	map m
+	JOIN [IN].StoreLocation l ON l.LocationCode=m.LocationCode
+	JOIN [IN].vProdCatList c ON c.ItemGroupCode=m.ItemGroupCode
+	LEFT JOIN [ADMIN].AccountDepartment d ON d.DeptCode=m.DepCode
+	LEFT JOIN [ADMIN].AccountCode a ON a.AccCode=m.AccCode
+ORDER BY
+	LocationCode,
+	CategoryCode,
+	SubCategoryCode,
+	ItemGroupCode";
+                #endregion
+            }
+            else // GL
+            {
+                #region -- GL --
+                query = @"
+;WITH
+map AS(
+	SELECT
+		ID,
+		StoreCode as LocationCode,
+		ItemGroupCode,
+		A1 as AdjCode,
+		
+		A2 as DrDepCode,
+		A3 as DrAccCode,
+		A4 as CrDepCode,
+		A5 as CrAccCode
+	FROM
+		[ADMIN].AccountMapp
+	WHERE
+		PostType=@PostType
+)
+SELECT
+	m.*,
 
-                    TypeA1 = x.Field<string>("TypeA1"),
-                    TypeA2 = x.Field<string>("TypeA2"),
-                    TypeA3 = x.Field<string>("TypeA3"),
-                    TypeA4 = x.Field<string>("TypeA4"),
-                    TypeA5 = x.Field<string>("TypeA5"),
-                    TypeA6 = x.Field<string>("TypeA6"),
-                    TypeA7 = x.Field<string>("TypeA7"),
-                    TypeA8 = x.Field<string>("TypeA8"),
-                    TypeA9 = x.Field<string>("TypeA9"),
+	l.LocationName,
+	c.CategoryCode,
+	c.CategoryName,
+	c.SubCategoryCode,
+	c.SubCategoryName,
+	c.ItemGroupName,
 
-                    PostType = x.Field<string>("PostType")
+	a.AdjName,
+	dd.DeptDesc as DrDepName,
+	da.AccDesc1 as DrAccName,
+	cd.DeptDesc as CrDepName,
+	ca.AccDesc1 as CrAccName
 
-
-                })
-                .FirstOrDefault();
-
-            var queries = new StringBuilder();
-            var select = new StringBuilder();
-
-            if (view.StoreCode)
-                select.Append("StoreCode,");
-            if (view.CategoryCode)
-                select.Append("CategoryCode,");
-            if (view.SubCategoryCode)
-                select.Append("SubCategoryCode,");
-            if (view.itemGroupCode)
-                select.Append("ItemGroupCode,");
-            
-            if (view.KeyA1)
-                select.Append("A1 as KeyA1,");
-            if (view.KeyA2)
-                select.Append("A2 as KeyA2,");
-            if (view.KeyA3)
-                select.Append("A3 as KeyA3,");
-            if (view.KeyA4)
-                select.Append("A4 as KeyA4,");
-            if (view.KeyA5)
-                select.Append("A5 as KeyA5,");
-            if (view.KeyA6)
-                select.Append("A6 as KeyA6,");
-            if (view.KeyA7)
-                select.Append("A7 as KeyA7,");
-            if (view.KeyA8)
-                select.Append("A8 as KeyA8,");
-            if (view.KeyA9)
-                select.Append("A9 as KeyA9,");
-
-            if (view.A1)
-                select.Append("A1 as A1,");
-            if (view.A2)
-                select.Append("A2 as A2,");
-            if (view.A3)
-                select.Append("A3 as A3,");
-            if (view.A4)
-                select.Append("A4 as A4,");
-            if (view.A5)
-                select.Append("A5 as A5,");
-            if (view.A6)
-                select.Append("A6 as A6,");
-            if (view.A7)
-                select.Append("A7 as A7,");
-            if (view.A8)
-                select.Append("A8 as A8,");
-            if (view.A9)
-                select.Append("A9 as A9,");
-            
-            queries.AppendLine("SELECT");
-            queries.AppendLine(select.ToString().TrimEnd(','));
-            queries.AppendLine("FROM [ADMIN].[AccountMapp]");
-            queries.AppendLine("WHERE PostType = @type");
+FROM
+	map m
+	JOIN [IN].StoreLocation l ON l.LocationCode=m.LocationCode
+	JOIN [IN].vProdCatList c ON c.ItemGroupCode=m.ItemGroupCode
+	JOIN [IN].AdjType a ON a.AdjCode=m.AdjCode
+	LEFT JOIN [ADMIN].AccountDepartment dd ON dd.DeptCode=m.DrDepCode
+	LEFT JOIN [ADMIN].AccountCode da ON da.AccCode=m.DrAccCode
+	LEFT JOIN [ADMIN].AccountDepartment cd ON cd.DeptCode=m.CrDepCode
+	LEFT JOIN [ADMIN].AccountCode ca ON ca.AccCode=m.CrAccCode
+ORDER BY
+	LocationCode,
+	CategoryCode,
+	SubCategoryCode,
+	ItemGroupCode";
+                #endregion
+            }
 
 
-            var dt = sql.ExecuteQuery(queries.ToString(), new SqlParameter[] { new SqlParameter("type", view.PostType) });
+            _dtData = sql.ExecuteQuery(query, new SqlParameter[] { new SqlParameter("PostType", postType) });
 
-            gv_AccMap.DataSource = dt;
-            gv_AccMap.DataBind();
+            _dtData.PrimaryKey = new DataColumn[] { _dtData.Columns["ID"] };
 
+        }
+
+        private void BindData()
+        {
+            gv_AP.DataSource = _dtData;
+            gv_AP.DataBind();
         }
 
         #endregion
-
-        public class ViewItem
-        {
-            public int Id { get; set; }
-            public string ViewName { get; set; }
-            //public bool BusinessUnitCode { get; set; }
-            public bool StoreCode { get; set; }
-            public bool CategoryCode { get; set; }
-            public bool SubCategoryCode { get; set; }
-            public bool itemGroupCode { get; set; }
-
-            public bool KeyA1 { get; set; }
-            public bool KeyA2 { get; set; }
-            public bool KeyA3 { get; set; }
-            public bool KeyA4 { get; set; }
-            public bool KeyA5 { get; set; }
-            public bool KeyA6 { get; set; }
-            public bool KeyA7 { get; set; }
-            public bool KeyA8 { get; set; }
-            public bool KeyA9 { get; set; }
-
-            public string DescKeyA1 { get; set; }
-            public string DescKeyA2 { get; set; }
-            public string DescKeyA3 { get; set; }
-            public string DescKeyA4 { get; set; }
-            public string DescKeyA5 { get; set; }
-            public string DescKeyA6 { get; set; }
-            public string DescKeyA7 { get; set; }
-            public string DescKeyA8 { get; set; }
-            public string DescKeyA9 { get; set; }
-
-            public bool A1 { get; set; }
-            public bool A2 { get; set; }
-            public bool A3 { get; set; }
-            public bool A4 { get; set; }
-            public bool A5 { get; set; }
-            public bool A6 { get; set; }
-            public bool A7 { get; set; }
-            public bool A8 { get; set; }
-            public bool A9 { get; set; }
-
-            public string DescA1 { get; set; }
-            public string DescA2 { get; set; }
-            public string DescA3 { get; set; }
-            public string DescA4 { get; set; }
-            public string DescA5 { get; set; }
-            public string DescA6 { get; set; }
-            public string DescA7 { get; set; }
-            public string DescA8 { get; set; }
-            public string DescA9 { get; set; }
-
-            public string TypeA1 { get; set; }
-            public string TypeA2 { get; set; }
-            public string TypeA3 { get; set; }
-            public string TypeA4 { get; set; }
-            public string TypeA5 { get; set; }
-            public string TypeA6 { get; set; }
-            public string TypeA7 { get; set; }
-            public string TypeA8 { get; set; }
-            public string TypeA9 { get; set; }
-
-            public string PostType { get; set; }
-        }
-
 
     }
 

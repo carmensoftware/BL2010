@@ -109,7 +109,15 @@ namespace BlueLedger.PL.PC.PR
 
         private int wfStep
         {
-            get { return viewHandler.GetWFStep(int.Parse(Request.Cookies["[PC].[vPrList]"].Value), hf_ConnStr.Value); }
+            get
+            {
+                 var id = string.IsNullOrEmpty(Request.QueryString["VID"].ToString()) ? 0 : Convert.ToInt32(Request.QueryString["VID"]);
+
+                return viewHandler.GetWFStep(id, hf_ConnStr.Value);
+
+                //return viewHandler.GetWFStep(int.Parse(Request.Cookies["[PC].[vPrList]"].Value), hf_ConnStr.Value);
+            }
+
             //get { return viewHandler.GetWFStep(int.Parse(Request.Params["VID"].ToString()), hf_ConnStr.Value); }
         }
 
@@ -360,7 +368,7 @@ namespace BlueLedger.PL.PC.PR
                 }
             }
             //txt_PrDate.Text = DateTime.Parse(drPr["PrDate"].ToString()).ToString("dd/MM/yyyy");
-			txt_PrDate.Text = Convert.ToDateTime(drPr["PrDate"]).ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            txt_PrDate.Text = Convert.ToDateTime(drPr["PrDate"]).ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
             txt_PrDate.Enabled = (MODE.ToUpper() == "NEW"
                 //? workFlowDt.IsEnableEdit(wfId, wfStep, "PC.Pr.PRDate", hf_ConnStr.Value)
                 ? IsExistInField("PC.Pr.PRDate", "EnableField")
@@ -670,10 +678,10 @@ namespace BlueLedger.PL.PC.PR
                         if (DBNull.Value.Equals(drPrDt["ApprStatus"]))
                             drPrDt["ApprStatus"] = workFlow.GetDtApprStatus("PC", "PR", hf_ConnStr.Value);
                     }
-					
-					var dtUser = bu.DbExecuteQuery(string.Format("SELECT TOP(1) DepartmentCode FROM [ADMIN].vUser WHERE LoginName ='{0}'", LoginInfo.LoginName), null, hf_ConnStr.Value);
-					if (dtUser != null && dtUser.Rows.Count > 0)
-						drPr["HOD"] = dtUser.Rows[0][0].ToString();
+
+                    var dtUser = bu.DbExecuteQuery(string.Format("SELECT TOP(1) DepartmentCode FROM [ADMIN].vUser WHERE LoginName ='{0}'", LoginInfo.LoginName), null, hf_ConnStr.Value);
+                    if (dtUser != null && dtUser.Rows.Count > 0)
+                        drPr["HOD"] = dtUser.Rows[0][0].ToString();
                 }
 
                 if (MODE.ToUpper() == "EDIT")
@@ -704,7 +712,7 @@ namespace BlueLedger.PL.PC.PR
                 drPr["UpDatedDate"] = ServerDateTime;
                 drPr["UpdatedBy"] = LoginInfo.LoginName;
 
-               
+
 
                 drPr["AddField1"] = ddl_JobCode.SelectedIndex > -1 ? ddl_JobCode.Value.ToString() : string.Empty;
 
@@ -5319,23 +5327,23 @@ namespace BlueLedger.PL.PC.PR
         {
             // if (Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["IsAllocateVendor"]))
             // {
-                // var ComboBox = sender as ASPxComboBox;
-                // var txt_ReqQty_av = ComboBox.Parent.Parent.Parent.FindControl("txt_ReqQty_av") as ASPxSpinEdit;
-                // var buCode = dsPR.Tables[prDt.TableName].Rows[((GridViewRow)ComboBox.NamingContainer).DataItemIndex]["BuCode"].ToString();
-                // var drPrDtEdit = dsPR.Tables[prDt.TableName].Rows[((GridViewRow)ComboBox.Parent.Parent.Parent).DataItemIndex];
-				
-				// var dt = vendor.DbExecuteQuery("SELECT VendorCode, Name FROM [AP].Vendor WHERE IsActive = 1", null, LoginInfo.ConnStr);
+            // var ComboBox = sender as ASPxComboBox;
+            // var txt_ReqQty_av = ComboBox.Parent.Parent.Parent.FindControl("txt_ReqQty_av") as ASPxSpinEdit;
+            // var buCode = dsPR.Tables[prDt.TableName].Rows[((GridViewRow)ComboBox.NamingContainer).DataItemIndex]["BuCode"].ToString();
+            // var drPrDtEdit = dsPR.Tables[prDt.TableName].Rows[((GridViewRow)ComboBox.Parent.Parent.Parent).DataItemIndex];
+
+            // var dt = vendor.DbExecuteQuery("SELECT VendorCode, Name FROM [AP].Vendor WHERE IsActive = 1", null, LoginInfo.ConnStr);
 
 
 
-                // ComboBox.DataSource = dt;
-				// //ComboBox.DataSource = vendor.GetLookUp(LoginInfo.ConnStr);
-                // ComboBox.DataBind();
+            // ComboBox.DataSource = dt;
+            // //ComboBox.DataSource = vendor.GetLookUp(LoginInfo.ConnStr);
+            // ComboBox.DataBind();
             // }
 
         }
-		
-		protected void ddl_Vendor_av_Load1(object sender, EventArgs e)
+
+        protected void ddl_Vendor_av_Load1(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["IsAllocateVendor"]))
             {
@@ -5343,13 +5351,13 @@ namespace BlueLedger.PL.PC.PR
                 var txt_ReqQty_av = ComboBox.Parent.Parent.Parent.FindControl("txt_ReqQty_av") as ASPxSpinEdit;
                 var buCode = dsPR.Tables[prDt.TableName].Rows[((GridViewRow)ComboBox.NamingContainer).DataItemIndex]["BuCode"].ToString();
                 var drPrDtEdit = dsPR.Tables[prDt.TableName].Rows[((GridViewRow)ComboBox.Parent.Parent.Parent).DataItemIndex];
-				
-				var dt = vendor.DbExecuteQuery("SELECT VendorCode, Name FROM [AP].Vendor WHERE IsActive = 1", null, LoginInfo.ConnStr);
+
+                var dt = vendor.DbExecuteQuery("SELECT VendorCode, Name FROM [AP].Vendor WHERE IsActive = 1", null, LoginInfo.ConnStr);
 
 
 
                 ComboBox.DataSource = dt;
-				//ComboBox.DataSource = vendor.GetLookUp(LoginInfo.ConnStr);
+                //ComboBox.DataSource = vendor.GetLookUp(LoginInfo.ConnStr);
                 ComboBox.DataBind();
             }
 
@@ -5358,43 +5366,43 @@ namespace BlueLedger.PL.PC.PR
 
         protected void ddl_Vendor_av_OnItemsRequestedByFilterCondition_SQL(object source, ListEditItemsRequestedByFilterConditionEventArgs e)
         {
-                            var comboBox = (ASPxComboBox)source;
+            var comboBox = (ASPxComboBox)source;
 
-                            SqlDataSource1.ConnectionString = LoginInfo.ConnStr;
+            SqlDataSource1.ConnectionString = LoginInfo.ConnStr;
 
-                            SqlDataSource1.SelectCommand = 
-                                @"SELECT VendorCode, Name , [Description] AS Branch
+            SqlDataSource1.SelectCommand =
+                @"SELECT VendorCode, Name , [Description] AS Branch
                                 FROM (SELECT VendorCode, Name, [Description], ROW_NUMBER() OVER(ORDER BY VendorCode) as rn 
                                       FROM [AP].[Vendor] 
                         	          WHERE (VendorCode + ' ' + Name LIKE @filter) AND IsActive = 1) as st
                                 WHERE st.[rn] BETWEEN @startIndex AND @endIndex";
 
-                            SqlDataSource1.SelectParameters.Clear();
-                            SqlDataSource1.SelectParameters.Add("filter", TypeCode.String, string.Format("%{0}%", e.Filter));
-                            SqlDataSource1.SelectParameters.Add("startIndex", TypeCode.Int64, (e.BeginIndex + 1).ToString());
-                            SqlDataSource1.SelectParameters.Add("endIndex", TypeCode.Int64, (e.EndIndex + 1).ToString());
-                            comboBox.DataSource = SqlDataSource1;
-                            comboBox.DataBind();
-                            comboBox.ToolTip = comboBox.Text;
+            SqlDataSource1.SelectParameters.Clear();
+            SqlDataSource1.SelectParameters.Add("filter", TypeCode.String, string.Format("%{0}%", e.Filter));
+            SqlDataSource1.SelectParameters.Add("startIndex", TypeCode.Int64, (e.BeginIndex + 1).ToString());
+            SqlDataSource1.SelectParameters.Add("endIndex", TypeCode.Int64, (e.EndIndex + 1).ToString());
+            comboBox.DataSource = SqlDataSource1;
+            comboBox.DataBind();
+            comboBox.ToolTip = comboBox.Text;
 
         }
 
         protected void ddl_Vendor_av_OnItemRequestedByValue_SQL(object source, ListEditItemRequestedByValueEventArgs e)
         {
-                var comboBox = (ASPxComboBox)source;
+            var comboBox = (ASPxComboBox)source;
 
-                if (e.Value == null)
-                    return;
+            if (e.Value == null)
+                return;
 
-                SqlDataSource1.SelectCommand = @"SELECT VendorCode, Name , [Description] AS Branch FROM [AP].[Vendor] WHERE VendorCode = @VendorCode ";
-                SqlDataSource1.ConnectionString = LoginInfo.ConnStr;
-                SqlDataSource1.SelectParameters.Clear();
-                SqlDataSource1.SelectParameters.Add("VendorCode", TypeCode.String, e.Value.ToString());
-                comboBox.DataSource = SqlDataSource1;
-                comboBox.DataBind();
-                comboBox.ToolTip = comboBox.Text;
+            SqlDataSource1.SelectCommand = @"SELECT VendorCode, Name , [Description] AS Branch FROM [AP].[Vendor] WHERE VendorCode = @VendorCode ";
+            SqlDataSource1.ConnectionString = LoginInfo.ConnStr;
+            SqlDataSource1.SelectParameters.Clear();
+            SqlDataSource1.SelectParameters.Add("VendorCode", TypeCode.String, e.Value.ToString());
+            comboBox.DataSource = SqlDataSource1;
+            comboBox.DataBind();
+            comboBox.ToolTip = comboBox.Text;
 
-          
+
         }
 
         #endregion
@@ -6406,7 +6414,7 @@ namespace BlueLedger.PL.PC.PR
                 {
                     lbl_UserRequired.Text = "Department is required. Please assign Department to this user.";
                     pop_UserRequired.ShowOnPageLoad = true;
-                    
+
                     return;
                 }
 

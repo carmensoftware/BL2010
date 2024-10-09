@@ -526,10 +526,9 @@ namespace BlueLedger.PL.BaseClass
         // คำนวนหา ผลรวมราคาหลังหักภาษี
         public decimal NetAmt(string taxType, decimal taxRate, decimal price, decimal discount, decimal quantity)
         {
-            taxType = taxType[0].ToString().ToUpper();
             decimal value;
 
-            if (taxType == "I")
+            if (taxType.ToUpper().StartsWith("I"))
             {
                 value = CalAmt(price, discount, quantity) - TaxAmt(taxType, taxRate, price, discount, quantity);
             }
