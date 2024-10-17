@@ -25,7 +25,7 @@ public class API
         {
             using(var client = new WebClient())
             {
-                client.BaseAddress = _host;
+                client.BaseAddress = _host.TrimEnd('/') + "/";
                 client.Headers.Add("Authorization", _auth);
 
                 var data =  client.DownloadData(SetEndpoint(endpoint));

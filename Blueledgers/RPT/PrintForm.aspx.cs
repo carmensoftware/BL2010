@@ -15,13 +15,21 @@ public partial class RPT_PrintForm : BasePage
         string reportName = Request.QueryString["Report"];
         string rptID = string.Empty;
 
-        if (reportName == "PurchaseRequestForm")
-            rptID = "9001";
-        else if (reportName == "PurchaseOrderForm")
-            rptID = "9002";
-        else
-            reportName = reportName + ".frx";
-
+        switch (reportName)
+        {
+            case "PurchaseRequestForm":
+                rptID = "9001";
+                break;
+            case "PurchaseOrderForm":
+                rptID = "9002";
+                break;
+            case "StoreRequisitionForm":
+                rptID = "9011";
+                break;
+            default:
+                reportName = reportName + ".frx";
+                break;
+        }
 
         if (rptID != string.Empty)
         {
