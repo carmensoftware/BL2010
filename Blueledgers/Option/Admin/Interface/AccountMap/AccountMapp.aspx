@@ -6,27 +6,24 @@
 <%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxPopupControl" TagPrefix="dx" %>
 <asp:Content ID="Header" ContentPlaceHolderID="head" runat="server">
     <style>
-        #datatable
+        @media print
         {
-            border-collapse: collapse;
-        }
-        #datatable td
-        {
-            padding: 8px 10px;
-        }
-        #datatable thead th
-        {
-            background-color: #2196f3;
-            color: #fff;
-            padding: 8px 10px;
-            text-align: left;
-        }
-        #datatable tr:nth-child(even)
-        {
-            background-color: #f2f2f2;
-        }
+            /* Sets print view with media query */
         
+            body *
+            {
+                display: none;
+            }
+            /* Sets body and elements in it to not display */
         
+            .print-area, .print-area *
+            {
+                display: block;
+            }
+            /* Sets print area element and all its content to display */
+        }
+    </style>
+    <style>
         .display-none
         {
             display: none !important;
@@ -42,21 +39,14 @@
         }
     </style>
     <style>
-        .gridpager, .gridpager td
+        .styled-table
         {
-            color: Green;
-            font-weight: bold;
-            text-decoration: none;
-            border: 0;
-            position: relative;
-            padding-left: 5px;
-            padding-right: 5px;
-        }
-        
-        .gridpager a
-        {
-            color: black;
-            font-weight: normal;
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 0.9em;
+            font-family: sans-serif;
+            min-width: 400px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
         }
     </style>
 </asp:Content>
@@ -70,10 +60,19 @@
             n.execCommand('delete');
             file.focus();
         }
+        function test1() { 
+         var divContents = document.getElementById("print").innerHTML;
+                //var printWindow = window.open('', '', 'height=500, width=500');
+                var printWindow = window.open('');
+
+                printWindow.document.open();
+                printWindow.document.write(`<html><head><title>Account Mapping</title> <style> .styled-table {border-collapse: collapse;margin: 25px 0;font-size: 0.9em;font-family: sans-serif;min-width: 400px;box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);}</style></head><body>${divContents}</body></html>`);
+                printWindow.document.close();
+                printWindow.print(); }
     </script>
-    <asp:UpdatePanel runat="server" ID="update_panel" UpdateMode="Conditional">
+    <asp:UpdatePanel runat="server" ID="UpdatePanel" UpdateMode="Conditional">
         <ContentTemplate>
-            <asp:Label runat="server" ID="lbl_Test" Font-Size="Medium">Result</asp:Label>
+            <asp:Label runat="server" ID="lbl_Test" Font-Size="Medium"></asp:Label>
             <table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #4D4D4D; height: auto;">
                 <tr>
                     <td align="left" style="padding-left: 10px;">
@@ -119,14 +118,6 @@
                                         <BackgroundImage ImageUrl="~/App_Themes/Default/Images/master/icon/print.png" Repeat="NoRepeat" HorizontalPosition="center" VerticalPosition="center" />
                                     </ItemStyle>
                                 </dx:MenuItem>
-                                <dx:MenuItem Name="Back" Text="" Visible="false">
-                                    <ItemStyle Height="16px" Width="43px">
-                                        <HoverStyle>
-                                            <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-back.png" Repeat="NoRepeat" VerticalPosition="center" />
-                                        </HoverStyle>
-                                        <BackgroundImage ImageUrl="~/App_Themes/Default/Images/master/icon/back.png" Repeat="NoRepeat" HorizontalPosition="center" VerticalPosition="center" />
-                                    </ItemStyle>
-                                </dx:MenuItem>
                             </Items>
                         </dx:ASPxMenu>
                     </td>
@@ -145,8 +136,8 @@
                     </td>
                 </tr>
             </table>
-            <hr />
-            <asp:GridView ID="gv_Data" runat="server" SkinID="GRD_V1" Width="100%" PageSize="25" AllowPaging="true" AllowSorting="true" OnPageIndexChanging="gv_Data_PageIndexChanging"
+            <br />
+            <asp:GridView ID="gv_Data" runat="server" SkinID="GRD_V1" Width="100%" PageSize="25" AllowPaging="false" AllowSorting="true" OnPageIndexChanging="gv_Data_PageIndexChanging"
                 OnSorting="gv_Data_Sorting" OnRowDataBound="gv_Data_RowDataBound" OnRowEditing="gv_Data_RowEditing" OnRowCancelingEdit="gv_Data_RowCancelingEdit" OnRowUpdating="gv_Data_RowUpdating">
                 <HeaderStyle Height="40px" BackColor="#F4F4F5" Font-Bold="True" ForeColor="#444444" HorizontalAlign="Left" />
                 <RowStyle Height="50px" BackColor="White" ForeColor="#333333" BorderColor="#DDDDDD" />
@@ -316,6 +307,34 @@
                     </asp:TemplateField>
                 </Columns>
             </asp:GridView>
+            <br />
+            <div style="display: flex; justify-content: space-between;">
+                <div>
+                    <asp:Label ID="Label2" runat="server" Text="Rows" />
+                    <asp:DropDownList runat="server" ID="ddl_Rows" Width="50" AutoPostBack="true" OnSelectedIndexChanged="ddl_Rows_SelectedIndexChanged">
+                        <asp:ListItem Value="10" Text="10" />
+                        <asp:ListItem Value="20" Text="25" />
+                        <asp:ListItem Value="50" Text="50" />
+                        <asp:ListItem Value="100" Text="100" />
+                    </asp:DropDownList>
+                </div>
+                <div>
+                    <asp:Button runat="server" ID="btn_Page_First" Text="<<" OnClick="btn_Page_Fist_Click" />
+                    <asp:Button runat="server" ID="btn_Page_Previous" Text="<" OnClick="btn_Page_Previous_Click" />
+                    <asp:Button runat="server" ID="btn_Page1" Text="1" OnClick="btn_Page_Click" />
+                    <asp:Button runat="server" ID="btn_Page2" Text="2" OnClick="btn_Page_Click" />
+                    <asp:Button runat="server" ID="btn_Page3" Text="3" OnClick="btn_Page_Click" />
+                    <asp:Button runat="server" ID="btn_Page4" Text="4" OnClick="btn_Page_Click" />
+                    <asp:Button runat="server" ID="btn_Page5" Text="5" OnClick="btn_Page_Click" />
+                    <asp:Button runat="server" ID="btn_Page6" Text="6" OnClick="btn_Page_Click" />
+                    <asp:Button runat="server" ID="btn_Page7" Text="7" OnClick="btn_Page_Click" />
+                    <asp:Button runat="server" ID="btn_Page8" Text="8" OnClick="btn_Page_Click" />
+                    <asp:Button runat="server" ID="btn_Page9" Text="9" OnClick="btn_Page_Click" />
+                    <asp:Button runat="server" ID="btn_Page10" Text="10" OnClick="btn_Page_Click" />
+                    <asp:Button runat="server" ID="btn_Page_Next" Text=">" OnClick="btn_Page_Next_Click" />
+                    <asp:Button runat="server" ID="btn_Page_Last" Text=">>" OnClick="btn_Page_Last_Click" />
+                </div>
+            </div>
         </ContentTemplate>
         <Triggers>
             <asp:PostBackTrigger ControlID="btn_Search" />
@@ -323,9 +342,27 @@
             <asp:PostBackTrigger ControlID="menu_CmdBar" />
         </Triggers>
     </asp:UpdatePanel>
+    <asp:UpdateProgress ID="UpdateProgress" runat="server" AssociatedUpdatePanelID="UpdatePanel">
+        <ProgressTemplate>
+            <div class="fix-layout" style="border-style: solid; border-width: 1px; border-color: #0071BD; background-color: #FFFFFF; width: 120px; height: 60px">
+                <table border="0" cellpadding="0" cellspacing="0" style="width: 120px; height: 60px">
+                    <tr>
+                        <td align="center">
+                            <asp:Image ID="img_Loading2" runat="server" ImageUrl="~/App_Themes/Default/Images/master/in/Default/ajax-loader.gif" EnableViewState="False" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center">
+                            <asp:Label ID="lbl_Loading2" runat="server" Font-Bold="true" Text="Loading..." EnableViewState="False"></asp:Label>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </ProgressTemplate>
+    </asp:UpdateProgress>
     <!-- Popup -->
-    <dx:ASPxPopupControl ID="pop_Alert" ClientInstanceName="pop_Alert" runat="server" Width="300px" CloseAction="CloseButton" HeaderText="" Modal="True"
-        PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowCloseButton="False" ShowPageScrollbarWhenModal="True">
+    <dx:ASPxPopupControl ID="pop_Alert" ClientInstanceName="pop_Alert" runat="server" Width="300px" CloseAction="CloseButton" HeaderText="" Modal="True" PopupHorizontalAlign="WindowCenter"
+        PopupVerticalAlign="WindowCenter" ShowCloseButton="False" ShowPageScrollbarWhenModal="True">
         <ContentStyle VerticalAlign="Top">
         </ContentStyle>
         <ContentCollection>
@@ -378,41 +415,16 @@
             </dx:PopupControlContentControl>
         </ContentCollection>
     </dx:ASPxPopupControl>
-    <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <!-- -------------------- -->
+    <!--        PRINT         -->
+    <!-- -------------------- -->
+    
+    <%--<script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             // Init
-            //$('.select2').select2();
-
-            var table = new DataTable('#data', {
-
-            });
-
-            var type = GetUrlParameter('type');
-
-            if (type) {
-                $('#ddl_View').val(type);
-            } else {
-                $("#ddl_View").prop("selectedIndex", 0).val();
-            }
 
             // Event(s)
-
-            $('#ddl_View').on('change', function () {
-                console.log(this.value);
-                location.href = "AccountMapp.aspx?type=".concat(this.value);
-            });
-
-
-            $('[name="btn_Edit"]').on('click', function () {
-                var id = $(this).attr('data-id');
-
-                $('.item-edit').removeClass('display-none');
-                $('.item-view').addClass('display-none');
-
-
-                console.log(id);
-            });
 
             // Method(s)
             function GetUrlParameter(parameter) {
@@ -423,5 +435,5 @@
         });
 
 
-    </script>
+    </script>--%>
 </asp:Content>

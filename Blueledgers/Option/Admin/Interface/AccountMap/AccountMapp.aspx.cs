@@ -21,7 +21,6 @@ namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
         #region "Attributes"
         private readonly Blue.BL.APP.Config _config = new Blue.BL.APP.Config();
 
-
         protected string _postType
         {
             get
@@ -36,11 +35,19 @@ namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
 
         protected string _textSearch { get { return txt_Search.Text.Trim(); } }
 
+        protected string _sortColumn
+        {
+            get { return ViewState["_sortColumn"] == null ? "LocationCode" : ViewState["_sortColumn"].ToString().Trim(); }
+            set { ViewState["_sortColumn"] = value; }
+        }
+
         protected string _sortDirection
         {
-            get { return ViewState["_sorting"] == null ? "ASC" : ViewState["_sorting"].ToString().ToUpper(); }
-            set { ViewState["_sorting"] = value; }
+            get { return ViewState["_sortDirection"] == null ? "ASC" : ViewState["_sortDirection"].ToString().ToUpper(); }
+            set { ViewState["_sortDirection"] = value; }
         }
+
+        // Data
 
         protected DataTable _dtDataView
         {
@@ -64,6 +71,34 @@ namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
             {
                 ViewState["_dtData"] = value;
             }
+        }
+
+        protected DataTable _dtDataPrint
+        {
+            get
+            {
+                return ViewState["_dtDataPrint"] == null ? new DataTable() : ViewState["_dtDataPrint"] as DataTable;
+            }
+            set
+            {
+                ViewState["_dtDataPrint"] = value;
+            }
+        }
+
+
+        // Pagination
+        protected int _rows { get { return Convert.ToInt32(ddl_Rows.SelectedValue); } }
+
+        protected int _page
+        {
+            get { return ViewState["_page"] == null ? 1 : (int)ViewState["_page"]; }
+            set { ViewState["_page"] = value; }
+        }
+
+        protected int _lastPage
+        {
+            get { return ViewState["_lastPage"] == null ? 1 : (int)ViewState["_lastPage"]; }
+            set { ViewState["_lastPage"] = value; }
         }
 
         #endregion
@@ -91,14 +126,17 @@ namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
             ddl_View.DataBind();
 
 
-            GetData();
+            _dtDataPrint = new DataTable();
 
             Page_Setting();
         }
 
         private void Page_Setting()
         {
-            BindData();
+            //BindData();
+            var page = 1;
+            var rows = _rows;
+            GetData(rows, page);
 
             SetEditMode(false);
         }
@@ -120,7 +158,10 @@ namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
                         break;
 
                     case "PRINT":
-                        ScriptManager.RegisterClientScriptBlock(this, GetType(), "print", "window.print();", true);
+                        Session["AccountMappPrint"] = GetData1(true);
+                        //ScriptManager.RegisterClientScriptBlock(this, GetType(), "print", "window.print();", true);
+                        //ScriptManager.RegisterStartupScript(Page, GetType(), "test", "<script>test1()</script>", false);
+                        ScriptManager.RegisterStartupScript(Page, GetType(), "test", string.Format("<script>window.open('AccountMappPrint.aspx?type={0}', 'Print');</script>", _postType), false);
                         break;
                 }
             }
@@ -128,6 +169,8 @@ namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
 
         protected void ddl_View_SelectedIndexChanged(object sender, EventArgs e)
         {
+            _sortColumn = "LocationCode";
+            _sortDirection = "ASC";
 
             var items = gv_Data.Columns.Cast<DataControlField>().ToArray();
 
@@ -145,25 +188,62 @@ namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
                 item.Visible = false;
             }
 
-
             txt_Search.Text = "";
 
+            GetData(_rows, 1);
+        }
 
+        protected void ddl_Rows_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var page = 1;
+            var rows = Convert.ToInt32((sender as DropDownList).SelectedValue);
 
-            GetData();
-            BindData();
+            GetData(rows, page);
         }
 
         protected void btn_Search_Click(object sender, EventArgs e)
         {
-            GetData();
-            BindData();
+            GetData(_rows, 1);
         }
 
-        protected void ddl_Filter_SelectedIndexChanged(object sender, EventArgs e)
+
+        // Pagination
+
+        protected void btn_Page_Click(object sender, EventArgs e)
         {
-            GetData();
-            BindData();
+            var page = Convert.ToInt32((sender as Button).Text);
+
+            GetData(_rows, page);
+        }
+
+        protected void btn_Page_Fist_Click(object sender, EventArgs e)
+        {
+            GetData(_rows, 1);
+        }
+
+        protected void btn_Page_Previous_Click(object sender, EventArgs e)
+        {
+            var id = Convert.ToInt32(btn_Page1.Text);
+
+            if (id < _lastPage && id > 1)
+            {
+                GetData(_rows, id - 2);
+            }
+        }
+
+        protected void btn_Page_Next_Click(object sender, EventArgs e)
+        {
+            var id = Convert.ToInt32(btn_Page10.Text);
+
+            if (id < _lastPage)
+            {
+                GetData(_rows, id + 1);
+            }
+        }
+
+        protected void btn_Page_Last_Click(object sender, EventArgs e)
+        {
+            GetData(_rows, _lastPage);
         }
 
         // GridView
@@ -175,10 +255,13 @@ namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
 
         protected void gv_Data_Sorting(object sender, GridViewSortEventArgs e)
         {
+            _sortColumn = e.SortExpression;
             _sortDirection = _sortDirection == "ASC" ? "DESC" : "ASC";
-            _dtData.DefaultView.Sort = e.SortExpression + " " + _sortDirection; ;
 
-            BindData();
+            var page = _page;
+            var rows = _rows;
+
+            GetData(rows, page);
         }
 
         protected void gv_Data_RowDataBound(object sender, GridViewRowEventArgs e)
@@ -569,8 +652,14 @@ ORDER BY
             }
         }
 
+        protected void Print()
+        {
+            var dt = GetData1(true);
+
+        }
 
         #region -- Method(s)--
+
         private void SaveAsCsv(string text, string filename)
         {
             Response.Clear();
@@ -590,19 +679,31 @@ ORDER BY
             btn_Search.Enabled = !isEdit;
         }
 
-        private void GetData()
+        private void BindData()
         {
+            gv_Data.DataSource = _dtData;
+            gv_Data.DataBind();
+        }
+
+        private DataTable GetData1(bool isPrint = false)
+        {
+
+            var query_data = "";
+            var query_select = "";
+            var query_where = "";
+            var query_order = "";
+
             var queries = new StringBuilder();
             var parameters = new List<SqlParameter>();
 
 
-            var textSearch = _textSearch;
+            var textSearch = string.Format("%{0}%", _textSearch);
             var postType = _postType;
 
             if (postType == "AP")
             {
                 #region -- AP --
-                queries.AppendLine(@";WITH
+                query_data = @";WITH
 map AS(
 	SELECT
 		CAST(ID as VARCHAR(100)) as ID,
@@ -613,7 +714,7 @@ map AS(
 	FROM
 		[ADMIN].AccountMapp
 	WHERE
-		PostType=@PostType
+		PostType='AP'
 ),
 data AS(
     SELECT
@@ -634,17 +735,13 @@ data AS(
 	    JOIN [IN].vProdCatList c ON c.ItemGroupCode=m.ItemGroupCode
 	    LEFT JOIN [ADMIN].AccountDepartment d ON d.DeptCode=m.DepCode
 	    LEFT JOIN [ADMIN].AccountCode a ON a.AccCode=m.AccCode
-)
-SELECT
-    *
-FROM
-    data
-WHERE
-    1=1");
+)";
+                query_select = " SELECT  * FROM data";
+                query_where = " WHERE 1=1 ";
 
                 if (!string.IsNullOrEmpty(textSearch))
                 {
-                    queries.AppendLine(@"    
+                    query_where += @"    
     AND (CategoryCode LIKE @search
     OR CategoryName LIKE @search
     OR SubCategoryCode LIKE @search
@@ -655,23 +752,19 @@ WHERE
     OR DepCode LIKE @search
     OR DepName LIKE @search
     OR AccCode LIKE @search
-    OR AccName LIKE @search)");
-                    parameters.Add(new SqlParameter("Search", textSearch));
+    OR AccName LIKE @search)";
+                    parameters.Add(new SqlParameter("search", textSearch));
                 };
 
 
-                queries.AppendLine(@"
-ORDER BY
-	LocationCode,
-	CategoryCode,
-	SubCategoryCode,
-	ItemGroupCode");
+                query_order = string.Format(" ORDER BY {0} {1}, LocationCode, CategoryCode, SubCategoryCode, ItemGroupCode,".Replace(" " + _sortColumn + ",", " "), _sortColumn, _sortDirection).Trim().TrimEnd(',');
+
                 #endregion
             }
             else // GL
             {
                 #region -- GL --
-                queries.AppendLine(@"
+                query_data = @"
 ;WITH
 map AS(
 	SELECT
@@ -687,7 +780,7 @@ map AS(
 	FROM
 		[ADMIN].AccountMapp
 	WHERE
-		PostType=@PostType
+		PostType='GL'
 ),
 data AS(
     SELECT
@@ -715,16 +808,14 @@ data AS(
 	    LEFT JOIN [ADMIN].AccountCode da ON da.AccCode=m.DrAccCode
 	    LEFT JOIN [ADMIN].AccountDepartment cd ON cd.DeptCode=m.CrDepCode
 	    LEFT JOIN [ADMIN].AccountCode ca ON ca.AccCode=m.CrAccCode
-)
-SELECT
-    *
-FROM
-    data");
+)";
+                query_select = " SELECT * FROM data ";
+                query_where = " WHERE 1=1 ";
+
                 if (!string.IsNullOrEmpty(textSearch))
                 {
-                    queries.AppendLine(@"   
-WHERE
-    CategoryCode LIKE @search
+                    query_where += @"   
+    AND(CategoryCode LIKE @search
     OR CategoryName LIKE @search
     OR SubCategoryCode LIKE @search
     OR SubCategoryName LIKE @search
@@ -740,35 +831,245 @@ WHERE
     OR CrDepCode LIKE @search
     OR CrDepName LIKE @search
     OR CrAccCode LIKE @search
-    OR CrAccName LIKE @search");
+    OR CrAccName LIKE @search)";
                     parameters.Add(new SqlParameter("Search", textSearch));
                 }
-                queries.AppendLine(@"
-ORDER BY
-	LocationCode,
-	CategoryCode,
-	SubCategoryCode,
-	ItemGroupCode");
+                query_order = string.Format(" ORDER BY {0} {1}, LocationCode, CategoryCode, SubCategoryCode, ItemGroupCode, AdjCode,".Replace(" " + _sortColumn + ",", " "), _sortColumn, _sortDirection).Trim().TrimEnd(',');
                 #endregion
             }
 
 
+            // Data
+            queries.AppendLine(query_data);
+            queries.AppendLine(query_select);
+            queries.AppendLine(query_where);
+            queries.AppendLine(query_order);
+
+            if (!isPrint)
+            {
+                queries.AppendFormat(" OFFSET {0} * ({1}-1) ROWS FETCH NEXT {0} ROWS ONLY", _rows, _page);
+            }
+
             var sql = new Helpers.SQL(LoginInfo.ConnStr);
 
-            parameters.Add(new SqlParameter("PostType", postType));
+            var dt = sql.ExecuteQuery(queries.ToString(), parameters.ToArray());
 
 
-            _dtData = sql.ExecuteQuery(queries.ToString(), parameters.ToArray());
+            if (!isPrint)
+            {
+                // Get last page
+                queries.Clear();
+                queries.AppendLine(query_data);
+                queries.AppendLine("SELECT COUNT(ID) FROM data");
+                queries.AppendLine(query_where);
 
-            _dtData.PrimaryKey = new DataColumn[] { _dtData.Columns["ID"] };
+                var dtCount = sql.ExecuteQuery(queries.ToString(), parameters.ToArray());
+                var totalRows = (int)dtCount.Rows[0][0];
 
+                _lastPage = totalRows / _rows + 1;
+            }
+
+            return dt;
         }
 
-        private void BindData()
+        private void GetData(int rows, int page)
         {
-            gv_Data.DataSource = _dtData;
-            gv_Data.DataBind();
+            _dtData = GetData1();
+            BindData();
+            SetPageButton(page);
+
+            //            var query_data = "";
+            //            var query_select = "";
+            //            var query_where = "";
+            //            var query_order = "";
+
+            //            var queries = new StringBuilder();
+            //            var parameters = new List<SqlParameter>();
+
+
+            //            var textSearch = string.Format("%{0}%", _textSearch);
+            //            var postType = _postType;
+
+            //            if (postType == "AP")
+            //            {
+            //                #region -- AP --
+            //                query_data = @";WITH
+            //map AS(
+            //	SELECT
+            //		CAST(ID as VARCHAR(100)) as ID,
+            //		StoreCode as LocationCode,
+            //		ItemGroupCode,
+            //		A1 as DepCode,
+            //		A2 as AccCode
+            //	FROM
+            //		[ADMIN].AccountMapp
+            //	WHERE
+            //		PostType=@PostType
+            //),
+            //data AS(
+            //    SELECT
+            //	    m.*,
+            //
+            //	    l.LocationName,
+            //	    c.CategoryCode,
+            //	    c.CategoryName,
+            //	    c.SubCategoryCode,
+            //	    c.SubCategoryName,
+            //	    c.ItemGroupName,
+            //
+            //	    d.DeptDesc as DepName,
+            //	    a.AccDesc1 as AccName
+            //    FROM
+            //	    map m
+            //	    JOIN [IN].StoreLocation l ON l.LocationCode=m.LocationCode
+            //	    JOIN [IN].vProdCatList c ON c.ItemGroupCode=m.ItemGroupCode
+            //	    LEFT JOIN [ADMIN].AccountDepartment d ON d.DeptCode=m.DepCode
+            //	    LEFT JOIN [ADMIN].AccountCode a ON a.AccCode=m.AccCode
+            //)";
+            //                query_select = " SELECT  * FROM data";
+            //                query_where = " WHERE 1=1 ";
+
+            //                if (!string.IsNullOrEmpty(textSearch))
+            //                {
+            //                    query_where += @"    
+            //    AND (CategoryCode LIKE @search
+            //    OR CategoryName LIKE @search
+            //    OR SubCategoryCode LIKE @search
+            //    OR SubCategoryName LIKE @search
+            //    OR ItemGroupCode LIKE @search
+            //    OR ItemGroupName LIKE @search
+            //
+            //    OR DepCode LIKE @search
+            //    OR DepName LIKE @search
+            //    OR AccCode LIKE @search
+            //    OR AccName LIKE @search)";
+            //                    parameters.Add(new SqlParameter("search", textSearch));
+            //                };
+
+
+            //                query_order = string.Format(" ORDER BY {0} {1}, LocationCode, CategoryCode, SubCategoryCode, ItemGroupCode,".Replace(" " + _sortColumn + ",", " "), _sortColumn, _sortDirection).Trim().TrimEnd(',');
+
+            //                #endregion
+            //            }
+            //            else // GL
+            //            {
+            //                #region -- GL --
+            //                query_data = @"
+            //;WITH
+            //map AS(
+            //	SELECT
+            //		CAST(ID as VARCHAR(100)) as ID,
+            //		StoreCode as LocationCode,
+            //		ItemGroupCode,
+            //		A1 as AdjCode,
+            //		
+            //		A2 as DrDepCode,
+            //		A3 as DrAccCode,
+            //		A4 as CrDepCode,
+            //		A5 as CrAccCode
+            //	FROM
+            //		[ADMIN].AccountMapp
+            //	WHERE
+            //		PostType=@PostType
+            //),
+            //data AS(
+            //    SELECT
+            //	    m.*,
+            //
+            //	    l.LocationName,
+            //	    c.CategoryCode,
+            //	    c.CategoryName,
+            //	    c.SubCategoryCode,
+            //	    c.SubCategoryName,
+            //	    c.ItemGroupName,
+            //    
+            //	    a.AdjName,
+            //	    dd.DeptDesc as DrDepName,
+            //	    da.AccDesc1 as DrAccName,
+            //	    cd.DeptDesc as CrDepName,
+            //	    ca.AccDesc1 as CrAccName
+            //
+            //    FROM
+            //	    map m
+            //	    JOIN [IN].StoreLocation l ON l.LocationCode=m.LocationCode
+            //	    JOIN [IN].vProdCatList c ON c.ItemGroupCode=m.ItemGroupCode
+            //	    JOIN [IN].AdjType a ON a.AdjCode=m.AdjCode
+            //	    LEFT JOIN [ADMIN].AccountDepartment dd ON dd.DeptCode=m.DrDepCode
+            //	    LEFT JOIN [ADMIN].AccountCode da ON da.AccCode=m.DrAccCode
+            //	    LEFT JOIN [ADMIN].AccountDepartment cd ON cd.DeptCode=m.CrDepCode
+            //	    LEFT JOIN [ADMIN].AccountCode ca ON ca.AccCode=m.CrAccCode
+            //)";
+            //                query_select = " SELECT * FROM data ";
+            //                query_where = " WHERE 1=1 ";
+
+            //                if (!string.IsNullOrEmpty(textSearch))
+            //                {
+            //                    query_where += @"   
+            //    AND(CategoryCode LIKE @search
+            //    OR CategoryName LIKE @search
+            //    OR SubCategoryCode LIKE @search
+            //    OR SubCategoryName LIKE @search
+            //    OR ItemGroupCode LIKE @search
+            //    OR ItemGroupName LIKE @search
+            //    OR AdjCode LIKE @search
+            //    OR AdjName LIKE @search
+            //
+            //    OR DrDepCode LIKE @search
+            //    OR DrDepName LIKE @search
+            //    OR DrAccCode LIKE @search
+            //    OR DrAccName LIKE @search
+            //    OR CrDepCode LIKE @search
+            //    OR CrDepName LIKE @search
+            //    OR CrAccCode LIKE @search
+            //    OR CrAccName LIKE @search)";
+            //                    parameters.Add(new SqlParameter("Search", textSearch));
+            //                }
+            //                query_order = string.Format(" ORDER BY {0} {1}, LocationCode, CategoryCode, SubCategoryCode, ItemGroupCode, AdjCode,".Replace(" " + _sortColumn + ",", " "), _sortColumn, _sortDirection).Trim().TrimEnd(',');
+            //                #endregion
+            //            }
+
+            //            var query_offset = " OFFSET @rows * (@page-1) ROWS FETCH NEXT @rows ROWS ONLY";
+
+            //            // Data
+            //            queries.AppendLine(query_data);
+            //            queries.AppendLine(query_select);
+            //            queries.AppendLine(query_where);
+            //            queries.AppendLine(query_order);
+            //            queries.AppendLine(query_offset);
+
+            //            var sql = new Helpers.SQL(LoginInfo.ConnStr);
+
+            //            parameters.Add(new SqlParameter("PostType", postType));
+            //            parameters.Add(new SqlParameter("@rows", rows));
+            //            parameters.Add(new SqlParameter("@page", page));
+
+            //            var p_offset = new List<SqlParameter>();
+            //            foreach (var p in parameters)
+            //            {
+            //                p_offset.Add(p);
+            //            }
+
+            //            _dtData = sql.ExecuteQuery(queries.ToString(), parameters.ToArray());
+
+            //            _dtData.PrimaryKey = new DataColumn[] { _dtData.Columns["ID"] };
+
+            //            gv_Data.DataSource = _dtData;
+            //            gv_Data.DataBind();
+
+            //            // Get last page
+            //            queries.Clear();
+            //            queries.AppendLine(query_data);
+            //            queries.AppendLine("SELECT COUNT(ID) FROM data");
+            //            queries.AppendLine(query_where);
+
+            //            var dt = sql.ExecuteQuery(queries.ToString(), p_offset.ToArray());
+            //            var totalRows = (int)dt.Rows[0][0];
+
+            //            _lastPage = totalRows / rows + 1;
+
+            //SetPageButton(page);
         }
+
 
         private IEnumerable<ListEditItem> GetDepartments(string value = "")
         {
@@ -822,7 +1123,7 @@ ORDER BY
                         insert.Clear();
 
                         insert.AppendLine("INSERT INTO @acc (ID, A1, A2, A3, A4, A5) VALUES");
-                        
+
 
                     }
 
@@ -891,6 +1192,118 @@ ORDER BY
 
 
             return error;
+        }
+
+        private void SetPageButton(int page)
+        {
+            _page = page;
+            // Reset Color
+            btn_Page1.BackColor = default(Color);
+            btn_Page1.ForeColor = default(Color);
+            btn_Page2.BackColor = default(Color);
+            btn_Page2.ForeColor = default(Color);
+            btn_Page3.BackColor = default(Color);
+            btn_Page3.ForeColor = default(Color);
+            btn_Page4.BackColor = default(Color);
+            btn_Page4.ForeColor = default(Color);
+            btn_Page5.BackColor = default(Color);
+            btn_Page5.ForeColor = default(Color);
+            btn_Page6.BackColor = default(Color);
+            btn_Page6.ForeColor = default(Color);
+            btn_Page7.BackColor = default(Color);
+            btn_Page7.ForeColor = default(Color);
+            btn_Page8.BackColor = default(Color);
+            btn_Page8.ForeColor = default(Color);
+            btn_Page9.BackColor = default(Color);
+            btn_Page9.ForeColor = default(Color);
+            btn_Page10.BackColor = default(Color);
+            btn_Page10.ForeColor = default(Color);
+
+            var lastPage = _lastPage;
+
+            var id = page % 10;
+            var x = id == 0 ? page - 10 : (page / 10) * 10;
+
+            btn_Page1.Text = (x + 1).ToString();
+
+            btn_Page2.Text = (x + 2).ToString();
+            btn_Page2.Enabled = x + 2 < lastPage;
+
+            btn_Page3.Text = (x + 3).ToString();
+            btn_Page3.Enabled = x + 3 < lastPage;
+
+            btn_Page4.Text = (x + 4).ToString();
+            btn_Page4.Enabled = x + 4 < lastPage;
+
+            btn_Page5.Text = (x + 5).ToString();
+            btn_Page5.Enabled = x + 5 < lastPage;
+
+            btn_Page6.Text = (x + 6).ToString();
+            btn_Page6.Enabled = x + 6 < lastPage;
+
+            btn_Page7.Text = (x + 7).ToString();
+            btn_Page7.Enabled = x + 7 < lastPage;
+
+            btn_Page8.Text = (x + 8).ToString();
+            btn_Page8.Enabled = x + 8 < lastPage;
+
+            btn_Page9.Text = (x + 9).ToString();
+            btn_Page9.Enabled = x + 9 < lastPage;
+
+            btn_Page10.Text = id == 0 ? page.ToString() : (x + 10).ToString();
+            btn_Page10.Enabled = x + 10 < lastPage;
+
+
+            var bgColor = Color.DarkBlue;
+            var color = Color.White;
+
+            switch (id)
+            {
+                case 1:
+                    btn_Page1.BackColor = bgColor;
+                    btn_Page1.ForeColor = color;
+                    break;
+                case 2:
+                    btn_Page2.BackColor = bgColor;
+                    btn_Page2.ForeColor = color;
+                    break;
+                case 3:
+                    btn_Page3.BackColor = bgColor;
+                    btn_Page3.ForeColor = color;
+                    break;
+                case 4:
+                    btn_Page4.BackColor = bgColor;
+                    btn_Page4.ForeColor = color;
+
+                    break;
+                case 5:
+                    btn_Page5.BackColor = bgColor;
+                    btn_Page5.ForeColor = color;
+                    break;
+                case 6:
+                    btn_Page6.BackColor = bgColor;
+                    btn_Page6.ForeColor = color;
+                    break;
+                case 7:
+                    btn_Page7.BackColor = bgColor;
+                    btn_Page7.ForeColor = color;
+                    break;
+                case 8:
+                    btn_Page8.BackColor = bgColor;
+                    btn_Page8.ForeColor = color;
+                    break;
+                case 9:
+                    btn_Page9.BackColor = bgColor;
+                    btn_Page9.ForeColor = color;
+                    break;
+                case 0:
+                    btn_Page10.BackColor = bgColor;
+                    btn_Page10.ForeColor = color;
+                    break;
+            }
+
+
+
         }
 
         // API
@@ -1008,6 +1421,7 @@ ORDER BY
         #endregion
 
         #region --Classes--
+
         [Serializable]
         public class Department
         {
@@ -1031,6 +1445,8 @@ ORDER BY
             public string UserModified { get; set; }
             public DateTime LastModified { get; set; }
         }
+
+
         #endregion
 
     }
