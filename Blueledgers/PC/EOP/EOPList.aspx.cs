@@ -11,9 +11,7 @@ namespace BlueLedger.PL.PC.EOP
             {
                 ListPage.DataBind();
 
-                ListPage.CreateItems.NavigateUrl = "~/PC/EOP/EOPEdit.aspx?MODE=new&BuCode=" +
-                                                   LoginInfo.BuInfo.BuCode + "&VID=" +
-                                                   Request.Cookies["[IN].[vEOPList]"].Value;
+                ListPage.CreateItems.NavigateUrl = "~/PC/EOP/EOPEdit.aspx?MODE=new&BuCode=" + LoginInfo.BuInfo.BuCode + "&VID=" + Request.Cookies["[IN].[vEOPList]"].Value;
             }
 
             base.Page_Load(sender, e);

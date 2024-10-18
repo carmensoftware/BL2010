@@ -161,7 +161,7 @@ namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
                         Session["AccountMappPrint"] = GetData1(true);
                         //ScriptManager.RegisterClientScriptBlock(this, GetType(), "print", "window.print();", true);
                         //ScriptManager.RegisterStartupScript(Page, GetType(), "test", "<script>test1()</script>", false);
-                        ScriptManager.RegisterStartupScript(Page, GetType(), "test", string.Format("<script>window.open('AccountMappPrint.aspx?type={0}', 'Print');</script>", _postType), false);
+                        ScriptManager.RegisterStartupScript(Page, GetType(), "print", string.Format("<script>window.open('AccountMappPrint.aspx?type={0}', 'Print');</script>", _postType), false);
                         break;
                 }
             }
