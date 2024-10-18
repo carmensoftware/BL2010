@@ -583,80 +583,9 @@ namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
 
         protected void btn_Export_Click(object sender, EventArgs e)
         {
-            var query = @"
-;WITH
-acc AS(
-	SELECT
-		PostType as [Type],
-		ac.ID,
-		CONCAT(ac.StoreCode, ' : ', l.LocationName )as Location,
-		CONCAT(c.CategoryCode, ' : ', c.CategoryName) as Category,
-		CONCAT(c.SubCategoryCode, ' : ', c.SubCategoryName) as SubCategory,
-		CONCAT(c.ItemGroupCode, ' : ', c.ItemGroupName) as ItemGroup,
-		A1 as Department,
-		A2 as Account
-
-	FROM
-		[ADMIN].AccountMapp ac
-		JOIN [IN].StoreLocation l ON l.LocationCode=ac.StoreCode
-		JOIN [IN].vProdCatList c ON c.ItemGroupCode=ac.ItemGroupCode
-	WHERE
-		BusinessUnitCode=(SELECT TOP(1) BuCode FROM [ADMIN].Bu)
-		AND PostType='AP'
-)
-SELECT
-	*
-FROM
-	acc
-ORDER BY
-	[Location],
-	[Category],
-	[SubCategory],
-	[ItemGroup]";
-
-            if (_postType == "GL")
-            {
-                query = @"";
-            }
-
-            var dt = new Helpers.SQL(LoginInfo.ConnStr).ExecuteQuery(query);
-
-            if (dt != null & dt.Rows.Count > 0)
-            {
-                var csv = new StringBuilder();
-
-                var columns = "";
-                foreach (DataColumn col in dt.Columns)
-                {
-                    columns += col.ColumnName + ",";
-                }
-
-                csv.AppendLine(columns.TrimEnd(','));
-
-                foreach (DataRow dr in dt.Rows)
-                {
-                    var values = "";
-                    for (int i = 0; i < dt.Columns.Count - 1; i++)
-                    {
-                        values += dr[i].ToString() + ",";
-                    }
-                    csv.AppendLine(values.TrimEnd(','));
-                }
-
-
-                // Save to a file
-                var buCode = LoginInfo.BuInfo.BuCode;
-                var filename = string.Format("{0}-Account-Mapping-{1}-{2}.csv", buCode, _postType, DateTime.Today.ToString("yyyyMMdd"));
-
-                SaveAsCsv(csv.ToString(), filename);
-            }
+            Export();
         }
 
-        protected void Print()
-        {
-            var dt = GetData1(true);
-
-        }
 
         #region -- Method(s)--
 
@@ -1070,7 +999,6 @@ data AS(
             //SetPageButton(page);
         }
 
-
         private IEnumerable<ListEditItem> GetDepartments(string value = "")
         {
             var dt = new Helpers.SQL(LoginInfo.ConnStr).ExecuteQuery("SELECT DeptCode, DeptDesc FROM [ADMIN].AccountDepartment ORDER BY DeptCode");
@@ -1304,6 +1232,77 @@ data AS(
 
 
 
+        }
+
+        private void Export()
+        {
+            var query = @"
+;WITH
+acc AS(
+	SELECT
+		PostType as [Type],
+		ac.ID,
+		CONCAT(ac.StoreCode, ' : ', l.LocationName )as Location,
+		CONCAT(c.CategoryCode, ' : ', c.CategoryName) as Category,
+		CONCAT(c.SubCategoryCode, ' : ', c.SubCategoryName) as SubCategory,
+		CONCAT(c.ItemGroupCode, ' : ', c.ItemGroupName) as ItemGroup,
+		A1 as Department,
+		A2 as Account
+
+	FROM
+		[ADMIN].AccountMapp ac
+		JOIN [IN].StoreLocation l ON l.LocationCode=ac.StoreCode
+		JOIN [IN].vProdCatList c ON c.ItemGroupCode=ac.ItemGroupCode
+	WHERE
+		BusinessUnitCode=(SELECT TOP(1) BuCode FROM [ADMIN].Bu)
+		AND PostType='AP'
+)
+SELECT
+	*
+FROM
+	acc
+ORDER BY
+	[Location],
+	[Category],
+	[SubCategory],
+	[ItemGroup]";
+
+            if (_postType == "GL")
+            {
+                query = @"";
+            }
+
+            var dt = new Helpers.SQL(LoginInfo.ConnStr).ExecuteQuery(query);
+
+            if (dt != null & dt.Rows.Count > 0)
+            {
+                var csv = new StringBuilder();
+
+                var columns = "";
+                foreach (DataColumn col in dt.Columns)
+                {
+                    columns += col.ColumnName + ",";
+                }
+
+                csv.AppendLine(columns.TrimEnd(','));
+
+                foreach (DataRow dr in dt.Rows)
+                {
+                    var values = "";
+                    for (int i = 0; i < dt.Columns.Count; i++)
+                    {
+                        values += dr[i].ToString() + ",";
+                    }
+                    csv.AppendLine(values.TrimEnd(','));
+                }
+
+
+                // Save to a file
+                var buCode = LoginInfo.BuInfo.BuCode;
+                var filename = string.Format("{0}-Account-Mapping-{1}-{2}.csv", buCode, _postType, DateTime.Today.ToString("yyyyMMdd"));
+
+                SaveAsCsv(csv.ToString(), filename);
+            }
         }
 
         // API
