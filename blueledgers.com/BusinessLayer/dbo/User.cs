@@ -12,12 +12,20 @@ namespace Blue.BL.dbo
         private readonly Blue.BL.ADMIN.UserStore userStore = new Blue.BL.ADMIN.UserStore();
 
         /* 
+            2025-10-31 = siamese = 24+2 = 26 + 20 + 10 = 56
+            2024-10-30 = BlumonkeyKrabi = 6
+
+            
+             
+             
             2025-09-30 = varanahotel = 16
+            2025-09-30 = The Sarojin = 3
 
           
           
+            2025-08-31 = surestaytheiconic = 11
+
             2025-07-31 = Zeavola = 28
-
           
             2025-06-30 = floralcourthotel = 5+6 = 11
             2025-06-30 = legacysuites = 15 + 7 = 22
@@ -37,7 +45,6 @@ namespace Blue.BL.dbo
             2025-02-28 = Cafedelmar Phuket =46
             2025-02-28 = Diamond Cottage = 15+5=20
 
-            2025-01-31 = siamese = 24+2 = 26 + 20 + 10 = 56
             2025-01-31 = BwChatuchak = 9
             2025-01-31 = bwpluscarapace =17
             2025-01-31 = OKM = 50
@@ -60,19 +67,18 @@ namespace Blue.BL.dbo
             2024-12-31 = thenappathong = 8+5=13
             2024-12-31 = thekaset = 10
             2024-12-31 = hopinn = 27
+            2024-12-31 = rasahospitality = 73 + 17 = 90
 
             2024-11-30 = wyndhamgardennaithon = 21
             2024-11-30 = skyviewresortphuket = 11
             2024-11-30 = andalanta = 6+1 = 7
-          
-            2024-10-31 = rasahospitality = 73 + 17 = 90
-            2024-10-31 = BlumonkeyKrabi = 6
-            2024-10-31 = MHRH = 3
-            2024-10-31 = twinlotus (on permise) = 16
+
+
+            2024-11-30 = BaanSamuiResort = 8
+            2024-11-30 = MHRH = 3
+            2024-11-30 = twinlotus (on permise) = 16
             2024-10-31 = DeevanaPhuket = 65=> 69
-            2024-10-31 = kappasensesubud = 17
-            2024-10-31 = The Sarojin = 3
-            2024-10-31 = BaanSamuiResort = 8
+            2024-11-30 = kappasensesubud = 17
          
             2024-08-31 = bestwesternclicksathorn11 = 10
             2024-08-31 = bwsanctuary = 10
@@ -97,8 +103,8 @@ namespace Blue.BL.dbo
             2023-01-31 = SPM = 20 
         
         */
-        private DateTime licenseExpiredDate = new DateTime(2025, 1, 31);
-        private int licenseActiveUser = 122;
+        private DateTime licenseExpiredDate = new DateTime(2025, 9, 30);
+        private int licenseActiveUser = 3;
 
         public User()
         {
