@@ -206,7 +206,10 @@ namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
             GetData(_rows, 1);
         }
 
-
+        protected void txt_Search_TextChanged(object sender, EventArgs e)
+        {
+            GetData(_rows, 1);
+        }
         // Pagination
 
         protected void btn_Page_Click(object sender, EventArgs e)

@@ -19,7 +19,7 @@ namespace BlueLedger.PL.IN.REC
     {
         private readonly Blue.BL.dbo.Bu _bu = new Blue.BL.dbo.Bu();
         private readonly Blue.BL.APP.Config _config = new Blue.BL.APP.Config();
-        //private readonly Blue.BL.PC.REC.REC _rec = new Blue.BL.PC.REC.REC();
+
 
         #region --URL Parameters--
 
@@ -100,6 +100,7 @@ namespace BlueLedger.PL.IN.REC
 
         private void Page_Retrieve()
         {
+            GetCurrencyRate(_default.Currency, DateTime.Today);
 
             switch (_MODE)
             {
@@ -1212,11 +1213,20 @@ ORDER BY
             var item = sender as CheckBox;
             var row = item.NamingContainer as GridViewRow;
 
+            var isManual = string.IsNullOrEmpty(_dtRec.Rows[0]["PoSource"].ToString());
+
+
             var ddl_TaxType = row.FindControl("ddl_TaxType") as DropDownList;
             var se_TaxRate = row.FindControl("se_TaxRate") as ASPxSpinEdit;
+            var se_CurrTaxAmt = row.FindControl("se_CurrTaxAmt") as ASPxSpinEdit;
+            
+            if (isManual)
+            {
+                ddl_TaxType.Enabled = item.Checked;
+                se_TaxRate.Enabled = item.Checked;
+            }
 
-            ddl_TaxType.Enabled = item.Checked;
-            se_TaxRate.Enabled = item.Checked;
+            se_CurrTaxAmt.Enabled = item.Checked;
 
             if (!item.Checked)
             {
@@ -1226,9 +1236,9 @@ ORDER BY
                 ddl_TaxType.SelectedValue = hf_TaxType.Value;
                 se_TaxRate.Value = hf_TaxRate.Value;
             }
-            var se_CurrTaxAmt = row.FindControl("se_CurrTaxAmt") as ASPxSpinEdit;
+            //var se_CurrTaxAmt = row.FindControl("se_CurrTaxAmt") as ASPxSpinEdit;
 
-            se_CurrTaxAmt.ReadOnly = !item.Checked;
+            //se_CurrTaxAmt.ReadOnly = !item.Checked;
 
         }
 
@@ -1262,6 +1272,12 @@ ORDER BY
             CalculateItem(item);
         }
 
+        protected void se_CurrTaxAmt_NumberChanged(object sender, EventArgs e)
+        {
+            var item = sender as ASPxSpinEdit;
+
+            CalculateItem(item);
+        }
 
         private void RecQtyChanged(ASPxSpinEdit se_RecQty)
         {
@@ -1554,6 +1570,8 @@ VALUES ";
             try
             {
                 var dtResult = new Helpers.SQL(hf_ConnStr.Value).ExecuteQuery(query, parameters.ToArray());
+
+                UpdateUnitRate(recNo);
             }
             catch (Exception ex)
             {
@@ -1998,6 +2016,31 @@ FROM
             Response.Redirect(string.Format("RecLst.aspx"));
         }
 
+        private void UpdateUnitRate(string recNo)
+        {
+            var query = @"
+;WITH
+u AS(
+	SELECT
+		ProductCode,
+		OrderUnit,
+		Rate
+	FROM
+		[IN].ProdUnit
+	WHERE
+		UnitType='O'
+		AND ProductCode IN (SELECT DISTINCT ProductCode FROM PC.RECDt WHERE RecNo=@id)
+)
+UPDATE
+	PC.RECDt
+SET
+	Rate = ISNULL(u.Rate,1)
+FROM
+	PC.RECDt d
+	LEFT JOIN u ON u.ProductCode=d.ProductCode AND u.OrderUnit=d.RcvUnit";
+            new Helpers.SQL(LoginInfo.ConnStr).ExecuteQuery(query, new SqlParameter[] { new SqlParameter("id", recNo) });
+        }
+
 
         // ---------------------------------
         private void SetNew()
@@ -2007,10 +2050,18 @@ FROM
             _dtRec = sql.ExecuteQuery("SELECT TOP(1) * FROM PC.Rec WHERE RecNo='*'");
             _dtRecDt = sql.ExecuteQuery("SELECT TOP(1) * FROM PC.RecDt WHERE RecNo='*'");
 
+
+            var dtDeliPoint = sql.ExecuteQuery("SELECT TOP(1) DptCode FROM [IN].DeliveryPoint");
+
+            var deliPoint = dtDeliPoint.Rows.Count > 0 ? dtDeliPoint.Rows[0][0].ToString() : "";
+
             var dr = _dtRec.NewRow();
 
             dr["RecNo"] = "";
             dr["RecDate"] = DateTime.Today;
+
+            if (!string.IsNullOrEmpty(deliPoint))
+                dr["DeliPoint"] = deliPoint;
 
             dr["CurrencyCode"] = _default.Currency;
             dr["CurrencyRate"] = 1.00;

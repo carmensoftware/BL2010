@@ -156,28 +156,6 @@
                             <HeaderStyle Width="10%" HorizontalAlign="Right" />
                             <ItemStyle HorizontalAlign="Right" />
                         </asp:BoundField>
-                        <%--<asp:TemplateField HeaderText="<%$ Resources:PC_EOP_EOP, Avg %>">
-                                        <FooterTemplate>
-                                            <asp:Label ID="lbl_TotalAmt_Nm" runat="server" Text="<%$ Resources:PC_EOP_EOP, lbl_TotalAmt_Nm %>"
-                                                SkinID="LBL_HD_W"></asp:Label>
-                                        </FooterTemplate>
-                                        <ItemTemplate>
-                                            <asp:Label ID="lbl_AvgPrice" runat="server" SkinID="LBL_NR_GRD"></asp:Label>
-                                        </ItemTemplate>
-                                        <HeaderStyle HorizontalAlign="Right" Width="12%" />
-                                        <ItemStyle HorizontalAlign="Right" />
-                                    </asp:TemplateField>--%>
-                        <%--<asp:TemplateField HeaderText="<%$ Resources:PC_EOP_EOP, TotalAmt %>">
-                                        <FooterTemplate>
-                                            <asp:Label ID="lbl_GrandTotal" runat="server" SkinID="LBL_HD_W"></asp:Label>
-                                        </FooterTemplate>
-                                        <ItemTemplate>
-                                            <asp:Label ID="lbl_TotalAmount" runat="server" SkinID="LBL_NR_GRD"></asp:Label>
-                                        </ItemTemplate>
-                                        <FooterStyle HorizontalAlign="Right" />
-                                        <HeaderStyle HorizontalAlign="Right" Width="13%" />
-                                        <ItemStyle HorizontalAlign="Right" />
-                                    </asp:TemplateField>--%>
                     </Columns>
                     <%--<HeaderStyle HorizontalAlign="Left" />--%>
                 </asp:GridView>

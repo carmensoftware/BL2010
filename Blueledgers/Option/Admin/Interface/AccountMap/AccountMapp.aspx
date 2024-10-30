@@ -131,7 +131,7 @@
                         <asp:DropDownList runat="server" ID="ddl_View" Width="200" AutoPostBack="true" OnSelectedIndexChanged="ddl_View_SelectedIndexChanged" />
                     </td>
                     <td align="right">
-                        <asp:TextBox runat="server" ID="txt_Search" AutoPostBack="true" Width="280" />
+                        <asp:TextBox runat="server" ID="txt_Search" AutoPostBack="true" Width="280" OnTextChanged="txt_Search_TextChanged"/>
                         <asp:Button runat="server" ID="btn_Search" Text="search" OnClick="btn_Search_Click" />
                     </td>
                 </tr>

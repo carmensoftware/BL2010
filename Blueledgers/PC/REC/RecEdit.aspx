@@ -644,7 +644,7 @@
                                                 </td>
                                                 <td style="text-align: right">
                                                     <dx:ASPxSpinEdit runat="server" ID="se_CurrTaxAmt" Width="100%" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right"
-                                                        Enabled='<%# Eval("TaxAdj")=="1" %>' />
+                                                        Enabled='<%# Eval("TaxAdj")=="1" %>' OnNumberChanged="se_CurrTaxAmt_NumberChanged" />
                                                 </td>
                                                 <td style="text-align: right">
                                                     <asp:Label ID="lbl_TaxAmt" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("TaxAmt"))%></asp:Label>

@@ -50,9 +50,12 @@ namespace BlueLedger.PL.PC.EOP
                 }
                 else
                     Page_Retrieve();
+                //AlertMessageBox("!postback");
+
             }
             else
             {
+                //AlertMessageBox("postback");
             }
         }
 
@@ -116,7 +119,10 @@ namespace BlueLedger.PL.PC.EOP
         protected void btn_Print_Click(object sender, EventArgs e)
         {
             //Session["AccountMappPrint"] = GetData1(true);
-            ScriptManager.RegisterStartupScript(Page, GetType(), "print", string.Format("<script>window.open('EopPrint.aspx?id={0}', 'Print');</script>", _eopId), false);
+            ScriptManager.RegisterClientScriptBlock(Page, GetType(), "printEOP", string.Format("<script>window.open('EopPrint.aspx?id={0}', 'Print');</script>", _eopId), false);
+
+
+            Page_Load(sender, e);
 
         }
 
