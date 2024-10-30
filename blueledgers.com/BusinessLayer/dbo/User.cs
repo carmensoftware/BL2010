@@ -58,6 +58,7 @@ namespace Blue.BL.dbo
             2025-01-31 = maduzi = 20
             2025-01-31 = boulevardhotelbangkok = 10 + 17 = 27
             2025-01-31 = palayanagroup = 2+20 = 22
+            2025-01-31 = korabeachresort = 10
 
             2024-12-31 = sztowerthai = 13
             2024-12-31 = blumonkeybangsaen = 5
@@ -107,13 +108,8 @@ namespace Blue.BL.dbo
             2023-01-31 = SPM = 20 
         
         */
-<<<<<<< Updated upstream
-        private DateTime licenseExpiredDate = new DateTime(2025, 9, 30);
-        private int licenseActiveUser = 3;
-=======
-        private DateTime licenseExpiredDate = new DateTime(2024, 12, 31);
-        private int licenseActiveUser = 600;
->>>>>>> Stashed changes
+        private DateTime licenseExpiredDate = new DateTime(2025, 1, 31);
+        private int licenseActiveUser = 10;
 
         public User()
         {
