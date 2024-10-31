@@ -14,13 +14,10 @@ namespace Blue.BL.dbo
         /* 
             2025-10-31 = siamese = 24+2 = 26 + 20 + 10 = 56
             2024-10-30 = BlumonkeyKrabi = 6
-
-            
              
              
             2025-09-30 = varanahotel = 16
             2025-09-30 = The Sarojin = 3
-
           
           
             2025-08-31 = surestaytheiconic = 11
@@ -82,8 +79,10 @@ namespace Blue.BL.dbo
             2024-11-30 = BaanSamuiResort = 8
             2024-11-30 = MHRH = 3
             2024-11-30 = twinlotus (on permise) = 16
-            2024-10-31 = DeevanaPhuket = 65=> 69
+            2024-11-30 = DeevanaPhuket = 65=> 69
             2024-11-30 = kappasensesubud = 17
+            2024-11-30 = andalanta = 7+1=8
+         
          
             2024-08-31 = bestwesternclicksathorn11 = 10
             2024-08-31 = bwsanctuary = 10
@@ -108,8 +107,8 @@ namespace Blue.BL.dbo
             2023-01-31 = SPM = 20 
         
         */
-        private DateTime licenseExpiredDate = new DateTime(2025, 1, 31);
-        private int licenseActiveUser = 10;
+        private DateTime licenseExpiredDate = new DateTime(2024, 11, 30);
+        private int licenseActiveUser = 8;
 
         public User()
         {
