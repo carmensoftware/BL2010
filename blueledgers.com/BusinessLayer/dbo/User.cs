@@ -26,7 +26,7 @@ namespace Blue.BL.dbo
           
             2025-06-30 = floralcourthotel = 5+6 = 11
             2025-06-30 = legacysuites = 15 + 7 = 22
-            2025-06-30 = granddiamondsuites = 6
+            2025-06-30 = granddiamondsuites = 6+4 = 10
             2025-06-30 = maraleina = 23+1 = 24
 
             2025-05-31 = HotelSensai (Chiang Mai) = 3+8 = 11 ปรับเป็น 10 ตาม license (27052024_blueledgers.xlsx)
@@ -65,11 +65,8 @@ namespace Blue.BL.dbo
             2024-12-31 = thenappathong = 8+5=13
             2024-12-31 = thekaset = 10
             2024-12-31 = hopinn = 27
-<<<<<<< Updated upstream
             2024-12-31 = rasahospitality = 73 + 17 = 90
-=======
             2024-12-31 = blumonkeybangtaophuket = 6
->>>>>>> Stashed changes
 
             2024-11-30 = wyndhamgardennaithon = 21
             2024-11-30 = skyviewresortphuket = 11
@@ -107,8 +104,8 @@ namespace Blue.BL.dbo
             2023-01-31 = SPM = 20 
         
         */
-        private DateTime licenseExpiredDate = new DateTime(2024, 11, 30);
-        private int licenseActiveUser = 8;
+        private DateTime licenseExpiredDate = new DateTime(2025, 06, 30);
+        private int licenseActiveUser = 10;
 
         public User()
         {
