@@ -219,6 +219,14 @@ namespace BlueLedger.PL.Option.Admin
                 cmd.ExecuteNonQuery();
                 con.Close();
                 GetConfig_Profile();
+
+                string connetionString = System.Configuration.ConfigurationManager.AppSettings["ConnStr"].ToString();
+                bu.DbExecuteQuery("UPDATE dbo.Bu SET BuName=@BuName WHERE BuCode=@BuCode", new Blue.DAL.DbParameter[] 
+                {
+                    new Blue.DAL.DbParameter("@BuCode", LoginInfo.BuInfo.BuCode),
+                    new Blue.DAL.DbParameter("@BuName", txt_BuName.Text)
+                }, connetionString);
+
                 //pop_Alert.Text = "Profile is saved.";
                 //pop_Alert.ShowOnPageLoad = true;
 
