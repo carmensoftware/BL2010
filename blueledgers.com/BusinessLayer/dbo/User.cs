@@ -57,6 +57,7 @@ namespace Blue.BL.dbo
             2025-01-31 = palayanagroup = 2+20 = 22
             2025-01-31 = korabeachresort = 10
 
+            2024-12-31 = tinbaron = 18
             2024-12-31 = sztowerthai = 13
             2024-12-31 = blumonkeybangsaen = 5
             2024-12-31 = waltonsuitessukhumvitbangkok = 5
@@ -104,8 +105,8 @@ namespace Blue.BL.dbo
             2023-01-31 = SPM = 20 
         
         */
-        private DateTime licenseExpiredDate = new DateTime(2025, 06, 30);
-        private int licenseActiveUser = 10;
+        private DateTime licenseExpiredDate = new DateTime(2024, 12, 31);
+        private int licenseActiveUser = 180;
 
         public User()
         {
@@ -125,8 +126,7 @@ namespace Blue.BL.dbo
         {
             string sqlSelect = "SELECT COUNT(*) as ActiveUserCount FROM [dbo].[User] WHERE IsActived = 1 AND LoginName NOT IN ('support@carmen','support@genex')";
 
-            //return (int)DbExecuteQuery(sqlSelect, null).Rows[0][0] - 1; // exclude demo@blueledgers.com or Genex Support
-            return (int)DbExecuteQuery(sqlSelect, null).Rows[0][0]; // exclude demo@blueledgers.com or Genex Support
+            return (int)DbExecuteQuery(sqlSelect, null).Rows[0][0]; 
 
         }
 

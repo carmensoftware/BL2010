@@ -894,7 +894,36 @@
             </dx:PopupControlContentControl>
         </ContentCollection>
     </dx:ASPxPopupControl>
-    <dx:ASPxPopupControl ID="pop_Import" runat="server" ClientInstanceName="pop_Import" Width="480" Height="620" Modal="True" CloseAction="CloseButton" HeaderText="Import Data"
+    <dx:ASPxPopupControl ID="pop_Import" runat="server" ClientInstanceName="pop_Import" Width="480" Height="340" Modal="True" CloseAction="CloseButton" HeaderText="Import Data"
+        PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter" ShowPageScrollbarWhenModal="true">
+        <ContentCollection>
+            <dx:PopupControlContentControl ID="PopupControlContentControl10" runat="server">
+                <asp:Panel ID="panel1" runat="server" CssClass="card p-3 mb-3" Font-Size="Small">
+                    <b>From file</b>
+                    <table class="w-100">
+                        <tr>
+                            <td colspan="2">
+                                <asp:FileUpload ID="FileUpload1" runat="server" Width="100%" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <small>Support file *.csv | *.xls | *.xlsx"</small>
+                            </td>
+                            <td align="right">
+                                <asp:Button ID="Button1" runat="server" Width="60" Text="Import" OnClick="btn_PreviewFile_Click" />
+                            </td>
+                        </tr>
+                    </table>
+                    <hr />
+                    <div>
+                    <asp:Button runat="server" ID="btn_Import_Setting" Text="Setting" OnClick="btn_Import_Setting_Click" />
+                    </div>
+                </asp:Panel>
+            </dx:PopupControlContentControl>
+        </ContentCollection>
+    </dx:ASPxPopupControl>
+    <dx:ASPxPopupControl ID="pop_Import1" runat="server" ClientInstanceName="pop_Import" Width="480" Height="620" Modal="True" CloseAction="CloseButton" HeaderText="Import Data"
         PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter" ShowPageScrollbarWhenModal="true">
         <ContentCollection>
             <dx:PopupControlContentControl ID="PopupControlContentControl_Import" runat="server">
