@@ -10,6 +10,7 @@ using BlueLedger.PL.BaseClass;
 using System.Text;
 
 
+
 namespace BlueLedger.PL.PC.CN
 {
     public partial class CnEdit : BasePage
@@ -1353,6 +1354,7 @@ namespace BlueLedger.PL.PC.CN
         // Header
         protected void txt_CnDate_TextChanged(object sender, EventArgs e)
         {
+
             //var strProduct = string.Empty;
             //var strRecQty = string.Empty;
             //var strLocation = string.Empty;
@@ -1731,7 +1733,7 @@ namespace BlueLedger.PL.PC.CN
                         var lbl_RecTaxRate = grd_CnDt.Rows[grd_CnDt.EditIndex].FindControl("lbl_RecTaxRate") as Label;
 
 
-                        lbl_Unit.Text= dtRec.Rows[0]["RcvUnit"].ToString();
+                        lbl_Unit.Text = dtRec.Rows[0]["RcvUnit"].ToString();
                         lbl_RecPrice.Text = string.Format("{0:N3}", dtRec.Rows[0]["Price"]);
                         lbl_RecTaxType.Text = dtRec.Rows[0]["TaxType"].ToString();
                         lbl_RecTaxRate.Text = string.Format(DefaultAmtFmt, dtRec.Rows[0]["TaxRate"]);
@@ -1745,8 +1747,7 @@ namespace BlueLedger.PL.PC.CN
                         dsCnEdit.Tables[prDt.TableName].Clear();
                     }
                     var cnDate = DateTime.ParseExact(txt_CnDate.Text, "dd/MM/yyyy", null);
-                    var getStock = prDt.GetStockSummary(dsCnEdit, ddl_Product.ClientValue, ddl_Location.ClientValue,
-                        cnDate.ToString("yyyy-MM-dd"), hf_ConnStr.Value);
+                    var getStock = prDt.GetStockSummary(dsCnEdit, ddl_Product.ClientValue, ddl_Location.ClientValue, cnDate.ToString("yyyy-MM-dd"), hf_ConnStr.Value);
 
                     if (getStock)
                     {

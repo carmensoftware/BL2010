@@ -4,6 +4,9 @@ using System.Data;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using BlueLedger.PL.BaseClass;
+using System.Web;
+using System.Text;
+using System.Collections.Generic;
 
 namespace BlueLedger.PL.PC.PL.Vendor
 {
@@ -651,32 +654,6 @@ namespace BlueLedger.PL.PC.PL.Vendor
 
             Response.Redirect("VdList.aspx");
 
-            //var PL = Request.Params["ID"];
-            //if (dsPL.Tables[plDt.TableName].Rows.Count > 0 &&
-            //    prDt.CountByVendorCode(dsPL.Tables[pl.TableName].Rows[0]["VendorCode"].ToString(), dsPL.Tables[plDt.TableName].Rows[0]["ProductCode"].ToString(), LoginInfo.ConnStr) > 0)
-            //{
-            //    pop_CannotDelete.ShowOnPageLoad = true;
-            //    return;
-            //}
-
-            //foreach (DataRow drPLDt in dsPL.Tables[plDt.TableName].Rows)
-            //{
-            //    drPLDt.Delete();
-            //}
-
-            //foreach (DataRow drPL in dsPL.Tables[pl.TableName].Rows)
-            //{
-            //    drPL.Delete();
-            //}
-
-            ////Save To DataBase.
-            //var savePL = pl.Delete(dsPL, LoginInfo.ConnStr);
-
-            //if (savePL)
-            //{
-            //    pop_ConfirmDeletePL.ShowOnPageLoad = false;
-            //    Response.Redirect("VdList.aspx");
-            //}
         }
 
         protected void btn_CancelDeletePL_Click(object sender, EventArgs e)
@@ -709,10 +686,98 @@ namespace BlueLedger.PL.PC.PL.Vendor
             pop_CannotDelete.ShowOnPageLoad = false;
         }
 
+        private void Export()
+        {
+            var id = Request.QueryString["ID"];
+
+            if (id == null)
+                return;
+
+            var query = @"SELECT
+	pldt.ProductCode as [SKU#],
+	ProductDesc1 as [Description],
+	ProductDesc2 as [Local Description],
+	pldt.OrderUnit as [Unit],
+	QtyFrom as [Qty From],
+	QtyTo as [Qty To],
+	MarketPrice as [Quote Price],
+	FOC as [Foc],
+	pldt.DiscPercent as [Discount Percent],
+	pldt.DiscAmt as [Discount Amount],
+	pldt.Tax as [TaxType],
+	pldt.TaxRate as [TaxRate],
+	'' as [Vendor SKU#],
+	Comment as [Comment]
+FROM
+	[IN].PLDt pldt
+	JOIN [IN].Product p ON p.ProductCode=pldt.ProductCode
+
+WHERE
+	PriceLstNo=@id
+ORDER BY
+	SeqNo";
+            var p = new Blue.DAL.DbParameter[]
+            {
+                new Blue.DAL.DbParameter("@id", id.ToString())
+            };
+
+            var dt = pl.DbExecuteQuery(query, p, LoginInfo.ConnStr);
+
+            // ExportToCSV()
+            var sb = new StringBuilder();
+
+            // Header Row
+            string header = string.Empty;
+
+            //header = "\uFEFF";
+            for (var i = 0; i < dt.Columns.Count; i++)
+            {
+                sb.Append(dt.Columns[i].ColumnName + ',');
+            }
+            sb.Append("\n");
+
+            // Detail
+            foreach (DataRow row in dt.Rows)
+            {
+                var line = new List<string>();
+
+                for (var i = 0; i < dt.Columns.Count; i++)
+                {
+                    var value = row[dt.Columns[i].ColumnName].ToString().Replace(',', ' ');
+                    line.Add(value);
+                }
+
+                sb.AppendLine(string.Join(",", line));
+            }
+
+            Response.Clear();
+            Response.ClearContent();
+            Response.ClearHeaders();
+            Response.Buffer = true;
+            Response.ContentType = "application/text";
+            //Response.ContentType = "text/csv";
+            //Response.ContentType = "application/csv";
+            Response.AddHeader("content-disposition", "attachment;filename=PriceList.csv");
+            Response.Charset = "utf-8";
+
+            var decodeText = HttpUtility.HtmlDecode(sb.ToString());
+            Response.BinaryWrite(Encoding.UTF8.GetPreamble());
+
+            Response.ContentEncoding = System.Text.Encoding.GetEncoding(Response.Charset);
+
+            Response.Output.Write(decodeText);
+            Response.Flush();
+            Response.End();
+
+        }
+
         protected void menu_CmdBar_ItemClick(object source, DevExpress.Web.ASPxMenu.MenuItemEventArgs e)
         {
             switch (e.Item.Name.ToUpper())
             {
+                case "EXPORT":
+                    Export();
+                    break;
                 case "CREATE":
                     Create();
                     break;

@@ -12,6 +12,8 @@ namespace Blue.BL.dbo
         private readonly Blue.BL.ADMIN.UserStore userStore = new Blue.BL.ADMIN.UserStore();
 
         /* 
+            2025-11-30 = skyviewresortphuket = 11
+
             2025-10-31 = siamese = 24+2 = 26 + 20 + 10 = 56
             2024-10-30 = BlumonkeyKrabi = 6
              
@@ -21,9 +23,12 @@ namespace Blue.BL.dbo
           
           
             2025-08-31 = surestaytheiconic = 11
+            2025-08-31 = thekaset = 10
+            2025-08-31 = thenappathong = 8+5=13
 
             2025-07-31 = Zeavola = 28
           
+            2025-06-30 = andalanta = 7+1=8
             2025-06-30 = floralcourthotel = 5+6 = 11
             2025-06-30 = legacysuites = 15 + 7 = 22
             2025-06-30 = granddiamondsuites = 6+4 = 10
@@ -56,6 +61,7 @@ namespace Blue.BL.dbo
             2025-01-31 = boulevardhotelbangkok = 10 + 17 = 27
             2025-01-31 = palayanagroup = 2+20 = 22
             2025-01-31 = korabeachresort = 10
+            2025-01-31 = kappasensesubud = 17
 
             2024-12-31 = tinbaron = 18
             2024-12-31 = sztowerthai = 13
@@ -63,30 +69,19 @@ namespace Blue.BL.dbo
             2024-12-31 = waltonsuitessukhumvitbangkok = 5
             2024-12-31 = surestaytheiconic = 4+7=11
             2024-12-31 = celessamui = 25
-            2024-12-31 = thenappathong = 8+5=13
-            2024-12-31 = thekaset = 10
             2024-12-31 = hopinn = 27
             2024-12-31 = rasahospitality = 73 + 17 = 90
             2024-12-31 = blumonkeybangtaophuket = 6
+            2024-12-31 = twinlotus (on permise) = 16
+            2024-12-31 = DeevanaPhuket = 65=> 69
+            2024-12-31 = BaanSamuiResort = 8
+            2024-12-31 = wyndhamgardennaithon = 21
 
-            2024-11-30 = wyndhamgardennaithon = 21
-            2024-11-30 = skyviewresortphuket = 11
-            2024-11-30 = andalanta = 6+1 = 7
-
-
-            2024-11-30 = BaanSamuiResort = 8
             2024-11-30 = MHRH = 3
-            2024-11-30 = twinlotus (on permise) = 16
-            2024-11-30 = DeevanaPhuket = 65=> 69
-            2024-11-30 = kappasensesubud = 17
-            2024-11-30 = andalanta = 7+1=8
          
          
             2024-08-31 = bestwesternclicksathorn11 = 10
             2024-08-31 = bwsanctuary = 10
-
-         
-
 
           
             --------- Expired -------------
@@ -105,8 +100,8 @@ namespace Blue.BL.dbo
             2023-01-31 = SPM = 20 
         
         */
-        private DateTime licenseExpiredDate = new DateTime(2024, 12, 31);
-        private int licenseActiveUser = 180;
+        private DateTime licenseExpiredDate = new DateTime(2025, 01, 31);
+        private int licenseActiveUser = 17;
 
         public User()
         {

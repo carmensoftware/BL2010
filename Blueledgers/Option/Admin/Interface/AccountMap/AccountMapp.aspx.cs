@@ -19,7 +19,10 @@ namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
     public partial class AccountMapp : BasePage
     {
         #region "Attributes"
+        const string moduleID = "2.9.6";
+
         private readonly Blue.BL.APP.Config _config = new Blue.BL.APP.Config();
+        private readonly Blue.BL.ADMIN.RolePermission permission = new Blue.BL.ADMIN.RolePermission();
 
         protected string _postType
         {
@@ -101,7 +104,20 @@ namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
             set { ViewState["_lastPage"] = value; }
         }
 
+
+        protected bool _hasPermissionEdit
+        {
+            get
+            {
+               var pagePermiss = permission.GetPagePermission(moduleID, LoginInfo.LoginName, LoginInfo.ConnStr);
+
+               return pagePermiss >= 3;
+            }
+        }
+        
         #endregion
+
+
 
 
         protected override void Page_Load(object sender, EventArgs e)
@@ -269,6 +285,8 @@ namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
 
         protected void gv_Data_RowDataBound(object sender, GridViewRowEventArgs e)
         {
+            var isEdit = _hasPermissionEdit;
+
             if (e.Row.RowType == DataControlRowType.DataRow)
             {
                 var dataItem = e.Row.DataItem;
@@ -419,6 +437,14 @@ namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
                         ddl.Items.AddRange(GetAccounts(value).ToArray());
                         ddl.ToolTip = ddl.Text;
                     }
+
+                }
+
+                if (e.Row.FindControl("btn_Edit") != null)
+                {
+                    var btn = e.Row.FindControl("btn_Edit") as ImageButton;
+
+                    btn.Visible = isEdit;
                 }
 
             }
@@ -1109,15 +1135,18 @@ data AS(
 
                 if (insert.Length > 0)
                 {
-                    //new Helpers.SQL(LoginInfo.ConnStr).ExecuteQuery(queries.ToString());
+                    new Helpers.SQL(LoginInfo.ConnStr).ExecuteQuery(queries.ToString());
                 }
                 else
                     error = "No data";
 
-                SaveAsCsv(queries.ToString(), "test.txt");
+                //SaveAsCsv(queries.ToString(), "test.txt");
 
                 csv.Close();
                 File.Delete(filename);
+                pop_ImportExport.ShowOnPageLoad = false;
+
+                Response.Redirect("AccountMapp.aspx");
             }
 
 

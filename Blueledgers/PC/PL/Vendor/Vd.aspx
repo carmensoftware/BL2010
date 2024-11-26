@@ -1,15 +1,12 @@
-﻿<%@ Page Language="C#" MasterPageFile="~/Master/In/SkinDefault.master" AutoEventWireup="true"
-    CodeFile="Vd.aspx.cs" Inherits="BlueLedger.PL.PC.PL.Vendor.Vd" Title="Untitled Page" %>
+﻿<%@ Page Language="C#" MasterPageFile="~/Master/In/SkinDefault.master" AutoEventWireup="true" CodeFile="Vd.aspx.cs" Inherits="BlueLedger.PL.PC.PL.Vendor.Vd"
+    Title="Untitled Page" %>
 
 <%@ MasterType VirtualPath="~/master/In/SkinDefault.master" %>
-<%@ Register Assembly="DevExpress.Web.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a"
-    Namespace="DevExpress.Web.ASPxMenu" TagPrefix="dx" %>
-<%@ Register Assembly="DevExpress.Web.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a"
-    Namespace="DevExpress.Web.ASPxPopupControl" TagPrefix="dx" %>
-<%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxMenu"
+<%@ Register Assembly="DevExpress.Web.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Web.ASPxMenu" TagPrefix="dx" %>
+<%@ Register Assembly="DevExpress.Web.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Web.ASPxPopupControl"
     TagPrefix="dx" %>
-<%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxPopupControl"
-    TagPrefix="dx" %>
+<%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxMenu" TagPrefix="dx" %>
+<%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxPopupControl" TagPrefix="dx" %>
 <asp:Content ID="Content" ContentPlaceHolderID="cph_Main" runat="Server">
     <style type="text/css">
         @media print
@@ -38,13 +35,11 @@
                             <asp:Image ID="Image1" runat="server" ImageUrl="~/App_Themes/Default/Images/master/icon/icon_purchase.png" />
                         </td>
                         <td align="left">
-                            <asp:Label ID="lbl_PriceByVendor_Nm" runat="server" Text="<%$ Resources:PC_PL_Vendor_Vd, lbl_PriceByVendor_Nm %>"
-                                SkinID="LBL_HD_WHITE"></asp:Label>
+                            <asp:Label ID="lbl_PriceByVendor_Nm" runat="server" Text="<%$ Resources:PC_PL_Vendor_Vd, lbl_PriceByVendor_Nm %>" SkinID="LBL_HD_WHITE"></asp:Label>
                         </td>
                         <td align="right" style="padding-right: 10px;">
-                            <dx:ASPxMenu runat="server" ID="menu_CmdBar" Font-Bold="True" BackColor="Transparent"
-                                Border-BorderStyle="None" ItemSpacing="2px" VerticalAlign="Middle" Height="16px"
-                                OnItemClick="menu_CmdBar_ItemClick">
+                            <dx:ASPxMenu runat="server" ID="menu_CmdBar" Font-Bold="True" BackColor="Transparent" Border-BorderStyle="None" ItemSpacing="2px" VerticalAlign="Middle"
+                                Height="16px" OnItemClick="menu_CmdBar_ItemClick">
                                 <ItemStyle BackColor="Transparent">
                                     <HoverStyle BackColor="Transparent">
                                         <Border BorderStyle="None" />
@@ -53,61 +48,54 @@
                                     <Border BorderStyle="None" />
                                 </ItemStyle>
                                 <Items>
+                                    <dx:MenuItem Name="Export" Text="Export">
+                                        <ItemStyle Height="16px" Width="49px" ForeColor="White">
+                                        </ItemStyle>
+                                    </dx:MenuItem>
                                     <dx:MenuItem Name="Create" Text="">
                                         <ItemStyle Height="16px" Width="49px">
                                             <HoverStyle>
-                                                <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-create.png"
-                                                    Repeat="NoRepeat" VerticalPosition="center" />
+                                                <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-create.png" Repeat="NoRepeat" VerticalPosition="center" />
                                             </HoverStyle>
-                                            <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/create.png"
-                                                Repeat="NoRepeat" VerticalPosition="center" />
+                                            <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/create.png" Repeat="NoRepeat" VerticalPosition="center" />
                                         </ItemStyle>
                                     </dx:MenuItem>
                                     <dx:MenuItem Name="Edit" Text="">
                                         <ItemStyle Height="16px" Width="38px">
                                             <HoverStyle>
-                                                <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-edit.png"
-                                                    Repeat="NoRepeat" VerticalPosition="center" />
+                                                <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-edit.png" Repeat="NoRepeat" VerticalPosition="center" />
                                             </HoverStyle>
-                                            <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/edit.png"
-                                                Repeat="NoRepeat" VerticalPosition="center" />
+                                            <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/edit.png" Repeat="NoRepeat" VerticalPosition="center" />
                                         </ItemStyle>
                                     </dx:MenuItem>
                                     <dx:MenuItem Name="Delete" Text="">
                                         <ItemStyle Height="16px" Width="41px">
                                             <HoverStyle>
-                                                <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-delete.png"
-                                                    Repeat="NoRepeat" VerticalPosition="center" />
+                                                <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-delete.png" Repeat="NoRepeat" VerticalPosition="center" />
                                             </HoverStyle>
-                                            <BackgroundImage ImageUrl="~/App_Themes/Default/Images/master/icon/delete.png" Repeat="NoRepeat"
-                                                HorizontalPosition="center" VerticalPosition="center" />
+                                            <BackgroundImage ImageUrl="~/App_Themes/Default/Images/master/icon/delete.png" Repeat="NoRepeat" HorizontalPosition="center" VerticalPosition="center" />
                                         </ItemStyle>
                                     </dx:MenuItem>
                                     <dx:MenuItem Name="Print" Text="">
                                         <ItemStyle Height="16px" Width="43px">
                                             <HoverStyle>
-                                                <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-print.png"
-                                                    Repeat="NoRepeat" VerticalPosition="center" />
+                                                <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-print.png" Repeat="NoRepeat" VerticalPosition="center" />
                                             </HoverStyle>
-                                            <BackgroundImage ImageUrl="~/App_Themes/Default/Images/master/icon/print.png" Repeat="NoRepeat"
-                                                HorizontalPosition="center" VerticalPosition="center" />
+                                            <BackgroundImage ImageUrl="~/App_Themes/Default/Images/master/icon/print.png" Repeat="NoRepeat" HorizontalPosition="center" VerticalPosition="center" />
                                         </ItemStyle>
                                     </dx:MenuItem>
                                     <dx:MenuItem Name="Back" Text="">
                                         <ItemStyle Height="16px" Width="42px">
                                             <HoverStyle>
-                                                <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-back.png"
-                                                    Repeat="NoRepeat" VerticalPosition="center" />
+                                                <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-back.png" Repeat="NoRepeat" VerticalPosition="center" />
                                             </HoverStyle>
-                                            <BackgroundImage ImageUrl="~/App_Themes/Default/Images/master/icon/back.png" Repeat="NoRepeat"
-                                                HorizontalPosition="center" VerticalPosition="center" />
+                                            <BackgroundImage ImageUrl="~/App_Themes/Default/Images/master/icon/back.png" Repeat="NoRepeat" HorizontalPosition="center" VerticalPosition="center" />
                                         </ItemStyle>
                                     </dx:MenuItem>
                                 </Items>
                                 <Paddings Padding="0px" />
                                 <SeparatorPaddings Padding="0px" />
-                                <SubMenuStyle HorizontalAlign="Left" Font-Bold="True" Font-Names="Arial" Font-Size="9pt"
-                                    ForeColor="#4D4D4D" />
+                                <SubMenuStyle HorizontalAlign="Left" Font-Bold="True" Font-Names="Arial" Font-Size="9pt" ForeColor="#4D4D4D" />
                                 <Border BorderStyle="None"></Border>
                             </dx:ASPxMenu>
                         </td>
@@ -117,36 +105,31 @@
                     <table border="0" cellpadding="2" cellspacing="0" width="100%">
                         <tr align="left" style="height: 17px;">
                             <td width="5%" style="padding-left: 10px; height: 17px">
-                                <asp:Label ID="lbl_Vendor_Nm" runat="server" Text="<%$ Resources:PC_PL_Vendor_Vd, lbl_Vendor_Nm %>"
-                                    SkinID="LBL_HD"></asp:Label>
+                                <asp:Label ID="lbl_Vendor_Nm" runat="server" Text="<%$ Resources:PC_PL_Vendor_Vd, lbl_Vendor_Nm %>" SkinID="LBL_HD"></asp:Label>
                             </td>
                             <td width="10%" style="height: 17px">
                                 <asp:Label ID="lbl_Vendor" runat="server" SkinID="LBL_NR_BLUE"></asp:Label>
                             </td>
                             <td width="5%" style="height: 17px">
-                                <asp:Label ID="lbl_VendorName_Nm" runat="server" Text="<%$ Resources:PC_PL_Vendor_Vd, lbl_VendorName_Nm %>"
-                                    SkinID="LBL_HD"></asp:Label>
+                                <asp:Label ID="lbl_VendorName_Nm" runat="server" Text="<%$ Resources:PC_PL_Vendor_Vd, lbl_VendorName_Nm %>" SkinID="LBL_HD"></asp:Label>
                             </td>
                             <td width="20%" style="height: 17px">
                                 <asp:Label ID="lbl_VendorName" runat="server" SkinID="LBL_NR_BLUE"></asp:Label>
                             </td>
                             <td width="10%" style="height: 17px">
-                                <asp:Label ID="lbl_DateFrom_Nm" runat="server" Text="<%$ Resources:PC_PL_Vendor_Vd, lbl_DateFrom_Nm %>"
-                                    SkinID="LBL_HD"></asp:Label>
+                                <asp:Label ID="lbl_DateFrom_Nm" runat="server" Text="<%$ Resources:PC_PL_Vendor_Vd, lbl_DateFrom_Nm %>" SkinID="LBL_HD"></asp:Label>
                             </td>
                             <td width="10%" style="height: 17px">
                                 <asp:Label ID="lbl_DateFrom" runat="server" SkinID="LBL_NR_BLUE"></asp:Label>
                             </td>
                             <td width="10%" style="height: 17px">
-                                <asp:Label ID="lbl_DateTo_Nm" runat="server" Text="<%$ Resources:PC_PL_Vendor_Vd, lbl_DateTo_Nm %>"
-                                    SkinID="LBL_HD"></asp:Label>
+                                <asp:Label ID="lbl_DateTo_Nm" runat="server" Text="<%$ Resources:PC_PL_Vendor_Vd, lbl_DateTo_Nm %>" SkinID="LBL_HD"></asp:Label>
                             </td>
                             <td width="10%" style="height: 17px">
                                 <asp:Label ID="lbl_DateTo" runat="server" SkinID="LBL_NR_BLUE"></asp:Label>
                             </td>
                             <td width="10%" style="height: 17px">
-                                <asp:Label ID="lbl_RefNo_Nm" runat="server" Text="<%$ Resources:PC_PL_Vendor_Vd, lbl_RefNo_Nm %>"
-                                    SkinID="LBL_HD"></asp:Label>
+                                <asp:Label ID="lbl_RefNo_Nm" runat="server" Text="<%$ Resources:PC_PL_Vendor_Vd, lbl_RefNo_Nm %>" SkinID="LBL_HD"></asp:Label>
                             </td>
                             <td width="10%" style="height: 17px">
                                 <asp:Label ID="lbl_RefNo" runat="server" SkinID="LBL_NR_BLUE"></asp:Label>
@@ -160,8 +143,8 @@
                                     <table border="0" cellpadding="3" cellspacing="0" width="100%">
                                         <tr>
                                             <td>
-                                                <asp:GridView ID="grd_PLDt" runat="server" AutoGenerateColumns="False" EnableModelValidation="True"
-                                                    SkinID="GRD_V1" Width="100%" OnLoad="grd_PLDt_Load" OnRowDataBound="grd_PLDt_RowDataBound">
+                                                <asp:GridView ID="grd_PLDt" runat="server" AutoGenerateColumns="False" EnableModelValidation="True" SkinID="GRD_V1" Width="100%" OnLoad="grd_PLDt_Load"
+                                                    OnRowDataBound="grd_PLDt_RowDataBound">
                                                     <Columns>
                                                         <asp:TemplateField HeaderText="<%$ Resources:PC_PL_Vendor_Vd, lbl_SKU_GRD_Nm %>">
                                                             <ItemTemplate>
@@ -942,26 +925,22 @@
                 <asp:HiddenField ID="hf_ConnStr" runat="server" />
                 <asp:ObjectDataSource ID="ods_Product" runat="server" SelectMethod="GetList" TypeName="Blue.BL.Option.Inventory.Product">
                     <SelectParameters>
-                        <asp:ControlParameter ControlID="hf_ConnStr" Name="ConnStr" PropertyName="Value"
-                            Type="String" />
+                        <asp:ControlParameter ControlID="hf_ConnStr" Name="ConnStr" PropertyName="Value" Type="String" />
                     </SelectParameters>
                 </asp:ObjectDataSource>
                 <asp:ObjectDataSource ID="ods_Unit" runat="server" SelectMethod="GetList" TypeName="Blue.BL.Option.Inventory.Unit">
                     <SelectParameters>
-                        <asp:ControlParameter ControlID="hf_ConnStr" Name="connStr" PropertyName="Value"
-                            Type="String" />
+                        <asp:ControlParameter ControlID="hf_ConnStr" Name="connStr" PropertyName="Value" Type="String" />
                     </SelectParameters>
                 </asp:ObjectDataSource>
-                <dx:ASPxPopupControl ID="pop_ConfirmDeletePL" runat="server" Width="250px" CloseAction="CloseButton"
-                    HeaderText="Warning" Modal="True" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter"
-                    ShowCloseButton="False">
+                <dx:ASPxPopupControl ID="pop_ConfirmDeletePL" runat="server" Width="250px" CloseAction="CloseButton" HeaderText="Warning" Modal="True" PopupHorizontalAlign="WindowCenter"
+                    PopupVerticalAlign="WindowCenter" ShowCloseButton="False">
                     <ContentCollection>
                         <dx:PopupControlContentControl runat="server">
                             <table border="0" cellpadding="5" cellspacing="0" width="100%">
                                 <tr>
                                     <td align="center" colspan="2" height="50px">
-                                        <asp:Label ID="lbl_ConfirmDelete_Nm" runat="server" Text="<%$ Resources:PC_PL_Vendor_Vd, lbl_ConfirmDelete_Nm %>"
-                                            SkinID="LBL_NR"></asp:Label>
+                                        <asp:Label ID="lbl_ConfirmDelete_Nm" runat="server" Text="<%$ Resources:PC_PL_Vendor_Vd, lbl_ConfirmDelete_Nm %>" SkinID="LBL_NR"></asp:Label>
                                     </td>
                                 </tr>
                                 <tr>
@@ -969,31 +948,29 @@
                                         <%--<dx:ASPxButton ID="btn_ConfirmDeletePL" runat="server" Text="Yes" Width="60px" OnClick="btn_ConfirmDeletePL_Click"
                                             SkinID="BTN_V1">
                                         </dx:ASPxButton>--%>
-                                        <asp:Button ID="btn_ConfirmDeletePL" runat="server" Text="<%$ Resources:PC_PL_Vendor_Vd, btn_ConfirmDeletePL %>"
-                                            Width="60px" OnClick="btn_ConfirmDeletePL_Click" SkinID="BTN_V1" />
+                                        <asp:Button ID="btn_ConfirmDeletePL" runat="server" Text="<%$ Resources:PC_PL_Vendor_Vd, btn_ConfirmDeletePL %>" Width="60px" OnClick="btn_ConfirmDeletePL_Click"
+                                            SkinID="BTN_V1" />
                                     </td>
                                     <td align="left">
                                         <%--<dx:ASPxButton ID="btn_CancelDeletePL" runat="server" Text="No" Width="60px" OnClick="btn_CancelDeletePL_Click"
                                             SkinID="BTN_V1">
                                         </dx:ASPxButton>--%>
-                                        <asp:Button ID="btn_CancelDeletePL" runat="server" Text="<%$ Resources:PC_PL_Vendor_Vd, btn_CancelDeletePL %>"
-                                            Width="60px" OnClick="btn_CancelDeletePL_Click" SkinID="BTN_V1" />
+                                        <asp:Button ID="btn_CancelDeletePL" runat="server" Text="<%$ Resources:PC_PL_Vendor_Vd, btn_CancelDeletePL %>" Width="60px" OnClick="btn_CancelDeletePL_Click"
+                                            SkinID="BTN_V1" />
                                     </td>
                                 </tr>
                             </table>
                         </dx:PopupControlContentControl>
                     </ContentCollection>
                 </dx:ASPxPopupControl>
-                <dx:ASPxPopupControl ID="pop_CannotDelete" runat="server" Width="250px" CloseAction="CloseButton"
-                    HeaderText="Warning" Modal="True" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter"
-                    ShowCloseButton="False">
+                <dx:ASPxPopupControl ID="pop_CannotDelete" runat="server" Width="250px" CloseAction="CloseButton" HeaderText="Warning" Modal="True" PopupHorizontalAlign="WindowCenter"
+                    PopupVerticalAlign="WindowCenter" ShowCloseButton="False">
                     <ContentCollection>
                         <dx:PopupControlContentControl runat="server">
                             <table border="0" cellpadding="5" cellspacing="0" width="100%">
                                 <tr>
                                     <td align="center" colspan="2" height="50px">
-                                        <asp:Label ID="lbl_CannotDelete_Nm" runat="server" Text="<%$ Resources:PC_PL_Vendor_Vd, lbl_CannotDelete_Nm %>"
-                                            SkinID="LBL_NR"></asp:Label>
+                                        <asp:Label ID="lbl_CannotDelete_Nm" runat="server" Text="<%$ Resources:PC_PL_Vendor_Vd, lbl_CannotDelete_Nm %>" SkinID="LBL_NR"></asp:Label>
                                     </td>
                                 </tr>
                                 <tr>
@@ -1001,8 +978,7 @@
                                         <%--<dx:ASPxButton ID="btn_YES" runat="server" Text="Yes" Width="60px" OnClick="btn_YES_Click"
                                             SkinID="BTN_V1">
                                         </dx:ASPxButton>--%>
-                                        <asp:Button ID="btn_YES" runat="server" Text="<%$ Resources:PC_PL_Vendor_Vd, btn_YES %>"
-                                            Width="60px" OnClick="btn_YES_Click" SkinID="BTN_V1" />
+                                        <asp:Button ID="btn_YES" runat="server" Text="<%$ Resources:PC_PL_Vendor_Vd, btn_YES %>" Width="60px" OnClick="btn_YES_Click" SkinID="BTN_V1" />
                                     </td>
                                 </tr>
                             </table>
