@@ -48,6 +48,7 @@ namespace Blue.BL.dbo
             2025-02-28 = G Nimman = 1
             2025-02-28 = Cafedelmar Phuket =46
             2025-02-28 = Diamond Cottage = 15+5=20
+            2025-02-28 = chalongmarina = 8
 
             2025-01-31 = BwChatuchak = 9
             2025-01-31 = bwpluscarapace =17
@@ -100,7 +101,7 @@ namespace Blue.BL.dbo
             2023-01-31 = SPM = 20 
         
         */
-        private DateTime licenseExpiredDate = new DateTime(2025, 06, 30);
+        private DateTime licenseExpiredDate = new DateTime(2025, 02, 28);
         private int licenseActiveUser = 8;
 
         public User()

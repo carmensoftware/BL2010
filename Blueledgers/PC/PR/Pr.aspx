@@ -847,61 +847,7 @@
             </asp:GridView>
         </ContentTemplate>
     </asp:UpdatePanel>
-    <%--<asp:UpdatePanel ID="UpdatePanel3" runat="server" UpdateMode="Conditional">
-        <ContentTemplate>
-            <asp:GridView ID="grd_PRDt2" runat="server" AutoGenerateColumns="False" Width="100%" SkinID="GRD_V1" OnRowDataBound="grd_PRDt2_RowDataBound" Visible="False">
-                <Columns>
-                    <asp:TemplateField>
-                        <HeaderTemplate>
-                            <div class="expand_top">
-                                <div class="expand_all">
-                                    <img alt="" src="../../App_Themes/Default/Images/Minus.jpg" class="a" />
-                                </div>
-                            </div>
-                        </HeaderTemplate>
-                        <ItemTemplate>
-                            <img alt="" src="../../App_Themes/Default/Images/Minus.jpg" onclick="javascript:ExpandDetail(this, '<%# Eval("PRDtNo") %>')" />
-                        </ItemTemplate>
-                        <HeaderStyle Width="2%" />
-                        <ItemStyle Width="2%" />
-                    </asp:TemplateField>
-                    <asp:TemplateField>
-                        <HeaderStyle Width="98%" />
-                        <ItemStyle Width="98%" />
-                        <ItemTemplate>
-                            <asp:Label ID="lbl_ProductCode" runat="server"></asp:Label>
-                        </ItemTemplate>
-                    </asp:TemplateField>
-                    <asp:TemplateField Visible="true" HeaderStyle-Width="0%">
-                        <ItemTemplate>
-                            <tr>
-                                <td colspan="3" style="padding-left: 17px; padding-top: 0px; padding-bottom: 0px">
-                                    <div id='<%# Eval("PRDtNo") %>'>
-                                        <div class="toggle_container">
-                                            <div class="box">
-                                                <table cellpadding="0" cellspacing="0" border="0" width="100%">
-                                                    <tr>
-                                                        <td style="width: 10%">
-                                                            <asp:Label ID="lbl_NetAmt_Grd_Nm" runat="server" Text="Net. Amount" SkinID="LBL_HD_GRD"></asp:Label>
-                                                        </td>
-                                                        <td style="width: 8%" align="right">
-                                                            <asp:Label ID="lbl_NetAmt_Grd" runat="server" SkinID="LBL_NR_1"></asp:Label>
-                                                        </td>
-                                                    </tr>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        </ItemTemplate>
-                        <HeaderStyle Width="0%"></HeaderStyle>
-                        <ItemStyle BorderStyle="None" />
-                    </asp:TemplateField>
-                </Columns>
-            </asp:GridView>
-        </ContentTemplate>
-    </asp:UpdatePanel>--%>
+    
     <%--Total Summary --%>
     <div style="display: flex; justify-content: flex-end;">
         <uc:TotalSummary runat="server" ID="TotalSummary" />
