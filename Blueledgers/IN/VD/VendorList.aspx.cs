@@ -374,6 +374,7 @@ namespace BlueLedger.PL.IN
 
         private void SyncVendor()
         {
+            lbl_Error.Text = "";
             var values = config.GetValue("APP", "INTF", "ACCOUNT", LoginInfo.ConnStr);
 
             if (!string.IsNullOrEmpty(values))
@@ -411,7 +412,8 @@ namespace BlueLedger.PL.IN
                             var vnTel = string.IsNullOrEmpty(item.VnTel) ? "" : item.VnTel.Replace("\'", "\'\'");
                             var vnFax = string.IsNullOrEmpty(item.VnFax) ? "" : item.VnFax.Replace("\'", "\'\'");
                             var vnCateCode = item.VnCateCode;
-                            var vnTaxNo = item.VnTaxNo;
+                            //var vnTaxNo = item.VnTaxNo;
+                            var vnTaxNo = string.IsNullOrEmpty(item.VnTaxNo) ? "" : item.VnTaxNo.Replace("\'", "\'\'");
                             var branchNo = item.BranchNo;
                             var vnVat1 = item.VnVat1.Substring(0, 1);
                             var vnTaxR1 = item.VnTaxR1 ?? 0;
@@ -444,6 +446,9 @@ namespace BlueLedger.PL.IN
                             script.Add(sql);
                         }
 
+                        //lbl_Title.Text = string.Join("; ", script);
+
+
                         using (SqlConnection connection = new SqlConnection(LoginInfo.ConnStr))
                         {
                             SqlCommand command = new SqlCommand(string.Join("; ", script), connection);
@@ -456,6 +461,7 @@ namespace BlueLedger.PL.IN
                     catch (Exception ex)
                     {
                         Response.Write(string.Format("<script>alert(`{0}`);</script>", ex.Message));
+                        lbl_Error.Text = string.Join("; ", ex.Message);
                     }
 
 
