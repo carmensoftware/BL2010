@@ -244,7 +244,7 @@ SELECT
 	ProductCode,
 	LocationCode,
 	ROUND(RecQty * ISNULL(Rate,0), @DigitQty) as Qty,
-	NetAmt + ExtraCost as Total
+	NetAmt + ISNULL(ExtraCost,0) as Total
 FROM
 	PC.RECDt
 WHERE
