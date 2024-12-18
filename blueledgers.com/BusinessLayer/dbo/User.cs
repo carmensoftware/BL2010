@@ -44,6 +44,7 @@ namespace Blue.BL.dbo
 
             2025-03-31 = silavadeepoolsparesort = 28
             2025-03-31 = wyndhamjomtienpattaya = 20 + 2 = 22
+            2025-03-31 = absoluteresorts = 1
 
             2025-02-28 = G Nimman = 1
             2025-02-28 = Cafedelmar Phuket =46
@@ -52,6 +53,8 @@ namespace Blue.BL.dbo
             2025-02-28 = tinbaron = 18
             2025-02-28 = verandaresortautograph = 3
             2025-02-28 = hotellotussukhumvit = 15
+            2025-02-28 = bayvillaskohphangan = 1+5 = 6
+            2025-02-28 = selinaserenityrawai = 6
 
             2025-01-31 = BwChatuchak = 9
             2025-01-31 = bwpluscarapace =17
@@ -103,8 +106,8 @@ namespace Blue.BL.dbo
             2023-01-31 = SPM = 20 
         
         */
-        private DateTime licenseExpiredDate = new DateTime(2025, 02, 28);
-        private int licenseActiveUser = 8;
+        private DateTime licenseExpiredDate = new DateTime(2025, 03, 31);
+        private int licenseActiveUser = 1;
 
         public User()
         {
