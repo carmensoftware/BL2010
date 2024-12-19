@@ -199,7 +199,7 @@ namespace BlueLedger.PL.IN.STK
     )
     SELECT
 	    Id,
-	    ISNULL(cost.Amount,0) Amount
+	    cost.Amount
     FROM
 	    pl
 	    LEFT JOIN cost
@@ -434,7 +434,7 @@ namespace BlueLedger.PL.IN.STK
 
                         DataRow[] drCost = dtCostById.Select("Id = " + id.ToString());
                         if (drCost.Length > 0)
-                            unitCost = decimal.Parse(drCost[0]["Amount"].ToString());
+                            unitCost = string.IsNullOrEmpty(drCost[0]["Amount"].ToString()) ? 0 : decimal.Parse(drCost[0]["Amount"].ToString());
 
                         //unitCost = prod.GetLastCost(productCode, DateTime.Today, LoginInfo.ConnStr);
                     }
