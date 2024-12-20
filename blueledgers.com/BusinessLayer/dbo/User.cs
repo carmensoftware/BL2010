@@ -26,8 +26,11 @@ namespace Blue.BL.dbo
             2025-08-31 = surestaytheiconic = 11
             2025-08-31 = thekaset = 10
             2025-08-31 = thenappathong = 8+5=13
+            2025-08-31 = surestaytheiconic = 4+7=11
 
             2025-07-31 = Zeavola = 28
+            2025-07-31 = bestwesternclicksathorn11 = 10
+            2025-07-31 = bwsanctuary = 10
           
             2025-06-30 = andalanta = 7+1=8
             2025-06-30 = floralcourthotel = 5+6 = 11
@@ -75,9 +78,8 @@ namespace Blue.BL.dbo
             2024-12-31 = sztowerthai = 13
             2024-12-31 = blumonkeybangsaen = 5
             2024-12-31 = waltonsuitessukhumvitbangkok = 5
-            2024-12-31 = surestaytheiconic = 4+7=11
             2024-12-31 = celessamui = 25
-            2024-12-31 = hopinn = 27
+            2024-12-31 = hopinnth = 27
             2024-12-31 = rasahospitality = 73 + 17 = 90
             2024-12-31 = blumonkeybangtaophuket = 6
             2024-12-31 = twinlotus (on permise) = 16
@@ -86,8 +88,6 @@ namespace Blue.BL.dbo
             2024-11-30 = MHRH = 3
          
          
-            2024-08-31 = bestwesternclicksathorn11 = 10
-            2024-08-31 = bwsanctuary = 10
 
           
             --------- Expired -------------
