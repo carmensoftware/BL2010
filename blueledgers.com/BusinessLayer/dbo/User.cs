@@ -17,16 +17,20 @@ namespace Blue.BL.dbo
 
             2025-10-31 = siamese = 24+2 = 26 + 20 + 10 = 56
             2024-10-30 = BlumonkeyKrabi = 6
+            2025-10-31 = waltonsuitessukhumvitbangkok = 5
              
              
             2025-09-30 = varanahotel = 16
-            2025-09-30 = The Sarojin = 3
+            2025-09-30 = TheSarojin = 3
+            2025-09-30 = kckohchang = 17
           
           
             2025-08-31 = surestaytheiconic = 11
             2025-08-31 = thekaset = 10
             2025-08-31 = thenappathong = 8+5=13
             2025-08-31 = surestaytheiconic = 4+7=11
+            2025-08-31 = themarinphuket = 19
+            2025-08-31 = celessamui = 25
 
             2025-07-31 = Zeavola = 28
             2025-07-31 = bestwesternclicksathorn11 = 10
@@ -74,20 +78,14 @@ namespace Blue.BL.dbo
             2025-01-31 = palayanagroup = 2+20 = 22
             2025-01-31 = korabeachresort = 10 + 22 = 32
             2025-01-31 = kappasensesubud = 17
-
-            2024-12-31 = sztowerthai = 13
-            2024-12-31 = blumonkeybangsaen = 5
-            2024-12-31 = waltonsuitessukhumvitbangkok = 5
-            2024-12-31 = celessamui = 25
-            2024-12-31 = hopinnth = 27
-            2024-12-31 = rasahospitality = 73 + 17 = 90
-            2024-12-31 = blumonkeybangtaophuket = 6
-            2024-12-31 = twinlotus (on permise) = 16
-            2024-12-31 = DeevanaPhuket = 65=> 69
-
-            2024-11-30 = MHRH = 3
-         
-         
+            2025-01-31 = blumonkeybangtaophuket = 6
+            2025-01-31 = hopinnth = 27
+            2025-01-31 = blumonkeybangsaen = 5
+            2025-01-31 = sztowerthai = 13
+            2025-01-31 = MHRH = 3
+            2025-01-31 = rasahospitality = 73 + 17 = 90
+            2025-01-31 = twinlotus (on permise) = 16
+            2025-01-31 = DeevanaPhuket = 65=> 69
 
           
             --------- Expired -------------
@@ -106,8 +104,8 @@ namespace Blue.BL.dbo
             2023-01-31 = SPM = 20 
         
         */
-        private DateTime licenseExpiredDate = new DateTime(2025, 03, 31);
-        private int licenseActiveUser = 1;
+        private DateTime licenseExpiredDate = new DateTime(2025, 1, 31);
+        private int licenseActiveUser = 69;
 
         public User()
         {
