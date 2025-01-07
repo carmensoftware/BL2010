@@ -5,7 +5,9 @@ using System.Web.UI.WebControls;
 using BlueLedger.PL.BaseClass;
 using DevExpress.Web.ASPxEditors;
 using DevExpress.Web.ASPxTabControl;
-using System.Data.SqlClient;
+using System.Collections.Generic;
+using System.Linq;
+using Newtonsoft.Json;
 
 namespace BlueLedger.PL.IN.STK
 {
@@ -13,46 +15,55 @@ namespace BlueLedger.PL.IN.STK
     {
         #region "Attributes"
 
-
-
-        private readonly Blue.BL.ADMIN.TransLog _transLog = new Blue.BL.ADMIN.TransLog();
-        private readonly Blue.BL.IN.AdjType adjType = new Blue.BL.IN.AdjType();
         private readonly Blue.BL.dbo.Bu bu = new Blue.BL.dbo.Bu();
-        private readonly Blue.BL.IN.Inventory inv = new Blue.BL.IN.Inventory();
-        private readonly Blue.BL.PC.Priod period = new Blue.BL.PC.Priod();
-        private readonly Blue.BL.PC.PR.PRDt prDt = new Blue.BL.PC.PR.PRDt();
-        private readonly Blue.BL.Option.Inventory.Product prod = new Blue.BL.Option.Inventory.Product();
-        private readonly Blue.BL.Option.Inventory.ProdCat prodCat = new Blue.BL.Option.Inventory.ProdCat();
-        private readonly Blue.BL.IN.ProdUnit prodUnit = new Blue.BL.IN.ProdUnit();
-        private readonly Blue.BL.Option.Inventory.Product product = new Blue.BL.Option.Inventory.Product();
-        private readonly Blue.BL.IN.StockIn stkIn = new Blue.BL.IN.StockIn();
-        private readonly Blue.BL.IN.StockInDt stkInDt = new Blue.BL.IN.StockInDt();
-        private readonly Blue.BL.Option.Inventory.StoreLct strLct = new Blue.BL.Option.Inventory.StoreLct();
-        private string StkId = string.Empty;
-
-        private decimal Total;
-
-        private DataSet dsStkInEdit = new DataSet();
-        private Blue.BL.GnxLib gnx = new Blue.BL.GnxLib();
-        private Blue.BL.Option.Inventory.Unit unit = new Blue.BL.Option.Inventory.Unit();
-
-        private string StkInEditMode
-        {
-            get { return Session["StkInEditMode"].ToString(); }
-            set { Session["StkInEditMode"] = value; }
-        }
-
-        private string MODE
-        {
-            get { return Request.QueryString["MODE"]; }
-        }
-
+        private readonly Blue.BL.ADMIN.TransLog _transLog = new Blue.BL.ADMIN.TransLog();
         private readonly Blue.BL.APP.Module module = new Blue.BL.APP.Module();
+
+        private readonly Blue.BL.PC.Priod period = new Blue.BL.PC.Priod();
+
+        private readonly Blue.BL.PC.PR.PRDt prDt = new Blue.BL.PC.PR.PRDt();
+
+
+        //private readonly Blue.BL.Option.Inventory.Product prod = new Blue.BL.Option.Inventory.Product();
+        //private readonly Blue.BL.Option.Inventory.ProdCat prodCat = new Blue.BL.Option.Inventory.ProdCat();
+        //private readonly Blue.BL.Option.Inventory.Product product = new Blue.BL.Option.Inventory.Product();
+        //private readonly Blue.BL.Option.Inventory.StoreLct strLct = new Blue.BL.Option.Inventory.StoreLct();
+
+        //private readonly Blue.BL.IN.AdjType adjType = new Blue.BL.IN.AdjType();
+        //private readonly Blue.BL.IN.ProdUnit prodUnit = new Blue.BL.IN.ProdUnit();
+        //private readonly Blue.BL.IN.StockIn stkIn = new Blue.BL.IN.StockIn();
+        //private readonly Blue.BL.IN.StockInDt stkInDt = new Blue.BL.IN.StockInDt();
+        //private readonly Blue.BL.IN.Inventory inv = new Blue.BL.IN.Inventory();
+
+
+        //private readonly Blue.BL.PC.PR.PRDt prDt = new Blue.BL.PC.PR.PRDt();
+
+
+        private string _MODE { get { return Request.QueryString["MODE"] == null ? "" : Request.QueryString["MODE"].ToString().ToUpper(); } }
+
+        private string _ID { get { return Request.QueryString["ID"] == null ? "" : Request.QueryString["ID"].ToString(); } }
+
+        private DataTable _dtStockIn
+        {
+            get { return ViewState["_dtStockIn"] as DataTable; }
+            set { ViewState["_dtStockIn"] = value; }
+        }
+
+        private DataTable _dtStockInDt
+        {
+            get { return ViewState["_dtStockInDt"] as DataTable; }
+            set { ViewState["_dtStockInDt"] = value; }
+        }
+
+
         #endregion
 
+
+        #region --Event(s)--
         protected void Page_Init(object sender, EventArgs e)
         {
-            hf_ConnStr.Value = bu.GetConnectionString(Request.Params["BuCode"]);
+            //hf_ConnStr.Value = bu.GetConnectionString(Request.Params["BuCode"]);
+            hf_ConnStr.Value = LoginInfo.ConnStr;
         }
 
         protected override void Page_Load(object sender, EventArgs e)
@@ -61,580 +72,70 @@ namespace BlueLedger.PL.IN.STK
             {
                 Page_Retrieve();
             }
-            else
-            {
-                dsStkInEdit = (DataSet)Session["dsStkInEdit"];
-            }
         }
 
         private void Page_Retrieve()
         {
-            dsStkInEdit.Clear();
+            var sql = @"SELECT
+    NEWID() as RowId,
+	d.*,
+	l.LocationName,
+	p.ProductDesc1,
+	p.ProductDesc2
+    
+FROM 
+	[IN].StockInDt d
+	LEFT JOIN [IN].StoreLocation l
+		ON l.LocationCode=d.StoreId
+	LEFT JOIN [IN].Product p
+		ON p.ProductCode=d.SKU
+WHERE 
+	d.Id=@id";
 
-            if (Request.Params["MODE"].ToUpper() == "NEW")
-            {
-                var get = stkIn.GetSchema(dsStkInEdit, hf_ConnStr.Value);
+            _dtStockIn = bu.DbExecuteQuery("SELECT * FROM [IN].StockIn WHERE RefId=@id", new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@id", _ID) }, hf_ConnStr.Value);
+            _dtStockInDt = bu.DbExecuteQuery(sql, new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@id", _ID) }, hf_ConnStr.Value);
 
-                if (!get)
-                {
-                    return;
-                }
-
-                var getDt = stkInDt.GetSchema(dsStkInEdit, hf_ConnStr.Value);
-
-                if (!getDt)
-                {
-                    return;
-                }
-            }
-            else
-            {
-                StkId = Request.Params["ID"];
-
-                var get = stkIn.Get(dsStkInEdit, StkId, hf_ConnStr.Value);
-
-                if (!get)
-                {
-                    return;
-                }
-
-                var getDt = stkInDt.Get(dsStkInEdit, StkId, hf_ConnStr.Value);
-
-                if (!getDt)
-                {
-                    return;
-                }
-            }
-
-            Session["dsStkInEdit"] = dsStkInEdit;
 
             Page_Setting();
         }
 
         private void Page_Setting()
         {
-            if (Request.Params["MODE"].ToUpper() == "EDIT")
+
+            lbl_RefId.Text = _ID;
+            de_DocDate.Date = DateTime.Today;
+
+            if (_dtStockIn.Rows.Count > 0)
             {
-                var drStkIn = dsStkInEdit.Tables[stkIn.TableName].Rows[0];
+                DataRow drStockIn = _dtStockIn.Rows[0];
 
-                txt_Date.Text = DateTime.Parse(drStkIn["CreateDate"].ToString()).ToString("dd/MM/yyyy");
-                txt_Date.Enabled = false;
-                lbl_Ref.Text = drStkIn["RefId"].ToString();
-                lbl_Ref.ToolTip = lbl_Ref.Text;
-                lbl_Status.Text = drStkIn["Status"].ToString();
-                lbl_Status.ToolTip = lbl_Status.Text;
-                ddl_Type.Value = Convert.ToInt32(drStkIn["Type"]);
-                txt_Desc.Text = drStkIn["Description"].ToString();
-
-                menu_CmdBar.Items[1].Visible = true;
-            }
-            else
-            {
-                dsStkInEdit.Clear();
-
-                //menu_CmdBar.Items[1].Visible = false;
-                menu_CmdBar.Items[1].Visible = true;
-
-
-                txt_Date.Text = ServerDateTime.ToShortDateString();
-                // Assign Stock In Type automatically if only one.
-                ddl_Type.SelectedIndex = ddl_Type.Items.Count > 1 ? -1 : 0;
+                ddl_Type.Value = drStockIn["Type"].ToString();
+                lbl_Status.Text = drStockIn["Status"].ToString();
+                txt_Desc.Text = drStockIn["Description"].ToString();
             }
 
-
-            grd_StkInEdit.DataSource = dsStkInEdit.Tables[stkInDt.TableName];
-            grd_StkInEdit.DataBind();
-        }
+            BindItems();
 
 
 
-        protected void btn_Save_Success_Click(object sender, EventArgs e)
-        {
-            //Save();
-            pop_ConfirmSave.ShowOnPageLoad = false;
-            pop_Save.ShowOnPageLoad = false;
-            Response.Redirect("StkInDt.aspx?BuCode=" + Request.Params["BuCode"] +
-                  "&ID=" + dsStkInEdit.Tables[stkIn.TableName].Rows[0]["RefId"]
-                  + "&VID=" + Request.Params["VID"]);
-
-        }
-
-        protected void ddl_Unit_Load(object sender, EventArgs e)
-        {
-            var ddl_Unit = sender as ASPxComboBox;
-            var ddl_Product = sender as ASPxComboBox;
-
-            if (ddl_Product != null && ddl_Unit.Value != null)
+            // Edit
+            if (_MODE != "NEW")
             {
-                var s = ddl_Product.Value.ToString().Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
-                ddl_Unit.DataSource = prodUnit.GetLookUp_InvenUnit(s, hf_ConnStr.Value);
-                ddl_Unit.DataBind();
-            }
-        }
-
-        protected void grd_StkInEdit_RowCommand(object sender, GridViewCommandEventArgs e)
-        {
-            if (e.CommandName.ToUpper() == "SAVENEW")
-            {
-                var ddl_Store = grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].FindControl("ddl_Store") as ASPxComboBox;
-                var ddl_Product = grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].FindControl("ddl_Product") as ASPxComboBox;
-                var ddl_Debit = grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].FindControl("ddl_Debit") as ASPxComboBox;
-                var ddl_Credit = grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].FindControl("ddl_Credit") as ASPxComboBox;
-                var txt_Qty = grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].FindControl("txt_Qty") as ASPxSpinEdit;
-                var txt_UnitCost =
-                    grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].FindControl("txt_UnitCost") as ASPxSpinEdit;
-                var txt_Comment = grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].FindControl("txt_Comment") as TextBox;
-                var ddl_Unit = grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].FindControl("ddl_Unit") as ASPxComboBox;
-                var hf_Cost = grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].FindControl("hf_Cost") as HiddenField;
-
-                //Check field cannot empty
-                if (ddl_Store != null)
-                {
-                    if (ddl_Store.Value == null)
-                    {
-                        lbl_Warning.Text = "'Store' is required.";
-                        pop_Warning.ShowOnPageLoad = true;
-                        return;
-                    }
-                }
-
-                if (ddl_Product != null)
-                {
-                    if (ddl_Product.Value == null)
-                    {
-                        lbl_Warning.Text = "'SKU #' is required.";
-                        pop_Warning.ShowOnPageLoad = true;
-                        return;
-                    }
-                }
-
-                if (txt_Qty != null)
-                {
-                    if (txt_Qty.Text == string.Empty)
-                    {
-                        lbl_Warning.Text = "'Qty' is requried.";
-                        pop_Warning.ShowOnPageLoad = true;
-                        return;
-                    }
-                }
-
-                if (txt_UnitCost != null)
-                {
-                    if (txt_UnitCost.Text == string.Empty)
-                    {
-                        lbl_Warning.Text = "'Unit Cost' is required.";
-                        pop_Warning.ShowOnPageLoad = true;
-                        return;
-                    }
-                }
-
-                var drUpdating =
-                    dsStkInEdit.Tables[stkInDt.TableName].Rows[grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].DataItemIndex
-                        ];
-                drUpdating["StoreId"] =
-                    ddl_Store.Value.ToString().Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
-                drUpdating["SKU"] =
-                    ddl_Product.Value.ToString().Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
-                drUpdating["Qty"] = decimal.Parse(txt_Qty.Text);
-                drUpdating["Unit"] = ddl_Unit.Value;
-                drUpdating["UnitCost"] = decimal.Parse(txt_UnitCost.Text);
-                drUpdating["Comment"] = txt_Comment.Text == string.Empty ? null : txt_Comment.Text;
-
-                //// Enable Save & Commit Button On Header.
-                //menu_CmdBar.Items[0].Enabled = true; //Save.
-                //menu_CmdBar.Items[1].Enabled = true; //Commit.
-
-                //// Enable Create & Delete when click create button on detail grid.
-                //menu_CmdGrd.Enabled = true;
-
-                grd_StkInEdit.DataSource = dsStkInEdit.Tables[stkInDt.TableName];
-                grd_StkInEdit.EditIndex = -1;
-                grd_StkInEdit.DataBind();
-
-                StkInEditMode = string.Empty;
-
-                Create();
+                de_DocDate.Enabled = false;
             }
 
-            if (e.CommandName == "Create")
-            {
-                Create();
-            }
         }
-
-        protected void grd_StkInEdit_RowDeleting(object sender, GridViewDeleteEventArgs e)
-        {
-            dsStkInEdit.Tables[stkInDt.TableName].Rows[e.RowIndex].Delete();
-
-            grd_StkInEdit.DataSource = dsStkInEdit.Tables[stkInDt.TableName];
-            grd_StkInEdit.EditIndex = -1;
-            grd_StkInEdit.DataBind();
-
-            StkInEditMode = string.Empty;
-        }
-
-        protected void Img_Create_Click(object sender, ImageClickEventArgs e)
-        {
-            Create();
-        }
-
-        protected void btn_SavedClose_Click(object sender, ImageClickEventArgs e)
-        {
-            Save();
-            pop_Save.ShowOnPageLoad = false;
-        }
-
-        //protected void btn_Save_Success_Click1(object sender, EventArgs e)
-        //{
-        //    Save();
-        //    pop_Save.ShowOnPageLoad = false;
-        //}
-
-        protected void txt_Date_TextChanged(object sender, EventArgs e)
-        {
-            for (var i = 0; i < grd_StkInEdit.Rows.Count; i++)
-            {
-                var lbl_Store = grd_StkInEdit.Rows[i].FindControl("lbl_StoreName") as Label;
-
-                if (!period.GetIsValidDate(DateTime.Parse(txt_Date.Text), lbl_Store.Text, LoginInfo.ConnStr))
-                {
-                    lbl_WarningPeriod.Text = "Store " + lbl_Store.Text.Split(':')[1].Trim() + " is not period.";
-                    pop_WarningPeriod.ShowOnPageLoad = true;
-                    return;
-                }
-            }
-        }
-
-        protected void btn_WarningPeriod_Click(object sender, EventArgs e)
-        {
-            pop_WarningPeriod.ShowOnPageLoad = false;
-        }
-
-        protected void ddl_Type_SelectedIndexChanged(object sender, EventArgs e)
-        {
-        }
-
-        #region "Editors"
-
-        protected void btn_ConfirmSave_Click(object sender, EventArgs e)
-        {
-            pop_ConfirmSave.ShowOnPageLoad = false;
-            if (Save())
-            {
-                Response.Redirect("StkInDt.aspx?BuCode=" + Request.Params["BuCode"] + "&ID=" +
-                                  dsStkInEdit.Tables[stkIn.TableName].Rows[0]["RefId"] +
-                                  "&VID=" + Request.Params["VID"]);
-            }
-
-            //pop_Save.ShowOnPageLoad = true;
-        }
-
-        protected void btn_ConfirmCommit_Click(object sender, EventArgs e)
-        {
-            if (Save())
-            {
-                pop_ConfirmCommit.ShowOnPageLoad = false;
-                if (Commit())
-                {
-                    // Added on: 21/09/2017, By: Fon
-                    ClassLogTool pctool = new ClassLogTool();
-                    pctool.SaveActionLog("SI", lbl_Ref.Text, "Commit");
-                    // End Added.
-
-                    pop_Save.ShowOnPageLoad = true;
-                }
-                else
-                {
-                    lbl_Warning.Text = "Commit fail!";
-                    pop_Warning.ShowOnPageLoad = true;
-                }
-            }
-        }
-
-        protected void btn_ComfirmDelete_Click(object sender, EventArgs e)
-        {
-            for (var i = grd_StkInEdit.Rows.Count - 1; i >= 0; i--)
-            {
-                var chk_Item = grd_StkInEdit.Rows[i].Cells[0].FindControl("chk_Item") as CheckBox;
-
-                if (chk_Item.Checked)
-                {
-                    var drStkInDt = dsStkInEdit.Tables[stkInDt.TableName].Rows[i];
-
-                    if (drStkInDt.RowState != DataRowState.Deleted)
-                    {
-                        drStkInDt.Delete();
-                    }
-                }
-            }
-
-            grd_StkInEdit.DataSource = dsStkInEdit.Tables[stkInDt.TableName];
-            grd_StkInEdit.EditIndex = -1;
-            grd_StkInEdit.DataBind();
-
-            pop_ConfirmDelete.ShowOnPageLoad = false;
-        }
-
-        protected void ddl_Type_Load(object sender, EventArgs e)
-        {
-            var comboBox = (ASPxComboBox)sender;
-            comboBox.DataSource = adjType.GetList(lbl_StockIn.Text, LoginInfo.ConnStr);
-            comboBox.ValueField = "AdjID";
-            comboBox.DataBind();
-            if (comboBox.Value != null)
-            {
-                //comboBox.Text = adjType.GetName(comboBox.Value.ToString(), LoginInfo.ConnStr);
-            }
-        }
-
-        protected void ddl_Store_Load(object sender, EventArgs e)
-        {
-            var ddl_StoreCode = sender as ASPxComboBox;
-
-            // Modified on: 12/02/2018, By: Fon, For: P' Oat request.
-            //ddl_StoreCode.DataSource = strLct.GetList(LoginInfo.LoginName, hf_ConnStr.Value);
-            //ddl_StoreCode.DataBind();
-            var ds = strLct.GetList(LoginInfo.LoginName, LoginInfo.ConnStr);
-            ds.DefaultView.RowFilter = "EOP <> 2";
-            var dt = ds.DefaultView.ToTable();
-
-            ddl_StoreCode.DataSource = dt;
-            ddl_StoreCode.DataBind();
-            // End Modified.
-        }
-
-        //protected void ddl_Store_SelectedIndexChanged(object sender, EventArgs e)
-        //{
-        //    ASPxComboBox ddl_Product    = grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].FindControl("ddl_Product") as ASPxComboBox;
-        //    ASPxComboBox ddl_Store      = grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].FindControl("ddl_Store") as ASPxComboBox;
-
-        //    string StoreName = strLct.GetName(ddl_Store.Value.ToString(), LoginInfo.ConnStr);
-
-        //    if (ddl_Product != null)
-        //    {
-        //        //Check Period
-        //        if (period.GetIsValidDate(DateTime.Parse(txt_Date.Text), ddl_Store.Value.ToString(), LoginInfo.ConnStr))
-        //        {
-        //            ddl_Product.DataSource = product.GetLookUp_LocationCode(ddl_Store.Value.ToString(), LoginInfo.ConnStr);
-        //            ddl_Product.DataBind();
-        //        }
-        //        else
-        //        {
-        //            ddl_Store.Value = string.Empty;
-        //            lbl_WarningPeriod.Text = "Store " + StoreName + " is not period.";
-        //            pop_WarningPeriod.ShowOnPageLoad = true;
-        //        }
-        //    }
-        //}
-
-        protected void ddl_Product_Load(object sender, EventArgs e)
-        {
-			var ddl_Product = sender as ASPxComboBox;
-			var ddl_Store = ddl_Product.Parent.FindControl("ddl_Store") as ASPxComboBox;
-			
-			if (ddl_Store.Value != null)
-			{
-			var locationCode = ddl_Store.Value.ToString();
-			
-			
-			var sql = string.Format("SELECT p.ProductCode, p.ProductDesc1, p.ProductDesc2 FROM [IN].ProdLoc pl JOIN [IN].Product p ON p.ProductCode = pl.ProductCode WHERE pl.LocationCode = '{0}'", locationCode );
-			
-			var dt = bu.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
-			
-			ddl_Product.DataSource = dt;
-			ddl_Product.DataBind();
-			}
-			
-        }
-
-        protected void ddl_Product_ItemRequestedByValue(object source, ListEditItemRequestedByValueEventArgs e)
-        {
-            var comboBox = source as ASPxComboBox;
-            if (comboBox == null) return;
-            var sqlDataSource1 = new SqlDataSource();
-            var ddlStore = comboBox.Parent.FindControl("ddl_Store") as ASPxComboBox;
-
-            if (e.Value == null || ddlStore.Value == null) return;
-
-            try
-            {
-                new ProductLookup().ItemRequestedByValue(ref comboBox, sqlDataSource1, hf_ConnStr.Value, e,
-                    ddlStore.Value.ToString());
-            }
-            catch (Exception ex)
-            {
-                LogManager.Error(ex);
-            }
-        }
-
-        protected void ddl_Product_ItemsRequestedByFilterCondition(object source,
-            ListEditItemsRequestedByFilterConditionEventArgs e)
-        {
-            var ddlProduct = source as ASPxComboBox;
-            var sqlDataSource1 = new SqlDataSource();
-            var ddlStore = ddlProduct.Parent.FindControl("ddl_Store") as ASPxComboBox;
-
-            if (ddlProduct == null) return;
-
-            if (ddlStore.Value == null || e.Filter == null) return;
-
-            //if (string.IsNullOrEmpty())
-            //{
-            //    ddlProduct.Value = null;
-            //    ddlProduct.Text = string.Empty;
-            //    return;
-            //}
-
-            var comboBox = (ASPxComboBox)source;
-            new ProductLookup().ItemsRequestedByFilterCondition(ref comboBox, sqlDataSource1, hf_ConnStr.Value, e,
-                ddlStore.Value.ToString());
-        }
-
-        protected void ddl_Product_SelectedIndexChanged(object sender, EventArgs e)
-        {
-			var ddl_Product = sender as ASPxComboBox;
-			
-			if (ddl_Product.SelectedItem == null)
-				return;
-			
-			var ddl_Unit = ddl_Product.Parent.FindControl("ddl_Unit") as ASPxComboBox;
-            var ddl_Store = ddl_Product.Parent.FindControl("ddl_Store") as ASPxComboBox;
-            var txt_UnitCost = ddl_Product.Parent.FindControl("txt_UnitCost") as ASPxSpinEdit;
-            var hf_ProductCode = ddl_Product.Parent.FindControl("hf_ProductCode") as HiddenField;
-            var hf_Cost = ddl_Product.Parent.FindControl("hf_Cost") as HiddenField;
-
-            //Get StartDate and EndDate for update Avg in inventory
-            var startDate = period.GetStartDate(ServerDateTime.Date, hf_ConnStr.Value);
-            var endDate = period.GetEndDate(ServerDateTime.Date, hf_ConnStr.Value);
-
-            var p = ddl_Product.Value.ToString().Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
-			var productCode = ddl_Product.Value.ToString().Trim();
-			
-			
-            if (ddl_Unit != null)
-            {
-				//lbl_StockIn.Text = ddl_Product.Value.ToString();
-				// var sql = string.Format("SELECT InventoryUnit FROM [IN].Product WHERE ProductCode = '{0}'", productCode );
-				// var dtUnit = bu.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
-				
-                //ddl_Unit.DataSource = prodUnit.GetLookUp_InvenUnit(p, hf_ConnStr.Value);
-				var dtUnit = GetProductInventoryUnit(productCode);
-				ddl_Unit.DataSource = dtUnit;
-                ddl_Unit.DataBind();
-				
-				ddl_Unit.Value = dtUnit.Rows[0][0].ToString();
-            }
-
-            //ddl_Unit.Value = prodUnit.GetInvenUnitType(p, hf_ConnStr.Value);
-
-            var dsPrDtStockSum = new DataSet();
-
-            var getPrDtStockSum = prDt.GetStockSummary(dsPrDtStockSum, p, ddl_Store.Value.ToString(), txt_Date.Text,
-                hf_ConnStr.Value);
-
-            if (getPrDtStockSum)
-            {
-                if (dsPrDtStockSum.Tables[prDt.TableName].Rows.Count > 0)
-                {
-                    var drStockSummary = dsPrDtStockSum.Tables[prDt.TableName].Rows[0];
-
-                    var lbl_OnHand = grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].FindControl("lbl_OnHand") as Label;
-                    lbl_OnHand.Text = drStockSummary["OnHand"].ToString();
-                    lbl_OnHand.ToolTip = lbl_OnHand.Text;
-
-                    var lbl_OnOrder = grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].FindControl("lbl_OnOrder") as Label;
-                    lbl_OnOrder.Text = drStockSummary["OnOrder"].ToString();
-                    lbl_OnOrder.ToolTip = lbl_OnHand.Text;
-
-                    var lbl_ReOrder = grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].FindControl("lbl_ReOrder") as Label;
-                    lbl_ReOrder.Text = drStockSummary["Reorder"].ToString();
-                    lbl_ReOrder.ToolTip = lbl_OnHand.Text;
-
-                    var lbl_Restock = grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].FindControl("lbl_Restock") as Label;
-                    lbl_Restock.Text = drStockSummary["Restock"].ToString();
-                    lbl_Restock.ToolTip = lbl_Restock.Text;
-
-                    var lbl_LastPrice =
-                        grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].FindControl("lbl_LastPrice") as Label;
-                    lbl_LastPrice.Text = drStockSummary["LastPrice"].ToString();
-                    lbl_LastPrice.ToolTip = lbl_LastPrice.Text;
-
-                    var lbl_LastVendor =
-                        grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].FindControl("lbl_LastVendor") as Label;
-                    lbl_LastVendor.Text = drStockSummary["LastVendor"].ToString();
-                    lbl_LastVendor.ToolTip = lbl_LastVendor.Text;
-                }
-            }
-
-            hf_ProductCode.Value =
-                ddl_Product.Value.ToString().Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
-            hf_Cost.Value = txt_UnitCost.Text;
-        }
-		
-		private DataTable GetProductInventoryUnit(string productCode)
-		{
-			var sql = string.Format("SELECT InventoryUnit FROM [IN].Product WHERE ProductCode = '{0}'", productCode );
-			var dtUnit = bu.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
-			
-			return dtUnit;
-		}
-
-        protected void btn_CancelDelete_Click(object sender, EventArgs e)
-        {
-            pop_ConfirmDelete.ShowOnPageLoad = false;
-        }
-
-        //private DateTime GetOpenPeriod()
-        //{
-        //    SqlConnection conn = new SqlConnection(LoginInfo.ConnStr);
-        //    conn.Open();
-
-        //    string sql;
-        //    sql = "SELECT DATEADD(DAY, DATEDIFF(DAY, 1, CAST(EndDate  AS DATE)), '23:59:00:000') as OpenPeriod ";
-        //    sql = sql + " FROM [IN].Period";
-        //    sql = sql + " WHERE IsClose='false' or IsClose IS NULL";
-        //    sql = sql + " ORDER BY [Year] ASC, PeriodNumber ASC";
-
-        //    var cmd = new SqlCommand(sql, conn);
-
-        //    cmd.ExecuteScalar();
-
-        //    SqlDataReader reader = cmd.ExecuteReader();
-        //    reader.Read();
-
-        //    return DateTime.Parse(reader["OpenPeriod"].ToString());
-
-        //}
-
-
 
         protected void menu_CmdBar_ItemClick(object source, DevExpress.Web.ASPxMenu.MenuItemEventArgs e)
         {
             switch (e.Item.Name.ToUpper())
             {
                 case "SAVE":
-                    if (ddl_Type.Value == null)
-                    {
-                        lbl_Warning.Text = "Stock Type is required.";
-                        pop_Warning.ShowOnPageLoad = true;
-                        return;
-                    }
-
-                    if (grd_StkInEdit.Rows.Count == 0)
-                    {
-                        lbl_Warning.Text = "No any details found.";
-                        pop_Warning.ShowOnPageLoad = true;
-                        return;
-                    }
-
-                    pop_ConfirmSave.ShowOnPageLoad = true;
 
                     break;
-
                 case "COMMIT":
-                    pop_ConfirmCommit.ShowOnPageLoad = true;
-                    break;
 
+                    break;
                 case "BACK":
                     if (Request.Params["MODE"].ToUpper() == "EDIT")
                     {
@@ -650,637 +151,629 @@ namespace BlueLedger.PL.IN.STK
             }
         }
 
-        protected void menu_CmdGrd_ItemClick(object source, DevExpress.Web.ASPxMenu.MenuItemEventArgs e)
+        // Header
+        protected void ddl_Type_Load(object sender, EventArgs e)
+        {
+            var ddl = sender as ASPxComboBox;
+            var dtType = GetAdjustType();
+
+            ddl_Type.DataSource = dtType;
+            ddl_Type.ValueField = "Value";
+            ddl_Type.TextField = "Text";
+            ddl_Type.DataBind();
+
+        }
+
+        // Detail
+        protected void menu_Detail_ItemClick(object source, DevExpress.Web.ASPxMenu.MenuItemEventArgs e)
         {
             switch (e.Item.Name.ToUpper())
             {
                 case "CREATE":
-                    Create();
+                    CreateItem();
                     break;
-
                 case "DELETE":
-                    Delete();
+                    var items = new List<string>();
+                    var gv = gv_Detail;
+                    foreach (GridViewRow row in gv.Rows)
+                    {
+                        if (((CheckBox)row.FindControl("Chk_Item")).Checked)
+                        {
+                            var hf_RowId = row.FindControl("hf_RowId") as HiddenField;
+                            items.Add(hf_RowId.Value);
+                        }
+                    }
+
+                    if (items.Count > 0)
+                    {
+
+                        hf_DeleteItems.Value = JsonConvert.SerializeObject(items);
+
+                        ShowConfirmDelete(string.Format("Do you want to delete {0} item(s)?", items.Count));
+
+                        return;
+                    }
+                    else
+                        ShowAlert("Please select any item.");
                     break;
             }
         }
 
-        private void Create()
+        protected void Img_Create_Click(object sender, ImageClickEventArgs e)
         {
-            // Disable Save & Commit Button On Header.
-            //menu_CmdBar.Items[0].Enabled = false; //Save.
-            //menu_CmdBar.Items[1].Enabled = false; //Commit.
-
-            // Disable Create & Delete when click create button on detail grid.
-            //menu_CmdGrd.Enabled = false;
-
-            txt_Date.Enabled = false;
-
-            // Add new stkInDt row
-            var drNew = dsStkInEdit.Tables[stkInDt.TableName].NewRow();
-
-            drNew["Id"] = string.Empty;
-            drNew["RefId"] = (dsStkInEdit.Tables[stkInDt.TableName].Rows.Count == 0
-                ? 1
-                : int.Parse(
-                    dsStkInEdit.Tables[stkInDt.TableName].Rows[dsStkInEdit.Tables[stkInDt.TableName].Rows.Count - 1][
-                        "RefId"].ToString()) + 1);
-            drNew["UnitCost"] = 0;
-            if (dsStkInEdit.Tables[stkInDt.TableName].Rows.Count > 0)
-            {
-                drNew["StoreId"] =
-                    dsStkInEdit.Tables[stkInDt.TableName].Rows[dsStkInEdit.Tables[stkInDt.TableName].Rows.Count - 1][
-                        "StoreId"].ToString();
-            }
-
-            dsStkInEdit.Tables[stkInDt.TableName].Rows.Add(drNew);
-
-            grd_StkInEdit.DataSource = dsStkInEdit.Tables[stkInDt.TableName];
-            grd_StkInEdit.EditIndex = dsStkInEdit.Tables[stkInDt.TableName].Rows.Count - 1;
-            grd_StkInEdit.DataBind();
-
-            StkInEditMode = "NEW";
+            //Create();
         }
 
-        private void Delete()
+        protected void ddl_Location_Load(object sender, EventArgs e)
         {
-            pop_ConfirmDelete.ShowOnPageLoad = true;
-        }
+            var ddl = sender as ASPxComboBox;
 
-        private bool Save()
-        {
-            string hdrNo = string.Empty;
-            string _action = string.Empty;
+            var sql = @"
+;WITH
+ul AS(
+	SELECT
+		LocationCode
+	FROM
+		[ADMIN].UserStore
+	WHERE
+		LoginName=@LoginName
+)
+SELECT
+	l.LocationCode,
+	l.LocationName
+FROM
+	[IN].StoreLocation l
+	JOIN ul ON ul.LocationCode=l.LocationCode
+WHERE
+	l.IsActive=1
+	AND EOP <> 2
+ORDER BY
+	l.LocationCode";
+            var dt = bu.DbExecuteQuery(sql, new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@LoginName", LoginInfo.LoginName) }, hf_ConnStr.Value);
 
-            ////Check StockIn Detail.It must have data before save.
-            if (Request.Params["MODE"].ToUpper() == "NEW")
+            ddl.Items.Clear();
+            foreach (DataRow dr in dt.Rows)
             {
-                var drStkIn = dsStkInEdit.Tables[stkIn.TableName].NewRow();
-
-                if (MODE.ToUpper() == "NEW")
+                ddl.Items.Add(new DevExpress.Web.ASPxEditors.ListEditItem
                 {
-                    _action = "CREATE";
-                    drStkIn["RefId"] = stkIn.GetNewID(DateTime.Parse(txt_Date.Text), hf_ConnStr.Value);
-
-                    foreach (DataRow drStkInDt in dsStkInEdit.Tables[stkInDt.TableName].Rows)
-                    {
-                        if (drStkInDt.RowState == DataRowState.Deleted)
-                        {
-                            continue;
-                        }
-
-                        drStkInDt["Id"] = drStkIn["RefId"].ToString();
-                    }
-                }
-
-                drStkIn["Type"] = ddl_Type.Value.ToString();
-                drStkIn["Status"] = "Saved";
-                drStkIn["Description"] = txt_Desc.Text;
-                drStkIn["CreateDate"] = DateTime.Parse(txt_Date.Text).AddHours(ServerDateTime.Hour).AddMinutes(ServerDateTime.Minute).AddSeconds(ServerDateTime.Second);
-                drStkIn["CreateBy"] = LoginInfo.LoginName;
-                drStkIn["UpdateDate"] = ServerDateTime;
-                drStkIn["UpdateBy"] = LoginInfo.LoginName;
-
-                dsStkInEdit.Tables[stkIn.TableName].Rows.Add(drStkIn);
-                hdrNo = drStkIn["RefId"].ToString();
+                    Text = dr["LocationCode"].ToString() + " : " + dr["LocationName"].ToString(),
+                    Value = dr["LocationCode"].ToString()
+                });
             }
-            else
-            {
-                var drStkIn = dsStkInEdit.Tables[stkIn.TableName].Rows[0];
-
-                if (MODE.ToUpper() == "EDIT")
-                {
-                    _action = "MODIFY";
-                    foreach (DataRow drStkInDt in dsStkInEdit.Tables[stkInDt.TableName].Rows)
-                    {
-                        if (drStkInDt.RowState == DataRowState.Deleted)
-                        {
-                            continue;
-                        }
-
-                        drStkInDt["Id"] = drStkIn["RefId"].ToString();
-                    }
-                }
-
-                drStkIn["Type"] = ddl_Type.Value.ToString();
-                drStkIn["Description"] = txt_Desc.Text;
-                drStkIn["Status"] = "Saved";
-                drStkIn["UpdateDate"] = ServerDateTime;
-                drStkIn["UpdateBy"] = LoginInfo.LoginName;
-
-                hdrNo = drStkIn["RefId"].ToString();
-            }
-
-            inv.Delete(hdrNo, LoginInfo.ConnStr);
-
-            bool returnStkIn = stkIn.Save(dsStkInEdit, hf_ConnStr.Value);
-            _transLog.Save("IN", "STKIN", hdrNo, _action, string.Empty, LoginInfo.LoginName, hf_ConnStr.Value);
-            return returnStkIn;
-            // End Modified;
-        }
-
-        private bool Commit()
-        {
-
-            DateTime OpenPeriod = period.GetLatestOpenEndDate(LoginInfo.ConnStr).AddHours(23).AddMinutes(56);
-            DateTime InvCommittedDate;
-
-            if (DateTime.Today > OpenPeriod)  // Over than open period (DateTime)
-            {
-                if (DateTime.Parse(txt_Date.Text).Date <= OpenPeriod.Date)
-                    InvCommittedDate = OpenPeriod;
-                else
-                    InvCommittedDate = DateTime.Now;
-            }
-            else // In period
-                InvCommittedDate = DateTime.Now;
-
-
-            dsStkInEdit = (DataSet)Session["dsStkInEdit"];
-
-            var drStkIn = dsStkInEdit.Tables[stkIn.TableName].Rows[0];
-            drStkIn["Status"] = "Committed";
-            drStkIn["CommitDate"] = DateTime.Parse(txt_Date.Text).AddHours(ServerDateTime.Hour).AddMinutes(ServerDateTime.Minute).AddSeconds(ServerDateTime.Second);
-            drStkIn["UpdateBy"] = LoginInfo.LoginName;
-            drStkIn["UpdateDate"] = DateTime.Parse(txt_Date.Text).AddHours(ServerDateTime.Hour).AddMinutes(ServerDateTime.Minute).AddSeconds(ServerDateTime.Second);
-
-            var saveStatus = stkIn.Save(dsStkInEdit, LoginInfo.ConnStr);
-
-            if (saveStatus)
-            {
-                //Update Inventory
-                var invent = inv.GetStructure(dsStkInEdit, LoginInfo.ConnStr);
-
-                if (!invent)
-                {
-                    return false;
-                }
-
-                foreach (DataRow drStkInDt in dsStkInEdit.Tables[stkInDt.TableName].Rows)
-                {
-                    var drInv = dsStkInEdit.Tables[inv.TableName].NewRow();
-
-                    decimal unitCost = Convert.ToDecimal(drStkInDt["UnitCost"].ToString());
-                    decimal qty = Convert.ToDecimal(drStkInDt["Qty"].ToString());
-
-                    drInv["HdrNo"] = drStkInDt["Id"].ToString();
-                    drInv["DtNo"] = drStkInDt["RefId"].ToString();
-                    drInv["InvNo"] = drStkInDt["RefId"].ToString();
-                    drInv["Location"] = drStkInDt["StoreId"].ToString();
-                    drInv["ProductCode"] = drStkInDt["SKU"].ToString();
-                    drInv["IN"] = RoundQty(qty);
-                    drInv["OUT"] = 0;
-                    drInv["Amount"] = RoundAmt(unitCost);
-                    drInv["FIFOAudit"] = RoundAmt(unitCost);
-                    drInv["CommittedDate"] = InvCommittedDate;
-                    drInv["Type"] = "SI";
-                    drInv["PriceOnLots"] = RoundAmt(unitCost * qty);
-                    dsStkInEdit.Tables[inv.TableName].Rows.Add(drInv);
-
-                }
-
-                bool result = inv.Save(dsStkInEdit, LoginInfo.ConnStr);
-
-                if (result)
-                {
-                    string docNo = dsStkInEdit.Tables[stkIn.TableName].Rows[0]["RefId"].ToString();
-                    inv.UpdateAverageCostByDocument(docNo, LoginInfo.ConnStr);
-                }
-
-                string hdrNo = dsStkInEdit.Tables[inv.TableName].Rows[0]["HdrNo"].ToString();
-                _transLog.Save("IN", "STKIN", hdrNo, "COMMIT", string.Empty, LoginInfo.LoginName, hf_ConnStr.Value);
-
-                return result;
-            }
-            else
-                return false;
 
         }
 
-        protected void btn_Warning_Click(object sender, EventArgs e)
+        protected void ddl_Location_SelectedIndexChanged(object sender, EventArgs e)
         {
-            pop_Warning.ShowOnPageLoad = false;
+            var ddl = sender as ASPxComboBox;
+            var ddl_Product = ddl.NamingContainer.FindControl("ddl_Product") as ASPxComboBox;
+            var lbl_Unit = ddl.NamingContainer.FindControl("lbl_Unit") as Label;
+
+            var locationCode = GetDropdownValue(ddl);
+            var productCode = GetDropdownValue(ddl_Product);
+
+            SetProducts(ddl_Product, locationCode, productCode);
+
+            SetExpandInformation(ddl, locationCode, productCode, de_DocDate.Date);
         }
 
-        protected void btn_CancelSave_Click(object sender, EventArgs e)
+        protected void ddl_Product_SelectedIndexChanged(object sender, EventArgs e)
         {
-            pop_ConfirmSave.ShowOnPageLoad = false;
+            var ddl = sender as ASPxComboBox;
+            var ddl_Location = ddl.NamingContainer.FindControl("ddl_Location") as ASPxComboBox;
+            var lbl_Unit = ddl.NamingContainer.FindControl("lbl_Unit") as Label;
+
+            var locationCode = GetDropdownValue(ddl_Location);
+            var productCode = GetDropdownValue(ddl);
+
+            lbl_Unit.Text = GetInventoryUnit(productCode);
+
+            SetExpandInformation(ddl, locationCode, productCode, de_DocDate.Date);
         }
 
-        #endregion
-
-        #region "Grid View"
-
-        protected void grd_StkInEdit_RowDataBound(object sender, GridViewRowEventArgs e)
+        protected void btn_ComfirmDelete_Click(object sender, EventArgs e)
         {
-            if (grd_StkInEdit.EditIndex != -1)
-            {
-                menu_CmdBar.Visible = false; //Save, Commit, Back
-                menu_CmdGrd.Visible = false; //Create, Delete
-            }
-            else
-            {
-                menu_CmdBar.Visible = true; //Save, Commit, Back
-                menu_CmdGrd.Visible = true; //Create, Delete
-            }
+            var values = string.IsNullOrEmpty(hf_DeleteItems.Value) ? "[]" : hf_DeleteItems.Value;
+            var items = JsonConvert.DeserializeObject<IEnumerable<string>>(values);
 
+            DeleteItems(items);
+
+            pop_ConfirmDelete.ShowOnPageLoad = false;
+        }
+
+        // GrdiView
+
+        protected void gv_Detail_RowDataBound(object sender, GridViewRowEventArgs e)
+        {
             if (e.Row.RowType == DataControlRowType.DataRow)
             {
-                //// Template
-                //if (e.Row.FindControl("tp_Information") != null)
-                //{
-                var tp_Information = e.Row.FindControl("tp_Information") as ASPxPageControl;
-                var hf_Cost = e.Row.FindControl("hf_Cost") as HiddenField;
-
-                if (e.Row.FindControl("ddl_Store") != null)
+                if (e.Row.FindControl("hf_RowId") != null)
                 {
-                    var ddl_Store = e.Row.FindControl("ddl_Store") as ASPxComboBox;
-                    ddl_Store.Value = DataBinder.Eval(e.Row.DataItem, "StoreId");
+                    var item = e.Row.FindControl("hf_RowId") as HiddenField;
+
+                    item.Value = DataBinder.Eval(e.Row.DataItem, "RowId").ToString();
                 }
+
+                if (e.Row.FindControl("lbl_Location") != null)
+                {
+                    var lbl = e.Row.FindControl("lbl_Location") as Label;
+                    var code = DataBinder.Eval(e.Row.DataItem, "StoreId").ToString();
+                    var name = GetLocationName(code);
+
+                    lbl.Text = string.Format("{0} : {1}", code, name);
+                    lbl.ToolTip = lbl.Text;
+                }
+
+
+                if (e.Row.FindControl("ddl_Location") != null)
+                {
+                    var ddl = e.Row.FindControl("ddl_Location") as ASPxComboBox;
+
+                    ddl.Value = DataBinder.Eval(e.Row.DataItem, "StoreId").ToString();
+                }
+
+
+
+                if (e.Row.FindControl("lbl_Product") != null)
+                {
+                    var lbl = e.Row.FindControl("lbl_Product") as Label;
+                    var code = DataBinder.Eval(e.Row.DataItem, "SKU").ToString();
+
+                    var drProduct = GetProduct(code);
+                    var name1 = drProduct == null ? "" : drProduct["ProductDesc1"].ToString();
+                    var name2 = drProduct == null ? "" : drProduct["ProductDesc2"].ToString();
+
+                    lbl.Text = string.Format("{0} : {1} | {2}", code, name1, name2);
+                    lbl.ToolTip = lbl.Text;
+                }
+
 
                 if (e.Row.FindControl("ddl_Product") != null)
                 {
                     var ddl_Product = e.Row.FindControl("ddl_Product") as ASPxComboBox;
-                    var ddl_Store = e.Row.FindControl("ddl_Store") as ASPxComboBox;
+                    var ddl_Location = e.Row.FindControl("ddl_Location") as ASPxComboBox;
 
-                    if (ddl_Store != null && ddl_Store.Value != null)
-                    {
-                        ddl_Product.DataSource = product.GetLookUp_LocationCode(ddl_Store.Value.ToString(), hf_ConnStr.Value);
-                        ddl_Product.ValueField = "ProductCode";
-                        ddl_Product.Value = DataBinder.Eval(e.Row.DataItem, "SKU");
-                        ddl_Product.DataBind();
-                    }
-                }
+                    var locationCode = GetDropdownValue(ddl_Location);
+                    var productCode = DataBinder.Eval(e.Row.DataItem, "SKU").ToString();
 
-                if (e.Row.FindControl("ddl_Unit") != null)
-                {
-                    var ddl_Unit = e.Row.FindControl("ddl_Unit") as ASPxComboBox;
-                    var ddl_Product = e.Row.FindControl("ddl_Product") as ASPxComboBox;
-
-                    if (ddl_Product != null && ddl_Product.Value != null)
-                    {
-                        //var s = ddl_Product.Value.ToString().Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
-                        //ddl_Unit.DataSource = prodUnit.GetLookUp_ProductCode(s, hf_ConnStr.Value);
-						var productCode = ddl_Product.Value.ToString();
-						var dtUnit = GetProductInventoryUnit(productCode);
-						ddl_Unit.DataSource = dtUnit;
-                        ddl_Unit.DataBind();
-						ddl_Unit.Value = DataBinder.Eval(e.Row.DataItem, "Unit").ToString();
-
-                    }
-                }
-
-
-                if (e.Row.FindControl("txt_Qty") != null)
-                {
-                    var txt_Qty = e.Row.FindControl("txt_Qty") as ASPxSpinEdit;
-                    txt_Qty.Text = string.Format(DefaultQtyFmt, DataBinder.Eval(e.Row.DataItem, "Qty").ToString());
-                }
-
-                if (e.Row.FindControl("txt_UnitCost") != null)
-                {
-                    var txt_UnitCost = e.Row.FindControl("txt_UnitCost") as ASPxSpinEdit;
-                    txt_UnitCost.Text = string.Format(DefaultAmtFmt, DataBinder.Eval(e.Row.DataItem, "UnitCost").ToString());
-
-                }
-
-                if (e.Row.FindControl("ddl_Debit") != null)
-                {
-                    var ddl_Debit = e.Row.FindControl("ddl_Debit") as ASPxComboBox;
-                    ddl_Debit.Value = DataBinder.Eval(e.Row.DataItem, "DebitAcc");
-                }
-
-                if (e.Row.FindControl("ddl_Credit") != null)
-                {
-                    var ddl_Credit = e.Row.FindControl("ddl_Credit") as ASPxComboBox;
-                    ddl_Credit.Value = DataBinder.Eval(e.Row.DataItem, "CreditAcc");
-                }
-
-                if (e.Row.FindControl("txt_Comment") != null)
-                {
-                    var txt_Comment = e.Row.FindControl("txt_Comment") as TextBox;
-                    txt_Comment.Text = DataBinder.Eval(e.Row.DataItem, "Comment").ToString();
-                }
-
-                // Grid Line.
-                if (e.Row.FindControl("lbl_LocationCode") != null)
-                {
-                    var lbl_LocationCode = e.Row.FindControl("lbl_LocationCode") as Label;
-                    lbl_LocationCode.Text = DataBinder.Eval(e.Row.DataItem, "StoreId").ToString();
-                    lbl_LocationCode.ToolTip = lbl_LocationCode.Text;
-                }
-
-                if (e.Row.FindControl("lbl_LocationName") != null)
-                {
-                    var lbl_LocationName = e.Row.FindControl("lbl_LocationName") as Label;
-                    lbl_LocationName.Text = DataBinder.Eval(e.Row.DataItem, "StoreId") + " : " +
-                                            strLct.GetName(DataBinder.Eval(e.Row.DataItem, "StoreId").ToString(),
-                                                hf_ConnStr.Value);
-                    lbl_LocationName.ToolTip = lbl_LocationName.Text;
-                }
-
-                if (e.Row.FindControl("lbl_StoreName") != null)
-                {
-                    var lbl_StoreName = e.Row.FindControl("lbl_StoreName") as Label;
-                    lbl_StoreName.Text = DataBinder.Eval(e.Row.DataItem, "StoreId") + " : " +
-                                         strLct.GetName(DataBinder.Eval(e.Row.DataItem, "StoreId").ToString(),
-                                             hf_ConnStr.Value);
-                    lbl_StoreName.ToolTip = lbl_StoreName.Text;
-                }
-
-                if (e.Row.FindControl("lbl_ProductCode") != null)
-                {
-                    var lbl_ProductCode = e.Row.FindControl("lbl_ProductCode") as Label;
-                    lbl_ProductCode.Text = DataBinder.Eval(e.Row.DataItem, "SKU").ToString();
-                    lbl_ProductCode.ToolTip = lbl_ProductCode.Text;
-                }
-
-                if (e.Row.FindControl("lbl_Item_Desc") != null)
-                {
-                    var lbl_Item_Desc = e.Row.FindControl("lbl_Item_Desc") as Label;
-                    lbl_Item_Desc.Text = DataBinder.Eval(e.Row.DataItem, "SKU") + " : " +
-                                         product.GetName(DataBinder.Eval(e.Row.DataItem, "SKU").ToString(),
-                                             hf_ConnStr.Value) + " : " +
-                                         product.GetName2(DataBinder.Eval(e.Row.DataItem, "SKU").ToString(),
-                                             hf_ConnStr.Value);
-                    lbl_Item_Desc.ToolTip = lbl_Item_Desc.Text;
-                }
-
-                if (e.Row.FindControl("lbl_EnglishName") != null)
-                {
-                    var lbl_EnglishName = e.Row.FindControl("lbl_EnglishName") as Label;
-                    lbl_EnglishName.Text = product.GetName(DataBinder.Eval(e.Row.DataItem, "SKU").ToString(),
-                        hf_ConnStr.Value);
-                    lbl_EnglishName.ToolTip = lbl_EnglishName.Text;
-                }
-
-                if (e.Row.FindControl("lbl_LocalName") != null)
-                {
-                    var lbl_LocalName = e.Row.FindControl("lbl_LocalName") as Label;
-                    lbl_LocalName.Text = product.GetName2(DataBinder.Eval(e.Row.DataItem, "SKU").ToString(),
-                        hf_ConnStr.Value);
-                    lbl_LocalName.ToolTip = lbl_LocalName.Text;
+                    SetProducts(ddl_Product, locationCode, productCode);
                 }
 
                 if (e.Row.FindControl("lbl_Unit") != null)
                 {
                     var lbl_Unit = e.Row.FindControl("lbl_Unit") as Label;
+
                     lbl_Unit.Text = DataBinder.Eval(e.Row.DataItem, "Unit").ToString();
-                    lbl_Unit.ToolTip = lbl_Status.Text;
+                    lbl_Unit.ToolTip = lbl_Unit.Text;
                 }
 
-                if (e.Row.FindControl("lbl_Qty") != null)
+                if (e.Row.FindControl("num_Qty") != null)
                 {
-                    var lbl_Qty = e.Row.FindControl("lbl_Qty") as Label;
-                    lbl_Qty.Text = String.Format(DefaultQtyFmt, DataBinder.Eval(e.Row.DataItem, "Qty"));
-                    Total += decimal.Parse((lbl_Qty.Text == string.Empty ? "0" : lbl_Qty.Text));
-                    lbl_Qty.ToolTip = Total.ToString();
+                    var num = e.Row.FindControl("num_Qty") as ASPxSpinEdit;
+                    num.DecimalPlaces = DefaultQtyDigit;
+
+                    num.Text = DataBinder.Eval(e.Row.DataItem, "Qty").ToString();
                 }
 
-                if (e.Row.FindControl("lbl_UnitCost") != null)
+
+                if (e.Row.FindControl("num_Cost") != null)
                 {
-                    var lbl_UnitCost = e.Row.FindControl("lbl_UnitCost") as Label;
-                    lbl_UnitCost.Text = String.Format(DefaultAmtFmt, DataBinder.Eval(e.Row.DataItem, "UnitCost"));
-                    lbl_UnitCost.ToolTip = lbl_UnitCost.Text;
+                    var num = e.Row.FindControl("num_Cost") as ASPxSpinEdit;
+
+                    num.DecimalPlaces = DefaultAmtDigit;
+                    num.Text = DataBinder.Eval(e.Row.DataItem, "UnitCost").ToString();
                 }
 
-                // ****************** Display Transaction Detail ******************
-                if (e.Row.FindControl("lbl_SKU_Ex") != null)
+                if (e.Row.FindControl("txt_Comment") != null)
                 {
-                    var lbl_SKU_Ex = e.Row.FindControl("lbl_SKU_Ex") as Label;
-                    lbl_SKU_Ex.Text = DataBinder.Eval(e.Row.DataItem, "SKU").ToString();
-                    lbl_SKU_Ex.ToolTip = lbl_SKU_Ex.Text;
+                    var text = e.Row.FindControl("txt_Comment") as TextBox;
+
+                    text.Text = DataBinder.Eval(e.Row.DataItem, "Comment").ToString();
+                    text.ToolTip = text.Text;
                 }
 
-                if (e.Row.FindControl("lbl_ItemGroup_Ex") != null)
-                {
-                    var lbl_ItemGroup_Ex = e.Row.FindControl("lbl_ItemGroup_Ex") as Label;
-                    lbl_ItemGroup_Ex.Text =
-                        prodCat.GetName(
-                            prod.GetProductCategory(DataBinder.Eval(e.Row.DataItem, "SKU").ToString(), hf_ConnStr.Value),
-                            hf_ConnStr.Value);
-                    lbl_ItemGroup_Ex.ToolTip = lbl_ItemGroup_Ex.Text;
-                }
 
-                if (e.Row.FindControl("lbl_SubCategory_Ex") != null)
-                {
-                    var lbl_SubCategory_Ex = e.Row.FindControl("lbl_SubCategory_Ex") as Label;
-                    lbl_SubCategory_Ex.Text =
-                        prodCat.GetName(
-                            prod.GetParentNoByCategoryCode(
-                                prod.GetProductCategory(DataBinder.Eval(e.Row.DataItem, "SKU").ToString(),
-                                    hf_ConnStr.Value), hf_ConnStr.Value), hf_ConnStr.Value);
-                    lbl_SubCategory_Ex.ToolTip = lbl_SubCategory_Ex.Text;
-                }
+                // Expand Information --
+                SetExpandInformation(
+                    e.Row.FindControl("txt_Comment"),
+                    DataBinder.Eval(e.Row.DataItem, "StoreId").ToString(),
+                    DataBinder.Eval(e.Row.DataItem, "SKU").ToString(),
+                    de_DocDate.Date);
 
-                if (e.Row.FindControl("lbl_Category_Ex") != null)
-                {
-                    var lbl_Category_Ex = e.Row.FindControl("lbl_Category_Ex") as Label;
-                    lbl_Category_Ex.Text =
-                        prodCat.GetName(
-                            prod.GetParentNoByCategoryCode(
-                                prod.GetParentNoByCategoryCode(
-                                    prod.GetProductCategory(DataBinder.Eval(e.Row.DataItem, "SKU").ToString(),
-                                        hf_ConnStr.Value), hf_ConnStr.Value), hf_ConnStr.Value), hf_ConnStr.Value);
-                    lbl_Category_Ex.ToolTip = lbl_Category_Ex.Text;
-                }
+            }
+        }
 
-                //****************** Display Stock Summary **************
-                var dsPrDtStockSum = new DataSet();
+        protected void gv_Detail_RowCommand(object sender, GridViewCommandEventArgs e)
+        {
+            var rowId = e.CommandArgument.ToString();
+            var commandName = e.CommandName.ToUpper();
 
-                var getPrDtStockSum = prDt.GetStockSummary(dsPrDtStockSum,
-                    DataBinder.Eval(e.Row.DataItem, "SKU").ToString()
-                    , DataBinder.Eval(e.Row.DataItem, "StoreId").ToString(), txt_Date.Text, hf_ConnStr.Value);
+            switch (commandName)
+            {
+                case "CREATE":
+                    CreateItem();
 
-                if (getPrDtStockSum)
-                {
-                    if (dsPrDtStockSum.Tables[prDt.TableName].Rows.Count > 0)
+                    break;
+
+                case "SAVE":
+                case "SAVENEW":
+                    var gv = sender as GridView;
+                    var row = gv.Rows[gv.EditIndex];
+                    var error = SaveItem(row);
+
+                    if (!string.IsNullOrEmpty(error))
                     {
-                        var drStockSummary = dsPrDtStockSum.Tables[prDt.TableName].Rows[0];
-
-                        var lbl_OnHand = e.Row.FindControl("lbl_OnHand") as Label;
-                        lbl_OnHand.Text = string.Format(DefaultQtyFmt, drStockSummary["OnHand"].ToString());
-                        lbl_OnHand.ToolTip = lbl_OnHand.Text;
-
-                        var lbl_OnOrder = e.Row.FindControl("lbl_OnOrder") as Label;
-                        lbl_OnOrder.Text = string.Format(DefaultQtyFmt, drStockSummary["OnOrder"].ToString());
-                        lbl_OnOrder.ToolTip = lbl_OnHand.Text;
-
-                        var lbl_ReOrder = e.Row.FindControl("lbl_ReOrder") as Label;
-                        lbl_ReOrder.Text = string.Format(DefaultQtyFmt, drStockSummary["Reorder"].ToString());
-                        lbl_ReOrder.ToolTip = lbl_OnHand.Text;
-
-                        var lbl_Restock = e.Row.FindControl("lbl_Restock") as Label;
-                        lbl_Restock.Text = string.Format(DefaultQtyFmt, drStockSummary["Restock"].ToString());
-                        lbl_Restock.ToolTip = lbl_Restock.Text;
-
-                        var lbl_LastPrice = e.Row.FindControl("lbl_LastPrice") as Label;
-                        lbl_LastPrice.Text = string.Format(DefaultAmtFmt, drStockSummary["LastPrice"].ToString());
-                        lbl_LastPrice.ToolTip = lbl_LastPrice.Text;
-
-                        var lbl_LastVendor = e.Row.FindControl("lbl_LastVendor") as Label;
-                        lbl_LastVendor.Text = drStockSummary["LastVendor"].ToString();
-                        lbl_LastVendor.ToolTip = lbl_LastVendor.Text;
+                        ShowAlert(error);
+                        return;
                     }
-                }
 
-                //****************** Display Stock Movement *****************
-                if (e.Row.FindControl("StockMovement") != null)
-                {
-                    var uc_StockMovement = e.Row.FindControl("StockMovement") as PL.PC.StockMovement;
-                    uc_StockMovement.HdrNo = DataBinder.Eval(e.Row.DataItem, "Id").ToString();
-                    uc_StockMovement.DtNo = DataBinder.Eval(e.Row.DataItem, "RefId").ToString();
-                    uc_StockMovement.ConnStr = hf_ConnStr.Value;
-                    uc_StockMovement.DataBind();
-                }
+                    gv_Detail.EditIndex = -1;
+                    BindItems();
+
+                    if (commandName == "SAVENEW")
+                        CreateItem();
+
+                    break;
+
+                case "DEL":
+                    //DeleteItem(rowId);
+                    //BindItems();
+                    var items = new string[] { rowId };
+                    
+                    hf_DeleteItems.Value = JsonConvert.SerializeObject(items);
+
+                    ShowConfirmDelete("Do you want to delete this item?");
+
+                    break;
             }
-
-            //if (e.Row.RowType == DataControlRowType.Footer)
-            //{
-            //    if (e.Row.FindControl("lbl_TotalQty") != null)
-            //    {
-            //        Label lbl_TotalQty = e.Row.FindControl("lbl_TotalQty") as Label;
-            //        lbl_TotalQty.Text = String.Format("{0:N}", Total);
-            //        lbl_TotalQty.ToolTip = lbl_TotalQty.Text;
-            //    }
-            //}
         }
 
-        protected void grd_StkInEdit_RowEditing(object sender, GridViewEditEventArgs e)
+        protected void gv_Detail_RowEditing(object sender, GridViewEditEventArgs e)
         {
-            //// Disable Save & Commit Button On Header.
-            //menu_CmdBar.Items[0].Enabled = false; //Save.
-            //menu_CmdBar.Items[1].Enabled = false; //Commit.
+            var gv = sender as GridView;
 
-            //// Disable Create & Delete when click create button on detail grid.
-            //menu_CmdGrd.Enabled = false;
-
-            grd_StkInEdit.DataSource = dsStkInEdit.Tables[stkInDt.TableName];
-            grd_StkInEdit.EditIndex = e.NewEditIndex;
-            grd_StkInEdit.DataBind();
-
-            StkInEditMode = "EDIT";
+            gv.EditIndex = e.NewEditIndex;
+            BindItems();
         }
 
-        protected void grd_StkInEdit_RowUpdating(object sender, GridViewUpdateEventArgs e)
+        protected void gv_Detail_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e)
         {
-            var ddl_Store = grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].FindControl("ddl_Store") as ASPxComboBox;
-            var ddl_Product = grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].FindControl("ddl_Product") as ASPxComboBox;
-            var ddl_Debit = grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].FindControl("ddl_Debit") as ASPxComboBox;
-            var ddl_Credit = grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].FindControl("ddl_Credit") as ASPxComboBox;
-            var txt_Qty = grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].FindControl("txt_Qty") as ASPxSpinEdit;
-            var txt_UnitCost = grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].FindControl("txt_UnitCost") as ASPxSpinEdit;
-            var txt_Comment = grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].FindControl("txt_Comment") as TextBox;
-            //Label lbl_Unit = grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].FindControl("lbl_Unit") as Label;
-            var ddl_Unit = grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].FindControl("ddl_Unit") as ASPxComboBox;
-            var hf_Cost = grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].FindControl("hf_Cost") as HiddenField;
+            var gv = sender as GridView;
+            var row = gv.Rows[gv.EditIndex];
 
-            //Check field cannot empty
-            if (ddl_Store != null)
+            var ddl_Product = row.FindControl("ddl_Product") as ASPxComboBox;
+            var hf_RowId = row.FindControl("hf_RowId") as HiddenField;
+
+            if (ddl_Product.Value == null)
             {
-                if (ddl_Store.Value == null)
-                {
-                    lbl_Warning.Text = "'Store' is required.";
-                    pop_Warning.ShowOnPageLoad = true;
-                    return;
-                }
+                var rowId = hf_RowId.Value;
+                var dr = _dtStockInDt.AsEnumerable().FirstOrDefault(x => x.Field<Guid>("RowId").ToString() == rowId);
+
+                dr.Delete();
+
+                _dtStockInDt.AcceptChanges();
+
             }
 
-            if (ddl_Product != null)
-            {
-                if (ddl_Product.Value == null)
-                {
-                    lbl_Warning.Text = "'SKU #' is requied.";
-                    pop_Warning.ShowOnPageLoad = true;
-                    return;
-                }
-            }
 
-            if (txt_Qty != null)
-            {
-                if (txt_Qty.Text == string.Empty)
-                {
-                    lbl_Warning.Text = "'Qty' is required.";
-                    pop_Warning.ShowOnPageLoad = true;
-                    return;
-                }
-            }
 
-            if (txt_UnitCost != null)
-            {
-                if (txt_UnitCost.Text == string.Empty)
-                {
-                    lbl_Warning.Text = "'Unit Cost' is required.";
-                    pop_Warning.ShowOnPageLoad = true;
-                    return;
-                }
-            }
 
-            var drUpdating =
-                dsStkInEdit.Tables[stkInDt.TableName].Rows[grd_StkInEdit.Rows[grd_StkInEdit.EditIndex].DataItemIndex];
-            drUpdating["StoreId"] = ddl_Store.Value.ToString().Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
-            drUpdating["SKU"] = ddl_Product.Value.ToString().Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
-            drUpdating["Qty"] = RoundQty(decimal.Parse(txt_Qty.Text));
-            drUpdating["Unit"] = ddl_Unit.Value;
-            drUpdating["UnitCost"] = RoundAmt(decimal.Parse(txt_UnitCost.Text));
-            drUpdating["Comment"] = txt_Comment.Text == string.Empty ? null : txt_Comment.Text;
-
-            txt_Date.Enabled = true;
-
-            grd_StkInEdit.DataSource = dsStkInEdit.Tables[stkInDt.TableName];
-            grd_StkInEdit.EditIndex = -1;
-            grd_StkInEdit.DataBind();
-
-            StkInEditMode = string.Empty;
-        }
-
-        protected void grd_StkInEdit_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e)
-        {
-            if (Request.Params["MODE"].ToUpper() == "NEW")
-            {
-                if (StkInEditMode.ToUpper() == "NEW")
-                {
-                    dsStkInEdit.Tables[stkInDt.TableName].Rows[dsStkInEdit.Tables[stkInDt.TableName].Rows.Count - 1]
-                        .Delete();
-                }
-
-                if (StkInEditMode.ToUpper() == "EDIT")
-                {
-                    dsStkInEdit.Tables[stkInDt.TableName].Rows[dsStkInEdit.Tables[stkInDt.TableName].Rows.Count - 1]
-                        .CancelEdit();
-                }
-            }
-
-            if (Request.Params["MODE"].ToUpper() == "EDIT")
-            {
-                if (StkInEditMode.ToUpper() == "NEW")
-                {
-                    dsStkInEdit.Tables[stkInDt.TableName].Rows[dsStkInEdit.Tables[stkInDt.TableName].Rows.Count - 1]
-                        .Delete();
-                }
-
-                if (StkInEditMode.ToUpper() == "EDIT")
-                {
-                    dsStkInEdit.Tables[stkInDt.TableName].Rows[dsStkInEdit.Tables[stkInDt.TableName].Rows.Count - 1]
-                        .CancelEdit();
-                }
-            }
-
-            //// Enable Save & Commit Button On Header.
-            //menu_CmdBar.Items[0].Enabled = true; //Save.
-            //menu_CmdBar.Items[1].Enabled = true; //Commit.
-
-            //// Enable Create & Delete when click create button on detail grid.
-            //menu_CmdGrd.Enabled = true;
-
-            txt_Date.Enabled = true;
-
-            grd_StkInEdit.DataSource = dsStkInEdit.Tables[stkInDt.TableName];
-            grd_StkInEdit.EditIndex = -1;
-            grd_StkInEdit.DataBind();
-
-            StkInEditMode = string.Empty;
+            gv.EditIndex = -1;
+            BindItems();
         }
 
         #endregion
+
+        // Method(s)
+        protected string FormatQty(object value)
+        {
+            var number = string.IsNullOrEmpty(value.ToString()) ? 0m : Convert.ToDecimal(value);
+
+            return number.ToString(string.Format("N{0}", DefaultQtyDigit));
+        }
+
+        protected string FormatAmt(object value)
+        {
+            var number = string.IsNullOrEmpty(value.ToString()) ? 0m : Convert.ToDecimal(value);
+
+            return number.ToString(string.Format("N{0}", DefaultAmtDigit));
+        }
+
+        private string GetDropdownValue(ASPxComboBox ddl)
+        {
+            return ddl.Value == null ? "" : ddl.Value.ToString();
+        }
+
+        private DataTable GetAdjustType()
+        {
+            var sql = @"
+SELECT
+	AdjId as [Value],
+	AdjName as [Text]
+FROM
+	[IN].AdjType
+WHERE
+	AdjType = 'Stock In'
+	AND IsActived=1
+ORDER BY
+	[AdjName]";
+
+            return bu.DbExecuteQuery(sql, null, hf_ConnStr.Value);
+        }
+
+        private void SetProducts(ASPxComboBox ddl_Product, string locationCode, string value)
+        {
+            value = string.IsNullOrEmpty(value) ? "" : value;
+            var sql = @"
+SELECT
+	p.ProductCode as [Value],
+	CONCAT(p.ProductCode, ' : ',p.ProductDesc1, ' | ', ISNULL(p.ProductDesc2,'')) as [Text]
+    
+FROM
+	[IN].ProdLoc pl
+	JOIN [IN].Product p
+		ON p.ProductCode=pl.ProductCode
+WHERE
+	pl.LocationCode=@LocationCode
+	AND p.IsActive=1
+ORDER BY
+	p.ProductCode";
+            var dt = bu.DbExecuteQuery(sql, new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@LocationCode", locationCode) }, hf_ConnStr.Value);
+            var isFound = false;
+
+            ddl_Product.Items.Clear();
+            if (dt.Rows.Count > 0)
+            {
+
+                foreach (DataRow dr in dt.Rows)
+                {
+                    if (dr["Value"].ToString() == value)
+                    {
+                        isFound = true;
+                    }
+
+                    ddl_Product.Items.Add(new DevExpress.Web.ASPxEditors.ListEditItem
+                    {
+                        Text = dr["Text"].ToString(),
+                        Value = dr["Value"].ToString()
+                    });
+                }
+
+
+                ddl_Product.Value = isFound ? value : null;
+            }
+
+        }
+
+        private void SetExpandInformation(Control item, string locationCode, string productCode, DateTime toDate)
+        {
+            var row = item.NamingContainer;
+
+            var ds = new DataSet();
+            var isExist = prDt.GetStockSummary(ds, productCode, locationCode, toDate.ToString("yyyy-MM-dd"), hf_ConnStr.Value);
+
+            var onhand = 0m;
+            var onorder = 0m;
+            var reorder = 0m;
+            var restock = 0m;
+            var lastPrice = 0m;
+            var lastVendor = "";
+
+            if (isExist)
+            {
+                var dr = ds.Tables[prDt.TableName].Rows[0];
+
+                onhand = Convert.ToDecimal(dr["OnHand"]);
+                onorder = Convert.ToDecimal(dr["OnOrder"]);
+                reorder = Convert.ToDecimal(dr["Reorder"]);
+                restock = Convert.ToDecimal(dr["Restock"]);
+                lastPrice = Convert.ToDecimal(dr["LastPrice"]);
+                lastVendor = dr["LastVendor"].ToString();
+            }
+
+            if (row.FindControl("lbl_OnHand") != null)
+            {
+                var lbl = row.FindControl("lbl_OnHand") as Label;
+
+                lbl.Text = FormatQty(onhand);
+                lbl.ToolTip = lbl.Text;
+            }
+            if (row.FindControl("lbl_OnOrder") != null)
+            {
+                var lbl = row.FindControl("lbl_OnOrder") as Label;
+
+                lbl.Text = FormatQty(onorder);
+                lbl.ToolTip = lbl.Text;
+            }
+            if (row.FindControl("lbl_ReOrder") != null)
+            {
+                var lbl = row.FindControl("lbl_ReOrder") as Label;
+
+                lbl.Text = FormatQty(reorder);
+                lbl.ToolTip = lbl.Text;
+            }
+            if (row.FindControl("lbl_ReStock") != null)
+            {
+                var lbl = row.FindControl("lbl_ReStock") as Label;
+
+                lbl.Text = FormatQty(restock);
+                lbl.ToolTip = lbl.Text;
+            }
+            if (row.FindControl("lbl_LastPrice") != null)
+            {
+                var lbl = row.FindControl("lbl_LastPrice") as Label;
+
+                lbl.Text = FormatAmt(lastPrice);
+                lbl.ToolTip = lbl.Text;
+            }
+            if (row.FindControl("lbl_LastVendor") != null)
+            {
+                var lbl = row.FindControl("lbl_LastVendor") as Label;
+
+                lbl.Text = lastVendor;
+                lbl.ToolTip = lbl.Text;
+            }
+
+        }
+
+        private DataRow GetProduct(string productCode)
+        {
+            var dt = bu.DbExecuteQuery(
+                "SELECT * FROM [IN].Product WHERE ProductCode=@ProductCode",
+                new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@ProductCode", productCode) },
+                hf_ConnStr.Value);
+
+            return dt.Rows.Count > 0 ? dt.Rows[0] : null;
+        }
+
+        private string GetInventoryUnit(string productCode)
+        {
+            var dt = bu.DbExecuteQuery(
+                "SELECT InventoryUnit FROM [IN].Product WHERE ProductCode=@ProductCode",
+                new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@ProductCode", productCode) },
+                hf_ConnStr.Value);
+
+            return dt.Rows.Count > 0 ? dt.Rows[0][0].ToString() : "";
+        }
+
+        private string GetLocationName(string locationCode)
+        {
+            var dt = bu.DbExecuteQuery(
+                "SELECT LocationName FROM [IN].StoreLocation WHERE LocationCode=@LocationCode",
+                new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@LocationCode", locationCode) },
+                hf_ConnStr.Value);
+
+            return dt.Rows.Count > 0 ? dt.Rows[0][0].ToString() : "";
+        }
+
+        private void ShowAlert(string text)
+        {
+            lbl_Warning.Text = text.Trim();
+            pop_Warning.ShowOnPageLoad = true;
+        }
+
+        private void ShowConfirmDelete(string text)
+        {
+            lbl_ConfirmDelete.Text = text.Trim();
+            pop_ConfirmDelete.ShowOnPageLoad = true;
+        }
+
+        #region --Detail--
+
+        private void BindItems()
+        {
+            gv_Detail.DataSource = _dtStockInDt;
+            gv_Detail.DataBind();
+        }
+
+        private void CreateItem()
+        {
+            var rowCount = _dtStockInDt.Rows.Count;
+            var locationCode = _dtStockInDt.Rows.Count == 0 ? "" : _dtStockInDt.Rows[rowCount - 1]["StoreId"].ToString(); ;
+
+
+            var dr = _dtStockInDt.NewRow();
+            dr["RowId"] = Guid.NewGuid();
+            dr["Id"] = lbl_RefId.Text.Trim();
+            dr["StoreId"] = locationCode;
+            dr["Qty"] = 0;
+            dr["UnitCost"] = 0;
+
+
+            _dtStockInDt.Rows.Add(dr);
+
+            gv_Detail.EditIndex = rowCount;
+            BindItems();
+
+        }
+
+        private string SaveItem(GridViewRow row)
+        {
+            var hf_RowId = row.FindControl("hf_RowId") as HiddenField;
+            var ddl_Location = row.FindControl("ddl_Location") as ASPxComboBox;
+            var ddl_Product = row.FindControl("ddl_Product") as ASPxComboBox;
+            var lbl_Unit = row.FindControl("lbl_Unit") as Label;
+            var num_Qty = row.FindControl("num_Qty") as ASPxSpinEdit;
+            var num_Cost = row.FindControl("num_Cost") as ASPxSpinEdit;
+            var txt_Comment = row.FindControl("txt_Comment") as TextBox;
+
+            #region -- Check required values --
+
+            if (ddl_Location.Value == null)
+            {
+                return "Location is required.";
+            }
+
+            if (ddl_Product.Value == null)
+            {
+                return "Product is required.";
+            }
+
+            if (string.IsNullOrEmpty(num_Qty.Text) || num_Qty.Number == 0m)
+            {
+                return "Quantity is required.";
+            }
+
+            //if (string.IsNullOrEmpty(num_Cost.Text) || num_Cost.Number == 0m)
+            //{
+            //    ShowAlert("Quantity is required.");
+            //    return;
+            //}
+            #endregion
+
+            var rowId = hf_RowId.Value;
+            var dr = _dtStockInDt.AsEnumerable().FirstOrDefault(x => x.Field<Guid>("RowId").ToString() == rowId);
+
+            if (dr != null)
+            {
+                dr["StoreId"] = ddl_Location.Value.ToString();
+                dr["SKU"] = ddl_Product.Value.ToString();
+                dr["Unit"] = lbl_Unit.Text;
+                dr["Qty"] = num_Qty.Number;
+                dr["UnitCost"] = num_Cost.Number;
+                dr["Comment"] = txt_Comment.Text.Trim();
+            }
+
+
+            return "";
+        }
+
+        private void DeleteItem(string rowId)
+        {
+
+            foreach (DataRow dr in _dtStockInDt.Rows)
+            {
+                if (dr["RowId"].ToString() == rowId)
+                {
+                    dr.Delete();
+                    _dtStockInDt.AcceptChanges();
+
+                    break;
+                }
+            }
+
+        }
+
+        private void DeleteItems(IEnumerable<string> listRowId)
+        {
+            var items = listRowId.ToArray();
+
+            foreach (DataRow dr in _dtStockInDt.Rows)
+            {
+                var rowId = dr["RowId"].ToString();
+
+                if (items.Contains(rowId))
+                {
+                    dr.Delete();
+                }
+            }
+
+            _dtStockInDt.AcceptChanges();
+
+            BindItems();
+        }
+
+        #endregion
+
     }
 }
