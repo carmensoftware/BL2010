@@ -8,6 +8,8 @@ using DevExpress.Web.ASPxTabControl;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+using System.Data.SqlClient;
+using System.Text;
 
 namespace BlueLedger.PL.IN.STK
 {
@@ -22,26 +24,12 @@ namespace BlueLedger.PL.IN.STK
         private readonly Blue.BL.PC.Priod period = new Blue.BL.PC.Priod();
 
         private readonly Blue.BL.PC.PR.PRDt prDt = new Blue.BL.PC.PR.PRDt();
-
-
-        //private readonly Blue.BL.Option.Inventory.Product prod = new Blue.BL.Option.Inventory.Product();
-        //private readonly Blue.BL.Option.Inventory.ProdCat prodCat = new Blue.BL.Option.Inventory.ProdCat();
-        //private readonly Blue.BL.Option.Inventory.Product product = new Blue.BL.Option.Inventory.Product();
-        //private readonly Blue.BL.Option.Inventory.StoreLct strLct = new Blue.BL.Option.Inventory.StoreLct();
-
-        //private readonly Blue.BL.IN.AdjType adjType = new Blue.BL.IN.AdjType();
-        //private readonly Blue.BL.IN.ProdUnit prodUnit = new Blue.BL.IN.ProdUnit();
-        //private readonly Blue.BL.IN.StockIn stkIn = new Blue.BL.IN.StockIn();
-        //private readonly Blue.BL.IN.StockInDt stkInDt = new Blue.BL.IN.StockInDt();
-        //private readonly Blue.BL.IN.Inventory inv = new Blue.BL.IN.Inventory();
-
-
-        //private readonly Blue.BL.PC.PR.PRDt prDt = new Blue.BL.PC.PR.PRDt();
+        private readonly Blue.BL.IN.StockIn stkIn = new Blue.BL.IN.StockIn();
 
 
         private string _MODE { get { return Request.QueryString["MODE"] == null ? "" : Request.QueryString["MODE"].ToString().ToUpper(); } }
 
-        private string _ID { get { return Request.QueryString["ID"] == null ? "" : Request.QueryString["ID"].ToString(); } }
+        private string _ID { get { return Request.QueryString["ID"] == null ? "" : Request.QueryString["ID"].ToString().Trim(); } }
 
         private DataTable _dtStockIn
         {
@@ -56,6 +44,8 @@ namespace BlueLedger.PL.IN.STK
         }
 
 
+
+
         #endregion
 
 
@@ -64,6 +54,7 @@ namespace BlueLedger.PL.IN.STK
         {
             //hf_ConnStr.Value = bu.GetConnectionString(Request.Params["BuCode"]);
             hf_ConnStr.Value = LoginInfo.ConnStr;
+
         }
 
         protected override void Page_Load(object sender, EventArgs e)
@@ -76,25 +67,8 @@ namespace BlueLedger.PL.IN.STK
 
         private void Page_Retrieve()
         {
-            var sql = @"SELECT
-    NEWID() as RowId,
-	d.*,
-	l.LocationName,
-	p.ProductDesc1,
-	p.ProductDesc2
-    
-FROM 
-	[IN].StockInDt d
-	LEFT JOIN [IN].StoreLocation l
-		ON l.LocationCode=d.StoreId
-	LEFT JOIN [IN].Product p
-		ON p.ProductCode=d.SKU
-WHERE 
-	d.Id=@id";
-
             _dtStockIn = bu.DbExecuteQuery("SELECT * FROM [IN].StockIn WHERE RefId=@id", new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@id", _ID) }, hf_ConnStr.Value);
-            _dtStockInDt = bu.DbExecuteQuery(sql, new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@id", _ID) }, hf_ConnStr.Value);
-
+            _dtStockInDt = bu.DbExecuteQuery("SELECT NEWID() as RowId, * FROM [IN].StockInDt WHERE Id=@id", new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@id", _ID) }, hf_ConnStr.Value);
 
             Page_Setting();
         }
@@ -109,13 +83,14 @@ WHERE
             {
                 DataRow drStockIn = _dtStockIn.Rows[0];
 
+                var dateField = string.IsNullOrEmpty(drStockIn["CommitDate"].ToString()) ? "CreateDate" : "CommitDate";
+                de_DocDate.Date = Convert.ToDateTime(drStockIn[dateField]);
                 ddl_Type.Value = drStockIn["Type"].ToString();
                 lbl_Status.Text = drStockIn["Status"].ToString();
                 txt_Desc.Text = drStockIn["Description"].ToString();
             }
 
             BindItems();
-
 
 
             // Edit
@@ -131,10 +106,10 @@ WHERE
             switch (e.Item.Name.ToUpper())
             {
                 case "SAVE":
-
+                    SaveAndCommit(false);
                     break;
                 case "COMMIT":
-
+                    SaveAndCommit(true);
                     break;
                 case "BACK":
                     if (Request.Params["MODE"].ToUpper() == "EDIT")
@@ -173,6 +148,12 @@ WHERE
                     CreateItem();
                     break;
                 case "DELETE":
+                    if (HasPendingItem())
+                    {
+                        return;
+                    }
+
+
                     var items = new List<string>();
                     var gv = gv_Detail;
                     foreach (GridViewRow row in gv.Rows)
@@ -276,9 +257,12 @@ ORDER BY
             var values = string.IsNullOrEmpty(hf_DeleteItems.Value) ? "[]" : hf_DeleteItems.Value;
             var items = JsonConvert.DeserializeObject<IEnumerable<string>>(values);
 
-            DeleteItems(items);
-
+            if (items.Count() > 0)
+            {
+                DeleteItems(items);
+            }
             pop_ConfirmDelete.ShowOnPageLoad = false;
+
         }
 
         // GrdiView
@@ -287,6 +271,14 @@ ORDER BY
         {
             if (e.Row.RowType == DataControlRowType.DataRow)
             {
+
+                //if (e.Row.FindControl("btn_Expand") != null)
+                //{
+                //    var item = e.Row.FindControl("btn_Expand") as ImageButton;
+
+                //    item.Attributes.Add("data-id", DataBinder.Eval(e.Row.DataItem, "RowId").ToString());
+                //}
+
                 if (e.Row.FindControl("hf_RowId") != null)
                 {
                     var item = e.Row.FindControl("hf_RowId") as HiddenField;
@@ -416,14 +408,17 @@ ORDER BY
                     break;
 
                 case "DEL":
-                    //DeleteItem(rowId);
-                    //BindItems();
                     var items = new string[] { rowId };
-                    
+
+                    var dr = _dtStockInDt.AsEnumerable().FirstOrDefault(x => x.Field<Guid>("RowId").ToString() == rowId);
+
+                    var locationCode = dr == null ? "" : dr["StoreId"].ToString();
+                    var productCode = dr == null ? "" : dr["SKU"].ToString();
+
+
                     hf_DeleteItems.Value = JsonConvert.SerializeObject(items);
 
-                    ShowConfirmDelete("Do you want to delete this item?");
-
+                    ShowConfirmDelete(string.Format("Location: {0}<br />Product: {1}<br />Do you want to delete this item?", locationCode, productCode));
                     break;
             }
         }
@@ -668,23 +663,27 @@ ORDER BY
 
         private void CreateItem()
         {
+            if (HasPendingItem())
+            {
+                return;
+            }
+
             var rowCount = _dtStockInDt.Rows.Count;
             var locationCode = _dtStockInDt.Rows.Count == 0 ? "" : _dtStockInDt.Rows[rowCount - 1]["StoreId"].ToString(); ;
-
 
             var dr = _dtStockInDt.NewRow();
             dr["RowId"] = Guid.NewGuid();
             dr["Id"] = lbl_RefId.Text.Trim();
+            dr["RefId"] = 0;
             dr["StoreId"] = locationCode;
             dr["Qty"] = 0;
             dr["UnitCost"] = 0;
 
-
             _dtStockInDt.Rows.Add(dr);
+            //_dtStockInDt.AcceptChanges();
 
             gv_Detail.EditIndex = rowCount;
             BindItems();
-
         }
 
         private string SaveItem(GridViewRow row)
@@ -734,24 +733,9 @@ ORDER BY
                 dr["Comment"] = txt_Comment.Text.Trim();
             }
 
+            _dtStockInDt.AcceptChanges();
 
             return "";
-        }
-
-        private void DeleteItem(string rowId)
-        {
-
-            foreach (DataRow dr in _dtStockInDt.Rows)
-            {
-                if (dr["RowId"].ToString() == rowId)
-                {
-                    dr.Delete();
-                    _dtStockInDt.AcceptChanges();
-
-                    break;
-                }
-            }
-
         }
 
         private void DeleteItems(IEnumerable<string> listRowId)
@@ -773,7 +757,244 @@ ORDER BY
             BindItems();
         }
 
+        private bool HasPendingItem()
+        {
+            foreach (DataRow dr in _dtStockInDt.Rows)
+            {
+                if (dr.RowState == DataRowState.Added)
+                {
+                    ShowAlert("Please save/cancel the pending item.");
+
+                    return true;
+                }
+            }
+
+            return false;
+
+        }
+
         #endregion
+
+
+        private void SaveAndCommit(bool isCommit = false)
+        {
+            var startPeriodDate = period.GetLatestOpenStartDate(hf_ConnStr.Value);
+
+            #region --Data Validation--
+            // Pending save item
+
+            if (HasPendingItem())
+            {
+                return;
+            }
+
+
+            // Header
+            if (de_DocDate.Date < startPeriodDate)
+            {
+                ShowAlert("The date should be during the open period.");
+
+                return;
+            }
+
+            if (ddl_Type.Value == null)
+            {
+                ShowAlert("Please select any type.");
+
+                return;
+            }
+
+            if (txt_Desc.Text.Trim().Length > 255)
+            {
+                ShowAlert("Description is too long (only 255 characters).");
+
+                return;
+
+            }
+
+            // Detail
+
+            if (_dtStockInDt.Rows.Count == 0)
+            {
+                ShowAlert("No any items created.");
+
+                return;
+            }
+
+
+            if (_dtStockInDt.AsEnumerable().FirstOrDefault(x => string.IsNullOrEmpty(x.Field<string>("StoreId"))) != null)
+            {
+                ShowAlert("The store/location is required. Please enter the store/location.");
+
+                return;
+            }
+
+            if (_dtStockInDt.AsEnumerable().FirstOrDefault(x => string.IsNullOrEmpty(x.Field<string>("SKU"))) != null)
+            {
+                ShowAlert("The product item is required. Please enter the product item.");
+
+                return;
+            }
+
+
+            if (_dtStockInDt.AsEnumerable().FirstOrDefault(x => x.Field<decimal>("Qty") <= 0m) != null)
+            {
+                ShowAlert("The quantity is required. Please enter the quantity.");
+
+                return;
+            }
+
+            #endregion
+
+            var queries = new StringBuilder();
+            var parameters = new List<SqlParameter>();
+
+            #region --Header--
+            var refId = _ID;
+
+            var header_query = @"UPDATE [IN].StockIn SET [Type]=@Type, [Description]=@Description, CommitDate = @CommitDate, UpdateDate = @UpdateDate, UpdateBy = @UpdateBy WHERE RefId=@RefId";
+
+            if (string.IsNullOrEmpty(_ID)) // Create 
+            {
+                refId = stkIn.GetNewID(de_DocDate.Date, hf_ConnStr.Value);
+                header_query = @"INSERT INTO [IN].StockIn (RefId, [Type], [Status], [Description], CommitDate, CreateBy, CreateDate, UpdateBy, UpdateDate) VALUES (@RefId, @Type, 'Saved', @Description, @CommitDate, @UpdateBy, @UpdateDate, @UpdateBy, @UpdateDate)";
+            }
+
+            parameters.Add(new SqlParameter("@RefId", refId));
+            parameters.Add(new SqlParameter("@Type", ddl_Type.Value.ToString()));
+            parameters.Add(new SqlParameter("@Description", txt_Desc.Text.Trim()));
+            parameters.Add(new SqlParameter("@CommitDate", de_DocDate.Date));
+
+            parameters.Add(new SqlParameter("@UpdateBy", LoginInfo.LoginName));
+            parameters.Add(new SqlParameter("@UpdateDate", DateTime.Now));
+
+            #endregion
+
+            queries.AppendLine("BEGIN TRAN");
+            queries.AppendLine(header_query);
+            // Delete old items then insert
+            queries.AppendLine("DELETE FROM [IN].StockInDt WHERE Id=@Id");
+            queries.AppendLine("INSERT INTO [IN].StockInDt (Id, StoreId, SKU, Unit, Qty, UnitCost, Comment) VALUES ");
+
+
+            #region --Details--
+
+            var item_queries = new StringBuilder();
+
+            for (int i = 0; i < _dtStockInDt.Rows.Count; i++)
+            {
+                var dr = _dtStockInDt.Rows[i];
+
+                var storeId = dr["StoreId"].ToString();
+                var sku = dr["SKU"].ToString();
+                var unit = dr["Unit"].ToString();
+                var qty = dr["Qty"].ToString();
+                var unitCost = dr["UnitCost"].ToString();
+                var comment = dr["Comment"];
+
+                item_queries.AppendFormat("(@Id, @StoreId{0}, @SKU{0}, @Unit{0}, @Qty{0}, @UnitCost{0}, @Comment{0}),", i);
+
+                parameters.Add(new SqlParameter("@StoreId" + i.ToString(), storeId));
+                parameters.Add(new SqlParameter("@SKU" + i.ToString(), sku));
+                parameters.Add(new SqlParameter("@Unit" + i.ToString(), unit));
+                parameters.Add(new SqlParameter("@Qty" + i.ToString(), qty));
+                parameters.Add(new SqlParameter("@UnitCost" + i.ToString(), unitCost));
+                parameters.Add(new SqlParameter("@Comment" + i.ToString(), comment));
+            }
+
+            parameters.Add(new SqlParameter("@Id", refId));
+
+            #endregion
+
+            queries.AppendLine(item_queries.ToString().Trim().TrimEnd(','));
+            queries.AppendLine("COMMIT TRAN");
+
+
+            var sql = new Helpers.SQL(hf_ConnStr.Value);
+            try
+            {
+                sql.ExecuteQuery(queries.ToString(), parameters.ToArray());
+            }
+            catch // (Exception ex)
+            {
+                //ShowAlert(ex.Message);
+                ShowAlert("Save is unsuccess. Please try to save again.");
+                return;
+            }
+
+
+            var buCode = Request.Params["BuCode"];
+            var vid = Request.Params["VID"];
+            var _action = string.IsNullOrEmpty(_ID) ? "CREATE" : "MODIFY";
+
+            if (isCommit)
+            {
+                queries.Clear();
+                queries.AppendLine("BEGIN TRAN");
+                queries.AppendLine("DELETE FROM [IN].Inventory WHERE [Type]='SI' AND HdrNo=@HdrNo");
+                queries.AppendLine("INSERT INTO [IN].Inventory (HdrNo, DtNo, InvNo, ProductCode, Location, [IN], [OUT], Amount, PriceOnLots, [Type], CommittedDate) VALUES ");
+
+                parameters.Clear();
+
+
+                item_queries.Clear();
+
+                var dt = sql.ExecuteQuery("SELECT * FROM [IN].StockInDt WHERE Id=@Id", new SqlParameter[] { new SqlParameter("@Id", refId)});
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    var dr = dt.Rows[i];
+                    var dtNo = dr["RefId"].ToString();
+                    var location = dr["StoreId"].ToString();
+                    var productCode = dr["SKU"].ToString();
+
+                    var qty = Convert.ToDecimal( dr["Qty"]);
+                    var amount = Convert.ToDecimal(dr["UnitCost"]);
+                    var priceOnLots = RoundAmt(qty * amount);
+
+                    item_queries.AppendFormat("(@HdrNo, @DtNo{0}, 1, @ProductCode{0}, @Location{0}, @IN{0}, 0, @Amount{0}, @PriceOnLots{0}, 'SI', @CommittedDate),", i);
+
+                    parameters.Add(new SqlParameter("@DtNo" + i.ToString(), dtNo));
+                    parameters.Add(new SqlParameter("@ProductCode" + i.ToString(), productCode));
+                    parameters.Add(new SqlParameter("@Location" + i.ToString(), location));
+                    parameters.Add(new SqlParameter("@IN" + i.ToString(), qty));
+                    parameters.Add(new SqlParameter("@Amount" + i.ToString(), amount));
+                    parameters.Add(new SqlParameter("@PriceOnLots" + i.ToString(), priceOnLots));
+                }
+
+                queries.AppendLine(item_queries.ToString().Trim().TrimEnd(','));
+
+                queries.AppendLine("UPDATE [IN].StockIn SET [Status]='Committed', UpdateDate=@CommittedDate, UpdateBy=@UpdateBy WHERE RefId=@HdrNo");
+                queries.AppendLine("EXEC [IN].UpdateAverageCost @HdrNo");
+
+                parameters.Add(new SqlParameter("@HdrNo", refId));
+                parameters.Add(new SqlParameter("@CommittedDate", DateTime.Now));
+                parameters.Add(new SqlParameter("@UpdateBy", LoginInfo.LoginName));
+
+                queries.AppendLine("COMMIT TRAN");
+
+                try
+                {
+                    sql.ExecuteQuery(queries.ToString(), parameters.ToArray());
+                }
+                catch // (Exception ex)
+                {
+                    //ShowAlert(ex.Message);
+                    ShowAlert("Save is unsuccess. Please try to save again.");
+                    return;
+                }
+
+
+                _transLog.Save("IN", "STKIN", refId, "COMMIT", string.Empty, LoginInfo.LoginName, hf_ConnStr.Value);
+            }
+            else
+            {
+                _transLog.Save("IN", "STKIN", refId, _action, string.Empty, LoginInfo.LoginName, hf_ConnStr.Value);
+            }
+
+            Response.Redirect("StkInDt.aspx?BuCode=" + buCode + "&ID=" + refId + "&VID=" + vid);
+        }
+
 
     }
 }

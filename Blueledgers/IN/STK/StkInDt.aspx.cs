@@ -78,18 +78,31 @@ namespace BlueLedger.PL.IN.STK
         {
             var drStkIn = dsStockIn.Tables[stockIn.TableName].Rows[0];
 
-            lbl_Date.Text = DateTime.Parse(drStkIn["CreateDate"].ToString()).ToString("dd/MM/yyyy");
+            //lbl_Date.Text = DateTime.Parse(drStkIn["CreateDate"].ToString()).ToString("dd/MM/yyyy");
+            var dateField = string.IsNullOrEmpty(drStkIn["CommitDate"].ToString()) ? "CreateDate" : "CommitDate";
+            lbl_Date.Text = DateTime.Parse(drStkIn[dateField].ToString()).ToString("dd/MM/yyyy");
             lbl_Date.ToolTip = lbl_Date.Text;
             lbl_Ref.Text = drStkIn["RefId"].ToString();
             lbl_Ref.ToolTip = lbl_Ref.Text;
             lbl_Status.Text = drStkIn["Status"].ToString();
             lbl_Status.ToolTip = lbl_Status.Text;
 
-            if (drStkIn["CommitDate"].ToString() != string.Empty)
+            //if (drStkIn["CommitDate"].ToString() != string.Empty)
+            //{
+            //    lbl_CommitDate.Text = String.Format("{0:dd/MM/yyyy}", drStkIn["CommitDate"]);
+            //    lbl_CommitDate.ToolTip = lbl_CommitDate.Text;
+            //}
+            if (lbl_Status.Text == "Committed")
             {
-                lbl_CommitDate.Text = String.Format("{0:dd/MM/yyyy}", drStkIn["CommitDate"]);
-                lbl_CommitDate.ToolTip = lbl_CommitDate.Text;
+                var dtCommit = bu.DbExecuteQuery(string.Format("SELECT TOP(1) CommittedDate FROM [IN].Inventory WHERE HdrNo='{0}'", lbl_Ref.Text), null, hf_ConnStr.Value);
+
+                if (dtCommit != null && dtCommit.Rows.Count > 0)
+                {
+                    lbl_CommitDate.Text = String.Format("{0:dd/MM/yyyy}", dtCommit.Rows[0][0]);
+                    lbl_CommitDate.ToolTip = lbl_CommitDate.Text;
+                }
             }
+
 
             //Get AdjCode+Name
             var adjText = string.Empty;

@@ -5,50 +5,6 @@
 <%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxPopupControl" TagPrefix="dx" %>
 <%@ Register Assembly="DevExpress.Web.ASPxEditors.v10.1" Namespace="DevExpress.Web.ASPxEditors" TagPrefix="dx" %>
 <asp:Content ID="Content1" runat="server" ContentPlaceHolderID="cph_Main">
-    <script type="text/javascript" language="javascript">
-
-        function Check(parentChk) {
-            var elements = document.getElementsByTagName("input");
-            for (i = 0; i < elements.length; i++) {
-                if (parentChk.checked == true) {
-                    if (IsCheckBox(elements[i])) {
-                        elements[i].checked = true;
-                    }
-                }
-                else {
-                    elements[i].checked = false;
-                }
-            }
-        }
-
-        function IsCheckBox(chk) {
-            if (chk.type == 'checkbox') return true;
-            else return false;
-        }
-
-        function expandDetailsInGrid(_this) {
-            var id = _this.id;
-            var imgelem = document.getElementById(_this.id);
-            var currowid = id.replace("Img_Btn1", "TR_Summmary") //GETTING THE ID OF SUMMARY ROW
-
-            var rowdetelemid = currowid;
-            var rowdetelem = document.getElementById(rowdetelemid);
-            if (imgelem.alt == "plus") {
-                imgelem.src = "../../App_Themes/Default/Images/Plus_1.jpg"
-                imgelem.alt = "minus"
-                rowdetelem.style.display = 'none';
-            }
-            else {
-                imgelem.src = "../../App_Themes/Default/Images/Minus_1.jpg"
-                imgelem.alt = "plus"
-                rowdetelem.style.display = '';
-            }
-
-            return false;
-
-        }
-        
-    </script>
     <asp:UpdatePanel ID="UpdnDetail" runat="server">
         <ContentTemplate>
             <asp:HiddenField ID="hf_ConnStr" runat="server" />
@@ -187,31 +143,15 @@
             </table>
             <!-- Details -->
             <div style="overflow: auto; width: 100%;">
-                <asp:GridView ID="gv_Detail" runat="server" AutoGenerateColumns="False" Width="100%" EmptyDataText="No Data to Display" SkinID="GRD_V1" OnRowDataBound="gv_Detail_RowDataBound"
+                <asp:GridView runat="server" ID="gv_Detail" AutoGenerateColumns="False" Width="100%" EmptyDataText="No Data to Display" SkinID="GRD_V1" OnRowDataBound="gv_Detail_RowDataBound"
                     OnRowCommand="gv_Detail_RowCommand" OnRowEditing="gv_Detail_RowEditing" OnRowCancelingEdit="gv_Detail_RowCancelingEdit">
                     <HeaderStyle HorizontalAlign="Left" />
                     <Columns>
                         <%--Expand button--%>
                         <asp:TemplateField HeaderText="<%$ Resources:IN_STK_StkInDt, lbl_Sharp_Nm %>">
-                            <HeaderStyle HorizontalAlign="Center" Width="10px" />
                             <ItemStyle HorizontalAlign="Center" Width="10px" />
-                            <HeaderTemplate>
-                                <table border="0" cellpadding="0" cellspacing="0" width="100%">
-                                    <tr style="height: 18px">
-                                        <td valign="middle">
-                                            <asp:ImageButton ID="Img_Create" runat="server" ImageUrl="~/App_Themes/Default/Images/Plus_1.jpg" CommandName="Create" ToolTip="Create" Visible="False" />
-                                        </td>
-                                    </tr>
-                                </table>
-                            </HeaderTemplate>
                             <ItemTemplate>
-                                <table border="0" cellpadding="0" cellspacing="0" width="100%">
-                                    <tr style="height: 18px">
-                                        <td valign="top">
-                                            <asp:ImageButton ID="Img_Btn1" runat="server" ImageUrl="~/App_Themes/Default/Images/Plus_1.jpg" OnClientClick="expandDetailsInGrid(this);return false;" />
-                                        </td>
-                                    </tr>
-                                </table>
+                                <asp:ImageButton ID="btn_Expand" runat="server" ImageUrl="~/App_Themes/Default/Images/Plus_1.jpg" OnClientClick="return expandItem(this);" />
                             </ItemTemplate>
                         </asp:TemplateField>
                         <%--Checkbox--%>
@@ -219,10 +159,10 @@
                             <HeaderStyle BorderStyle="None" Width="10px" HorizontalAlign="Center" />
                             <ItemStyle BorderStyle="None" Width="10px" HorizontalAlign="Center" VerticalAlign="Top" />
                             <HeaderTemplate>
-                                <asp:CheckBox ID="chk_All" runat="server" Width="10px" onclick="Check(this)" />
+                                <asp:CheckBox ID="chk_All" runat="server" onclick="checkAll(this)" />
                             </HeaderTemplate>
                             <ItemTemplate>
-                                <asp:CheckBox ID="Chk_Item" runat="server" />
+                                <asp:CheckBox ID="Chk_Item" runat="server" CssClass="check-item" />
                             </ItemTemplate>
                         </asp:TemplateField>
                         <%--Location--%>
@@ -422,24 +362,20 @@
                     </Columns>
                 </asp:GridView>
             </div>
+            <asp:Label runat="server" ID="lbl_Test" />
             <!-- Popup -->
             <dx:ASPxPopupControl ID="pop_Warning" ClientInstanceName="pop_Warning" runat="server" CloseAction="CloseButton" HeaderText="<%$Resources:IN_STK_StkInEdit, pop_Warning %>"
                 Modal="True" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowCloseButton="False" Width="300px">
                 <HeaderStyle HorizontalAlign="Left" />
                 <ContentCollection>
                     <dx:PopupControlContentControl ID="PopupControlContentControl3" runat="server">
-                        <table border="0" cellpadding="2" cellspacing="0" width="100%">
-                            <tr>
-                                <td align="center" height="50px">
-                                    <asp:Label ID="lbl_Warning" runat="server" SkinID="LBL_NR"></asp:Label>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td align="center">
-                                    <asp:Button ID="btn_Ok_Warning" runat="server" Text="<%$Resources:IN_STK_StkInEdit, btn_Warning %>" SkinID="BTN_V1" Width="50px" OnClientClick="pop_Warning.Hide()" />
-                                </td>
-                            </tr>
-                        </table>
+                        <div style="display: flex; justify-content: center">
+                            <asp:Label ID="lbl_Warning" runat="server" SkinID="LBL_NR"></asp:Label>
+                        </div>
+                        <br />
+                        <div style="display: flex; justify-content: center">
+                            <asp:Button ID="btn_Ok_Warning" runat="server" Text="<%$Resources:IN_STK_StkInEdit, btn_Warning %>" SkinID="BTN_V1" Width="50px" OnClientClick="pop_Warning.Hide()" />
+                        </div>
                     </dx:PopupControlContentControl>
                 </ContentCollection>
             </dx:ASPxPopupControl>
@@ -449,21 +385,15 @@
                 <ContentCollection>
                     <dx:PopupControlContentControl ID="PopupControlContentControl1" runat="server">
                         <asp:HiddenField runat="server" ID="hf_DeleteItems" />
-                        <table border="0" cellpadding="2" cellspacing="0" width="100%">
-                            <tr>
-                                <td align="center" colspan="2" height="50px">
-                                    <asp:Label ID="lbl_ConfirmDelete" runat="server" SkinID="LBL_NR"></asp:Label>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td align="right">
-                                    <asp:Button ID="btn_ComfirmDelete" runat="server" SkinID="BTN_V1" Width="50px" Text="<%$Resources:IN_STK_StkInEdit, btn_ComfiremDelete %>" OnClick="btn_ComfirmDelete_Click" />
-                                </td>
-                                <td align="left">
-                                    <asp:Button ID="btn_CancelDelete" runat="server" SkinID="BTN_V1" Width="50px" Text="<%$Resources:IN_STK_StkInEdit, btn_CancelDelete %>" OnClientClick="pop_ConfirmDelete.Hide()" />
-                                </td>
-                            </tr>
-                        </table>
+                        <div style="display: flex; justify-content: center">
+                            <asp:Label ID="lbl_ConfirmDelete" runat="server" SkinID="LBL_NR"></asp:Label>
+                        </div>
+                        <br />
+                        <div style="display: flex; justify-content: center">
+                            <asp:Button ID="btn_ComfirmDelete" runat="server" SkinID="BTN_V1" Width="50px" Text="<%$Resources:IN_STK_StkInEdit, btn_ComfiremDelete %>" OnClick="btn_ComfirmDelete_Click" />
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <asp:Button ID="btn_CancelDelete" runat="server" SkinID="BTN_V1" Width="50px" Text="<%$Resources:IN_STK_StkInEdit, btn_CancelDelete %>" OnClientClick="pop_ConfirmDelete.Hide()" />
+                        </div>
                     </dx:PopupControlContentControl>
                 </ContentCollection>
             </dx:ASPxPopupControl>
@@ -491,4 +421,37 @@
             </div>
         </ProgressTemplate>
     </asp:UpdateProgress>
+    <!-- Script -->
+    <script type="text/javascript">
+        function checkAll(item) {
+            var gv_id = item.closest('table').id;
+            var checkboxes = document.querySelectorAll('#' + gv_id + ' input[type=checkbox]');
+
+            checkboxes.forEach(function (e) {
+                e.checked = item.checked;
+            });
+        }
+
+        function expandItem(item) {
+            var id = item.id;
+            var btn_Expand = document.getElementById(item.id);
+
+            var id_TR_Summmary = id.replace("btn_Expand", "TR_Summmary");
+            var tr_Summary = document.getElementById(id_TR_Summmary);
+
+            if (btn_Expand.alt == "plus") {
+                btn_Expand.src = "../../App_Themes/Default/Images/Plus_1.jpg"
+                btn_Expand.alt = "minus"
+                tr_Summary.style.display = 'none';
+            } else {
+                btn_Expand.src = "../../App_Themes/Default/Images/Minus_1.jpg"
+                btn_Expand.alt = "plus"
+                tr_Summary.style.display = '';
+            }
+
+            return false;
+        }
+
+        
+    </script>
 </asp:Content>
