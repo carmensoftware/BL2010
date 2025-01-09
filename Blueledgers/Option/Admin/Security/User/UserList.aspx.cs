@@ -5,271 +5,246 @@ using System.Web.UI.WebControls;
 using BlueLedger.PL.BaseClass;
 using System.Data.SqlClient;
 using System.Web;
+using System.Collections.Generic;
+using System.Linq;
+
 
 namespace BlueLedger.PL.Option.Admin.Security.User
 {
     public partial class UserList : BasePage
     {
-        #region "Attributes"
-
-        private readonly Blue.BL.dbo.BUUser buUser = new Blue.BL.dbo.BUUser();
-        private readonly Blue.BL.dbo.User user = new Blue.BL.dbo.User();
-        private readonly Blue.BL.Option.Admin.Security.UserRole userRole = new Blue.BL.Option.Admin.Security.UserRole();
-        private readonly Blue.BL.ADMIN.UserStore userStore = new Blue.BL.ADMIN.UserStore();
-        private readonly Blue.BL.ADMIN.RolePermission rolePermiss = new Blue.BL.ADMIN.RolePermission();
         private readonly string moduleID = "99.98.1.2";
 
-        private DataSet dsUser = new DataSet();
-        private DataTable dtUser = new DataTable();
+        #region "Declaration"
+        private readonly Blue.BL.Option.Admin.Security.UserRole userRole = new Blue.BL.Option.Admin.Security.UserRole();
+
+        private readonly Blue.BL.dbo.User _user = new Blue.BL.dbo.User();
+        private readonly Blue.BL.dbo.BUUser _buUser = new Blue.BL.dbo.BUUser();
+        private readonly Blue.BL.ADMIN.UserStore _userStore = new Blue.BL.ADMIN.UserStore();
+        private readonly Blue.BL.ADMIN.RolePermission _rolePermiss = new Blue.BL.ADMIN.RolePermission();
 
         #endregion
 
+        private string _connectionString { get { return System.Configuration.ConfigurationManager.AppSettings["ConnStr"].ToString(); } }
 
-        /// <summary>
-        ///     Display all User data.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        protected DataTable _dtBu
+        {
+            get { return ViewState["_dtBu"] as DataTable; }
+            set { ViewState["_dtBu"] = value; }
+        }
+
+
+
+        // Event(s)
+
         protected override void Page_Load(object sender, EventArgs e)
         {
-            //Response.Write("TEST_PageLoad");
-
             base.Page_Load(sender, e);
+
             if (!IsPostBack)
             {
                 Page_Retrieve();
-                txtSearch.Attributes.Add("onKeyPress", "doClick('" + btnS.ClientID + "',event)");
             }
-            else
-            {
-                dsUser = (DataSet)Session["dsUser"];
-                dtUser = (DataTable)Session["dtUser"];
-                countRow(dtUser);
-            }
+
+            LoadUserList();
+
+           
 
         }
 
-        /// <summary>
-        ///     Get user data.
-        /// </summary>
         private void Page_Retrieve()
         {
-            dsUser.Clear();
-            var result = user.GetList(dsUser, LoginInfo.BuInfo.BuCode);
 
-            if (result)
-            {
-                Session["dsUser"] = dsUser;
-
-                // Display User data.
-                Page_Setting();
-            }
+            Page_Setting();
         }
 
-        /// <summary>
-        ///     Display user data.
-        /// </summary>
         private void Page_Setting()
         {
 
 
-            string connetionString = System.Configuration.ConfigurationManager.AppSettings["ConnStr"].ToString();
-            SqlConnection cnn = new SqlConnection(connetionString);
-            try
-            {
-                cnn.Open();
 
-            }
-            catch (Exception ex)
-            {
-                cnn.Close();
-                string ErrorMess = ex.ToString();
-            }
-            //string strsql = "select FName+' '+MName+' '+LName AS FullName,";
-            //strsql += " Email, LoginName, JobTitle, IsActived, LastLogin,";
-            //strsql += " Case IsActived When '1' Then 'Active' When '0' Then 'Inactive' Else 'Null' End AS IsActived2 ";
-            //strsql += " from dbo.[User]";
-            string sql = string.Empty;
-            sql = " SELECT ISNULL(FName,'') + ' ' + ISNULL(MName,'') + ' ' + ISNULL(LName,'') AS FullName,";
-            sql += " Email, u.LoginName, JobTitle, IsActived, LastLogin,";
-            sql += " Case IsActived When '1' Then 'Active' When '0' Then 'Inactive' Else 'Null' End AS IsActived2 ";
-            sql += " FROM dbo.[User] u";
-            //sql += " LEFT JOIN dbo.BuUser bu ON bu.LoginName = u.LoginName";
-            //sql += string.Format(" WHERE BuCode = '{0}'", LoginInfo.BuInfo.BuCode);
-
-            SqlCommand myCommand = new SqlCommand(sql, cnn);
-            SqlDataAdapter da = new SqlDataAdapter(myCommand);
-            DataSet dUser = new DataSet();
-            dtUser = dsUser.Tables[0];
-            dtUser.Clear();
-            da.Fill(dtUser);
-
-            gvUserList.DataSource = dtUser;
-            gvUserList.DataBind();
-            countRow(dtUser);
 
             Control_HeaderMenuBar();
-            Session["dsUser"] = (DataSet)dsUser;
-            Session["dtUser"] = (DataTable)dtUser;
-
         }
 
         protected void Control_HeaderMenuBar()
         {
-            int pagePermission = rolePermiss.GetPagePermission(moduleID, LoginInfo.LoginName, LoginInfo.ConnStr);
-            btnAddUser.Visible = (pagePermission >= 3) ? btnAddUser.Visible : false;
+            int pagePermission = _rolePermiss.GetPagePermission(moduleID, LoginInfo.LoginName, LoginInfo.ConnStr);
+            btn_Create.Visible = (pagePermission >= 3) ? btn_Create.Visible : false;
         }
 
-        protected void gvUserList_RowDataBound(object sender, GridViewRowEventArgs e)
+        protected void btn_Create_Click(object sender, EventArgs e)
         {
-            Label lblFullName = (Label)(e.Row.FindControl("lblFull"));
-            Label lblEmail = (Label)(e.Row.FindControl("lblEmail"));
-            if (lblFullName != null)
-            {
-                //lblFullName.Text = (string)DataBinder.Eval(e.Row.DataItem, "FullName");
-                lblFullName.Text = string.Format("{0}", DataBinder.Eval(e.Row.DataItem, "FullName"));
-            }
-            if (lblEmail != null)
-            {
-                //lblEmail.Text = (string)DataBinder.Eval(e.Row.DataItem, "Email");
-                lblEmail.Text = string.Format("{0}", DataBinder.Eval(e.Row.DataItem, "Email"));
-            }
+        }
 
+        protected void btn_Print_Click(object sender, EventArgs e)
+        {
+        }
+
+
+        protected void gv_User_RowDataBound(object sender, GridViewRowEventArgs e)
+        {
             if (e.Row.RowType == DataControlRowType.DataRow)
             {
-                e.Row.Attributes["onmouseover"] = "this.style.backgroundColor='#4D4D4D'; this.style.color='white';";
-                e.Row.Attributes["onmouseout"] = "this.style.backgroundColor='white'; this.style.color='black';";
-                e.Row.Attributes["onclick"] = Page.ClientScript.GetPostBackClientHyperlink(gvUserList, "Select$" + e.Row.RowIndex);
-                e.Row.Attributes["style"] = "cursor:pointer";
+                if (e.Row.FindControl("img_Status") != null)
+                {
+                    var item = e.Row.FindControl("img_Status") as Image;
+                    var active = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAABZ/AAAWfwGkE7q/AAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAnNJREFUWIXt101oVFcYh/HfmRSF0l2pEHXRbqrtqip+JKJFkkniQhQJARGRLty7NwuRbN1m5UbFdiOBrNRkUGtKlYIWV35AaRd+gKJWXAh+3OPizjj3JpnJnZnMSv/Le95znufeuXPOe/nUE1qqnrVBYq9gB3qxpjryEI9Fc0qmlf29fAJRULFfNIH1Bde9Kxg3aEoQ2xe45DucE/QVBOcTXcdBw/5tXWDGdkxhVVvwep6Jxgy7XFxgxs+YwYoO4bW8wZAhvy8tcMG3evyFb5YJXsszPbYa8E/2YilXEgU9fusCHL72zlkxf9N5gVmj2NYFeJqgT8X+xQVSsxNdg9c5E9mnUBeo+Enx/3mjvBDs8pUvRb82qFlfZc0TSOztGJ4YVHZVv9eC0w0rM6y6QMnOjuEjboHjSjjSsDrDyr6Eq5sAXovO4HYheL9TGG24Wvx4huRewt4mE44adtj/toimC8B/aXIzZG621KzqY4JXYMwbL41VJdqF51IXCB43qTup4vucxHt9HcAfLRTIXFwkvRJXchK73WsTTvBwoUA0t8S01RLXVPyYmRP0m2wJDolrdZdaLtqo5GaB6Y8k9ljpvrcmcagleCqwqfbz1QXSzueOaF3BZaJWW7qUeM+gH2qdUvYljBLjLS3VXo5l27T8IlEw60/dOhGj64Zszwrk94Egeu8AnnYB/9wXDs1vUhduRLv9JxiTtlHLlbcSo/O7ocUFoOyqYABPlgH+XDRixJXFBhtvxWV/KOnDjQ7gN5RsbtQRU/TDJG3VJqjuhEvnPsaVne/sw2R+0s1qH3ZIT7S11ZEH0q18TjRtyK2lwJ9Tywfmj7RnYfikdAAAAABJRU5ErkJggg==";
+                    var inactive = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAsQAAALEBxi1JjQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAO4SURBVFiFvZdLTFxlFMd/594LOMwAjS/AtEVNN5poiQYM6WYEFcpjIYsubOLKaNImfSVSNbEaF6alESxJXdi13ZjYBcXSSUA0gaYPom2qG1EibVJpFVs7U2Dm3u+4GB4zMJ17Qeh/de/Muef3/17n+z4hoG5t21YSKkq1qlAvsBXlSYQNACi3ERlX5TLC4MyM0/fY8PDdIHnFLyDR+GKl8exDorwJFAf0e0/hpPHsI2VD58ZWZUDr6kLxYvO+oAeAcEDwUqUQusIFUx/JmbHZwAbuROu22Lb7DchzqwRnSWFEkPbIwPlJXwPxV2uqMXIWeHwt4Bm6prZpLoldunpfA+mWe8PrAJ/XBEhtZk9Y8w8ajT5k297X6wgH2KzoKd2+pWiZgbg9/QFQvY5wAATqErOPfJzxnl5q6tq/svrZvlIlXfWe3TA4+psFYDz7kC+84glkY5VvZtlUBeWVfmGFNs5BAPl7+0ulRUm9Qb4iU15J4YmvwHFwj3Vizp7OGWY1tuLs7YCUS/LtnTB5I5+JxD2vuMIqmtWWvHBACgrBcUAsnL0dWE1ty+FNbWm4WOA4SEFBvpQA4ZCTaLZUqPeL1Ot/4H5+BNSkTezpwG5tX4S/1oKz5900XBXvi270+oRfWlAaHIGt/pFgYn24gLPvIIiFvWt/OkdyduE3VPGOd+H1nQqSEpDnJd5Qewt4NOAX6a5eaK2Zy5N+dnuOYvp7g6YCuGkBpSv5wvT3Zg3HYsu7VwoHKLP8YwJKfHf2nLKAf1f0QVNbxpibuZ4Q7F37cq4OH92xgPHA8KWz/Xj38tXR8npgusLvjqr8JKI1geD3me1Zq2P3AYCgK+GyhTDoFyWbqrK63e3pzAKYWB9uz9HF4di9P1DZRhmwpr3QaYF43rhkElIuGJMuxTlmu+nvxT3WmTaRctFUzhNYphLTpviMANxtqD0h8Fbe8PIKpKDQt8LJxs1oKgmTf+aNU/TLkoGL7wgsnIR+AXwL+Bpp1rZ5JhS7MG4BlA2dG0PoekBwFD4LxS6MQ8aJKPyP9yHwwwOAj0QKpz6Zf18wIKOjKZAdwLV15E8I0p55R8gqxZGB85Nqm+Z1MjGhRpuX3g2W7QUlsUtXjee9gPL9WpEVRkBqS767+PPS/3JuRqVDo3+Fi6YaUTkMJP8HO6nwaeThxMu5bkUQ4HI680rN0yljvSeibxDw1CwQN+hJx5bD87M9T2ww3YxGIyEn0YxKvQjVKE/B3PUcbiOMK/yIYTDizHwrsSuJIHn/A/NYeWJNjN7eAAAAAElFTkSuQmCC";
+                    var icon = Convert.ToBoolean(DataBinder.Eval(e.Row.DataItem, "IsActived")) ? active : inactive;
+
+
+                    item.ImageUrl = icon;
+                }
             }
         }
 
-        protected void countRow(DataTable dt)
+        protected void btn_View_Click(object sender, EventArgs e)
         {
-            DataRow[] rowA = dt.Select("IsActived = 1");
-            int countT = dt.Rows.Count;
-            int countA = rowA.Length;
+            var btn = sender as ImageButton;
 
-            lblcountA.Text = String.Format("{0:,0}", countA) + " active(s)/ " + String.Format("{0:,0}", countT) + " user(s)";
-        }
-        protected void btnHome_Click(object sender, EventArgs e)
-        {
-            dtUser.DefaultView.RowFilter = string.Empty;
-            Page_Setting();
-        }
+            var loginName = btn.CommandArgument.ToString();
 
-        protected void ddlActive_OnSelectedIndexChanged(object sender, EventArgs e)
-        {
-            string filterText = string.Format("IsActived2 = '{0}'", ddlActive.SelectedItem.Text);
-            if (ddlActive.SelectedIndex == 1)
+            //Response.Redirect(string.Format("UserProfile.aspx?id={0}", HttpUtility.HtmlEncode(loginName)));
+
+            var dr = GetUser(loginName);
+
+            if (dr != null)
             {
-                filterText = "IsActived = 1";
-            }
-            else if (ddlActive.SelectedIndex == 2)
-            {
-                filterText = "IsActived = 0";
-            }
-            filterStatus(dtUser, filterText);
+                var fullName = dr["FName"].ToString()
+                    + " "
+                    + (string.IsNullOrEmpty(dr["MName"].ToString()) ? "" : dr["MName"].ToString())
+                    + " "
+                    + dr["LName"].ToString();
 
-        }
+                lbl_UserFullName.Text = fullName.Trim();
 
-        private void filterStatus(DataTable dt_, string filter)
-        {
-            string filterAll = string.Format("IsActived2 = '{0}'", "All");
-            if (filter == filterAll)
-            {
-                dt_.DefaultView.RowFilter = string.Empty;
-                gvUserList.DataSource = dt_;
-                gvUserList.DataBind();
-            }
-            else
-            {
-                dt_.DefaultView.RowFilter = filter;
-                gvUserList.DataSource = dt_;
-                gvUserList.DataBind();
-            }
+                txt_LoginName.Text = dr["LoginName"].ToString();
+                txt_FName.Text = dr["FName"].ToString();
+                txt_MName.Text = dr["MName"].ToString();
+                txt_LName.Text = dr["LName"].ToString();
+                txt_Email.Text = dr["Email"].ToString();
+                txt_JobTitle.Text = dr["JobTitle"].ToString();
 
-        }
-        protected void btnS_Click(object sender, EventArgs e)
-        {
-            GettxtSearch(dtUser, txtSearch.Text);
-        }
-        private void GettxtSearch(DataTable dt_, string txt)
-        {
-            string filtertxt;
-            string searchFilter = "(FullName like '%{0}%' OR Email like '%{0}%' OR LoginName like '%{0}%' OR  JobTitle like '%{0}%')";
-            dt_.DefaultView.RowFilter = string.Empty;
-            if (ddlActive.SelectedItem.Text == "Active")
-            {
-                filtertxt = string.Format(searchFilter + " AND (IsActived2  = '{1}')", txt, "Active");
-            }
-            else if (ddlActive.SelectedItem.Text == "Inactive")
-            {
-                filtertxt = string.Format(searchFilter + " AND (IsActived2  = '{1}')", txt, "Inactive");
-            }
-            else
-            {
-                filtertxt = string.Format(searchFilter, txt);
+
+                hf_LoginName.Value = loginName;
+
+
+                list_Bu.Items.Clear();
+                
+                //list_Bu.Items.AddRange(
+                //ListEditItem 
+
+
+
+                pop_User.HeaderText = loginName;
+                pop_User.ShowOnPageLoad = true;
             }
 
-            dt_.DefaultView.RowFilter = filtertxt;
-            gvUserList.DataSource = dt_;
-            gvUserList.DataBind();
+
+
         }
-        protected void gvUserList_SelectedIndexChanged(object sender, EventArgs e)
+
+        // Method(s)
+        #region --Method(s)--
+
+        private DataRow GetUser(string loginName)
         {
-            string loginName = gvUserList.SelectedRow.Cells[1].Text;
-            iFrame_UserInfo.Attributes["src"] = "UserProfile.aspx?mode=VIEW&user=" + loginName + "";
-            Label_UserInfo.Text = loginName;
-            Session["saveStatus"] = "0";
-            pop_UserInfo.Show();
+            var sql = new Helpers.SQL(_connectionString);
+            var query = @"
+SELECT 
+    *
+FROM 
+	[dbo].[User]
+WHERE
+    LoginName=@LoginName
+ORDER BY
+    IsActived DESC,
+    LoginName";
+            var dt = sql.ExecuteQuery(query, new SqlParameter[] { new SqlParameter("@LoginName", loginName) });
+
+            _dtBu = new DataTable();
+
+            #region --Query: BusinessUnit--
+            query = @"
+;WITH
+bu AS(
+	SELECT  
+		b.BuCode,
+		b.BuName,
+		CASE WHEN LoginName IS NULL THEN 0 ELSE 1 END as Selected
+	
+	FROM 
+		[dbo].Bu b
+		LEFT JOIN [dbo].BuUser bu
+			ON b.BuCode=bu.BuCode AND bu.LoginName = @loginName 
+	WHERE 
+		b.IsActived=1
+)
+SELECT
+	*
+FROM
+	bu
+ORDER BY
+	Selected DESC,
+	BuName";
+            #endregion
+
+            _dtBu = sql.ExecuteQuery(query, new SqlParameter[] { new SqlParameter("@LoginName", loginName) });
+
+
+            return dt.Rows.Count > 0 ? dt.Rows[0] : null;
         }
 
-        protected void Create(object sender, EventArgs e)
+        private void LoadUserList(string status = "")
         {
-            // Check Maximum User Number.
-            // Not allow to create user if the number of user in the business unit is equal to maximum.
-            //var buLicense = new Blue.BL.dbo.BuLicense();
-            //var buUser = new Blue.BL.dbo.BUUser();
+            var sql = new Helpers.SQL(_connectionString);
+            var query = @"
+SELECT 
+    Row_Number() OVER(ORDER BY IsActived DESC, LoginName) as RowId,
+	LoginName, 
+	CONCAT(ISNULL(FName,''),' ',ISNULL(MName,''),ISNULL(LName,'')) as FullName,
+	Email,
+	JobTitle,
+	IsActived,
+	LastLogin
+FROM 
+	[dbo].[User]
+WHERE
+    LoginName <> 'support@carmen'
+    AND IsActived = CASE @status WHEN 'A' THEN 1 WHEN 'I' THEN 0 ELSE IsActived END
+ORDER BY
+    IsActived DESC,
+    LoginName";
 
-            //if (buUser.GetUserNo(LoginInfo.BuInfo.BuCode) > buLicense.GetMaxUser(LoginInfo.BuInfo.BuCode))
-            //{
-            //    // Display Error Message
-            //    pop_ReachMaxUserNo.ShowOnPageLoad = true;
+            var dt = sql.ExecuteQuery(query, new SqlParameter[] { new SqlParameter("@status", status) });
 
-            //}
-            //else
-            {
-                //pop_UserInfo.BehaviorID = "btnCreate";
-                //iFrame_UserInfo.Attributes["src"] = "UserManage.aspx?mode=CREATE";
-                iFrame_UserInfo.Attributes["src"] = "UserProfile.aspx?mode=CREATE";
-                Label_UserInfo.Text = "New";
-                pop_UserInfo.Show();
-            }
+            gv_User.DataSource = dt;
+            gv_User.DataBind();
+
+            //var username = "support@carmen";
+            var license = _user.GetActiveUserLicense();
+            var all = dt.AsEnumerable()
+                //.Where(x => x.Field<string>("LoginName") != username)
+                .Count();
+            var active = dt.AsEnumerable()
+                //.Where(x => x.Field<string>("LoginName") != username)
+                .Where(x => x.Field<bool>("IsActived") == true)
+                .Count();
+            var inactive = dt.AsEnumerable()
+                //.Where(x => x.Field<string>("LoginName") != username)
+                .Where(x => x.Field<bool>("IsActived") == false)
+                .Count();
+
+
+            lbl_UserCount.Text = string.Format("<b>License</b>: {0} | <b>Active</b>: {1} | <b>Inactive</b>: {2} | <b>Total</b>: {3}", license, active, inactive, all);
+
         }
 
-        protected void Print(object sender, EventArgs e)
-        {
-            Report rpt = new Report();
-            rpt.PrintForm(this, "../../../../RPT/PrintForm.aspx", "", "UserList");
-        }
 
-        protected void ButtonClose_Click(object sender, EventArgs e)
-        {
-            //Response.Redirect(Request.RawUrl);
-            Response.Write("TEST");
+        #endregion
 
-            //string status = Session["saveStatus"].ToString();
-            //if (status == "1")
-            //{
-            //    //Response.Redirect(Request.RawUrl);
-            //    Page.Response.Redirect(HttpContext.Current.Request.Url.ToString(), true);
-            //}
-        }
-        protected void chkViewAllBu_CheckedChanged(object sender, EventArgs e)
-        {
-            Page_Load(sender, e);
-        }
 
     }
+
 }

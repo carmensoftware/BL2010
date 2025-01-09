@@ -1,189 +1,323 @@
 ﻿<%@ Page Language="C#" MasterPageFile="~/Master/In/SkinDefault.master" AutoEventWireup="true" EnableEventValidation="false" CodeFile="UserList.aspx.cs"
     Inherits="BlueLedger.PL.Option.Admin.Security.User.UserList" %>
 
-<%@ Register Assembly="DevExpress.Web.ASPxEditors.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Web.ASPxEditors"
-    TagPrefix="dx" %>
-<%@ Register Assembly="System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" Namespace="System.Web.UI" TagPrefix="asp" %>
 <%@ MasterType VirtualPath="~/master/In/SkinDefault.master" %>
-<%@ Register Assembly="DevExpress.Web.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Web.ASPxMenu" TagPrefix="dx" %>
-<%@ Register Assembly="DevExpress.Web.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Web.ASPxPopupControl"
-    TagPrefix="dx" %>
-<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="cc1" %>
-<%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxPopupControl" TagPrefix="dx" %>
-<asp:Content ID="Content1" ContentPlaceHolderID="cph_Main" runat="Server">
-    <style type="text/css">
-        .Background
+<%@ Register Namespace="DevExpress.Web.ASPxMenu" Assembly="DevExpress.Web.v10.1" TagPrefix="dx" %>
+<%@ Register Namespace="DevExpress.Web.ASPxPanel" Assembly="DevExpress.Web.v10.1" TagPrefix="dx" %>
+<%@ Register Namespace="DevExpress.Web.ASPxPopupControl" Assembly="DevExpress.Web.v10.1" TagPrefix="dx" %>
+<%@ Register Namespace="DevExpress.Web.ASPxEditors" Assembly="DevExpress.Web.ASPxEditors.v10.1" TagPrefix="dx" %>
+<%@ Register Namespace="DevExpress.Web.ASPxTabControl" Assembly="DevExpress.Web.v10.1" TagPrefix="dx" %>
+<%@ Register Namespace="DevExpress.Web.ASPxClasses" Assembly="DevExpress.Web.v10.1" TagPrefix="dx" %>
+<asp:Content ID="Header" runat="server" ContentPlaceHolderID="head">
+    <style>
+        .button
         {
-            background-color: Black;
-            filter: alpha(opacity=90);
-            opacity: 0.8;
+            padding: 5px 10px 5px 10px;
+        }
+        .list
+        {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
         }
         
-        .Popup
+        .list li a
         {
-            background-color: White;
-            border-width: 1px;
-            border-radius: 10px;
-            padding-top: 15px;
-            padding-left: 15px;
-            padding-right: 15px;
-            padding-bottom: 15px;
-            width: 890px;
-            height: 540px;
+            border: 1px solid #ddd;
+            margin-top: -1px; /* Prevent double borders */
+            background-color: #f6f6f6;
+            padding: 12px;
+            text-decoration: none;
+            font-size: 1rem;
+            color: black;
+            display: block;
         }
-        .Title
+        
+        .list li a:hover:not(.header)
         {
-            font-size: 18px;
-            font-style: italic;
-            font-weight: bold;
-            color: Blue;
+            background-color: #eee;
         }
     </style>
-    <style type="text/css">
-        .footer
+    <style>
+        /* Style the tab */
+        .tab
         {
-            background: white;
-            position: fixed;
-            right: 0;
-            bottom: 0;
-            height: auto;
-            width: auto;
-            font-size: 12px;
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #f1f1f1;
+        }
+        
+        /* Style the buttons inside the tab */
+        .tab button
+        {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+            font-size: 17px;
+        }
+        
+        /* Change background color of buttons on hover */
+        .tab button:hover
+        {
+            background-color: #ddd;
+        }
+        
+        /* Create an active/current tablink class */
+        .tab button.active
+        {
+            background-color: #ccc;
+        }
+        
+        /* Style the tab content */
+        .tabcontent
+        {
+            display: none;
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            border-top: none;
         }
     </style>
+</asp:Content>
+<asp:Content ID="Content1" ContentPlaceHolderID="cph_Main" runat="Server">
+    <!-- Title & Command Bar -->
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tr style="background-color: #4d4d4d; height: 17px;">
+            <td align="left" style="padding-left: 10px;">
+                <table border="0" cellpadding="2" cellspacing="0">
+                    <tr style="color: White;">
+                        <td>
+                            <asp:Image ID="Image1" runat="server" ImageUrl="~/App_Themes/Default/Images/master/icon/icon_purchase.png" />
+                        </td>
+                        <td>
+                            <asp:Label runat="server" ID="lblTitle" Text="Users" />
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td align="right">
+                <asp:ImageButton runat="server" ID="btn_Create" AlternateText="Add" ImageUrl="~/App_Themes/Default/Images/master/icon/create.png" OnClick="btn_Create_Click" />
+                <asp:ImageButton runat="server" ID="btn_Print" AlternateText="Print" ImageUrl="~/App_Themes/Default/Images/master/icon/print.png" OnClick="btn_Print_Click" />
+            </td>
+        </tr>
+    </table>
+    <div style="display: flex; justify-content: space-between;">
+        <div style="justify-content: flex-end">
+            <% var group = Request.QueryString["group"] == null ? "all" : Request.QueryString["group"].ToString(); %>
+            <select class="input" onchange="location = `UserList.aspx?group=${this.value}`;">
+                <option value="all">All</option>
+                <option value="active" <%= group=="active"?"selected":"" %>>Active</option>
+                <option value="inactive" <%= group=="inactive"?"selected":"" %>>Inactive</option>
+            </select>
+        </div>
+        <div>
+            <input type="text" id="txt_Search" class="input" style="width: 420px" onkeyup="filterTable()" placeholder="search .." title="Type in a name">
+        </div>
+    </div>
+    <br />
+    <div style="width: 100%; padding: 5px; border: 0px solid silver;">
+        <asp:Label runat="server" ID="lbl_UserCount" Text="0" />
+    </div>
+    <br />
+    <div style="display: flex;">
+    </div>
+    <asp:GridView runat="server" ID="gv_User" ClientIDMode="Static" SkinID="GRD_V1" Width="100%" EmptyDataText="No user" AutoGenerateColumns="False" GridLines="Horizontal"
+        Font-Size="Small" OnRowDataBound="gv_User_RowDataBound">
+        <HeaderStyle HorizontalAlign="Left" Height="40px" />
+        <RowStyle Height="50px" BackColor="White" ForeColor="#333333" BorderColor="#DDDDDD" />
+        <Columns>
+            <asp:TemplateField HeaderText="">
+                <ItemStyle HorizontalAlign="Center" />
+                <ItemTemplate>
+                    <asp:ImageButton runat="server" ID="btn_View" CommandArgument='<%# Eval("LoginName") %>' ImageUrl="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAApgAAAKYB3X3/OAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAGqSURBVEiJtdY/a5NRFAbw34nJIO4FZykoDqZJBRHcFMSCH6SzBcFBJxH8DC7OfgDB6tahmJSCSjfHDnYQQnHw33XICaRJmtyqOXA5L+99zvO859x7z32jlOI0i4gVXMc6uumhh37696WUL6dyzBKIiBYe4QE+YS8J+wnp5ujgKp7jaSnlxxRZKeXEQBv72MHq5PwM/Gpi99Gemp8Ab2KALTQWkY/FNTJmgM2ZAvnlA3RqiWcIdZKjfUIArUxx62/Jx0S2kqs1LvAk6zi3LDiPbXzG3Tnl2sHj0QZawXHlgt5CyfFiwcIfJ7cN7Fam38QzvMLlBdhdbDQND8/e1P6dYaWUn3hYg03O9YbhgenPQ0bE7YjYjoijiHgXEdcqBPrJ7RBrC9K9kuBvhvV/WVHONRw2a3ItpRxExDn8zlffa+IYbqneKJUFdgMX8vltBb6LXsNYrRbYvfS/8LpSoD/KoFMRcCd9v5TytQLfSe66g4YPhgv8EZdwseqg1bYK3MdBBr7BzapWcdZmJy+pMzW7nFheux4DLO/Cmcjkv12ZS7/0ZwqMCf3zb8sfHWAXZtNLxs4AAAAASUVORK5CYII="
+                        OnClick="btn_View_Click" />
+                </ItemTemplate>
+            </asp:TemplateField>
+            <asp:BoundField DataField="RowId" HeaderText="#" />
+            <%--Login--%>
+            <asp:TemplateField HeaderText="Login">
+                <ItemTemplate>
+                    <div style="display: flex; align-items: center;">
+                        <asp:Image ID="Image2" runat="server" ImageUrl="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAsQAAALEBxi1JjQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAALnSURBVEiJnZXbb0xRFMZ/68y0My3tVGlnOm2FiLrfhSZEQlIqExX+ABFvHoSIxOUBIUEfCR69iCASQaIkJOpF44FeBJVGXIrpdDoj1esYPcvDdGp0zjml39te39rfd/Y6a68tTIB4XH0JpUaVeQJ+AIWICO88wqPiYul12i92xLeorhThpMIWINcm7afAQ9PkZHmpNP+TQWen5rnzuKiwGzCcvi4DJsqVRD/7Zs+WYVuDSET9Iy7uAWvGK/wyoXO0GJU+cFtbP3eNsN3vl0iWwYcP6vUU0AiszdyhQMNbuPMGhpKpWH4O1C2C0HzLGr/gJxuCQRmEjBJ4C7g0XhzgZitcb/0jDjCYhBstcKvN8hSryOF8emEAfInostGa/4XuAWhotxQB4H47RPstCGHPt6iuHDNwuTiNxQ9tDYOp9gYjJrR1WVIGwnEAIx5X32grZmE4aRX9G0P2ObWxmBYaCWUzNn1e4ZvYoLzIlvIkoMZQpcouY0kAAgX24sFCWOJ3cFeqDIUyO95twIH1MC0vmyvOh/3rbO8DAAJlbgPU4T9S4YP6rfDkPbzrScWqSmDTnNR9cIKCuhXCzmmQnwuhBRCaKDEbYbcIHXZHUODjd3jdlRoTvaNTxudNjYvFAZg1zUFe6JBYTAsTSpSMTlKg6RPcewNfHIcxVBZB3UKonpk1NhI5SokAhHv0rkIdQHwQLjdBe9RZeDwW+WFvNRT9aYg7wRmyQyA1KgwXL7/2YpxrhO9D/yeeRnE+HN0IZQWYarK6vFSaDYAKv7RGfnC9/unkxSF1+vpG6B7gWvoBGuviBy3s97oZmLx8Cl4Xg4/bOJhejxkc2ymx6grWBn2TNwkWMrCijNWHtklPOpb1Xpy5rdO7TZ696qLK6QJmQoClAdorp7LuYK3Ex3OWONWgu8J91Hf0ELAb2YbA3BLCgSkcPhGSq3bmjjj7QGclYV/fMMuTJqUK5Bp0T/XQ7BnhwpFt8tlp/29i0vUHOIpBwQAAAABJRU5ErkJggg==" />
+                        &nbsp;&nbsp; <b>
+                            <%# Eval("LoginName") %>
+                        </b>
+                    </div>
+                </ItemTemplate>
+            </asp:TemplateField>
+            <%--Profile--%>
+            <asp:TemplateField HeaderText="Profile">
+                <ItemTemplate>
+                    <b>
+                        <%# Eval("FullName") %></b>
+                    <br />
+                    <%# Eval("Email") %>
+                </ItemTemplate>
+            </asp:TemplateField>
+            <%--Login--%>
+            <asp:TemplateField HeaderText="Job Title">
+                <ItemTemplate>
+                    <%# Eval("JobTitle") %>
+                </ItemTemplate>
+            </asp:TemplateField>
+            <%--Login--%>
+            <asp:TemplateField HeaderText="Status">
+                <ItemTemplate>
+                    <asp:Image runat="server" ID="img_Status" Width="24" />
+                </ItemTemplate>
+            </asp:TemplateField>
+            <%--Login--%>
+            <asp:TemplateField HeaderText="Last Login">
+                <ItemTemplate>
+                    <%# string.IsNullOrEmpty(Eval("LastLogin").ToString()) ? "" : Convert.ToDateTime(Eval("LastLogin")).ToString("dd/MM/yyyy HH:mm") %>
+                </ItemTemplate>
+            </asp:TemplateField>
+        </Columns>
+    </asp:GridView>
+    <br />
+    <asp:Button runat="server" ID="btn_Support" Text="support@carmen" Font-Size="Small" />
+    <!-- Popup -->
+    <dx:ASPxPopupControl ID="pop_User" ClientInstanceName="pop_User" runat="server" Width="960px" HeaderText="" Modal="True" ShowPageScrollbarWhenModal="true"
+        ShowCloseButton="true" CloseAction="CloseButton" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter">
+        <HeaderStyle Font-Size="Large" />
+        <ContentCollection>
+            <dx:PopupControlContentControl ID="PopupControlContentControl1" runat="server">
+                <div style="display: flex; justify-content: space-between;">
+                    <div>
+                        <asp:Label runat="server" ID="lbl_UserFullName" Font-Size="Large" />
+                    </div>
+                    <div>
+                        <asp:Button runat="server" ID="btn_Delete" ForeColor="Red" Text="Delete" />
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <asp:Button runat="server" ID="btn_Edit" Text="Edit" />
+                    </div>
+                </div>
+                <hr />
+                <table style="width: 100%;">
+                    <tr>
+                        <td>
+                            <asp:Label ID="Label1" runat="server" Text="Login name" />
+                            <br />
+                            <asp:TextBox runat="server" ID="txt_LoginName" MaxLength="100" Width="90%" />
+                        </td>
+                        <td>
+                            <asp:CheckBox runat="server" ID="chk_IsActived" Text="Active" />
+                        </td>
+                        <td align="right">
+                            <asp:Button runat="server" ID="btn_ChangePassword" Text="Reset Password" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <asp:Label ID="Label2" runat="server" Text="First name" />
+                            <br />
+                            <asp:TextBox runat="server" ID="txt_FName" MaxLength="100" Width="90%" />
+                        </td>
+                        <td>
+                            <asp:Label ID="Label3" runat="server" Text="Middle name" />
+                            <br />
+                            <asp:TextBox runat="server" ID="txt_MName" MaxLength="100" Width="90%" />
+                        </td>
+                        <td>
+                            <asp:Label ID="Label4" runat="server" Text="Last name" />
+                            <br />
+                            <asp:TextBox runat="server" ID="txt_LName" MaxLength="100" Width="90%" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <asp:Label ID="Label5" runat="server" Text="Emal" />
+                            <br />
+                            <asp:TextBox runat="server" ID="txt_Email" TextMode="Email" MaxLength="100" Width="90%" />
+                        </td>
+                        <td>
+                            <asp:Label ID="Label6" runat="server" Text="Job Title" />
+                            <br />
+                            <asp:TextBox runat="server" ID="txt_JobTitle" MaxLength="100" Width="90%" />
+                        </td>
+                        <td>
+                        </td>
+                    </tr>
+                </table>
+                <br />
+                <asp:HiddenField runat="server" ID="hf_LoginName" />
+                <div style="display: flex; flex-wrap: wrap;">
+                    <!-- BU -->
+                    <div style="width: 300px; padding-right: 10px; min-height: 300px; display: flex; flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <div>
+                                <asp:Label ID="Label7" runat="server" Font-Size="Small" Text="Bussiness Unit" />
+                            </div>
+                            <div>
+                                <asp:Button runat="server" ID="btn_AddBu" Text="+" />
+                                <asp:Button runat="server" ID="btn_DelBu" Text="-" />
+                            </div>
+                        </div>
+                        <dx:ASPxListBox ID="list_Bu" runat="server" Width="100%" Height="90%">
+                        </dx:ASPxListBox>
+                    </div>
+                    <!-- Role -->
+                    <div style="width: 300px; padding-right: 10px; min-height: 300px; display: flex; flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <div>
+                                <asp:Label ID="Label8" runat="server" Font-Size="Small" Text="Role" />
+                            </div>
+                            <div>
+                                <asp:Button runat="server" ID="btn_SelAllRole" Text="All" />
+                                <asp:Button runat="server" ID="btn_SelNoneRole" Text="None" />
+                            </div>
+                        </div>
+                        <dx:ASPxListBox ID="ASPxListBox1" runat="server" Width="100%" Height="90%">
+                        </dx:ASPxListBox>
+                    </div>
+                    <!-- Location -->
+                    <div style="width: 300px; min-height: 300px; display: flex; flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <div>
+                                <asp:Label ID="Label9" runat="server" Font-Size="Small" Text="Location" />
+                            </div>
+                            <div>
+                                <asp:Button runat="server" ID="btn_SelAllLoc" Text="All" />
+                                <asp:Button runat="server" ID="btn_SelNoneLoc" Text="None" />
+                            </div>
+                        </div>
+                        <dx:ASPxListBox ID="ASPxListBox2" runat="server" Width="100%" Height="90%">
+                        </dx:ASPxListBox>
+                    </div>
+                </div>
+            </dx:PopupControlContentControl>
+        </ContentCollection>
+    </dx:ASPxPopupControl>
+    <asp:UpdatePanel ID="UpdatePanel1" runat="server">
+        <ContentTemplate>
+        </ContentTemplate>
+    </asp:UpdatePanel>
+    <!-- Script -->
     <script type="text/javascript">
-        function doClick(btnS, e) {
-            var key;
-            if (window.event) {
-                key = window.event.keycode;
-            } else {
-                key = e.which;
-            }
 
-            if (key == 13) {
-                var btn = document.getElementById(btnS);
-                if (btnS != null) {
-                    event.keyCode = 0;
+        function filterTable() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("txt_Search");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("gv_User");
+            tr = table.getElementsByTagName("tr");
+
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td");
+                for (var j = 0; j < td.length; j++) {
+                    txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                        break;
+                    } else {
+                        tr[i].style.display = "none";
+                    }
                 }
             }
         }
+        
     </script>
-    <asp:UpdatePanel ID="UpdatePanel1" UpdateMode="Conditional" runat="server">
-        <ContentTemplate>
-            <div style="width: 100%">
-                <!-- Title & Command Bar -->
-                <table border="0" cellpadding="0" cellspacing="0" width="100%">
-                    <tr style="background-color: #4d4d4d; height: 17px;">
-                        <td align="left" style="padding-left: 10px;">
-                            <table border="0" cellpadding="2" cellspacing="0">
-                                <tr style="color: White;">
-                                    <td>
-                                        <asp:Image ID="Image1" runat="server" ImageUrl="~/App_Themes/Default/Images/master/icon/icon_purchase.png" />
-                                    </td>
-                                    <td>
-                                        <asp:Label ID="lblTitle" Text="UserList" runat="server"></asp:Label>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                        <td align="right">
-                            <asp:ImageButton ID="btnAddUser" AlternateText="Add" runat="server" OnClick="Create" ImageUrl="~/App_Themes/Default/Images/master/icon/create.png" />
-                            <asp:ImageButton ID="btnPrint" AlternateText="Print" runat="server" OnClick="Print" ImageUrl="~/App_Themes/Default/Images/master/icon/print.png" />
-                        </td>
-                    </tr>
-                </table>
-                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding: 5px;">
-                    <tr valign="top" height="30px">
-                        <td align="left">
-                            <div style="width: 100%; display: inline-block;">
-                                <asp:Label ID="lbltxt1" runat="server" Text="View: "></asp:Label>
-                                <asp:DropDownList ID="ddlActive" runat="server" Width="100px" AutoPostBack="true" OnSelectedIndexChanged="ddlActive_OnSelectedIndexChanged">
-                                    <asp:ListItem Selected="True">All</asp:ListItem>
-                                    <asp:ListItem>Active</asp:ListItem>
-                                    <asp:ListItem>Inactive</asp:ListItem>
-                                </asp:DropDownList>
-                                <asp:LinkButton ID="btnRresh" Text="Refresh" Font-Underline="false" ForeColor="Black" runat="server" OnClick="btnHome_Click"></asp:LinkButton>
-                            </div>
-                        </td>
-                        <td align="right">
-                            <asp:Panel ID="pntxt" runat="server" DefaultButton="btnS" Width="100%">
-                                <div>
-                                    <asp:TextBox ID="txtSearch" runat="server" Width="200px"></asp:TextBox>
-                                    <asp:ImageButton ID="btnS" AlternateText="Search" runat="server" OnClick="btnS_Click" ImageUrl="~/App_Themes/Default/Images/master/in/Default/search.png" />
-                                </div>
-                            </asp:Panel>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-            <asp:GridView ID="gvUserList" runat="server" AutoGenerateColumns="false" DataKeyNames="loginName" Width="100%" BackColor="White" BorderColor="#DDDDDD"
-                GridLines="Horizontal" Font-Names="Arial" Font-Size="12px" OnSelectedIndexChanged="gvUserList_SelectedIndexChanged" OnRowDataBound="gvUserList_RowDataBound">
-                <HeaderStyle Height="40px" BackColor="#F4F4F5" Font-Bold="True" ForeColor="#444444" HorizontalAlign="Left" />
-                <PagerStyle BackColor="#336666" ForeColor="White" HorizontalAlign="Center" BorderColor="#DDDDDD" />
-                <RowStyle Height="50px" BackColor="White" ForeColor="#333333" BorderColor="#DDDDDD" />
-                <Columns>
-                    <asp:TemplateField HeaderText="">
-                        <ItemTemplate>
-                            <asp:ImageButton ID="imgIcon" AlternateText="Icon" runat="server" ImageUrl="~/App_Themes\Default\Images\master\icon\DefaultUserIcon.png" />
-                        </ItemTemplate>
-                        <ItemStyle HorizontalAlign="Center" Width="50px" />
-                    </asp:TemplateField>
-                    <asp:BoundField HeaderText="Login Name" DataField="LoginName">
-                        <ItemStyle HorizontalAlign="Left" Width="200px" />
-                    </asp:BoundField>
-                    <asp:TemplateField HeaderText="Profile">
-                        <ItemTemplate>
-                            <asp:Label ID="lblFull" Text="" runat="server"></asp:Label><br />
-                            <asp:Label ID="lblEmail" Text="" runat="server"></asp:Label>
-                        </ItemTemplate>
-                        <ItemStyle HorizontalAlign="Left" Width="200px" ForeColor="#088A29" />
-                    </asp:TemplateField>
-                    <asp:BoundField HeaderText="Job Title" DataField="JobTitle">
-                        <ItemStyle HorizontalAlign="Left" Width="300px" />
-                    </asp:BoundField>
-                    <asp:BoundField HeaderText="Status" DataField="IsActived2">
-                        <HeaderStyle HorizontalAlign="Center" />
-                        <ItemStyle HorizontalAlign="Center" Width="100px" />
-                    </asp:BoundField>
-                    <asp:BoundField HeaderText="Last Login" DataField="LastLogin">
-                        <ItemStyle HorizontalAlign="Left" Width="200px" />
-                    </asp:BoundField>
-                </Columns>
-                <SelectedRowStyle BackColor="#4D4D4D" Font-Bold="True" ForeColor="White" />
-            </asp:GridView>
-            <div class="footer">
-                <asp:Label ID="lblcountA" runat="server"></asp:Label>
-            </div>
-            <cc1:ModalPopupExtender ID="pop_UserInfo" runat="server" PopupControlID="panel_UserInfo" TargetControlID="btnUserInfo" CancelControlID="ButtonClose" BehaviorID="pop_UserInfo"
-                BackgroundCssClass="Background">
-            </cc1:ModalPopupExtender>
-            <asp:Panel ID="panel_UserInfo" runat="server" CssClass="Popup" Style="display: inline-block">
-                <!-- Title Bar -->
-                <table style="border: 0; border-spacing: 0; background-color: White; width: 100%;">
-                    <tr>
-                        <td>
-                            <asp:Label ID="Label_UserInfo" runat="server" Text="User Information" CssClass="Title" />
-                        </td>
-                        <td style="text-align: right;">
-                            <asp:Button ID="ButtonClose" runat="server" Text="X" OnClientClick="window.top.location.reload();" />
-                            <%--<asp:Button ID="ButtonClose" runat="server" Text="X"  
-                                onclick="ButtonClose_Click"/>--%>
-                        </td>
-                    </tr>
-                </table>
-                <!-- iFrame -->
-                <iframe id="iFrame_UserInfo" runat="server" style="width: 100%; height: 98%" frameborder="0" />
-            </asp:Panel>
-            <asp:HiddenField ID="btnUserInfo" runat="server" />
-            <dx:ASPxPopupControl ID="pop_ReachMaxUserNo" runat="server" Width="400px" HeaderText="<%$ Resources:Option_Admin_Security_User_User, Msg2 %>" Modal="True"
-                PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter">
-                <ContentCollection>
-                    <dx:PopupControlContentControl ID="PopupControlContentControl1" runat="server">
-                        <asp:Label ID="Label9" runat="server" Text="<%$ Resources:Option_Admin_Security_User_User, MsgWarning2 %>" SkinID="LBL_NR"></asp:Label>
-                    </dx:PopupControlContentControl>
-                </ContentCollection>
-                <HeaderStyle HorizontalAlign="Left" />
-            </dx:ASPxPopupControl>
-        </ContentTemplate>
-    </asp:UpdatePanel>
 </asp:Content>
