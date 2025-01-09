@@ -7,6 +7,7 @@ using System.Data.SqlClient;
 using System.Web;
 using System.Collections.Generic;
 using System.Linq;
+using DevExpress.Web.ASPxEditors;
 
 
 namespace BlueLedger.PL.Option.Admin.Security.User
@@ -120,6 +121,7 @@ namespace BlueLedger.PL.Option.Admin.Security.User
                 lbl_UserFullName.Text = fullName.Trim();
 
                 txt_LoginName.Text = dr["LoginName"].ToString();
+                chk_IsActived.Checked = Convert.ToBoolean(dr["IsActived"]);
                 txt_FName.Text = dr["FName"].ToString();
                 txt_MName.Text = dr["MName"].ToString();
                 txt_LName.Text = dr["LName"].ToString();
@@ -131,11 +133,14 @@ namespace BlueLedger.PL.Option.Admin.Security.User
 
 
                 list_Bu.Items.Clear();
-                
-                //list_Bu.Items.AddRange(
+
+                //list_Bu.Items.Add(new ListEditItem("", ""));
                 //ListEditItem 
-
-
+                var items = _dtBu.AsEnumerable()
+                    .Where(x => x.Field<int>("Selected") == 1)
+                    .Select(x => new ListEditItem(x.Field<string>("BuName"), x.Field<string>("BuCode")))
+                    .ToArray();
+                list_Bu.Items.AddRange(items);
 
                 pop_User.HeaderText = loginName;
                 pop_User.ShowOnPageLoad = true;
