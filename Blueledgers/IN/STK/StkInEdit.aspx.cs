@@ -915,9 +915,9 @@ ORDER BY
             {
                 sql.ExecuteQuery(queries.ToString(), parameters.ToArray());
             }
-            catch // (Exception ex)
+            catch (Exception ex)
             {
-                //ShowAlert(ex.Message);
+                ErrorLog(ex.Message, queries.ToString());
                 ShowAlert("Save is unsuccess. Please try to save again.");
                 return;
             }
@@ -939,7 +939,7 @@ ORDER BY
 
                 item_queries.Clear();
 
-                var dt = sql.ExecuteQuery("SELECT * FROM [IN].StockInDt WHERE Id=@Id", new SqlParameter[] { new SqlParameter("@Id", refId)});
+                var dt = sql.ExecuteQuery("SELECT * FROM [IN].StockInDt WHERE Id=@Id", new SqlParameter[] { new SqlParameter("@Id", refId) });
 
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
@@ -948,7 +948,7 @@ ORDER BY
                     var location = dr["StoreId"].ToString();
                     var productCode = dr["SKU"].ToString();
 
-                    var qty = Convert.ToDecimal( dr["Qty"]);
+                    var qty = Convert.ToDecimal(dr["Qty"]);
                     var amount = Convert.ToDecimal(dr["UnitCost"]);
                     var priceOnLots = RoundAmt(qty * amount);
 
@@ -977,9 +977,9 @@ ORDER BY
                 {
                     sql.ExecuteQuery(queries.ToString(), parameters.ToArray());
                 }
-                catch // (Exception ex)
+                catch (Exception ex)
                 {
-                    //ShowAlert(ex.Message);
+                    ErrorLog(ex.Message, "982");
                     ShowAlert("Save is unsuccess. Please try to save again.");
                     return;
                 }
@@ -995,6 +995,18 @@ ORDER BY
             Response.Redirect("StkInDt.aspx?BuCode=" + buCode + "&ID=" + refId + "&VID=" + vid);
         }
 
+
+        private void ErrorLog(string text, string comment = "")
+        {
+            var dir = Server.MapPath("~\\");
+            var file = System.IO.Path.Combine(dir, "errors.txt");
+
+            //System.IO.File.WriteAllText(file, "101");
+            var error = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "\t" + @text + "\t" + comment + Environment.NewLine + Environment.NewLine;
+            System.IO.File.AppendAllText(file, error);
+
+
+        }
 
     }
 }

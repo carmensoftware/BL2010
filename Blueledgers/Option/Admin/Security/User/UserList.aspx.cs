@@ -10,6 +10,7 @@ using System.Linq;
 using DevExpress.Web.ASPxEditors;
 
 
+
 namespace BlueLedger.PL.Option.Admin.Security.User
 {
     public partial class UserList : BasePage
@@ -34,6 +35,15 @@ namespace BlueLedger.PL.Option.Admin.Security.User
             set { ViewState["_dtBu"] = value; }
         }
 
+        protected DataTable _dtBusinessUnit
+        {
+            get { return ViewState["_dtBusinessUnit"] as DataTable; }
+            set { ViewState["_dtBusinessUnit"] = value; }
+        }
+
+        private string _status { get { return Request.QueryString["status"] == null ? "" : Request.QueryString["status"].ToString(); } }
+
+        private string _bu { get { return Request.QueryString["bu"] == null ? "" : Request.QueryString["bu"].ToString(); } }
 
 
         // Event(s)
@@ -44,24 +54,10 @@ namespace BlueLedger.PL.Option.Admin.Security.User
 
             if (!IsPostBack)
             {
-                Page_Retrieve();
+                _dtBusinessUnit = GetBusinessUnit();
+                LoadUserList(_status, _bu);
+
             }
-
-            LoadUserList();
-
-           
-
-        }
-
-        private void Page_Retrieve()
-        {
-
-            Page_Setting();
-        }
-
-        private void Page_Setting()
-        {
-
 
 
 
@@ -71,11 +67,25 @@ namespace BlueLedger.PL.Option.Admin.Security.User
         protected void Control_HeaderMenuBar()
         {
             int pagePermission = _rolePermiss.GetPagePermission(moduleID, LoginInfo.LoginName, LoginInfo.ConnStr);
-            btn_Create.Visible = (pagePermission >= 3) ? btn_Create.Visible : false;
+
+            if (pagePermission < 3)
+            {
+                Response.Redirect("~/Option/User/Default.aspx");
+            }
+            else
+            {
+                btn_Create.Visible = (pagePermission >= 3) ? btn_Create.Visible : false;
+            }
+
+
+
         }
 
         protected void btn_Create_Click(object sender, EventArgs e)
         {
+            iFrame_UserInfo.Attributes["src"] = "UserProfile.aspx?mode=CREATE";
+            pop_UserInfo.HeaderText = "New";
+            pop_UserInfo.ShowOnPageLoad = true;
         }
 
         protected void btn_Print_Click(object sender, EventArgs e)
@@ -106,54 +116,67 @@ namespace BlueLedger.PL.Option.Admin.Security.User
 
             var loginName = btn.CommandArgument.ToString();
 
+            iFrame_UserInfo.Attributes["src"] = "UserProfile.aspx?mode=VIEW&user=" + HttpUtility.HtmlEncode(loginName) + "";
+            pop_UserInfo.HeaderText = loginName;
+            pop_UserInfo.ShowOnPageLoad = true;
+            
+
+
             //Response.Redirect(string.Format("UserProfile.aspx?id={0}", HttpUtility.HtmlEncode(loginName)));
 
-            var dr = GetUser(loginName);
+            //var dr = GetUserInfo(loginName);
 
-            if (dr != null)
-            {
-                var fullName = dr["FName"].ToString()
-                    + " "
-                    + (string.IsNullOrEmpty(dr["MName"].ToString()) ? "" : dr["MName"].ToString())
-                    + " "
-                    + dr["LName"].ToString();
+            //if (dr != null)
+            //{
+            //    var fullName = dr["FName"].ToString()
+            //        + " "
+            //        + (string.IsNullOrEmpty(dr["MName"].ToString()) ? "" : dr["MName"].ToString())
+            //        + " "
+            //        + dr["LName"].ToString();
 
-                lbl_UserFullName.Text = fullName.Trim();
+            //    lbl_UserFullName.Text = fullName.Trim();
 
-                txt_LoginName.Text = dr["LoginName"].ToString();
-                chk_IsActived.Checked = Convert.ToBoolean(dr["IsActived"]);
-                txt_FName.Text = dr["FName"].ToString();
-                txt_MName.Text = dr["MName"].ToString();
-                txt_LName.Text = dr["LName"].ToString();
-                txt_Email.Text = dr["Email"].ToString();
-                txt_JobTitle.Text = dr["JobTitle"].ToString();
-
-
-                hf_LoginName.Value = loginName;
+            //    txt_LoginName.Text = dr["LoginName"].ToString();
+            //    chk_IsActived.Checked = Convert.ToBoolean(dr["IsActived"]);
+            //    txt_FName.Text = dr["FName"].ToString();
+            //    txt_MName.Text = dr["MName"].ToString();
+            //    txt_LName.Text = dr["LName"].ToString();
+            //    txt_Email.Text = dr["Email"].ToString();
+            //    txt_JobTitle.Text = dr["JobTitle"].ToString();
 
 
-                list_Bu.Items.Clear();
-
-                //list_Bu.Items.Add(new ListEditItem("", ""));
-                //ListEditItem 
-                var items = _dtBu.AsEnumerable()
-                    .Where(x => x.Field<int>("Selected") == 1)
-                    .Select(x => new ListEditItem(x.Field<string>("BuName"), x.Field<string>("BuCode")))
-                    .ToArray();
-                list_Bu.Items.AddRange(items);
-
-                pop_User.HeaderText = loginName;
-                pop_User.ShowOnPageLoad = true;
-            }
+            //    hf_LoginName.Value = loginName;
 
 
+            //    list_Bu.Items.Clear();
+
+            //    //list_Bu.Items.Add(new ListEditItem("", ""));
+            //    //ListEditItem 
+            //    var items = _dtBu.AsEnumerable()
+            //        .Where(x => x.Field<int>("Selected") == 1)
+            //        .Select(x => new ListEditItem(x.Field<string>("BuName"), x.Field<string>("BuCode")))
+            //        .ToArray();
+            //    list_Bu.Items.AddRange(items);
+
+            //    pop_User.HeaderText = loginName;
+            //    pop_User.ShowOnPageLoad = true;
+                
+            //}
 
         }
 
         // Method(s)
         #region --Method(s)--
 
-        private DataRow GetUser(string loginName)
+        private DataTable GetBusinessUnit()
+        {
+            var sql = new Helpers.SQL(_connectionString);
+            var query = @"SELECT BuCode, BuName, 1 as Selected FROM dbo.Bu WHERE IsActived=1 ORDER BY BuName";
+
+            return sql.ExecuteQuery(query);
+        }
+
+        private DataRow GetUserInfo(string loginName)
         {
             var sql = new Helpers.SQL(_connectionString);
             var query = @"
@@ -201,10 +224,14 @@ ORDER BY
             return dt.Rows.Count > 0 ? dt.Rows[0] : null;
         }
 
-        private void LoadUserList(string status = "")
+        private void LoadUserList(string status = "", string buCode = "")
         {
             var sql = new Helpers.SQL(_connectionString);
-            var query = @"
+            var dt = new DataTable();
+
+            if (string.IsNullOrEmpty(buCode))
+            {
+                var query = @"
 SELECT 
     Row_Number() OVER(ORDER BY IsActived DESC, LoginName) as RowId,
 	LoginName, 
@@ -217,32 +244,63 @@ FROM
 	[dbo].[User]
 WHERE
     LoginName <> 'support@carmen'
-    AND IsActived = CASE @status WHEN 'A' THEN 1 WHEN 'I' THEN 0 ELSE IsActived END
+    AND IsActived = CASE @status WHEN 'active' THEN 1 WHEN 'inactive' THEN 0 ELSE IsActived END
 ORDER BY
     IsActived DESC,
     LoginName";
 
-            var dt = sql.ExecuteQuery(query, new SqlParameter[] { new SqlParameter("@status", status) });
+                dt = sql.ExecuteQuery(query, new SqlParameter[] { new SqlParameter("@status", status) });
+
+            }
+            else
+            {
+                var query = @"
+SELECT 
+    Row_Number() OVER(ORDER BY IsActived DESC, u.LoginName) as RowId,
+	u.LoginName, 
+	CONCAT(ISNULL(FName,''),' ',ISNULL(MName,''),ISNULL(LName,'')) as FullName,
+	Email,
+	JobTitle,
+	IsActived,
+	LastLogin
+FROM 
+	[dbo].[User] u
+    JOIN [dbo].BuUser bu ON bu.LoginName=u.LoginName
+WHERE
+    u.LoginName <> 'support@carmen'
+    AND IsActived = CASE @status WHEN 'active' THEN 1 WHEN 'inactive' THEN 0 ELSE IsActived END
+    AND bu.BuCode = CASE WHEN ISNULL(@buCode,'') = '' THEN bu.BuCode ELSE @buCode END
+ORDER BY
+    IsActived DESC,
+    u.LoginName";
+
+                dt = sql.ExecuteQuery(query, new SqlParameter[] { new SqlParameter("@status", status), new SqlParameter("@buCode", buCode) });
+
+            }
 
             gv_User.DataSource = dt;
             gv_User.DataBind();
 
-            //var username = "support@carmen";
+            var dtUser = sql.ExecuteQuery("SELECT COUNT(LoginName) FROM [dbo].[User] WHERE IsActived=1 AND LoginName <> 'support@carmen'");
+
+            var users = Convert.ToInt32(dtUser.Rows[0][0]);
             var license = _user.GetActiveUserLicense();
-            var all = dt.AsEnumerable()
-                //.Where(x => x.Field<string>("LoginName") != username)
-                .Count();
-            var active = dt.AsEnumerable()
-                //.Where(x => x.Field<string>("LoginName") != username)
-                .Where(x => x.Field<bool>("IsActived") == true)
-                .Count();
-            var inactive = dt.AsEnumerable()
-                //.Where(x => x.Field<string>("LoginName") != username)
-                .Where(x => x.Field<bool>("IsActived") == false)
-                .Count();
+
+            //var all = dt.AsEnumerable()
+            //    //.Where(x => x.Field<string>("LoginName") != username)
+            //    .Count();
+            //var active = dt.AsEnumerable()
+            //    //.Where(x => x.Field<string>("LoginName") != username)
+            //    .Where(x => x.Field<bool>("IsActived") == true)
+            //    .Count();
+            //var inactive = dt.AsEnumerable()
+            //    //.Where(x => x.Field<string>("LoginName") != username)
+            //    .Where(x => x.Field<bool>("IsActived") == false)
+            //    .Count();
 
 
-            lbl_UserCount.Text = string.Format("<b>License</b>: {0} | <b>Active</b>: {1} | <b>Inactive</b>: {2} | <b>Total</b>: {3}", license, active, inactive, all);
+            //lbl_UserCount.Text = string.Format("<b>License</b>: {0}/{1} | <b>Active</b>: {2} | <b>Inactive</b>: {3}", users, license, active, inactive);
+            lbl_UserCount.Text = string.Format("<b>License</b>: {0}/{1}", users, license);
 
         }
 
@@ -250,6 +308,8 @@ ORDER BY
         #endregion
 
 
+
+        public int license { get; set; }
     }
 
 }
