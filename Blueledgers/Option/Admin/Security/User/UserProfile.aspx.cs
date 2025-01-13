@@ -583,16 +583,16 @@ public partial class Option_Admin_Security_User_UserProfile : BasePage //System.
             sysConn.Open();
 
 
-            if (ActiveUser.Checked)
-            {
-                int activeUserLicense = _user.GetActiveUserLicense();
-                int activeUserCurrent = _user.GetActiveUser() + 1;
-                if (activeUserCurrent > activeUserLicense)
-                {
-                    message = "Active users are exceed than license. This user will be inactived.";
-                    ActiveUser.Checked = false;
-                }
-            }
+            //if (ActiveUser.Checked)
+            //{
+            //    int activeUserLicense = _user.GetActiveUserLicense();
+            //    int activeUserCurrent = _user.GetActiveUser() + 1;
+            //    if (activeUserCurrent > activeUserLicense)
+            //    {
+            //        message = "Active users are exceed than license. This user will be inactived.";
+            //        ActiveUser.Checked = false;
+            //    }
+            //}
 
 
             // 1. Save to <SysDB>.dbo.User
@@ -1059,6 +1059,11 @@ public partial class Option_Admin_Security_User_UserProfile : BasePage //System.
             AlertBox("No permission to delete.");
     }
 
+    protected void btn_Close_Click(object sender, EventArgs e)
+    {
+      
+    }
+
     protected void BtnPopDelUserConfirmYes_Click(object sender, EventArgs e)
     {
         DeleteUser(TextLoginName.Text);
@@ -1070,6 +1075,20 @@ public partial class Option_Admin_Security_User_UserProfile : BasePage //System.
         // Save current state of selected BU (Role and Location)
         if (ListBU.SelectedIndex > -1)
             SaveSelectionOfRoleAndLocationToDataTable(ListBU.SelectedItem.Text);
+
+        if (ActiveUser.Checked)
+        {
+            int activeUserLicense = _user.GetActiveUserLicense();
+            int activeUserCurrent = _user.GetActiveUser() + 1;
+            if (activeUserCurrent > activeUserLicense)
+            {
+                AlertBox("Active users are exceed than license. This user will be inactived.");
+                ActiveUser.Checked = false;
+                return;
+            }
+        }
+
+
 
 
         string message = SaveUser(TextLoginName.Text);  // return string.Empty if no any error

@@ -972,7 +972,7 @@ namespace BlueLedger.PL.Option.Inventory
 
                     rate = invUnit == unitCode ? 1 : rate;
 
-                    sbAdd.AppendFormat("('{0}','{1}',{2},{3},'O'),", productCode, unitCode, rate, isDefault);
+                    sbAdd.AppendFormat("(N'{0}',N'{1}',{2},{3},'O'),", productCode, unitCode, rate, isDefault);
                 }
 
                 if (dr.RowState == DataRowState.Modified)
@@ -1037,7 +1037,7 @@ namespace BlueLedger.PL.Option.Inventory
 
                     rate = invUnit == unitCode ? 1 : rate;
 
-                    sbAdd.AppendFormat("('{0}','{1}',{2},{3},'R'),", productCode, unitCode, rate, isDefault);
+                    sbAdd.AppendFormat("(N'{0}',N'{1}',{2},{3},'R'),", productCode, unitCode, rate, isDefault);
                 }
 
                 if (dr.RowState == DataRowState.Modified)
