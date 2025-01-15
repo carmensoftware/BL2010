@@ -892,14 +892,16 @@ ORDER BY
                 var unitCost = dr["UnitCost"].ToString();
                 var comment = dr["Comment"];
 
-                item_queries.AppendFormat("(@Id, @StoreId{0}, @SKU{0}, @Unit{0}, @Qty{0}, @UnitCost{0}, @Comment{0}),", i);
+                //item_queries.AppendFormat("(@Id, @StoreId{0}, @SKU{0}, @Unit{0}, @Qty{0}, @UnitCost{0}, @Comment{0}),", i);
+                item_queries.AppendFormat("(@Id, N'{1}', N'{2}', N'{3}', {4}, {5}, @Comment{0}),", i, storeId, sku, unit, qty, unitCost);
 
-                parameters.Add(new SqlParameter("@StoreId" + i.ToString(), storeId));
-                parameters.Add(new SqlParameter("@SKU" + i.ToString(), sku));
-                parameters.Add(new SqlParameter("@Unit" + i.ToString(), unit));
-                parameters.Add(new SqlParameter("@Qty" + i.ToString(), qty));
-                parameters.Add(new SqlParameter("@UnitCost" + i.ToString(), unitCost));
+                //parameters.Add(new SqlParameter("@StoreId" + i.ToString(), storeId));
+                //parameters.Add(new SqlParameter("@SKU" + i.ToString(), sku));
+                //parameters.Add(new SqlParameter("@Unit" + i.ToString(), unit));
+                //parameters.Add(new SqlParameter("@Qty" + i.ToString(), qty));
+                //parameters.Add(new SqlParameter("@UnitCost" + i.ToString(), unitCost));
                 parameters.Add(new SqlParameter("@Comment" + i.ToString(), comment));
+
             }
 
             parameters.Add(new SqlParameter("@Id", refId));
@@ -932,37 +934,38 @@ ORDER BY
                 queries.Clear();
                 queries.AppendLine("BEGIN TRAN");
                 queries.AppendLine("DELETE FROM [IN].Inventory WHERE [Type]='SI' AND HdrNo=@HdrNo");
-                queries.AppendLine("INSERT INTO [IN].Inventory (HdrNo, DtNo, InvNo, ProductCode, Location, [IN], [OUT], Amount, PriceOnLots, [Type], CommittedDate) VALUES ");
+                queries.AppendLine("INSERT INTO [IN].Inventory (HdrNo, DtNo, InvNo, ProductCode, Location, [IN], [OUT], Amount, PriceOnLots, [Type], CommittedDate)");
+                queries.AppendLine("SELECT Id, RefId, 1, SKU, StoreId, Qty, 0, UnitCost, ROUND(Qty*UnitCost, APP.DigitAmt()) as PriceOnLots, 'SI', GETDATE()  FROM [IN].StockInDt WHERE Id=@HdrNo");
 
                 parameters.Clear();
 
 
-                item_queries.Clear();
+                //item_queries.Clear();
 
-                var dt = sql.ExecuteQuery("SELECT * FROM [IN].StockInDt WHERE Id=@Id", new SqlParameter[] { new SqlParameter("@Id", refId) });
+                //var dt = sql.ExecuteQuery("SELECT * FROM [IN].StockInDt WHERE Id=@Id", new SqlParameter[] { new SqlParameter("@Id", refId) });
 
-                for (int i = 0; i < dt.Rows.Count; i++)
-                {
-                    var dr = dt.Rows[i];
-                    var dtNo = dr["RefId"].ToString();
-                    var location = dr["StoreId"].ToString();
-                    var productCode = dr["SKU"].ToString();
+                //for (int i = 0; i < dt.Rows.Count; i++)
+                //{
+                //    var dr = dt.Rows[i];
+                //    var dtNo = dr["RefId"].ToString();
+                //    var location = dr["StoreId"].ToString();
+                //    var productCode = dr["SKU"].ToString();
 
-                    var qty = Convert.ToDecimal(dr["Qty"]);
-                    var amount = Convert.ToDecimal(dr["UnitCost"]);
-                    var priceOnLots = RoundAmt(qty * amount);
+                //    var qty = Convert.ToDecimal(dr["Qty"]);
+                //    var amount = Convert.ToDecimal(dr["UnitCost"]);
+                //    var priceOnLots = RoundAmt(qty * amount);
 
-                    item_queries.AppendFormat("(@HdrNo, @DtNo{0}, 1, @ProductCode{0}, @Location{0}, @IN{0}, 0, @Amount{0}, @PriceOnLots{0}, 'SI', @CommittedDate),", i);
+                //    item_queries.AppendFormat("(@HdrNo, @DtNo{0}, 1, @ProductCode{0}, @Location{0}, @IN{0}, 0, @Amount{0}, @PriceOnLots{0}, 'SI', @CommittedDate),", i);
 
-                    parameters.Add(new SqlParameter("@DtNo" + i.ToString(), dtNo));
-                    parameters.Add(new SqlParameter("@ProductCode" + i.ToString(), productCode));
-                    parameters.Add(new SqlParameter("@Location" + i.ToString(), location));
-                    parameters.Add(new SqlParameter("@IN" + i.ToString(), qty));
-                    parameters.Add(new SqlParameter("@Amount" + i.ToString(), amount));
-                    parameters.Add(new SqlParameter("@PriceOnLots" + i.ToString(), priceOnLots));
-                }
+                //    parameters.Add(new SqlParameter("@DtNo" + i.ToString(), dtNo));
+                //    parameters.Add(new SqlParameter("@ProductCode" + i.ToString(), productCode));
+                //    parameters.Add(new SqlParameter("@Location" + i.ToString(), location));
+                //    parameters.Add(new SqlParameter("@IN" + i.ToString(), qty));
+                //    parameters.Add(new SqlParameter("@Amount" + i.ToString(), amount));
+                //    parameters.Add(new SqlParameter("@PriceOnLots" + i.ToString(), priceOnLots));
+                //}
 
-                queries.AppendLine(item_queries.ToString().Trim().TrimEnd(','));
+                //queries.AppendLine(item_queries.ToString().Trim().TrimEnd(','));
 
                 queries.AppendLine("UPDATE [IN].StockIn SET [Status]='Committed', UpdateDate=@CommittedDate, UpdateBy=@UpdateBy WHERE RefId=@HdrNo");
                 queries.AppendLine("EXEC [IN].UpdateAverageCost @HdrNo");
@@ -979,7 +982,7 @@ ORDER BY
                 }
                 catch (Exception ex)
                 {
-                    ErrorLog(ex.Message, "982");
+                    ErrorLog(ex.Message, "985");
                     ShowAlert("Save is unsuccess. Please try to save again.");
                     return;
                 }
