@@ -235,7 +235,6 @@ namespace BlueLedger.PL.Option.Inventory
                 ddl_ItemGroup.DataSource = dtItemGroup;
                 ddl_ItemGroup.DataBind();
 
-                SetDeviation(ddl_ItemGroup.SelectedItem.Value.ToString(), se_PriceDev, se_QtyDev);
             }
 
             Bind_OrderUnit();
@@ -258,6 +257,8 @@ namespace BlueLedger.PL.Option.Inventory
             txt_InventoryUnit.Visible = isEditMode;
             ddl_InventoryUnit.Visible = !isEditMode;
 
+            if (ddl_ItemGroup.SelectedItem != null)
+                SetDeviation(ddl_ItemGroup.SelectedItem.Value.ToString(), se_PriceDev, se_QtyDev);
 
 
         }
@@ -311,7 +312,8 @@ namespace BlueLedger.PL.Option.Inventory
             ddl_ItemGroup.DataSource = dtItemGroup;
             ddl_ItemGroup.DataBind();
 
-            SetDeviation(ddl_ItemGroup.SelectedItem.Value.ToString(), se_PriceDev, se_QtyDev);
+            if (ddl_ItemGroup.SelectedItem != null)
+                SetDeviation(ddl_ItemGroup.SelectedItem.Value.ToString(), se_PriceDev, se_QtyDev);
 
         }
 
@@ -323,7 +325,8 @@ namespace BlueLedger.PL.Option.Inventory
             ddl_ItemGroup.DataSource = dtItemGroup;
             ddl_ItemGroup.DataBind();
 
-            SetDeviation(ddl_ItemGroup.SelectedValue.ToString(), se_PriceDev, se_QtyDev);
+            if (ddl_ItemGroup.SelectedItem != null)
+                SetDeviation(ddl_ItemGroup.SelectedValue.ToString(), se_PriceDev, se_QtyDev);
 
         }
 
@@ -1073,7 +1076,7 @@ namespace BlueLedger.PL.Option.Inventory
 
         private void SetDeviation(string itemGroupCode, ASPxSpinEdit priceEdit, ASPxSpinEdit qtyEdit)
         {
-            var sql =@"DECLARE @ItemGroupCode nvarchar(20) ='{0}'
+            var sql = @"DECLARE @ItemGroupCode nvarchar(20) ='{0}'
 
                     DECLARE @ParentCode nvarchar(20), @price decimal, @qty decimal
 
@@ -1101,21 +1104,25 @@ namespace BlueLedger.PL.Option.Inventory
 
                     SELECT ISNULL(@price, 0) AS Price, ISNULL(@qty, 0) as Qty";
 
-            sql = string.Format(sql, itemGroupCode);
 
-            var dt = product.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
-
-            var price = 0m;
-            var qty = 0m;
-
-            if (IsValidDb(dt))
+            if (!string.IsNullOrEmpty(itemGroupCode))
             {
-                price = Convert.ToDecimal(dt.Rows[0]["Price"]);
-                qty = Convert.ToDecimal(dt.Rows[0]["Qty"]);
-            }
+                sql = string.Format(sql, itemGroupCode);
 
-            priceEdit.Value = price;
-            qtyEdit.Value = qty;
+                var dt = product.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
+
+                var price = 0m;
+                var qty = 0m;
+
+                if (IsValidDb(dt))
+                {
+                    price = Convert.ToDecimal(dt.Rows[0]["Price"]);
+                    qty = Convert.ToDecimal(dt.Rows[0]["Qty"]);
+                }
+
+                priceEdit.Value = price;
+                qtyEdit.Value = qty;
+            }
 
         }
 
