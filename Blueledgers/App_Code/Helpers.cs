@@ -149,11 +149,11 @@ public class Helpers
             var sql = new SQL(connectionString);
             var query = string.Format("SELECT TOP 1 StartDate FROM [IN].Period WHERE IsClose=0 AND '{0}' >= StartDate", docDate.ToString("yyyy-MM-dd"));
             var dt = new DataTable();
-            
+
             dt = sql.ExecuteQuery(query);
             var isOpenPeriod = dt != null && dt.Rows.Count > 0;
 
-            dt = sql.ExecuteQuery("SELECT * FROM APP.Config WHERE Module='APP' AND SubModule='SYS' AND [Key]='EnableEditCommit' AND [Value]='1'"); 
+            dt = sql.ExecuteQuery("SELECT * FROM APP.Config WHERE Module='APP' AND SubModule='SYS' AND [Key]='EnableEditCommit' AND [Value]='1'");
             var enableEditCommit = dt != null && dt.Rows.Count > 0;
 
             dt = sql.ExecuteQuery("SELECT * FROM APP.Config WHERE Module='IN' AND SubModule='SYS' AND [Key]='COST' AND [Value]='AVCO'");
@@ -165,4 +165,24 @@ public class Helpers
 
     }
 
+    public static class WriteLog
+    {
+        public static void Error(string text, string comment = "")
+        {
+
+            var dir = HttpContext.Current.Server.MapPath("~\\");
+            var file = System.IO.Path.Combine(dir, "errors.txt");
+
+            //System.IO.File.WriteAllText(file, "101");
+            var error = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "\t" + @text + "\t" + comment + Environment.NewLine + Environment.NewLine;
+            System.IO.File.AppendAllText(file, error);
+
+
+        }
+
+    }
+
+
 }
+
+

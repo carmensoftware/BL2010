@@ -643,6 +643,11 @@ namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
             gv_Data.DataBind();
         }
 
+        private void Search(string text)
+        {
+
+        }
+
         private DataTable GetData1(bool isPrint = false)
         {
 
@@ -809,6 +814,8 @@ data AS(
             }
 
             var sql = new Helpers.SQL(LoginInfo.ConnStr);
+
+            Helpers.WriteLog.Error(queries.ToString());
 
             var dt = sql.ExecuteQuery(queries.ToString(), parameters.ToArray());
 
@@ -1059,6 +1066,88 @@ data AS(
             var error = "";
             var queries = new StringBuilder();
 
+            using (var csv = File.OpenText(filename))
+            {
+                var line = "";
+                var limit = 0;
+
+                // Skip the first line
+                csv.ReadLine();
+                while ((line = csv.ReadLine()) != null)
+                {
+                    #region -- each line --
+
+                    var columns = line.Split(',').Select(x => x.Trim()).ToArray();
+                    var lastIndex = columns.Length - 1;
+
+                    var type = columns[0];
+
+                    if (type.Length > 2)
+                    {
+                        return "Invalid account mapping file.";
+                    }
+
+                    var id = columns.Length > 1 ? columns[1] : "";
+
+                    if (type.ToUpper() == "AP")
+                    {
+                        var depCode = columns[lastIndex - 1];
+                        var accCode = columns[lastIndex];
+
+
+                        queries.AppendLine(string.Format("UPDATE [ADMIN].AccountMapp SET A1=N'{1}', A2=N'{2}'  WHERE ID=N'{0}'", id, depCode, accCode));
+                    }
+                    else if (type.ToUpper() == "GL")
+                    {
+                        var drDepCode = columns[lastIndex - 3];
+                        var drAccCode = columns[lastIndex - 2];
+                        var crDepCode = columns[lastIndex - 1];
+                        var crAccCode = columns[lastIndex];
+
+                        queries.AppendLine(string.Format("UPDATE [ADMIN].AccountMapp SET A2=N'{1}', A3=N'{2}', A4=N'{3}', A5=N'{4}' WHERE ID=N'{0}'", id, drDepCode, drAccCode, crDepCode, crAccCode));
+                    }
+
+                    #endregion
+
+                    if (limit % 200 == 0)
+                    {
+                        new Helpers.SQL(LoginInfo.ConnStr).ExecuteQuery(queries.ToString());
+                        queries.Clear();
+                    }
+
+                    limit++;
+                }
+
+                //Helpers.WriteLog.Error(queries.ToString());
+
+
+                if (queries.ToString().Trim() != "")
+                {
+                    new Helpers.SQL(LoginInfo.ConnStr).ExecuteQuery(queries.ToString());
+                }
+                else
+                    error = "No data";
+
+                //SaveAsCsv(queries.ToString(), "test.txt");
+
+                csv.Close();
+                File.Delete(filename);
+                pop_ImportExport.ShowOnPageLoad = false;
+
+                Response.Redirect("AccountMapp.aspx");
+            }
+
+
+
+            return error;
+        }
+
+
+        private string ImportFile1(string filename)
+        {
+            var error = "";
+            var queries = new StringBuilder();
+
             queries.AppendLine("DECLARE @acc TABLE ( ID nvarchar(50) NOT NULL, A1 nvarchar(20), A2 nvarchar(20), A3 nvarchar(20), A4 nvarchar(20), A5 nvarchar(20), PRIMARY KEY (ID))");
             //queries.AppendLine("INSERT INTO @acc (ID, A1, A2, A3, A4, A5) VALUES");
 
@@ -1102,7 +1191,7 @@ data AS(
                             var accCode = columns[lastIndex];
 
                             //insert.AppendLine(string.Format("INSERT INTO @acc (ID, A1, A2, A3, A4, A5) VALUES('{0}','{1}','{2}','','','');", id, depCode, accCode));
-                            insert.AppendLine(string.Format("('{0}','{1}','{2}','','',''),", id, depCode, accCode));
+                            insert.AppendLine(string.Format("(N'{0}',N'{1}',N'{2}','','',''),", id, depCode, accCode));
 
                         }
                         else
@@ -1112,7 +1201,7 @@ data AS(
                             var crDepCode = columns[lastIndex - 1];
                             var crAccCode = columns[lastIndex];
 
-                            insert.AppendLine(string.Format("INSERT INTO @acc (ID, A1, A2, A3, A4, A5) VALUES('{0}','','{1}','{2}','{3}','{4}');", id, drDepCode, drAccCode, crDepCode, crAccCode));
+                            insert.AppendLine(string.Format("INSERT INTO @acc (ID, A1, A2, A3, A4, A5) VALUES(N'{0}',N'{1}',N'{2}',N'{3}',N'{4}');", id, drDepCode, drAccCode, crDepCode, crAccCode));
                         }
 
                     }
@@ -1301,7 +1390,39 @@ ORDER BY
 
             if (_postType == "GL")
             {
-                query = @"";
+                query = @"
+;WITH
+acc AS(
+	SELECT
+		PostType as [Type],
+		ac.ID,
+		CONCAT(ac.StoreCode, ' : ', l.LocationName )as Location,
+		CONCAT(c.CategoryCode, ' : ', c.CategoryName) as Category,
+		CONCAT(c.SubCategoryCode, ' : ', c.SubCategoryName) as SubCategory,
+		CONCAT(c.ItemGroupCode, ' : ', c.ItemGroupName) as ItemGroup,
+		A1 as MovementType,
+		A2 as [Dr. Department],
+		A3 as [Dr. Account],
+		A4 as [Cr. Department],
+		A5 as [Cr. Account]
+
+	FROM
+		[ADMIN].AccountMapp ac
+		JOIN [IN].StoreLocation l ON l.LocationCode=ac.StoreCode
+		JOIN [IN].vProdCatList c ON c.ItemGroupCode=ac.ItemGroupCode
+	WHERE
+		BusinessUnitCode=(SELECT TOP(1) BuCode FROM [ADMIN].Bu)
+		AND PostType='GL'
+)
+SELECT
+	*
+FROM
+	acc
+ORDER BY
+	[Location],
+	[Category],
+	[SubCategory],
+	[ItemGroup]";
             }
 
             var dt = new Helpers.SQL(LoginInfo.ConnStr).ExecuteQuery(query);
