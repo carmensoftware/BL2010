@@ -11,6 +11,7 @@ using System.Web.UI.WebControls;
 using BlueLedger.PL.BaseClass;
 using DevExpress.Web.ASPxEditors;
 using Newtonsoft.Json;
+using System.Text;
 
 namespace BlueLedger.PL.PT.RCP
 {
@@ -19,6 +20,8 @@ namespace BlueLedger.PL.PT.RCP
     {
         private readonly Blue.BL.dbo.Bu bu = new Blue.BL.dbo.Bu();
         private readonly Blue.BL.APP.Config config = new Blue.BL.APP.Config();
+
+        private readonly Blue.BL.PT.RCP.RcpDt rcpDt = new Blue.BL.PT.RCP.RcpDt();
 
         #region "Attributes"
 
@@ -41,6 +44,18 @@ namespace BlueLedger.PL.PT.RCP
             set { ViewState["_dtRcpDt"] = value; }
         }
 
+        private DataTable _dtItem
+        {
+            get { return ViewState["_dtItem"] as DataTable; }
+            set { ViewState["_dtItem"] = value; }
+        }
+
+        private DataTable _dtUnit
+        {
+            get { return ViewState["_dtUnit"] as DataTable; }
+            set { ViewState["_dtUnit"] = value; }
+        }
+
         #endregion
 
         // -----------------------------------------------------------------------------------------------------------
@@ -49,11 +64,11 @@ namespace BlueLedger.PL.PT.RCP
         {
             hf_ConnStr.Value = LoginInfo.ConnStr;
 
-            hf_DefaultSvcRate.Value = config.GetValue("APP", "Default", "SvcRate", LoginInfo.ConnStr);
-            hf_DefaultTaxRate.Value = config.GetValue("APP", "Default", "TaxRate", LoginInfo.ConnStr);
+            var serviceRate = config.GetValue("APP", "Default", "SvcRate", LoginInfo.ConnStr);
+            var taxRate = config.GetValue("APP", "Default", "TaxRate", LoginInfo.ConnStr);
 
-            hf_DefaultSvcRate.Value = string.IsNullOrEmpty(hf_DefaultSvcRate.Value) ? "0" : hf_DefaultSvcRate.Value;
-            hf_DefaultTaxRate.Value = string.IsNullOrEmpty(hf_DefaultTaxRate.Value) ? "0" : hf_DefaultTaxRate.Value;
+            hf_DefaultSvcRate.Value = string.IsNullOrEmpty(serviceRate) ? "0" : serviceRate;
+            hf_DefaultTaxRate.Value = string.IsNullOrEmpty(taxRate) ? "0" : taxRate;
 
             //lbl_TaxSvcRate.Text = string.Format("Service charge: {0}% , Tax Rate: {1}%", hf_DefaultSvcRate.Value.ToString(), hf_DefaultTaxRate.Value.ToString());
         }
@@ -70,11 +85,13 @@ namespace BlueLedger.PL.PT.RCP
         {
 
             var sql = new Helpers.SQL(hf_ConnStr.Value);
+
             _dtRcp = sql.ExecuteQuery("SELECT  * FROM PT.Rcp WHERE RcpCode=@RcpCode", new SqlParameter[] { new SqlParameter("@RcpCode", _ID) });
             _dtRcpDt = sql.ExecuteQuery("SELECT NEWID() as RowId, * FROM PT.RcpDt WHERE RcpCode=@RcpCode", new SqlParameter[] { new SqlParameter("@RcpCode", _ID) });
 
-            Page_Setting();
+            _dtItem = GetDataItem(_ID);
 
+            Page_Setting();
         }
 
         private void Page_Setting()
@@ -99,7 +116,7 @@ namespace BlueLedger.PL.PT.RCP
                 se_PortionSize.Text = string.IsNullOrEmpty(dr["PortionSize"].ToString()) ? "0" : dr["PortionSize"].ToString();
                 se_PortionCost.Text = string.IsNullOrEmpty(dr["PortionCost"].ToString()) ? "0" : dr["PortionCost"].ToString();
 
-                se_PrepTime.Text = string.IsNullOrEmpty(dr["PrepTime"].ToString()) ? "0" : dr["PrepTile"].ToString();
+                se_PrepTime.Text = string.IsNullOrEmpty(dr["PrepTime"].ToString()) ? "0" : dr["PrepTime"].ToString();
                 se_TotalTime.Text = string.IsNullOrEmpty(dr["TotalTime"].ToString()) ? "0" : dr["TotalTime"].ToString();
 
                 txt_Remark.Text = dr["Remark"].ToString();
@@ -107,6 +124,19 @@ namespace BlueLedger.PL.PT.RCP
 
                 var image = dr["RcpImage"].ToString();
                 img_RcpImage.ImageUrl = image;
+
+
+                se_TotalCost.Number = GetDecimal(dr["RcpCost"].ToString());
+                se_TotalMixRate.Number = GetDecimal(dr["MixRatio"].ToString());
+                se_TotalMix.Number = GetDecimal(dr["MixCost"].ToString());
+                se_CostTotalMix.Number = se_TotalCost.Number + se_TotalMix.Number;
+                se_NetPrice.Number = GetDecimal(dr["NetPrice"].ToString());
+                se_GrossPrice.Number = GetDecimal(dr["GrossPrice"].ToString());
+                se_NetCost.Number = GetDecimal(dr["NetCost"].ToString());
+                se_GrossCost.Number = GetDecimal(dr["GrossCost"].ToString());
+
+                lbl_ServiceRate.Text = FormatAmt(hf_DefaultSvcRate.Value);
+                lbl_TaxRate.Text = FormatAmt(hf_DefaultTaxRate.Value);
             }
 
             // Details
@@ -121,31 +151,16 @@ namespace BlueLedger.PL.PT.RCP
             switch (e.Item.Name.ToUpper())
             {
                 case "UPDATE":
-                    //var dbParams = new Blue.DAL.DbParameter[2];
-                    //dbParams[0] = new Blue.DAL.DbParameter("@RcpCode", txt_RcpCode.Text);
-                    //dbParams[1] = new Blue.DAL.DbParameter("@updatedBy", LoginInfo.LoginName);
+                    var toDate = DateTime.Today;
 
-                    //bool result = rcpDt.UpdateCostOfRecipe(dbParams, LoginInfo.ConnStr);
-
-                    //if (result)
-                    //{
-                    //    Response.Redirect("RecipeEdit.aspx?BuCode=" + Request.Params["BuCode"] + "&MODE=EDIT&ID=" + Request.Params["ID"] + "&VID=" + Request.Params["VID"]);
-                    //}
+                    UpdateCost(toDate);
 
                     break;
 
                 case "SAVE":
-                    //string message = checkHeaderRequired();
-                    //if (message == string.Empty)
-                    //{
-                    //    pop_ConfirmSave.ShowOnPageLoad = true;
-                    //}
-                    //else
-                    //{
-                    //    lbl_Warning.Text = message;
-                    //    pop_Warning.ShowOnPageLoad = true;
-                    //}
+                    Save();
                     break;
+
 
                 case "BACK":
                     var url = string.IsNullOrEmpty(_ID)
@@ -209,37 +224,75 @@ ORDER BY
             switch (e.Item.Name.ToUpper())
             {
                 case "CREATE":
-                    CreateItem();
+                    CreateDetail();
                     break;
 
                 case "DELETE":
-                    DeleteItem();
+                    if (HasPendingItem())
+                    {
+                        return;
+                    }
+
+
+                    var items = new List<string>();
+                    var gv = gv_Detail;
+                    foreach (GridViewRow row in gv.Rows)
+                    {
+                        if (((CheckBox)row.FindControl("Chk_Item")).Checked)
+                        {
+                            var hf_RowId = row.FindControl("hf_RowId") as HiddenField;
+                            items.Add(hf_RowId.Value);
+                        }
+                    }
+
+                    if (items.Count > 0)
+                    {
+
+                        hf_DeleteItems.Value = JsonConvert.SerializeObject(items);
+
+                        ShowConfirmDelete(string.Format("Do you want to delete {0} item(s)?", items.Count));
+
+                        return;
+                    }
+                    else
+                        ShowAlert("Please select any item.");
+
+
                     break;
             }
         }
 
         protected void btn_ComfirmDelete_Click(object sender, EventArgs e)
         {
+            var values = string.IsNullOrEmpty(hf_DeleteItems.Value) ? "[]" : hf_DeleteItems.Value;
+            var items = JsonConvert.DeserializeObject<IEnumerable<string>>(values);
+
+            if (items.Count() > 0)
+            {
+                DeleteDetails(items);
+            }
+            pop_ConfirmDelete.ShowOnPageLoad = false;
         }
 
         // GrdiView
         protected void gv_Detail_RowCommand(object sender, GridViewCommandEventArgs e)
         {
+            var gv = sender as GridView;
+
             var rowId = e.CommandArgument.ToString();
             var commandName = e.CommandName.ToUpper();
 
             switch (commandName)
             {
                 case "CREATE":
-                    CreateItem();
+                    CreateDetail();
 
                     break;
 
                 case "SAVE":
                 case "SAVENEW":
-                    var gv = sender as GridView;
                     var row = gv.Rows[gv.EditIndex];
-                    var error = SaveItem(row);
+                    var error = SaveDetail(row);
 
                     if (!string.IsNullOrEmpty(error))
                     {
@@ -248,10 +301,10 @@ ORDER BY
                     }
 
                     gv_Detail.EditIndex = -1;
-                    BindItems();
+                    BindDetails();
 
                     if (commandName == "SAVENEW")
-                        CreateItem();
+                        CreateDetail();
 
                     break;
 
@@ -260,13 +313,12 @@ ORDER BY
 
                     var dr = _dtRcpDt.AsEnumerable().FirstOrDefault(x => x.Field<Guid>("RowId").ToString() == rowId);
 
-                    var locationCode = dr == null ? "" : dr["StoreId"].ToString();
-                    var productCode = dr == null ? "" : dr["SKU"].ToString();
+                    var itemCode = dr == null ? "" : dr["IngredientCode"].ToString();
 
 
                     hf_DeleteItems.Value = JsonConvert.SerializeObject(items);
 
-                    ShowConfirmDelete(string.Format("Location: {0}<br />Product: {1}<br />Do you want to delete this item?", locationCode, productCode));
+                    ShowConfirmDelete(string.Format("Do you want to delete this item '{0}'?", itemCode));
                     break;
             }
         }
@@ -283,6 +335,13 @@ ORDER BY
                 //    item.Attributes.Add("data-id", DataBinder.Eval(e.Row.DataItem, "RowId").ToString());
                 //}
 
+                var itemType = DataBinder.Eval(e.Row.DataItem, "IngredientType").ToString();
+                var itemCode = DataBinder.Eval(e.Row.DataItem, "IngredientCode").ToString();
+
+                var names = GetitemName(itemType, itemCode);
+                var name1 = names != null ? names["Name1"].ToString() : "";
+                var name2 = names != null ? names["Name2"].ToString() : "";
+
                 if (e.Row.FindControl("hf_RowId") != null)
                 {
                     var item = e.Row.FindControl("hf_RowId") as HiddenField;
@@ -293,19 +352,20 @@ ORDER BY
                 if (e.Row.FindControl("lbl_ItemType") != null)
                 {
                     var lbl = e.Row.FindControl("lbl_ItemType") as Label;
-                    var value = DataBinder.Eval(e.Row.DataItem, "IngredientType").ToString();
+                    //var value = DataBinder.Eval(e.Row.DataItem, "IngredientType").ToString();
 
-                    lbl.Text = value == "P" ? "Product" : "Recipe";
+                    lbl.Text = itemType == "P" ? "Product" : "Recipe";
                     lbl.ToolTip = lbl.Text;
                 }
 
+                if (e.Row.FindControl("ddl_ItemType") != null)
+                {
+                    var ddl = e.Row.FindControl("ddl_ItemType") as ASPxComboBox;
 
-                var itemType = DataBinder.Eval(e.Row.DataItem, "IngredientType").ToString();
-                var itemCode = DataBinder.Eval(e.Row.DataItem, "IngredientCode").ToString();
+                    ddl.Value = itemType;
+                }
 
-                var names = GetitemName(itemType, itemCode);
-                var name1 = names != null ? names["Name1"].ToString() : "";
-                var name2 = names != null ? names["Name2"].ToString() : "";
+
 
                 if (e.Row.FindControl("lbl_Item") != null)
                 {
@@ -313,6 +373,13 @@ ORDER BY
 
                     lbl.Text = string.Format("{0} : {1}", itemCode, name1);
                     lbl.ToolTip = lbl.Text;
+                }
+
+                if (e.Row.FindControl("ddl_Item") != null)
+                {
+                    var ddl = e.Row.FindControl("ddl_Item") as ASPxComboBox;
+
+                    ddl.Value = itemCode;
                 }
 
                 if (e.Row.FindControl("lbl_ItemDesc2") != null)
@@ -323,77 +390,102 @@ ORDER BY
                     lbl.ToolTip = lbl.Text;
                 }
 
-                //    if (e.Row.FindControl("lbl_Product") != null)
-                //    {
-                //        var lbl = e.Row.FindControl("lbl_Product") as Label;
-                //        var code = DataBinder.Eval(e.Row.DataItem, "SKU").ToString();
 
-                //        var drProduct = GetProduct(code);
-                //        var name1 = drProduct == null ? "" : drProduct["ProductDesc1"].ToString();
-                //        var name2 = drProduct == null ? "" : drProduct["ProductDesc2"].ToString();
+                if (e.Row.FindControl("ddl_Unit") != null)
+                {
+                    var ddl = e.Row.FindControl("ddl_Unit") as ASPxComboBox;
 
-                //        lbl.Text = string.Format("{0} : {1} | {2}", code, name1, name2);
-                //        lbl.ToolTip = lbl.Text;
-                //    }
+                    ddl.Value = DataBinder.Eval(e.Row.DataItem, "Unit").ToString();
+                }
 
+                if (e.Row.FindControl("lbl_UnitRate") != null)
+                {
+                    var lbl = e.Row.FindControl("lbl_UnitRate") as Label;
 
-                //    if (e.Row.FindControl("ddl_Product") != null)
-                //    {
-                //        var ddl_Product = e.Row.FindControl("ddl_Product") as ASPxComboBox;
-                //        var ddl_Location = e.Row.FindControl("ddl_Location") as ASPxComboBox;
+                    lbl.Text = FormatUnitRate(DataBinder.Eval(e.Row.DataItem, "UnitRate"));
+                    lbl.ToolTip = lbl.Text;
+                }
 
-                //        var locationCode = GetDropdownValue(ddl_Location);
-                //        var productCode = DataBinder.Eval(e.Row.DataItem, "SKU").ToString();
-
-                //        SetProducts(ddl_Product, locationCode, productCode);
-                //    }
-
-                //    if (e.Row.FindControl("lbl_Unit") != null)
-                //    {
-                //        var lbl_Unit = e.Row.FindControl("lbl_Unit") as Label;
-
-                //        lbl_Unit.Text = DataBinder.Eval(e.Row.DataItem, "Unit").ToString();
-                //        lbl_Unit.ToolTip = lbl_Unit.Text;
-                //    }
-
-                //    if (e.Row.FindControl("num_Qty") != null)
-                //    {
-                //        var num = e.Row.FindControl("num_Qty") as ASPxSpinEdit;
-                //        num.DecimalPlaces = DefaultQtyDigit;
-
-                //        num.Text = DataBinder.Eval(e.Row.DataItem, "Qty").ToString();
-                //    }
-
-
-                //    if (e.Row.FindControl("num_Cost") != null)
-                //    {
-                //        var num = e.Row.FindControl("num_Cost") as ASPxSpinEdit;
-
-                //        num.DecimalPlaces = DefaultAmtDigit;
-                //        num.Text = DataBinder.Eval(e.Row.DataItem, "UnitCost").ToString();
-                //    }
-
-                //    if (e.Row.FindControl("txt_Comment") != null)
-                //    {
-                //        var text = e.Row.FindControl("txt_Comment") as TextBox;
-
-                //        text.Text = DataBinder.Eval(e.Row.DataItem, "Comment").ToString();
-                //        text.ToolTip = text.Text;
-                //    }
-
-
-                // Expand Information --
                 if (e.Row.FindControl("lbl_BaseUnit") != null)
                 {
                     var lbl = e.Row.FindControl("lbl_BaseUnit") as Label;
 
-                    var unit = DataBinder.Eval(e.Row.DataItem, "Unit").ToString();
-                    var baseUnit = DataBinder.Eval(e.Row.DataItem, "BaseUnit").ToString();
-                    var unitRate = Convert.ToDecimal(DataBinder.Eval(e.Row.DataItem, "UnitRate"));
-
-                    lbl.Text = string.Format("Base unit : {0} = {1} {2}", baseUnit, unitRate.ToString(string.Format("N{0}", 0)), unit);
+                    lbl.Text = DataBinder.Eval(e.Row.DataItem, "BaseUnit").ToString();
                     lbl.ToolTip = lbl.Text;
                 }
+
+                if (e.Row.FindControl("num_Qty") != null)
+                {
+                    var num = e.Row.FindControl("num_Qty") as ASPxSpinEdit;
+                    num.DecimalPlaces = DefaultQtyDigit;
+
+                    num.Text = DataBinder.Eval(e.Row.DataItem, "Qty").ToString();
+                }
+
+                if (e.Row.FindControl("num_BaseCost") != null)
+                {
+                    var num = e.Row.FindControl("num_BaseCost") as ASPxSpinEdit;
+                    num.DecimalPlaces = DefaultQtyDigit;
+
+                    num.Text = DataBinder.Eval(e.Row.DataItem, "BaseCost").ToString();
+                }
+
+                if (e.Row.FindControl("num_SpoilRate") != null)
+                {
+                    var num = e.Row.FindControl("num_SpoilRate") as ASPxSpinEdit;
+                    num.DecimalPlaces = DefaultQtyDigit;
+
+                    num.Text = DataBinder.Eval(e.Row.DataItem, "SpoilRate").ToString();
+                }
+
+                if (e.Row.FindControl("lbl_NetCost") != null)
+                {
+                    var lbl = e.Row.FindControl("lbl_NetCost") as Label;
+
+                    lbl.Text = FormatAmt(DataBinder.Eval(e.Row.DataItem, "NetCost"));
+                    lbl.ToolTip = lbl.Text;
+                }
+
+                if (e.Row.FindControl("lbl_SpoilCost") != null)
+                {
+                    var lbl = e.Row.FindControl("lbl_SpoilCost") as Label;
+
+                    lbl.Text = FormatAmt(DataBinder.Eval(e.Row.DataItem, "SpoilCost"));
+                    lbl.ToolTip = lbl.Text;
+                }
+
+                if (e.Row.FindControl("lbl_TotalCost") != null)
+                {
+                    var lbl = e.Row.FindControl("lbl_TotalCost") as Label;
+
+                    lbl.Text = FormatAmt(DataBinder.Eval(e.Row.DataItem, "TotalCost"));
+                    lbl.ToolTip = lbl.Text;
+                }
+
+
+                if (e.Row.FindControl("lbl_UpdatedDate") != null)
+                {
+                    var lbl = e.Row.FindControl("lbl_UpdatedDate") as Label;
+
+                    if (DataBinder.Eval(e.Row.DataItem, "UpdatedDate") != DBNull.Value)
+                        lbl.Text = "@" + Convert.ToDateTime(DataBinder.Eval(e.Row.DataItem, "UpdatedDate")).ToShortDateString();
+
+                    lbl.ToolTip = lbl.Text;
+                }
+
+
+                // Expand Information --
+                //if (e.Row.FindControl("lbl_BaseUnit") != null)
+                //{
+                //    var lbl = e.Row.FindControl("lbl_BaseUnit") as Label;
+
+                //    var unit = DataBinder.Eval(e.Row.DataItem, "Unit").ToString();
+                //    var baseUnit = DataBinder.Eval(e.Row.DataItem, "BaseUnit").ToString();
+                //    //var unitRate = Convert.ToDecimal(DataBinder.Eval(e.Row.DataItem, "UnitRate"));
+
+                //    lbl.Text = string.Format("Base unit : {0}", baseUnit);
+                //    lbl.ToolTip = lbl.Text;
+                //}
             }
         }
 
@@ -402,7 +494,7 @@ ORDER BY
             var gv = sender as GridView;
 
             gv.EditIndex = e.NewEditIndex;
-            BindItems();
+            BindDetails();
         }
 
         protected void gv_Detail_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e)
@@ -410,75 +502,157 @@ ORDER BY
             var gv = sender as GridView;
             var row = gv.Rows[gv.EditIndex];
 
-            var ddl_Product = row.FindControl("ddl_Product") as ASPxComboBox;
             var hf_RowId = row.FindControl("hf_RowId") as HiddenField;
+            var item = _dtRcpDt.AsEnumerable().FirstOrDefault(x => x.Field<Guid>("RowId").ToString() == hf_RowId.Value);
 
-            if (ddl_Product.Value == null)
+            if (item != null & item.Field<int>("RcpDtId") < 0)
             {
-                var rowId = hf_RowId.Value;
-                var dr = _dtRcpDt.AsEnumerable().FirstOrDefault(x => x.Field<Guid>("RowId").ToString() == rowId);
-
-                dr.Delete();
+                item.Delete();
 
                 _dtRcpDt.AcceptChanges();
-
             }
-
-
-
 
             gv.EditIndex = -1;
-            BindItems();
+            BindDetails();
         }
 
-
-        protected void ddl_ItemType_SelectedIndexChanged(object sender, EventArgs e)
+        protected void ddl_Item_Load(object sender, EventArgs e)
         {
             var ddl = sender as ASPxComboBox;
-            var ddl_Item = ddl.NamingContainer.FindControl("ddl_Item") as ASPxComboBox;
 
-            var sql = new Helpers.SQL(hf_ConnStr.Value);
-            var query = "";
-
-
-            if (ddl.Value == "P") // Product
-            {
-                query = "SELECT ProductCode as [Value], CONCAT(ProductCode, ' : ', ProductDesc1, ' | ' , ProductDesc2) as [Text] FROM [IN].Product WHERE IsActive=1 ORDER BY ProductCode";
-            }
-            else
-            {
-                query = "SELECT RcpCode as [Value], CONCAT(RcpCode,' : ', RcpDesc1, ' | ' , RcpDesc2) as [Text] FROM PT.Rcp WHERE IsActived=1 ORDER BY RcpCode";
-            }
-
-            var dt = sql.ExecuteQuery(query);
-
-            ddl_Item.Items.Clear();
-            ddl_Item.Items.AddRange(dt.AsEnumerable().Select(x => new ListEditItem { Value = x.Field<string>("Value"), Text = x.Field<string>("Text") }).ToArray());
-
+            ddl.DataSource = _dtItem;
+            ddl.ValueField = "Code";
+            ddl.TextField = "Text";
+            ddl.TextFormatString = "{0}";
+            ddl.DataBind();
         }
-
 
         protected void ddl_Item_SelectedIndexChanged(object sender, EventArgs e)
         {
             var ddl = sender as ASPxComboBox;
-            var ddl_ItemType = ddl.NamingContainer.FindControl("ddl_ItemType") as ASPxComboBox;
-            var lbl_Unit = ddl.NamingContainer.FindControl("lbl_Unit") as Label;
 
-            //var locationCode = GetDropdownValue(ddl);
-            //var productCode = GetDropdownValue(ddl_Product);
+            var hf_RowId = ddl.NamingContainer.FindControl("hf_RowId") as HiddenField;
+            var ddl_Unit = ddl.NamingContainer.FindControl("ddl_Unit") as ASPxComboBox;
+            var lbl_ItemType = ddl.NamingContainer.FindControl("lbl_ItemType") as Label;
+            var lbl_BaseUnit = ddl.NamingContainer.FindControl("lbl_BaseUnit") as Label;
+            var lbl_UnitRate = ddl.NamingContainer.FindControl("lbl_UnitRate") as Label;
 
-            //SetProducts(ddl_Product, locationCode, productCode);
+            var rowId = hf_RowId.Value;
+            var type = ddl.Value == null ? "" : ddl.SelectedItem.GetValue("Type").ToString();
+            var code = ddl.Value == null ? "" : ddl.Value.ToString();
+            var baseUnit = ddl.Value == null ? "" : ddl.SelectedItem.GetValue("BaseUnit").ToString();
+            var unit = ddl_Unit.Value == null ? "" : ddl_Unit.Value.ToString();
 
-            //SetExpandInformation(ddl, locationCode, productCode, de_DocDate.Date);
+            BindUnit(ddl, type, code);
+
+            var drUnit = _dtUnit.AsEnumerable().FirstOrDefault(x => x.Field<string>("Code") == unit);
+
+            var unitRate = 0m;
+
+            if (drUnit == null)
+            {
+                ddl_Unit.SelectedIndex = 0;
+                unitRate = GetDecimal(ddl_Unit.SelectedItem.GetValue("Rate").ToString());
+            }
+            else
+            {
+                unitRate = drUnit.Field<decimal>("Rate");
+            }
+
+
+            lbl_ItemType.Text = type;
+            lbl_BaseUnit.Text = baseUnit;
+            lbl_UnitRate.Text = ddl_Unit.Value == null ? "0" : FormatUnitRate(unitRate.ToString());
+        }
+
+        protected void ddl_Unit_Load(object sender, EventArgs e)
+        {
+            var ddl = sender as ASPxComboBox;
+            var ddl_Item = ddl.NamingContainer.FindControl("ddl_Item") as ASPxComboBox;
+            var lbl_ItemType = ddl.NamingContainer.FindControl("lbl_ItemType") as Label;
+
+            var type = lbl_ItemType.Text;
+            var code = ddl_Item.Value == null ? "" : ddl_Item.Value.ToString();
+
+            BindUnit(ddl, type, code);
+        }
+
+        protected void ddl_Unit_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var ddl = sender as ASPxComboBox;
+            var lbl_UnitRate = ddl.NamingContainer.FindControl("lbl_UnitRate") as Label;
+
+            var rate = ddl.SelectedItem.GetValue("Rate").ToString();
+
+            lbl_UnitRate.Text = FormatAmt(rate);
+
+        }
+
+        protected void items_NumberChanged(object sender, EventArgs e)
+        {
+            var se = sender as ASPxSpinEdit;
+
+            var num_Qty = se.NamingContainer.FindControl("num_Qty") as ASPxSpinEdit;
+            var num_BaseCost = se.NamingContainer.FindControl("num_BaseCost") as ASPxSpinEdit;
+            var num_SpoilRate = se.NamingContainer.FindControl("num_SpoilRate") as ASPxSpinEdit;
+            var lbl_UnitRate = se.NamingContainer.FindControl("lbl_UnitRate") as Label;
+
+            var lbl_NetCost = se.NamingContainer.FindControl("lbl_NetCost") as Label;
+            var lbl_SpoilCost = se.NamingContainer.FindControl("lbl_SpoilCost") as Label;
+            var lbl_TotalCost = se.NamingContainer.FindControl("lbl_TotalCost") as Label;
+
+            var qty = GetValue(num_Qty);
+            var baseCost = GetValue(num_BaseCost);
+            var spoilRate = GetValue(num_SpoilRate);
+            var unitRate = GetDecimal(lbl_UnitRate.Text);
+
+            //var netCost = FormatAmt(lbl_NetCost.Text);
+            //var spoilCost = FormatAmt(lbl_SpoilCost.Text);
+            //var totalCost = FormatAmt(lbl_TotalCost);
+
+            // TotalCost = (Qty/UnitRate) * BaseCost
+            var totalCost = GetTotalCost(qty, unitRate, baseCost);
+
+            // SpoilCost = TotalCost * SpoilRate/100
+            var spoilCost = GetSpoilCost(totalCost, spoilRate);
+            var netCost = totalCost - spoilCost;
+
+            lbl_NetCost.Text = FormatAmt(netCost);
+            lbl_SpoilCost.Text = FormatAmt(spoilCost);
+            lbl_TotalCost.Text = FormatAmt(totalCost);
+
         }
 
 
         #endregion
 
         #region -- Method(s) --
+
+        private void ShowInfo(string text)
+        {
+            pop_Warning.HeaderText = "Information";
+            txt_Error.Visible = false;
+
+            lbl_Warning.Text = text.Trim();
+            pop_Warning.ShowOnPageLoad = true;
+        }
+
         private void ShowAlert(string text)
         {
+            pop_Warning.HeaderText = "Warning";
+            txt_Error.Visible = false;
+
             lbl_Warning.Text = text.Trim();
+            pop_Warning.ShowOnPageLoad = true;
+        }
+
+        private void ShowError(string text, string error)
+        {
+            pop_Warning.HeaderText = "Error";
+
+            txt_Error.Visible = true;
+            lbl_Warning.Text = text.Trim();
+            txt_Error.Text = error;
             pop_Warning.ShowOnPageLoad = true;
         }
 
@@ -539,6 +713,27 @@ ORDER BY
             return items;
         }
 
+        private decimal GetValue(ASPxSpinEdit item)
+        {
+            return item.Text.Trim() == "" ? 0m : Convert.ToDecimal(item.Value);
+        }
+
+        private string GetValue(ASPxComboBox item)
+        {
+            return item.SelectedItem == null ? null : item.Value.ToString();
+        }
+
+        private decimal GetDecimal(string value)
+        {
+            return string.IsNullOrEmpty(value) ? 0m : Convert.ToDecimal(value);
+        }
+
+        private string FormatUnitRate(object value)
+        {
+            return Convert.ToDecimal(value).ToString("#,###0.##");
+        }
+
+
         private DataTable GetRcp(string code)
         {
             var sql = new Helpers.SQL(hf_ConnStr.Value);
@@ -563,41 +758,447 @@ ORDER BY
             return sql.ExecuteQuery(query, param);
         }
 
-
-        private void CreateItem()
+        private DataTable GetDataItem(string rcpCode)
         {
+            var sql = new Helpers.SQL(hf_ConnStr.Value);
+
+            var query = @"
+SELECT 
+	ProductCode as [Code], 
+	CONCAT(ProductCode,' : ', ProductDesc1, ' | ', ProductDesc2) as [Text],
+    InventoryUnit as BaseUnit,
+	'Product' as [Type]
+FROM 
+	[IN].Product 
+WHERE 
+	IsActive=1 
+	AND IsRecipe=1 
+UNION ALL
+SELECT 
+	RcpCode as [Code], 
+	CONCAT(RcpCode,' : ', RcpDesc1, ' | ', RcpDesc2) as [Text],
+    RcpUnitCode as BaseUnit,
+	'Recipe' as [Type]
+FROM 
+	PT.Rcp 
+WHERE 
+	IsActived=1 
+    AND RcpCode <> @Code
+
+ORDER BY
+	[Text]";
+
+            return sql.ExecuteQuery(query, new SqlParameter[] { new SqlParameter("@Code", rcpCode) });
+
         }
 
-        private void DeleteItem()
+        private DataTable GetDataUnit(string type, string code)
         {
+            var dtUnit = new DataTable();
+            var sql = new Helpers.SQL(hf_ConnStr.Value);
+
+            if (type.ToUpper().StartsWith("P"))
+            {
+                dtUnit = sql.ExecuteQuery("SELECT OrderUnit as [Code], Rate FROM [IN].ProdUnit WHERE UnitType='R' AND ProductCode=@Code", new SqlParameter[] { new SqlParameter("@Code", code) });
+            }
+            else
+            {
+                dtUnit = sql.ExecuteQuery("SELECT RcpUnitCode AS [Code], CAST(1 as DECIMAL(18,3)) AS [Rate]  FROM PT.Rcp WHERE RcpCode=@Code", new SqlParameter[] { new SqlParameter("@Code", code) });
+            }
+
+            return dtUnit;
         }
 
-        private void BindItems()
+        private bool ValidateCode(string code, int length = 20)
+        {
+            return true;
+        }
+
+        private decimal GetTotalCost(decimal qty, decimal unitRate, decimal baseCost)
+        {
+            return RoundAmt(RoundAmt(qty / unitRate) * baseCost);
+        }
+
+        private decimal GetSpoilCost(decimal totalCost, decimal spoilRate)
+        {
+            return RoundAmt(totalCost * RoundAmt(spoilRate / 100));
+        }
+
+
+        // Header
+        private void Save()
+        {
+            var isNew = string.IsNullOrEmpty(_ID);
+            var rcpCode = isNew ? txt_RcpCode.Text.Trim() : _ID;
+            var categoryCode = GetValue(ddl_Category);
+            var locationCode = GetValue(ddl_Location);
+            var rcpUnit = GetValue(ddl_RcpUnit);
+
+            // Check required fields
+            // Header
+
+            if (string.IsNullOrEmpty(rcpCode))
+            {
+                ShowAlert("Recipe code is required.");
+
+                return;
+            }
+
+            if (string.IsNullOrEmpty(txt_RcpDesc1.Text.Trim()))
+            {
+                ShowAlert("Recipe description is required.");
+
+                return;
+            }
+
+            if (string.IsNullOrEmpty(categoryCode))
+            {
+                ShowAlert("Category is required.");
+
+                return;
+            }
+
+            if (string.IsNullOrEmpty(locationCode))
+            {
+                ShowAlert("Location is required.");
+
+                return;
+            }
+
+            if (string.IsNullOrEmpty(rcpUnit))
+            {
+                ShowAlert("Recipe unit is required.");
+
+                return;
+            }
+
+            // Details
+
+
+
+            // Save
+            var sql = new Helpers.SQL(hf_ConnStr.Value);
+            var queries = new StringBuilder();
+            var parameters = new List<SqlParameter>();
+
+            var header_query = "";
+            #region --Header--
+
+            if (string.IsNullOrEmpty(_ID)) // Create 
+            {
+                // check dupliacte code
+
+                var dtCheck = sql.ExecuteQuery("SELECT TOP(1) RcpCode, RcpDesc1 FROM PT.Rcp WHERE RcpCode=@Code", new SqlParameter[] { new SqlParameter("@Code", rcpCode) });
+
+                if (dtCheck != null && dtCheck.Rows.Count > 0)
+                {
+                    ShowAlert(string.Format("<b>{0}</b>, this code is alrady used.", rcpCode));
+
+                    return;
+                }
+
+
+                #region -- header_query (Insert)--
+                header_query =
+@"INSERT INTO [PT].[Rcp] (
+	[RcpCode],
+	[RcpDesc1],
+	[RcpDesc2],
+	[RcpCateCode],
+	[LocationCode],
+	[RcpUnitCode],
+	[Preparation],
+	[PrepTime],
+	[TotalTime],
+	[PortionSize],
+	[PortionCost],
+	[Remark],
+	[IsActived],
+	[RcpImage],
+
+    [RcpCost],
+	[MixRatio],
+	[MixCost],
+	[NetPrice],
+	[GrossPrice],
+	[NetCost],
+	[GrossCost],
+
+
+    [CreatedDate],
+	[CreatedBy],
+	[UpdatedDate],
+	[UpdatedBy],
+
+	[IsVoid],
+    [Attachment],
+	[VoidComment],
+	[CostUpdated]
+)
+VALUES	(
+	@RcpCode,
+	@RcpDesc1,
+	@RcpDesc2,
+	@RcpCateCode,
+	@LocationCode,
+	@RcpUnitCode,
+	@Preparation,
+	@PrepTime,
+	@TotalTime,
+	@PortionSize,
+	@PortionCost,
+	@Remark,
+	@IsActived,
+	@RcpImage,
+
+    @TotalCost,
+	@TotalMix,
+	@CostTotalMix,
+	@NetPrice,
+	@GrossPrice,
+	@NetCost,
+	@GrossCost,
+
+	@UpdatedDate,
+	@UpdatedBy,
+	@UpdatedDate,
+	@UpdatedBy,
+
+	0,
+    NULL,
+	NULL,
+	NULL
+) ";
+                #endregion
+            }
+            else // Update
+            {
+                #region --header_query (Update)--
+                header_query =
+@"UPDATE [PT].Rcp 
+SET 
+    [RcpDesc1]=@RcpDesc1, 
+    [RcpDesc2]=@RcpDesc2,
+    [RcpCateCode]=@RcpCateCode, 
+    [LocationCode]=@LocationCode, 
+    [RcpUnitCode]=@RcpUnitCode,
+    [Preparation]=@Preparation,
+    [PrepTime]=@PrepTime,
+    [TotalTime]=@TotalTime,
+    [PortionSize]=@PortionSize,
+    [PortionCost]=@PortionCost,
+    [IsActived]=@IsActived,
+    [Remark]=@Remark,
+    [RcpImage]=@RcpImage,
+
+    [RcpCost]=@TotalCost,
+    [MixRatio]=@TotalMixRate,
+    [MixCost]=@TotalMix,
+    [NetPrice]=@NetPrice,
+    [GrossPrice]=@GrossPrice,
+    [NetCost]=@NetCost,
+    [GrossCost]=@GrossCost,
+
+    UpdatedDate = @UpdatedDate, 
+    UpdatedBy = @UpdatedBy 
+WHERE 
+    RcpCode=@RcpCode";
+                #endregion
+            }
+
+            parameters.Add(new SqlParameter("@RcpCode", rcpCode));
+            parameters.Add(new SqlParameter("@RcpDesc1", txt_RcpDesc1.Text.Trim()));
+            parameters.Add(new SqlParameter("@RcpDesc2", txt_RcpDesc2.Text.Trim()));
+            parameters.Add(new SqlParameter("@RcpCateCode", categoryCode));
+            parameters.Add(new SqlParameter("@LocationCode", locationCode));
+            parameters.Add(new SqlParameter("@RcpUnitCode", rcpUnit));
+            parameters.Add(new SqlParameter("@Preparation", txt_Preparation.Text.Trim()));
+            parameters.Add(new SqlParameter("@PrepTime", GetValue(se_PrepTime)));
+            parameters.Add(new SqlParameter("@TotalTime", GetValue(se_TotalTime)));
+            parameters.Add(new SqlParameter("@PortionSize", GetValue(se_PortionSize)));
+            parameters.Add(new SqlParameter("@PortionCost", GetValue(se_PortionCost)));
+            parameters.Add(new SqlParameter("@Remark", txt_Remark.Text.Trim()));
+            parameters.Add(new SqlParameter("@IsActived", ddl_Status.SelectedItem.Value.ToString()));
+            parameters.Add(new SqlParameter("@RcpImage", img_RcpImage.ImageUrl.Trim()));
+
+            parameters.Add(new SqlParameter("@TotalCost", GetValue(se_TotalCost)));
+            parameters.Add(new SqlParameter("@TotalMixRate", GetValue(se_TotalMixRate)));
+            parameters.Add(new SqlParameter("@TotalMix", GetValue(se_TotalMix)));
+            parameters.Add(new SqlParameter("@NetPrice", GetValue(se_NetPrice)));
+            parameters.Add(new SqlParameter("@GrossPrice", GetValue(se_GrossPrice)));
+            parameters.Add(new SqlParameter("@NetCost", GetValue(se_NetCost)));
+            parameters.Add(new SqlParameter("@GrossCost", GetValue(se_GrossCost)));
+
+            parameters.Add(new SqlParameter("@UpdatedDate", DateTime.Now));
+            parameters.Add(new SqlParameter("@UpdatedBy", LoginInfo.LoginName));
+
+            #endregion
+
+
+            var detail_queries = new StringBuilder();
+            #region -- Detail--
+
+            if (!string.IsNullOrEmpty(_ID))
+            {
+                detail_queries.AppendLine("DELETE FROM PT.RcpDt WHERE RcpCode=@RcpCode");
+            }
+
+            if (_dtRcpDt.Rows.Count > 0)
+            {
+
+
+                detail_queries.AppendLine("INSERT INTO PT.RcpDt (RcpCode, RcpDtId, IngredientCode, IngredientType, BaseUnit, Qty, Unit, UnitRate, BaseCost, SpoilRate, SpoilCost, NetCost, TotalCost) VALUES ");
+
+                for (int i = 0; i < _dtRcpDt.Rows.Count; i++)
+                {
+                    var dr = _dtRcpDt.Rows[i];
+
+                    var rcpDtId = i + 1;
+                    var code = dr["IngredientCode"].ToString();
+                    var type = dr["IngredientType"].ToString();
+                    var qty = GetDecimal(dr["Qty"].ToString());
+                    var unit = dr["Unit"].ToString();
+                    var unitRate = GetDecimal(dr["UnitRate"].ToString());
+                    var baseUnit = dr["BaseUnit"].ToString();
+                    var baseCost = GetDecimal(dr["BaseCost"].ToString());
+                    var spoilRate = GetDecimal(dr["SpoilRate"].ToString());
+                    var spoilCost = GetDecimal(dr["SpoilCost"].ToString());
+                    var netCost = GetDecimal(dr["NetCost"].ToString());
+                    var totalCost = GetDecimal(dr["TotalCost"].ToString());
+
+                    detail_queries.AppendFormat("(@RcpCode, {0}, N'{1}', N'{2}', N'{3}', {4}, N'{5}', {6}, {7}, {8}, {9}, {10}, {11}),", rcpDtId, code, type, baseUnit, qty, unit, unitRate, baseCost, spoilRate, spoilCost, netCost, totalCost);
+                }
+            }
+
+            #endregion
+
+            queries.AppendLine("BEGIN TRAN");
+            queries.AppendLine(header_query);
+            queries.AppendLine(detail_queries.ToString().Trim().TrimEnd(','));
+            queries.AppendLine(" COMMIT TRAN");
+
+            try
+            {
+                sql.ExecuteQuery(queries.ToString(), parameters.ToArray());
+            }
+            catch (Exception ex)
+            {
+                ShowError("Save is unsuccess.", ex.Message);
+
+                return;
+            }
+
+            ShowInfo("Saved");
+        }
+
+        // Details
+
+        private void BindDetails()
         {
             gv_Detail.DataSource = _dtRcpDt;
             gv_Detail.DataBind();
         }
 
-        private string SaveItem(GridViewRow row)
+        private void BindUnit(Control control, string type, string code)
+        {
+            var ddl_Unit = control.NamingContainer.FindControl("ddl_Unit") as ASPxComboBox;
+
+            _dtUnit = GetDataUnit(type, code);
+            ddl_Unit.DataSource = _dtUnit;
+            ddl_Unit.ValueField = "Code";
+            ddl_Unit.TextField = "Code";
+            ddl_Unit.TextFormatString = "{0}";
+            ddl_Unit.DataBind();
+        }
+
+        private void CreateDetail()
+        {
+            if (HasPendingItem())
+            {
+                return;
+            }
+
+            var rowCount = _dtRcpDt.Rows.Count;
+
+            var dr = _dtRcpDt.NewRow();
+
+            dr["RowId"] = Guid.NewGuid();
+            dr["RcpCode"] = txt_RcpCode.Text.Trim();
+            dr["RcpDtId"] = -1;
+            dr["Qty"] = 0;
+            dr["UnitRate"] = 0;
+            dr["BaseCost"] = 0;
+            dr["SpoilRate"] = 0;
+            dr["NetCost"] = 0;
+            dr["TotalCost"] = 0;
+
+            _dtRcpDt.Rows.Add(dr);
+            //_dtStockInDt.AcceptChanges();
+
+            gv_Detail.EditIndex = rowCount;
+            BindDetails();
+        }
+
+        private bool HasPendingItem()
+        {
+            foreach (DataRow dr in _dtRcpDt.Rows)
+            {
+                if (dr.RowState == DataRowState.Added)
+                {
+                    ShowAlert("Please save/cancel the pending item.");
+
+                    return true;
+                }
+            }
+
+            return false;
+
+        }
+        private void DeleteDetails(IEnumerable<string> rowIds)
+        {
+            var items = rowIds.ToArray();
+
+            foreach (DataRow dr in _dtRcpDt.Rows)
+            {
+                var rowId = dr["RowId"].ToString();
+
+                if (items.Contains(rowId))
+                {
+                    dr.Delete();
+                }
+            }
+
+            _dtRcpDt.AcceptChanges();
+
+            BindDetails();
+        }
+
+        private string SaveDetail(GridViewRow row)
         {
             var hf_RowId = row.FindControl("hf_RowId") as HiddenField;
-            var ddl_Location = row.FindControl("ddl_Location") as ASPxComboBox;
-            var ddl_Product = row.FindControl("ddl_Product") as ASPxComboBox;
-            var lbl_Unit = row.FindControl("lbl_Unit") as Label;
+            var lbl_ItemType = row.FindControl("lbl_ItemType") as Label;
+            var ddl_Item = row.FindControl("ddl_Item") as ASPxComboBox;
+            var ddl_Unit = row.FindControl("ddl_Unit") as ASPxComboBox;
             var num_Qty = row.FindControl("num_Qty") as ASPxSpinEdit;
-            var num_Cost = row.FindControl("num_Cost") as ASPxSpinEdit;
-            var txt_Comment = row.FindControl("txt_Comment") as TextBox;
+            var num_BaseCost = row.FindControl("num_BaseCost") as ASPxSpinEdit;
+            var num_SpoilRate = row.FindControl("num_SpoilRate") as ASPxSpinEdit;
+
+
+            var lbl_NetCost = row.FindControl("lbl_NetCost") as Label;
+            var lbl_SpoilCost = row.FindControl("lbl_SpoilCost") as Label;
+            var lbl_TotalCost = row.FindControl("lbl_TotalCost") as Label;
+
 
             #region -- Check required values --
 
-            if (ddl_Location.Value == null)
-            {
-                return "Location is required.";
-            }
-
-            if (ddl_Product.Value == null)
+            if (ddl_Item.Value == null)
             {
                 return "Product is required.";
+            }
+
+            if (ddl_Unit.Value == null)
+            {
+                return "Unit is required.";
             }
 
             if (string.IsNullOrEmpty(num_Qty.Text) || num_Qty.Number == 0m)
@@ -605,30 +1206,112 @@ ORDER BY
                 return "Quantity is required.";
             }
 
-            //if (string.IsNullOrEmpty(num_Cost.Text) || num_Cost.Number == 0m)
-            //{
-            //    ShowAlert("Quantity is required.");
-            //    return;
-            //}
+
             #endregion
 
             var rowId = hf_RowId.Value;
+            var type = lbl_ItemType.Text.ToUpper()[0].ToString();
+            var code = ddl_Item.Value.ToString();
+            var unit = ddl_Unit.Value.ToString();
+
+            var drItem = _dtItem.AsEnumerable().FirstOrDefault(x => x.Field<string>("Code") == code);
+            var baseUnit = drItem == null ? "" : drItem.Field<string>("BaseUnit");
+
+            var drUnit = _dtUnit.AsEnumerable().FirstOrDefault(x => x.Field<string>("Code") == unit);
+            var unitRate = drUnit == null ? 0 : drUnit.Field<decimal>("Rate");
+
+            if (unitRate == 0)
+            {
+                return "Invalid unit or unit rate.";
+            }
+
             var dr = _dtRcpDt.AsEnumerable().FirstOrDefault(x => x.Field<Guid>("RowId").ToString() == rowId);
 
             if (dr != null)
             {
-                dr["StoreId"] = ddl_Location.Value.ToString();
-                dr["SKU"] = ddl_Product.Value.ToString();
-                dr["Unit"] = lbl_Unit.Text;
-                dr["Qty"] = num_Qty.Number;
-                dr["UnitCost"] = num_Cost.Number;
-                dr["Comment"] = txt_Comment.Text.Trim();
+                dr["IngredientType"] = type;
+                dr["IngredientCode"] = code;
+                dr["BaseUnit"] = baseUnit;
+                dr["Unit"] = unit;
+                dr["UnitRate"] = unitRate;
+                dr["Qty"] = GetValue(num_Qty);
+                dr["BaseCost"] = GetValue(num_BaseCost);
+                dr["SpoilRate"] = GetValue(num_SpoilRate);
+                dr["SpoilCost"] = lbl_SpoilCost.Text;
+                dr["NetCost"] = lbl_NetCost.Text;
+                dr["TotalCost"] = lbl_TotalCost.Text;
             }
 
             _dtRcpDt.AcceptChanges();
 
             return "";
         }
-        #endregion
+
+
+        private void UpdateCost(DateTime toDate)
+        {
+            foreach (DataRow dr in _dtRcpDt.Rows)
+            {
+                var code = dr["IngredientCode"].ToString();
+                var type = dr["IngredientType"].ToString().ToUpper();
+
+                var qty = GetDecimal(dr["Qty"].ToString());
+                var unitRate = GetDecimal(dr["UnitRate"].ToString());
+                var spoilRate = GetDecimal(dr["SpoilRate"].ToString());
+
+                if (type == "P")  // Product
+                {
+
+                    var cost = GetProductCost(code, toDate);
+                    var total = GetTotalCost(qty, unitRate, cost);
+                    var spoil = GetSpoilCost(total, spoilRate);
+                    var net = total - spoil;
+
+                    dr["BaseCost"] = cost;
+                    dr["TotalCost"] = total;
+                    dr["SpoilCost"] = spoil;
+                    dr["NetCost"] = net;
+
+                }
+
+            }
+            BindDetails();
+
+            // Calculate Header
+            var totalCost = _dtRcpDt.AsEnumerable().Sum(x => x.Field<decimal>("TotalCost"));
+            var totalMixRate = se_TotalMixRate.Number;
+            var totalMix = RoundAmt(totalCost * RoundAmt(totalMixRate / 100));
+
+
+
+
+
+
+
+            se_TotalCost.Number = totalCost;
+            se_TotalMix.Number = totalMix;
+            se_CostTotalMix.Number = totalCost + totalMix;
+
+
+        }
+
+        private decimal GetProductCost(string productCode, DateTime toDate)
+        {
+            var sql = new Helpers.SQL(hf_ConnStr.Value);
+            var parameters = new SqlParameter[] { new SqlParameter("@Code", productCode), new SqlParameter("@ToDate", toDate) };
+            var dt = sql.ExecuteQuery("SELECT TOP(1) ISNULL(Amount,0) as Cost FROM [IN].Inventory WHERE ProductCode=@code AND CAST(CommittedDate AS DATE) <= CAST(@toDate AS DATE) ORDER BY CommittedDate DESC", parameters);
+
+            var cost = 0m;
+
+            if (dt.Rows.Count > 0)
+            {
+                cost = GetDecimal(dt.Rows[0][0].ToString());
+            }
+
+
+            return cost;
+        }
+
     }
+        #endregion
 }

@@ -815,7 +815,7 @@ data AS(
 
             var sql = new Helpers.SQL(LoginInfo.ConnStr);
 
-            Helpers.WriteLog.Error(queries.ToString());
+            //Helpers.WriteLog.Error(queries.ToString());
 
             var dt = sql.ExecuteQuery(queries.ToString(), parameters.ToArray());
 
@@ -1391,6 +1391,8 @@ ORDER BY
             if (_postType == "GL")
             {
                 query = @"
+DELETE FROM [ADMIN].AccountMapp WHERE PostType='GL' AND ISNULL(A1,'')=''
+
 ;WITH
 acc AS(
 	SELECT

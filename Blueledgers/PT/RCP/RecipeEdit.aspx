@@ -81,20 +81,12 @@
         {
             display: block;
         }
+        #table-header table, tr, td
+        {
+            padding: 2px 5px;
+        }
         
-        table
-        {
-            border-collapse: collapse;
-        }
-        table, th, td
-        {
-            border: 0 none;
-        }
-        th, td
-        {
-            padding: 2px 10px;
-        }
-        input
+        #table-header input
         {
             height: 18px;
         }
@@ -143,6 +135,9 @@
 
             return false;
         }
+
+
+     
 
         
     </script>
@@ -226,8 +221,8 @@
                     <td align="right">
                         <div class="flex flex-justify-content-end">
                             <asp:DropDownList ID="ddl_Status" runat="server" SkinID="" Width="80">
-                                <asp:ListItem Value="true" Text="Active" />
-                                <asp:ListItem Value="true" Text="Inactive" />
+                                <asp:ListItem Value="1" Text="Active" />
+                                <asp:ListItem Value="0" Text="Inactive" />
                             </asp:DropDownList>
                         </div>
                     </td>
@@ -251,26 +246,34 @@
                     <td colspan="2" rowspan="8" style="width: 360px; vertical-align: top;">
                         <div class="card" style="width: 100%; height: 100%; padding: 10px;">
                             <table width="100%">
+                                <!--Total Cost-->
                                 <tr>
                                     <td>
                                         <asp:Label runat="server" ID="label0" Text="Total Cost" />
                                     </td>
                                     <td>
-                                        <dx:ASPxSpinEdit ID="se_TotalCost" runat="server" Width="100%" TabIndex="10" NumberType="Integer" AllowNull="False" NullText="0" HorizontalAlign="Right">
-                                            <SpinButtons ShowIncrementButtons="false" />
+                                        <dx:ASPxSpinEdit ID="se_TotalCost" runat="server" Width="100%" TabIndex="10" NumberType="Integer" AllowNull="False" NullText="0" HorizontalAlign="Right"
+                                            SpinButtons-ShowIncrementButtons="false" ReadOnly="true" BackColor="#d0d3d4">
                                         </dx:ASPxSpinEdit>
                                     </td>
                                 </tr>
+                                <!--Total Mix-->
                                 <tr>
                                     <td>
                                         <asp:Label runat="server" ID="Label1" Text="Total Mix (%)" />
                                     </td>
                                     <td>
-                                        <dx:ASPxSpinEdit ID="se_TotalMix" runat="server" Width="100%" TabIndex="10" NumberType="Integer" AllowNull="False" NullText="0" HorizontalAlign="Right">
-                                            <SpinButtons ShowIncrementButtons="false" />
-                                        </dx:ASPxSpinEdit>
+                                        <div class="flex">
+                                            <dx:ASPxSpinEdit ID="se_TotalMixRate" runat="server" Width="40%" TabIndex="10" NumberType="Integer" AllowNull="False" NullText="0" HorizontalAlign="Right">
+                                                <SpinButtons ShowIncrementButtons="false" />
+                                            </dx:ASPxSpinEdit>
+                                            <dx:ASPxSpinEdit ID="se_TotalMix" runat="server" Width="60%" TabIndex="10" NumberType="Integer" AllowNull="False" NullText="0" HorizontalAlign="Right"
+                                                SpinButtons-ShowIncrementButtons="false" ReadOnly="true" BackColor="#d0d3d4">
+                                            </dx:ASPxSpinEdit>
+                                        </div>
                                     </td>
                                 </tr>
+                                <!--Cost of Total Cost-->
                                 <tr>
                                     <td>
                                         <asp:Label runat="server" ID="Label2" Text="Cost of Total Mix" />
@@ -281,6 +284,7 @@
                                         </dx:ASPxSpinEdit>
                                     </td>
                                 </tr>
+                                <!--Net Price-->
                                 <tr>
                                     <td>
                                         <asp:Label runat="server" ID="Label3" Text="Net Price" />
@@ -291,6 +295,7 @@
                                         </dx:ASPxSpinEdit>
                                     </td>
                                 </tr>
+                                <!--Gross Price-->
                                 <tr>
                                     <td>
                                         <asp:Label runat="server" ID="Label4" Text="Gross Price" />
@@ -301,6 +306,7 @@
                                         </dx:ASPxSpinEdit>
                                     </td>
                                 </tr>
+                                <!--Net Cost-->
                                 <tr>
                                     <td>
                                         <asp:Label runat="server" ID="Label5" Text="Net Cost (%)" />
@@ -311,6 +317,7 @@
                                         </dx:ASPxSpinEdit>
                                     </td>
                                 </tr>
+                                <!--Gross Cost-->
                                 <tr>
                                     <td>
                                         <asp:Label runat="server" ID="Label6" Text="Gross Cost (%)" />
@@ -319,6 +326,23 @@
                                         <dx:ASPxSpinEdit ID="se_GrossCost" runat="server" Width="100%" TabIndex="10" NumberType="Integer" AllowNull="False" NullText="0" HorizontalAlign="Right">
                                             <SpinButtons ShowIncrementButtons="false" />
                                         </dx:ASPxSpinEdit>
+                                    </td>
+                                </tr>
+                                <!--Tax and Service-->
+                                <tr>
+                                    <td colspan="2">
+                                        <div class="flex flex-justify-content-between">
+                                            <div>
+                                                <span>Tax : </span>
+                                                <asp:Label runat="server" ID="lbl_TaxRate" />
+                                                <span>%</span>
+                                            </div>
+                                            <div>
+                                                <span>Service : </span>
+                                                <asp:Label runat="server" ID="lbl_ServiceRate" />
+                                                <span>%</span>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                             </table>
@@ -437,11 +461,11 @@
                 </tr>
             </table>
             <!-- Detail Bar -->
-            <div class="flex flex-justify-content-between">
+            <div class="flex flex-justify-content-between bg-menu-background" style="padding: 3px;">
                 <div>
                     <asp:Label ID="lbl_RcpDtIngredient" runat="server" SkinID="LBL_HD_WHITE" Text="<%$Resources:PT_RCP_Recipe, lbl_Ingredient %>" />
                 </div>
-                <div class="flex flex-align-items-end">
+                <div class="flex flex-align-items-end ">
                     <dx:ASPxMenu runat="server" ID="menu_CmdItem" Font-Bold="True" BackColor="Transparent" Border-BorderStyle="None" ItemSpacing="2px" VerticalAlign="Middle"
                         Height="16px" OnItemClick="menu_CmdItem_ItemClick">
                         <ItemStyle BackColor="Transparent" ForeColor="White" Font-Size="0.8em">
@@ -477,8 +501,9 @@
                 </div>
             </div>
             <!-- Details -->
-            <asp:GridView ID="gv_Detail" runat="server" Font-Names="Tahoma" AutoGenerateColumns="False" Width="100%" EmptyDataText="No data" SkinID="GRD_V1" OnRowDataBound="gv_Detail_RowDataBound"
-                OnRowCommand="gv_Detail_RowCommand" OnRowEditing="gv_Detail_RowEditing" OnRowCancelingEdit="gv_Detail_RowCancelingEdit">
+            <asp:GridView ID="gv_Detail" runat="server" Font-Names="Tahoma" AutoGenerateColumns="False" Width="100%" EmptyDataText="No data"
+                SkinID="GRD_V1" OnRowDataBound="gv_Detail_RowDataBound" OnRowCommand="gv_Detail_RowCommand" OnRowEditing="gv_Detail_RowEditing" OnRowCancelingEdit="gv_Detail_RowCancelingEdit">
+                <HeaderStyle HorizontalAlign="Left" />
                 <RowStyle Height="40" VerticalAlign="Top" />
                 <Columns>
                     <%--Expand button--%>
@@ -501,44 +526,48 @@
                     </asp:TemplateField>
                     <%--Type--%>
                     <asp:TemplateField HeaderText="<%$Resources:PT_RCP_Recipe, lbl_RcpDtItemType %>">
+                        <ItemStyle VerticalAlign="Top" />
                         <ItemTemplate>
                             <asp:Label ID="lbl_ItemType" runat="server" SkinID="LBL_HD_W" />
-                            <asp:HiddenField runat="server" ID="hf_RowId" />
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <dx:ASPxComboBox ID="ddl_ItemType" runat="server" Width="90%" OnSelectedIndexChanged="ddl_ItemType_SelectedIndexChanged">
-                                <Items>
-                                    <dx:ListEditItem Value="P" Text="Product" />
-                                    <dx:ListEditItem Value="R" Text="Recipe" />
-                                </Items>
-                            </dx:ASPxComboBox>
-                            <asp:HiddenField runat="server" ID="hf_RowId" />
+                            <asp:Label ID="lbl_ItemType" runat="server" SkinID="LBL_HD_W" />
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%--Item--%>
                     <asp:TemplateField HeaderText="<%$Resources:PT_RCP_Recipe, lbl_RcpDtItem %>">
                         <ItemTemplate>
+                            <asp:HiddenField runat="server" ID="hf_RowId" />
                             <asp:Label ID="lbl_Item" runat="server" SkinID="LBL_HD_W" />
                             <br />
                             <asp:Label runat="server" ID="lbl_ItemDesc2" ForeColor="Gray" />
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <dx:ASPxComboBox ID="ddl_Item" runat="server" Width="90%" IncrementalFilteringMode="Contains" EnableCallbackMode="true" OnSelectedIndexChanged="ddl_Item_SelectedIndexChanged">
+                            <asp:HiddenField runat="server" ID="hf_RowId" />
+                            <dx:ASPxComboBox ID="ddl_Item" runat="server" Width="320" AutoPostBack="true" IncrementalFilteringMode="Contains" EnableCallbackMode="true" AllowMouseWheel="true"
+                                ItemStyle-Wrap="True" OnLoad="ddl_Item_Load" OnSelectedIndexChanged="ddl_Item_SelectedIndexChanged">
                                 <Columns>
-                                    <dx:ListBoxColumn Caption="Code" FieldName="IngredientCode" Width="100px" />
-                                    <dx:ListBoxColumn Caption="Name" FieldName="IngredientName" Width="300px" />
-                                    <dx:ListBoxColumn Caption="Type" FieldName="IngredientType" Width="30px" />
+                                    <dx:ListBoxColumn Caption="Item" FieldName="Text" Width="420" />
+                                    <dx:ListBoxColumn Caption="Type" FieldName="Type" Width="80" />
+                                    <dx:ListBoxColumn FieldName="BaseUnit" Visible="false" />
                                 </Columns>
                             </dx:ASPxComboBox>
                         </EditItemTemplate>
                     </asp:TemplateField>
-                    <%--Unit--%>
-                    <asp:TemplateField HeaderText="Unit">
+                    <%--BaseUnit--%>
+                    <asp:TemplateField HeaderText="Base Unit">
+                        <ItemStyle VerticalAlign="Top" />
                         <ItemTemplate>
-                            <asp:Label runat="server" ID="lbl_Unit" SkinID="LBL_HD_W" Text='<%# Eval("Unit") %>' />
+                            <%# Eval("BaseUnit") %>
+                            <br />
+                            <span style="color: Gray;">Rate : </span>
+                            <asp:Label ID="lbl_UnitRate" runat="server" ForeColor="Gray" Text="0" />
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <asp:Label runat="server" ID="lbl_Unit" />
+                            <asp:Label ID="lbl_BaseUnit" runat="server" SkinID="LBL_HD_W" />
+                            <br />
+                            <span style="color: Gray;">Rate : </span>
+                            <asp:Label ID="lbl_UnitRate" runat="server" ForeColor="Gray" Text="0" />
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%--Qty--%>
@@ -549,7 +578,22 @@
                             <%#  FormatQty(Eval("Qty")) %>
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <dx:ASPxSpinEdit ID="num_Qty" runat="server" SkinID="TXT_NUM_V1" Width="90%" AutoPostBack="true" SpinButtons-ShowIncrementButtons="false" />
+                            <dx:ASPxSpinEdit ID="num_Qty" runat="server" SkinID="TXT_NUM_V1" Width="90%" AutoPostBack="true" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right"
+                                DecimalPlaces="3" OnNumberChanged="items_NumberChanged" />
+                        </EditItemTemplate>
+                    </asp:TemplateField>
+                    <%--Unit--%>
+                    <asp:TemplateField HeaderText="Unit">
+                        <ItemTemplate>
+                            <asp:Label runat="server" ID="lbl_Unit" SkinID="LBL_HD_W" Text='<%# Eval("Unit") %>' />
+                        </ItemTemplate>
+                        <EditItemTemplate>
+                            <dx:ASPxComboBox ID="ddl_Unit" runat="server" Width="120" OnLoad="ddl_Unit_Load" OnSelectedIndexChanged="ddl_Unit_SelectedIndexChanged">
+                                <Columns>
+                                    <dx:ListBoxColumn Caption="Code" FieldName="Code" Width="120" />
+                                    <dx:ListBoxColumn Caption="Rate" FieldName="Rate" Width="60" />
+                                </Columns>
+                            </dx:ASPxComboBox>
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%--Cost--%>
@@ -558,9 +602,12 @@
                         <ItemStyle HorizontalAlign="Right" />
                         <ItemTemplate>
                             <%#  FormatAmt(Eval("BaseCost")) %>
+                            <br />
+                            <asp:Label runat="server" ID="lbl_UpdatedDate" ForeColor="Gray" />
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <dx:ASPxSpinEdit ID="num_Cost" runat="server" SkinID="TXT_NUM_V1" Width="90%" AutoPostBack="true" SpinButtons-ShowIncrementButtons="false" />
+                            <dx:ASPxSpinEdit ID="num_BaseCost" runat="server" SkinID="TXT_NUM_V1" Width="90%" AutoPostBack="true" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right"
+                                DecimalPlaces="2" OnNumberChanged="items_NumberChanged" />
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%--WastageRate--%>
@@ -571,7 +618,8 @@
                             <%#  FormatAmt(Eval("SpoilRate")) %>
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <dx:ASPxSpinEdit ID="num_Cost" runat="server" SkinID="TXT_NUM_V1" Width="90%" AutoPostBack="true" SpinButtons-ShowIncrementButtons="false" />
+                            <dx:ASPxSpinEdit ID="num_SpoilRate" runat="server" SkinID="TXT_NUM_V1" Width="90%" AutoPostBack="true" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right"
+                                DecimalPlaces="2" OnNumberChanged="items_NumberChanged" />
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%--NetCost--%>
@@ -582,10 +630,10 @@
                             <%#  FormatAmt(Eval("NetCost")) %>
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <dx:ASPxSpinEdit ID="num_Cost" runat="server" SkinID="TXT_NUM_V1" Width="90%" AutoPostBack="true" SpinButtons-ShowIncrementButtons="false" />
+                            <asp:Label runat="server" ID="lbl_NetCost" SkinID="LBL_HD_W" />
                         </EditItemTemplate>
                     </asp:TemplateField>
-                    <%--WastageCost--%>
+                    <%--Wastage Cost--%>
                     <asp:TemplateField HeaderText="Wastage Cost">
                         <HeaderStyle HorizontalAlign="Right" />
                         <ItemStyle HorizontalAlign="Right" />
@@ -593,7 +641,7 @@
                             <%#  FormatAmt(Eval("SpoilCost")) %>
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <dx:ASPxSpinEdit ID="num_Cost" runat="server" SkinID="TXT_NUM_V1" Width="90%" AutoPostBack="true" SpinButtons-ShowIncrementButtons="false" />
+                            <asp:Label runat="server" ID="lbl_SpoilCost" SkinID="LBL_HD_W" />
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%--Total--%>
@@ -604,21 +652,14 @@
                             <%#  FormatAmt(Eval("TotalCost")) %>
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <dx:ASPxSpinEdit ID="num_Cost" runat="server" SkinID="TXT_NUM_V1" Width="90%" AutoPostBack="true" SpinButtons-ShowIncrementButtons="false" />
+                            <asp:Label runat="server" ID="lbl_TotalCost" SkinID="LBL_HD_W" />
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%--Expand information--%>
                     <asp:TemplateField>
                         <ItemTemplate>
                             <tr id="TR_Summmary" runat="server" style="display: none;">
-                                <td colspan="3">
-                                </td>
-                                <td>
-                                </td>
-                                <td colspan="6">
-                                    <asp:Label ID="lbl_BaseUnit" runat="server" SkinID="LBL_HD_1" Text="Base unit:"></asp:Label>
-                                </td>
-                                <td>
+                                <td colspan="12">
                                     <!--Action buttons-->
                                     <div class="flex flex-justify-content-end mb-10">
                                         <asp:LinkButton ID="lnkb_Edit" runat="server" SkinID="LNKB_NORMAL" CommandName="Edit">Edit</asp:LinkButton>
@@ -630,11 +671,13 @@
                         </ItemTemplate>
                         <EditItemTemplate>
                             <tr id="TR_Summmary" runat="server">
-                                <td colspan="11">
+                                <td colspan="12">
+                                    <!--Action buttons-->
                                     <div class="flex flex-justify-content-end mb-10">
                                         <asp:LinkButton ID="lnkb_SaveNew" runat="server" SkinID="LNKB_NORMAL" CommandName="SaveNew">Save & New</asp:LinkButton>
+                                        &nbsp;&nbsp;&nbsp;
                                         <asp:LinkButton ID="lnkb_Update" runat="server" SkinID="LNKB_NORMAL" CommandName="Save">Save</asp:LinkButton>
-                                        &nbsp;&nbsp;
+                                        &nbsp;&nbsp;&nbsp;
                                         <asp:LinkButton ID="lnkb_Cancel" runat="server" CausesValidation="false" CommandName="Cancel" SkinID="LNKB_NORMAL" Text="Cancel"></asp:LinkButton>
                                     </div>
                                 </td>
@@ -651,6 +694,10 @@
                     <dx:PopupControlContentControl ID="PopupControlContentControl3" runat="server">
                         <div style="display: flex; justify-content: center">
                             <asp:Label ID="lbl_Warning" runat="server" SkinID="LBL_NR"></asp:Label>
+                        </div>
+                        <br />
+                        <div style="display: flex; justify-content: center">
+                            <asp:TextBox ID="txt_Error" runat="server" ForeColor="Tomato" Width="100%" TextMode="MultiLine" Rows="5" ReadOnly="true" Visible="false" />
                         </div>
                         <br />
                         <div style="display: flex; justify-content: center">
