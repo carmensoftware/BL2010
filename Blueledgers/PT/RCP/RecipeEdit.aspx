@@ -252,8 +252,8 @@
                                         <asp:Label runat="server" ID="label0" Text="Total Cost" />
                                     </td>
                                     <td>
-                                        <dx:ASPxSpinEdit ID="se_TotalCost" runat="server" Width="100%" TabIndex="10" NumberType="Integer" AllowNull="False" NullText="0" HorizontalAlign="Right"
-                                            SpinButtons-ShowIncrementButtons="false" ReadOnly="true" BackColor="#d0d3d4">
+                                        <dx:ASPxSpinEdit ID="se_TotalCost" runat="server" Width="100%" TabIndex="10" AllowNull="False" NullText="0" HorizontalAlign="Right" SpinButtons-ShowIncrementButtons="false"
+                                            ReadOnly="true" BackColor="#d0d3d4">
                                         </dx:ASPxSpinEdit>
                                     </td>
                                 </tr>
@@ -264,11 +264,11 @@
                                     </td>
                                     <td>
                                         <div class="flex">
-                                            <dx:ASPxSpinEdit ID="se_TotalMixRate" runat="server" Width="40%" TabIndex="10" NumberType="Integer" AllowNull="False" NullText="0" HorizontalAlign="Right">
+                                            <dx:ASPxSpinEdit ID="se_TotalMixRate" runat="server" Width="40%" TabIndex="10" AllowNull="False" NullText="0" HorizontalAlign="Right">
                                                 <SpinButtons ShowIncrementButtons="false" />
                                             </dx:ASPxSpinEdit>
-                                            <dx:ASPxSpinEdit ID="se_TotalMix" runat="server" Width="60%" TabIndex="10" NumberType="Integer" AllowNull="False" NullText="0" HorizontalAlign="Right"
-                                                SpinButtons-ShowIncrementButtons="false" ReadOnly="true" BackColor="#d0d3d4">
+                                            <dx:ASPxSpinEdit ID="se_TotalMix" runat="server" Width="60%" TabIndex="10" AllowNull="False" NullText="0" HorizontalAlign="Right" SpinButtons-ShowIncrementButtons="false"
+                                                ReadOnly="true" BackColor="#d0d3d4">
                                             </dx:ASPxSpinEdit>
                                         </div>
                                     </td>
@@ -279,7 +279,7 @@
                                         <asp:Label runat="server" ID="Label2" Text="Cost of Total Mix" />
                                     </td>
                                     <td>
-                                        <dx:ASPxSpinEdit ID="se_CostTotalMix" runat="server" Width="100%" TabIndex="10" NumberType="Integer" AllowNull="False" NullText="0" HorizontalAlign="Right">
+                                        <dx:ASPxSpinEdit ID="se_CostTotalMix" runat="server" Width="100%" TabIndex="10" AllowNull="False" NullText="0" HorizontalAlign="Right">
                                             <SpinButtons ShowIncrementButtons="false" />
                                         </dx:ASPxSpinEdit>
                                     </td>
@@ -290,7 +290,8 @@
                                         <asp:Label runat="server" ID="Label3" Text="Net Price" />
                                     </td>
                                     <td>
-                                        <dx:ASPxSpinEdit ID="se_NetPrice" runat="server" Width="100%" TabIndex="10" NumberType="Integer" AllowNull="False" NullText="0" HorizontalAlign="Right">
+                                        <dx:ASPxSpinEdit ID="se_NetPrice" runat="server" Width="100%" AutoPostBack="true" TabIndex="10" AllowNull="False" NullText="0" HorizontalAlign="Right"
+                                            OnNumberChanged="se_NetPrice_NumberChanged">
                                             <SpinButtons ShowIncrementButtons="false" />
                                         </dx:ASPxSpinEdit>
                                     </td>
@@ -301,7 +302,8 @@
                                         <asp:Label runat="server" ID="Label4" Text="Gross Price" />
                                     </td>
                                     <td>
-                                        <dx:ASPxSpinEdit ID="se_GrossPrice" runat="server" Width="100%" TabIndex="10" NumberType="Integer" AllowNull="False" NullText="0" HorizontalAlign="Right">
+                                        <dx:ASPxSpinEdit ID="se_GrossPrice" runat="server" Width="100%" AutoPostBack="true" TabIndex="10" AllowNull="False" NullText="0" HorizontalAlign="Right"
+                                            OnNumberChanged="se_GrossPrice_NumberChanged">
                                             <SpinButtons ShowIncrementButtons="false" />
                                         </dx:ASPxSpinEdit>
                                     </td>
@@ -312,7 +314,7 @@
                                         <asp:Label runat="server" ID="Label5" Text="Net Cost (%)" />
                                     </td>
                                     <td>
-                                        <dx:ASPxSpinEdit ID="se_NetCost" runat="server" Width="100%" TabIndex="10" NumberType="Integer" AllowNull="False" NullText="0" HorizontalAlign="Right">
+                                        <dx:ASPxSpinEdit ID="se_NetCost" runat="server" Width="100%" AutoPostBack="true" TabIndex="10" AllowNull="False" NullText="0" HorizontalAlign="Right" OnNumberChanged="se_NetCost_NumberChanged">
                                             <SpinButtons ShowIncrementButtons="false" />
                                         </dx:ASPxSpinEdit>
                                     </td>
@@ -323,7 +325,7 @@
                                         <asp:Label runat="server" ID="Label6" Text="Gross Cost (%)" />
                                     </td>
                                     <td>
-                                        <dx:ASPxSpinEdit ID="se_GrossCost" runat="server" Width="100%" TabIndex="10" NumberType="Integer" AllowNull="False" NullText="0" HorizontalAlign="Right">
+                                        <dx:ASPxSpinEdit ID="se_GrossCost" runat="server" Width="100%" AutoPostBack="true" TabIndex="10" AllowNull="False" NullText="0" HorizontalAlign="Right" OnNumberChanged="se_GrossCost_NumberChanged">
                                             <SpinButtons ShowIncrementButtons="false" />
                                         </dx:ASPxSpinEdit>
                                     </td>
@@ -407,8 +409,8 @@
                         <asp:Label ID="lbl_PortionSize" runat="server" SkinID="LBL_HD" Width="100%">Portion Size:</asp:Label>
                     </td>
                     <td>
-                        <dx:ASPxSpinEdit ID="se_PortionSize" runat="server" Width="60px" Number="1" AllowNull="False" SpinButtons-ShowIncrementButtons="False" NumberType="Integer"
-                            HorizontalAlign="Right" TabIndex="7" OnValueChanged="se_PortionSize_ValueChanged" />
+                        <dx:ASPxSpinEdit ID="se_PortionSize" runat="server" Width="60px" AutoPostBack="true" Number="1" AllowNull="False" SpinButtons-ShowIncrementButtons="False"
+                            NumberType="Integer" HorizontalAlign="Right" TabIndex="7" OnNumberChanged="se_PortionSize_NumberChanged" />
                     </td>
                     <!-- Preparation -->
                 </tr>
@@ -501,8 +503,8 @@
                 </div>
             </div>
             <!-- Details -->
-            <asp:GridView ID="gv_Detail" runat="server" Font-Names="Tahoma" AutoGenerateColumns="False" Width="100%" EmptyDataText="No data"
-                SkinID="GRD_V1" OnRowDataBound="gv_Detail_RowDataBound" OnRowCommand="gv_Detail_RowCommand" OnRowEditing="gv_Detail_RowEditing" OnRowCancelingEdit="gv_Detail_RowCancelingEdit">
+            <asp:GridView ID="gv_Detail" runat="server" Font-Names="Tahoma" AutoGenerateColumns="False" Width="100%" EmptyDataText="No data" SkinID="GRD_V1" OnRowDataBound="gv_Detail_RowDataBound"
+                OnRowCommand="gv_Detail_RowCommand" OnRowEditing="gv_Detail_RowEditing" OnRowCancelingEdit="gv_Detail_RowCancelingEdit">
                 <HeaderStyle HorizontalAlign="Left" />
                 <RowStyle Height="40" VerticalAlign="Top" />
                 <Columns>

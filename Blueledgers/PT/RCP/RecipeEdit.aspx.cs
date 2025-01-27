@@ -31,6 +31,9 @@ namespace BlueLedger.PL.PT.RCP
 
         private string _ID { get { return Request.QueryString["ID"] == null ? "" : Request.QueryString["ID"].ToString(); } }
 
+        private decimal _serviceRate { get { return string.IsNullOrEmpty(hf_DefaultSvcRate.Value) ? 0m : Convert.ToDecimal(hf_DefaultSvcRate.Value); } }
+        private decimal _taxRate { get { return string.IsNullOrEmpty(hf_DefaultTaxRate.Value) ? 0m : Convert.ToDecimal(hf_DefaultTaxRate.Value); } }
+
 
         private DataTable _dtRcp
         {
@@ -97,6 +100,12 @@ namespace BlueLedger.PL.PT.RCP
         private void Page_Setting()
         {
             // Header
+            se_TotalMixRate.DecimalPlaces = DefaultAmtDigit;
+            se_NetPrice.DecimalPlaces = DefaultAmtDigit;
+            se_GrossPrice.DecimalPlaces = DefaultAmtDigit;
+            se_NetCost.DecimalPlaces = DefaultAmtDigit;
+            se_GrossCost.DecimalPlaces = DefaultAmtDigit;
+
 
             // Edit
             if (_dtRcp.Rows.Count > 0)
@@ -212,10 +221,78 @@ ORDER BY
             ddl.Items.AddRange(GetDropdownItem(query));
         }
 
-        protected void se_PortionSize_ValueChanged(object sender, EventArgs e)
+        protected void se_PortionSize_NumberChanged(object sender, EventArgs e)
         {
             var se = sender as ASPxSpinEdit;
+
+            se_PortionCost.Value = GetCostOfPortion();
         }
+
+        // Summary
+
+        protected void se_NetPrice_NumberChanged(object sender, EventArgs e)
+        {
+            var netPrice = (sender as ASPxSpinEdit).Number;
+            var costTotalMix = se_CostTotalMix.Number;
+
+            var grossPrice = GetValueAdded(netPrice);
+            var netCost = GetValueByCostTotalMix(netPrice);
+            var grossCost = GetValueByCostTotalMix(grossPrice);
+
+
+            se_GrossPrice.Number = grossPrice;
+            se_NetCost.Number = netCost;
+            se_GrossCost.Number = grossCost;
+        }
+
+        protected void se_GrossPrice_NumberChanged(object sender, EventArgs e)
+        {
+            var grossPrice = (sender as ASPxSpinEdit).Number;
+            var costTotalMix = se_CostTotalMix.Number;
+
+            var netPrice = GetValueIncluded(grossPrice);
+            var netCost = GetValueByCostTotalMix(netPrice);
+            var grossCost = GetValueByCostTotalMix(grossPrice);
+
+            se_NetPrice.Number = netPrice;
+            se_NetCost.Number = netCost;
+            se_GrossCost.Number = grossCost;
+        }
+
+        protected void se_NetCost_NumberChanged(object sender, EventArgs e)
+        {
+            var netCost = (sender as ASPxSpinEdit).Number;
+            var costTotalMix = se_CostTotalMix.Number;
+
+            var netPrice = GetValueByCostTotalMix(netCost); 
+            var grossPrice = GetValueAdded(netPrice);
+            var grossCost = GetValueByCostTotalMix(grossPrice); 
+
+
+            se_NetPrice.Number = netPrice;
+            se_GrossPrice.Number = grossPrice;
+
+            se_GrossCost.Number = grossCost;
+        }
+
+        protected void se_GrossCost_NumberChanged(object sender, EventArgs e)
+        {
+            var grossCost = (sender as ASPxSpinEdit).Number;
+
+            var costTotalMix = se_CostTotalMix.Number;
+
+            var grossPrice = GetValueByCostTotalMix(grossCost); //RoundAmt(RoundAmt(costTotalMix / grossCost) * 100);
+            var netPrice = GetValueIncluded( grossPrice);
+            var netCost = GetValueByCostTotalMix(netPrice); // RoundAmt(RoundAmt(costTotalMix / netPrice) * 100);
+
+
+            se_NetPrice.Number = netPrice;
+            se_GrossPrice.Number = grossPrice;
+
+            se_NetCost.Number = netCost;
+        }
+
+
 
         // ---------------------------------------------------------------------------------------
 
@@ -824,6 +901,38 @@ ORDER BY
             return RoundAmt(totalCost * RoundAmt(spoilRate / 100));
         }
 
+        private decimal GetValueAdded(decimal value)
+        {
+            var serviceAmt = RoundAmt(value * RoundAmt(_serviceRate / 100));
+            var taxAmt = RoundAmt((value + serviceAmt) * RoundAmt(_taxRate / 100));
+
+            return value + serviceAmt + taxAmt;
+        }
+
+        private decimal GetValueIncluded(decimal value)
+        {
+            // Included
+            // extract VAT
+            var net_service_Amt = RoundAmt(RoundAmt(value / (100 + _taxRate)) * 100);
+            var taxAmt = value - net_service_Amt;
+
+            // extract Service
+            var netAmt = RoundAmt(RoundAmt(net_service_Amt / (100 + _serviceRate)) * 100);
+
+            var serviceAmt = net_service_Amt - netAmt;
+
+            return value - serviceAmt - taxAmt;
+        }
+
+        private decimal GetValueByCostTotalMix(decimal value)
+        {
+            var costTotalMix = se_CostTotalMix.Number;
+
+            return RoundAmt(RoundAmt(costTotalMix / value) * 100);
+        }
+
+
+
 
         // Header
         private void Save()
@@ -880,6 +989,7 @@ ORDER BY
             var sql = new Helpers.SQL(hf_ConnStr.Value);
             var queries = new StringBuilder();
             var parameters = new List<SqlParameter>();
+
 
             var header_query = "";
             #region --Header--
@@ -1247,6 +1357,72 @@ WHERE
             return "";
         }
 
+        private decimal GetCostOfPortion()
+        {
+            var size = GetValue(se_PortionSize);
+            var totalCost = GetValue(se_TotalCost);
+
+            var unitCost = size == 0 ? 0 : RoundAmt(totalCost / size);
+
+            return unitCost;
+        }
+
+
+        private void UpdateTotalCost(DateTime toDate)
+        {
+            foreach (DataRow dr in _dtRcpDt.Rows)
+            {
+                var code = dr["IngredientCode"].ToString();
+                var type = dr["IngredientType"].ToString().ToUpper();
+
+                var qty = GetDecimal(dr["Qty"].ToString());
+                var unitRate = GetDecimal(dr["UnitRate"].ToString());
+                var spoilRate = GetDecimal(dr["SpoilRate"].ToString());
+
+                if (type == "P")  // Product
+                {
+
+                    var cost = GetProductCost(code, toDate);
+                    var total = GetTotalCost(qty, unitRate, cost);
+                    var spoil = GetSpoilCost(total, spoilRate);
+                    var net = total - spoil;
+
+                    dr["BaseCost"] = cost;
+                    dr["TotalCost"] = total;
+                    dr["SpoilCost"] = spoil;
+                    dr["NetCost"] = net;
+                }
+            }
+            BindDetails();
+
+            // Calculate Header
+            var totalCost = _dtRcpDt.AsEnumerable().Sum(x => x.Field<decimal>("TotalCost"));
+            var totalMixRate = se_TotalMixRate.Number;
+            var totalMix = RoundAmt(totalCost * RoundAmt(totalMixRate / 100));
+
+            var netPrice = se_NetPrice.Number;
+            var grossPrice = se_GrossPrice.Number;
+
+            var netCost = GetValueByCostTotalMix(netPrice);
+            var grossCost = GetValueByCostTotalMix(grossPrice);
+
+
+            se_TotalCost.Number = totalCost;
+            se_TotalMix.Number = totalMix;
+            se_CostTotalMix.Number = totalCost + totalMix;
+
+            se_NetPrice.Number = netPrice;
+            se_GrossPrice.Number = grossPrice;
+
+            se_NetCost.Number = netCost;
+            se_GrossCost.Number = grossCost;
+
+
+            var portionSize = GetValue(se_PortionSize);
+
+            se_PortionCost.Value = portionSize == 0 ? 0 : RoundAmt(totalCost / portionSize);
+        }
+
 
         private void UpdateCost(DateTime toDate)
         {
@@ -1271,9 +1447,7 @@ WHERE
                     dr["TotalCost"] = total;
                     dr["SpoilCost"] = spoil;
                     dr["NetCost"] = net;
-
                 }
-
             }
             BindDetails();
 
@@ -1282,17 +1456,27 @@ WHERE
             var totalMixRate = se_TotalMixRate.Number;
             var totalMix = RoundAmt(totalCost * RoundAmt(totalMixRate / 100));
 
+            var netPrice = se_NetPrice.Number;
+            var grossPrice = se_GrossPrice.Number;
 
-
-
-
+            var netCost = GetValueByCostTotalMix(netPrice);
+            var grossCost = GetValueByCostTotalMix(grossPrice);
 
 
             se_TotalCost.Number = totalCost;
             se_TotalMix.Number = totalMix;
             se_CostTotalMix.Number = totalCost + totalMix;
 
+            se_NetPrice.Number = netPrice;
+            se_GrossPrice.Number = grossPrice;
 
+            se_NetCost.Number = netCost;
+            se_GrossCost.Number = grossCost;
+
+
+            var portionSize = GetValue(se_PortionSize);
+
+            se_PortionCost.Value = portionSize == 0 ? 0 : RoundAmt(totalCost / portionSize);
         }
 
         private decimal GetProductCost(string productCode, DateTime toDate)
