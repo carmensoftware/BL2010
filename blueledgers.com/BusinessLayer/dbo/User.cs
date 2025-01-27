@@ -13,6 +13,8 @@ namespace Blue.BL.dbo
 
         /* 
             2026-01-31 = bwpluscarapace =17
+            2026-01-31 = boulevardhotelbangkok = 10 + 17 = 27
+            2025-01-31 = bestwesternchatuchak = 9
 
           
          
@@ -49,6 +51,7 @@ namespace Blue.BL.dbo
             2025-06-30 = granddiamondsuites = 6+4 = 10
             2025-06-30 = maraleina = 23+1 = 24
             2025-06-30 = BaanSamuiResort = 8
+            2025-06-30 = maduzi = 20
 
             2025-05-31 = HotelSensai (Chiang Mai) = 3+8 = 11 ปรับเป็น 10 ตาม license (27052024_blueledgers.xlsx)
             2025-05-31 = chi = 2
@@ -74,26 +77,23 @@ namespace Blue.BL.dbo
             2025-02-28 = selinaserenityrawai = 6
 
             2025-02-28 = korabeachresort = 10 + 22 = 32
+            2025-02-28 = blumonkeybangtaophuket = 6
+            2025-02-28 = DeevanaPhuket = 65=> 69
+            2025-02-28 = HopInn = 27
+            2025-02-28 = blumonkeybangsaen = 5
+            2025-02-28 = twinlotus (on permise) = 16
+            2025-02-28 = urbanalangsuanbkk = 7
+            2025-02-28 = brownstarling = 18
+            2025-02-28 = Phuket Emerald = 15+5 = 20 (15)
+            2025-02-28 = kappasensesubud = 17
           
+            2025-02-28 = ibis = 999
           
-            2025-01-31 = BwChatuchak = 9
             2025-01-31 = OKM = 50
-            2025-01-31 = Phuket Emerald = 15+5 = 20
-            2025-01-31 = ibis = 999
-            2025-01-31 = HopInn = 27
-            2025-01-31 = urbanalangsuanbkk = 7
-            2025-01-31 = brownstarling = 18
             2025-01-31 = ramadadmabangkok = 19
-            2025-01-31 = maduzi = 20
-            2025-01-31 = boulevardhotelbangkok = 10 + 17 = 27
-            2025-01-31 = kappasensesubud = 17
-            2025-01-31 = blumonkeybangtaophuket = 6
             2025-01-31 = hopinnth = 27
-            2025-01-31 = blumonkeybangsaen = 5
             2025-01-31 = sztowerthai = 13
             2025-01-31 = MHRH = 3
-            2025-01-31 = twinlotus (on permise) = 16
-            2025-01-31 = DeevanaPhuket = 65=> 69
 
           
             --------- Expired -------------
