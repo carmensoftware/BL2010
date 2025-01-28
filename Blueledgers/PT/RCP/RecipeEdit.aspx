@@ -325,7 +325,8 @@
                                         <asp:Label runat="server" ID="Label6" Text="Gross Cost (%)" />
                                     </td>
                                     <td>
-                                        <dx:ASPxSpinEdit ID="se_GrossCost" runat="server" Width="100%" AutoPostBack="true" TabIndex="10" AllowNull="False" NullText="0" HorizontalAlign="Right" OnNumberChanged="se_GrossCost_NumberChanged">
+                                        <dx:ASPxSpinEdit ID="se_GrossCost" runat="server" Width="100%" AutoPostBack="true" TabIndex="10" AllowNull="False" NullText="0" HorizontalAlign="Right"
+                                            OnNumberChanged="se_GrossCost_NumberChanged">
                                             <SpinButtons ShowIncrementButtons="false" />
                                         </dx:ASPxSpinEdit>
                                     </td>
@@ -422,7 +423,8 @@
                         <asp:Label ID="lbl_PortionCost" runat="server" SkinID="LBL_HD" Width="100%">Cost of Portion:</asp:Label>
                     </td>
                     <td>
-                        <dx:ASPxSpinEdit ID="se_PortionCost" runat="server" Width="60px" SpinButtons-ShowIncrementButtons="False" HorizontalAlign="Right" TabIndex="8" ReadOnly="true" />
+                        <dx:ASPxSpinEdit ID="se_PortionCost" runat="server" Width="60px" SpinButtons-ShowIncrementButtons="False" AllowNull="False" HorizontalAlign="Right" TabIndex="8"
+                            ReadOnly="true" />
                     </td>
                     <!-- Preparation Time -->
                     <td colspan="2">
@@ -722,6 +724,24 @@
                             <asp:Button ID="btn_ComfirmDelete" runat="server" SkinID="BTN_V1" Width="50px" Text="<%$Resources:IN_STK_StkInEdit, btn_ComfiremDelete %>" OnClick="btn_ComfirmDelete_Click" />
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             <asp:Button ID="btn_CancelDelete" runat="server" SkinID="BTN_V1" Width="50px" Text="<%$Resources:IN_STK_StkInEdit, btn_CancelDelete %>" OnClientClick="pop_ConfirmDelete.Hide()" />
+                        </div>
+                    </dx:PopupControlContentControl>
+                </ContentCollection>
+            </dx:ASPxPopupControl>
+            <dx:ASPxPopupControl ID="pop_ConfirmSave" ClientInstanceName="pop_ConfirmSave" runat="server" CloseAction="CloseButton" HeaderText="Save"
+                Modal="True" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowCloseButton="False" Width="300px">
+                <HeaderStyle HorizontalAlign="Left" />
+                <ContentCollection>
+                    <dx:PopupControlContentControl ID="PopupControlContentControl2" runat="server">
+                        <asp:HiddenField runat="server" ID="HiddenField1" />
+                        <div style="display: flex; justify-content: center">
+                            <asp:Label ID="Label7" runat="server" SkinID="LBL_NR" Text="Do you want to save?" />
+                        </div>
+                        <br />
+                        <div style="display: flex; justify-content: center">
+                            <asp:Button ID="Button1" runat="server" SkinID="BTN_V1" Width="50px" Text="Yes" OnClick="btn_ComfirmSave_Click" />
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <asp:Button ID="Button2" runat="server" SkinID="BTN_V1" Width="50px" Text="No" OnClientClick="pop_ConfirmSave.Hide()" />
                         </div>
                     </dx:PopupControlContentControl>
                 </ContentCollection>

@@ -167,7 +167,7 @@ namespace BlueLedger.PL.PT.RCP
                     break;
 
                 case "SAVE":
-                    Save();
+                    pop_ConfirmSave.ShowOnPageLoad = true;
                     break;
 
 
@@ -179,6 +179,16 @@ namespace BlueLedger.PL.PT.RCP
                     Response.Redirect(url);
 
                     break;
+            }
+        }
+
+        protected void btn_ComfirmSave_Click(object sender, EventArgs e)
+        {
+            var rcpCode = Save();
+
+            if (!string.IsNullOrEmpty(rcpCode))
+            {
+                Response.Redirect("RecipeDt.aspx?BuCode=" + _BuCode + "&ID=" + rcpCode + "&VID=" + _VID);
             }
         }
 
@@ -264,9 +274,9 @@ ORDER BY
             var netCost = (sender as ASPxSpinEdit).Number;
             var costTotalMix = se_CostTotalMix.Number;
 
-            var netPrice = GetValueByCostTotalMix(netCost); 
+            var netPrice = GetValueByCostTotalMix(netCost);
             var grossPrice = GetValueAdded(netPrice);
-            var grossCost = GetValueByCostTotalMix(grossPrice); 
+            var grossCost = GetValueByCostTotalMix(grossPrice);
 
 
             se_NetPrice.Number = netPrice;
@@ -282,7 +292,7 @@ ORDER BY
             var costTotalMix = se_CostTotalMix.Number;
 
             var grossPrice = GetValueByCostTotalMix(grossCost); //RoundAmt(RoundAmt(costTotalMix / grossCost) * 100);
-            var netPrice = GetValueIncluded( grossPrice);
+            var netPrice = GetValueIncluded(grossPrice);
             var netCost = GetValueByCostTotalMix(netPrice); // RoundAmt(RoundAmt(costTotalMix / netPrice) * 100);
 
 
@@ -926,16 +936,14 @@ ORDER BY
 
         private decimal GetValueByCostTotalMix(decimal value)
         {
-            var costTotalMix = se_CostTotalMix.Number;
+            var costTotalMix = GetValue(se_CostTotalMix);
 
-            return RoundAmt(RoundAmt(costTotalMix / value) * 100);
+            return value == 0 ? 0m : RoundAmt(RoundAmt(costTotalMix / value) * 100);
         }
 
 
-
-
         // Header
-        private void Save()
+        private string Save()
         {
             var isNew = string.IsNullOrEmpty(_ID);
             var rcpCode = isNew ? txt_RcpCode.Text.Trim() : _ID;
@@ -950,35 +958,35 @@ ORDER BY
             {
                 ShowAlert("Recipe code is required.");
 
-                return;
+                return null;
             }
 
             if (string.IsNullOrEmpty(txt_RcpDesc1.Text.Trim()))
             {
                 ShowAlert("Recipe description is required.");
 
-                return;
+                return null;
             }
 
             if (string.IsNullOrEmpty(categoryCode))
             {
                 ShowAlert("Category is required.");
 
-                return;
+                return null;
             }
 
             if (string.IsNullOrEmpty(locationCode))
             {
                 ShowAlert("Location is required.");
 
-                return;
+                return null;
             }
 
             if (string.IsNullOrEmpty(rcpUnit))
             {
                 ShowAlert("Recipe unit is required.");
 
-                return;
+                return null;
             }
 
             // Details
@@ -1004,7 +1012,7 @@ ORDER BY
                 {
                     ShowAlert(string.Format("<b>{0}</b>, this code is alrady used.", rcpCode));
 
-                    return;
+                    return null;
                 }
 
 
@@ -1063,7 +1071,7 @@ VALUES	(
 
     @TotalCost,
 	@TotalMix,
-	@CostTotalMix,
+	@TotalMix,
 	@NetPrice,
 	@GrossPrice,
 	@NetCost,
@@ -1116,6 +1124,7 @@ WHERE
                 #endregion
             }
 
+
             parameters.Add(new SqlParameter("@RcpCode", rcpCode));
             parameters.Add(new SqlParameter("@RcpDesc1", txt_RcpDesc1.Text.Trim()));
             parameters.Add(new SqlParameter("@RcpDesc2", txt_RcpDesc2.Text.Trim()));
@@ -1143,7 +1152,6 @@ WHERE
             parameters.Add(new SqlParameter("@UpdatedBy", LoginInfo.LoginName));
 
             #endregion
-
 
             var detail_queries = new StringBuilder();
             #region -- Detail--
@@ -1190,15 +1198,16 @@ WHERE
             try
             {
                 sql.ExecuteQuery(queries.ToString(), parameters.ToArray());
+
+                return rcpCode;
             }
             catch (Exception ex)
             {
-                ShowError("Save is unsuccess.", ex.Message);
+                ShowError("!Not saved.", ex.Message);
 
-                return;
+                return null;
             }
 
-            ShowInfo("Saved");
         }
 
         // Details
