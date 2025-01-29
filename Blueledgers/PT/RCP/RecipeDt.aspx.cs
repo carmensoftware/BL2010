@@ -234,15 +234,23 @@ namespace BlueLedger.PL.PT.RCP
 
         protected void menu_CmdBar_ItemClick(object source, DevExpress.Web.ASPxMenu.MenuItemEventArgs e)
         {
+
             switch (e.Item.Name.ToUpper())
             {
                 // Added on: 15/09/2017, By: Fon, For: Update cost of Recipe.
                 case "UPDATE":
-                    var dbParams = new Blue.DAL.DbParameter[1];
-                    dbParams[0] = new Blue.DAL.DbParameter("@updatedBy", LoginInfo.LoginName);
+                    var id = Request.Params["ID"] == null ? "" : Request.Params["ID"].ToString();
+                    var parameters = new Blue.DAL.DbParameter[1];
 
-                    bool result = rcpDt.UpdateCostOfRcpLst(dbParams, LoginInfo.ConnStr);
-                    if (result) Response.Redirect(Request.Url.ToString());
+                    parameters[0] = new Blue.DAL.DbParameter("@RcpCode", id);
+
+                    //bool result = rcpDt.UpdateCostOfRcpLst(dbParams, LoginInfo.ConnStr);
+
+                    bool result = rcpDt.UpdateCostOfRecipe(parameters, LoginInfo.ConnStr);
+
+                    if (result)
+                        Response.Redirect(Request.Url.ToString());
+
                     break;
                 // End Added.
 

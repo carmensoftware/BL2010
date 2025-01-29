@@ -15,8 +15,8 @@ namespace BlueLedger.PL.PT.RCP
 
         protected override void Page_Load(object sender, EventArgs e)
         {
-           var vid = Request.Cookies["[PT].[vRcpList]"] == null ? "0" : Request.Cookies["[PT].[vRcpList]"].Value;
-		
+            var vid = Request.Cookies["[PT].[vRcpList]"] == null ? "0" : Request.Cookies["[PT].[vRcpList]"].Value;
+
             if (!Page.IsPostBack)
             {
                 ListPage2.PrintItems.Items.Add(new DevExpress.Web.ASPxMenu.MenuItem("Recipe List", "SL"));
@@ -64,16 +64,22 @@ namespace BlueLedger.PL.PT.RCP
                 // Added on: 15/09/2017, By: Fon
                 // Note: Added in Business Layer
                 case "UC":
-                    var dbParams = new Blue.DAL.DbParameter[1];
-                    dbParams[0] = new Blue.DAL.DbParameter("@updatedBy", LoginInfo.LoginName);
-                    //dbParams[1] = new Blue.DAL.DbParameter("@RcpLst", "");
+                    var parameters = new Blue.DAL.DbParameter[1];
+                    parameters[0] = new Blue.DAL.DbParameter("@RcpCode", "");
 
-                    bool result = rcpDt.UpdateCostOfRcpLst(dbParams, LoginInfo.ConnStr);
-                    if (result) Response.Redirect("RecipeList.aspx");
+                    //bool result = rcpDt.UpdateCostOfRecipe(p, LoginInfo.ConnStr);
+                    bool result = rcpDt.UpdateCostOfRecipe(parameters, LoginInfo.ConnStr);
+
+                    if (result)
+                        Response.Redirect("RecipeList.aspx");
 
                     break;
                 // End Added.
             }
         }
+
+
+
     }
+  
 }

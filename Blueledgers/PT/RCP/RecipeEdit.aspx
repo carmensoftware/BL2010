@@ -77,19 +77,6 @@
         }
     </style>
     <style>
-        body
-        {
-            display: block;
-        }
-        #table-header table, tr, td
-        {
-            padding: 2px 5px;
-        }
-        
-        #table-header input
-        {
-            height: 18px;
-        }
         .card
         {
             box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
@@ -196,240 +183,112 @@
                 </div>
             </div>
             <!-- Header -->
-            <table id="table-header" width="100%" cellspace="5">
-                <!--Row 1-->
+            <table class="width-100 mb-10">
                 <tr>
                     <!--Image-->
-                    <td colspan="2" rowspan="8" style="width: 300px;">
-                        <asp:Image ID="img_RcpImage" runat="server" Width="260" />
-                    </td>
-                    <!-- Recipe Code -->
-                    <td style="width: 100px;">
-                        <asp:Label ID="lbl_RcpCode" runat="server" Width="100%" SkinID="LBL_HD">Recipe Code:</asp:Label>
-                    </td>
-                    <td style="width: 220px;">
-                        <asp:TextBox ID="txt_RcpCode" runat="server" SkinID="TXT_V1" Style="text-transform: uppercase;" Width="100%" TabIndex="1" />
-                    </td>
-                    <!-- Preparation -->
-                    <td colspan="2">
-                        <asp:Label ID="lbl_Prepartion" runat="server" SkinID="LBL_HD" Width="100%">Preparation:</asp:Label>
-                    </td>
-                    <!--Status-->
-                    <td style="width: 80px;">
-                        <asp:Label ID="lbl_Status" runat="server" SkinID="LBL_HD">Status:</asp:Label>
-                    </td>
-                    <td align="right">
-                        <div class="flex flex-justify-content-end">
-                            <asp:DropDownList ID="ddl_Status" runat="server" SkinID="" Width="80">
-                                <asp:ListItem Value="1" Text="Active" />
-                                <asp:ListItem Value="0" Text="Inactive" />
-                            </asp:DropDownList>
+                    <td style="vertical-align: top; width: 240px;">
+                        <asp:Image ID="img_RcpImage" runat="server" Width="180" />
+                        <br />
+                        <br />
+                        <div class="flex flex-columm">
+                            <%--<input type="file" id="btn_Upload" />--%>
+                            <asp:FileUpload ID="fileUpload" runat="server"  />
+                            <br />
+                            <asp:Button runat="server" ID="btn_UploadImg" Text="Upload" OnClick="btn_UploadImg_Click" />
                         </div>
                     </td>
-                </tr>
-                <!--Row 2-->
-                <tr>
-                    <!--Image-->
-                    <%--<td></td>--%>
-                    <!-- Description1 -->
-                    <td>
-                        <asp:Label ID="lbl_RcpDesc1" runat="server" Width="100%" SkinID="LBL_HD">Description1:</asp:Label>
-                    </td>
-                    <td>
-                        <asp:TextBox ID="txt_RcpDesc1" runat="server" Width="100%" SkinID="TXT_V1" TabIndex="2" />
-                    </td>
-                    <!-- Prepartion -->
-                    <td colspan="2" rowspan="6" style="vertical-align: top;">
-                        <asp:TextBox ID="txt_Preparation" runat="server" Width="100%" Rows="14" TextMode="MultiLine" SkinID="TXT_V1" TabIndex="9" />
-                    </td>
-                    <!-- Summary -->
-                    <td colspan="2" rowspan="8" style="width: 360px; vertical-align: top;">
-                        <div class="card" style="width: 100%; height: 100%; padding: 10px;">
-                            <table width="100%">
-                                <!--Total Cost-->
-                                <tr>
-                                    <td>
-                                        <asp:Label runat="server" ID="label0" Text="Total Cost" />
-                                    </td>
-                                    <td>
-                                        <dx:ASPxSpinEdit ID="se_TotalCost" runat="server" Width="100%" TabIndex="10" AllowNull="False" NullText="0" HorizontalAlign="Right" SpinButtons-ShowIncrementButtons="false"
-                                            ReadOnly="true" BackColor="#d0d3d4">
-                                        </dx:ASPxSpinEdit>
-                                    </td>
-                                </tr>
-                                <!--Total Mix-->
-                                <tr>
-                                    <td>
-                                        <asp:Label runat="server" ID="Label1" Text="Total Mix (%)" />
-                                    </td>
-                                    <td>
-                                        <div class="flex">
-                                            <dx:ASPxSpinEdit ID="se_TotalMixRate" runat="server" Width="40%" TabIndex="10" AllowNull="False" NullText="0" HorizontalAlign="Right">
-                                                <SpinButtons ShowIncrementButtons="false" />
-                                            </dx:ASPxSpinEdit>
-                                            <dx:ASPxSpinEdit ID="se_TotalMix" runat="server" Width="60%" TabIndex="10" AllowNull="False" NullText="0" HorizontalAlign="Right" SpinButtons-ShowIncrementButtons="false"
-                                                ReadOnly="true" BackColor="#d0d3d4">
-                                            </dx:ASPxSpinEdit>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <!--Cost of Total Cost-->
-                                <tr>
-                                    <td>
-                                        <asp:Label runat="server" ID="Label2" Text="Cost of Total Mix" />
-                                    </td>
-                                    <td>
-                                        <dx:ASPxSpinEdit ID="se_CostTotalMix" runat="server" Width="100%" TabIndex="10" AllowNull="False" NullText="0" HorizontalAlign="Right">
-                                            <SpinButtons ShowIncrementButtons="false" />
-                                        </dx:ASPxSpinEdit>
-                                    </td>
-                                </tr>
-                                <!--Net Price-->
-                                <tr>
-                                    <td>
-                                        <asp:Label runat="server" ID="Label3" Text="Net Price" />
-                                    </td>
-                                    <td>
-                                        <dx:ASPxSpinEdit ID="se_NetPrice" runat="server" Width="100%" AutoPostBack="true" TabIndex="10" AllowNull="False" NullText="0" HorizontalAlign="Right"
-                                            OnNumberChanged="se_NetPrice_NumberChanged">
-                                            <SpinButtons ShowIncrementButtons="false" />
-                                        </dx:ASPxSpinEdit>
-                                    </td>
-                                </tr>
-                                <!--Gross Price-->
-                                <tr>
-                                    <td>
-                                        <asp:Label runat="server" ID="Label4" Text="Gross Price" />
-                                    </td>
-                                    <td>
-                                        <dx:ASPxSpinEdit ID="se_GrossPrice" runat="server" Width="100%" AutoPostBack="true" TabIndex="10" AllowNull="False" NullText="0" HorizontalAlign="Right"
-                                            OnNumberChanged="se_GrossPrice_NumberChanged">
-                                            <SpinButtons ShowIncrementButtons="false" />
-                                        </dx:ASPxSpinEdit>
-                                    </td>
-                                </tr>
-                                <!--Net Cost-->
-                                <tr>
-                                    <td>
-                                        <asp:Label runat="server" ID="Label5" Text="Net Cost (%)" />
-                                    </td>
-                                    <td>
-                                        <dx:ASPxSpinEdit ID="se_NetCost" runat="server" Width="100%" AutoPostBack="true" TabIndex="10" AllowNull="False" NullText="0" HorizontalAlign="Right" OnNumberChanged="se_NetCost_NumberChanged">
-                                            <SpinButtons ShowIncrementButtons="false" />
-                                        </dx:ASPxSpinEdit>
-                                    </td>
-                                </tr>
-                                <!--Gross Cost-->
-                                <tr>
-                                    <td>
-                                        <asp:Label runat="server" ID="Label6" Text="Gross Cost (%)" />
-                                    </td>
-                                    <td>
-                                        <dx:ASPxSpinEdit ID="se_GrossCost" runat="server" Width="100%" AutoPostBack="true" TabIndex="10" AllowNull="False" NullText="0" HorizontalAlign="Right"
-                                            OnNumberChanged="se_GrossCost_NumberChanged">
-                                            <SpinButtons ShowIncrementButtons="false" />
-                                        </dx:ASPxSpinEdit>
-                                    </td>
-                                </tr>
-                                <!--Tax and Service-->
-                                <tr>
-                                    <td colspan="2">
-                                        <div class="flex flex-justify-content-between">
-                                            <div>
-                                                <span>Tax : </span>
-                                                <asp:Label runat="server" ID="lbl_TaxRate" />
-                                                <span>%</span>
-                                            </div>
-                                            <div>
-                                                <span>Service : </span>
-                                                <asp:Label runat="server" ID="lbl_ServiceRate" />
-                                                <span>%</span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </td>
-                </tr>
-                <!--Row 3-->
-                <tr>
-                    <!--Image-->
-                    <!-- Description2 -->
-                    <td>
-                        <asp:Label ID="lbl_RcpDesc2" runat="server" SkinID="LBL_HD" Width="100%">Description2:</asp:Label>
-                    </td>
-                    <td>
-                        <asp:TextBox ID="txt_RcpDesc2" runat="server" Width="100%" SkinID="TXT_V1" TabIndex="3" />
-                    </td>
-                </tr>
-                <!--Row 4-->
-                <tr>
-                    <!-- Image -->
-                    <!-- Category -->
-                    <td>
-                        <asp:Label ID="lbl_RcpCateCode" runat="server" SkinID="LBL_HD" Width="100%">Category:</asp:Label>
-                    </td>
-                    <td>
-                        <dx:ASPxComboBox ID="ddl_Category" runat="server" Width="100%" IncrementalFilteringMode="Contains" TabIndex="4" OnLoad="ddl_Category_Load">
-                        </dx:ASPxComboBox>
-                    </td>
-                    <!-- Preparation -->
-                </tr>
-                <!--Row 5-->
-                <tr>
-                    <!-- Image -->
-                    <!-- Locaiton -->
-                    <td>
-                        <asp:Label ID="lbl_Location" runat="server" SkinID="LBL_HD">Location:</asp:Label>
-                    </td>
-                    <td>
-                        <dx:ASPxComboBox ID="ddl_Location" runat="server" Width="100%" IncrementalFilteringMode="Contains" TabIndex="5" OnLoad="ddl_Location_Load">
-                        </dx:ASPxComboBox>
-                    </td>
-                    <!-- Preparation -->
-                </tr>
-                <!--Row 6-->
-                <tr>
-                    <!-- Image -->
-                    <!-- Unit -->
-                    <td>
-                        <asp:Label ID="lbl_RcpUnit" runat="server" SkinID="LBL_HD" Width="100%">Unit of Portion:</asp:Label>
-                    </td>
-                    <td>
-                        <dx:ASPxComboBox ID="ddl_RcpUnit" runat="server" Width="100%" IncrementalFilteringMode="Contains" TabIndex="6" OnLoad="ddl_RcpUnit_Load">
-                        </dx:ASPxComboBox>
-                    </td>
-                    <!-- Preparation -->
-                </tr>
-                <!--Row 7-->
-                <tr>
-                    <!-- Image -->
-                    <!-- Portion Size  -->
-                    <td>
-                        <asp:Label ID="lbl_PortionSize" runat="server" SkinID="LBL_HD" Width="100%">Portion Size:</asp:Label>
-                    </td>
-                    <td>
-                        <dx:ASPxSpinEdit ID="se_PortionSize" runat="server" Width="60px" AutoPostBack="true" Number="1" AllowNull="False" SpinButtons-ShowIncrementButtons="False"
-                            NumberType="Integer" HorizontalAlign="Right" TabIndex="7" OnNumberChanged="se_PortionSize_NumberChanged" />
-                    </td>
-                    <!-- Preparation -->
-                </tr>
-                <!--Row 8-->
-                <tr>
-                    <!-- Image -->
-                    <!-- Cost of Portion  -->
-                    <td>
-                        <asp:Label ID="lbl_PortionCost" runat="server" SkinID="LBL_HD" Width="100%">Cost of Portion:</asp:Label>
-                    </td>
-                    <td>
-                        <dx:ASPxSpinEdit ID="se_PortionCost" runat="server" Width="60px" SpinButtons-ShowIncrementButtons="False" AllowNull="False" HorizontalAlign="Right" TabIndex="8"
-                            ReadOnly="true" />
-                    </td>
-                    <!-- Preparation Time -->
-                    <td colspan="2">
-                        <table style="width: 100%;">
+                    <!-- Information -->
+                    <td style="vertical-align: top;">
+                        <table style="width: 100%; border-style: none; border-spacing: 10px; border-collapse: separate;">
+                            <!--Row 1-->
                             <tr>
+                                <!-- Recipe Code -->
+                                <td style="width: 15%;">
+                                    <asp:Label ID="lbl_RcpCode" runat="server" Width="120" SkinID="LBL_HD">Recipe Code:</asp:Label>
+                                </td>
+                                <td>
+                                    <asp:TextBox ID="txt_RcpCode" runat="server" SkinID="TXT_V1" Style="text-transform: uppercase;" Width="100%" TabIndex="1" />
+                                </td>
+                                <!--Status-->
+                                <td style="width: 15%;">
+                                    <asp:Label ID="lbl_Status" runat="server" SkinID="LBL_HD">Status:</asp:Label>
+                                </td>
+                                <td align="right">
+                                    <asp:DropDownList ID="ddl_Status" runat="server" SkinID="" Width="100%" TabIndex="2">
+                                        <asp:ListItem Value="1" Text="Active" />
+                                        <asp:ListItem Value="0" Text="Inactive" />
+                                    </asp:DropDownList>
+                                </td>
+                            </tr>
+                            <!--Row 2-->
+                            <tr>
+                                <!-- Description1 -->
+                                <td>
+                                    <asp:Label ID="lbl_RcpDesc1" runat="server" Width="100%" SkinID="LBL_HD">Description1:</asp:Label>
+                                </td>
+                                <td>
+                                    <asp:TextBox ID="txt_RcpDesc1" runat="server" Width="100%" SkinID="TXT_V1" TabIndex="3" />
+                                </td>
+                                <!-- Description2 -->
+                                <td>
+                                    <asp:Label ID="lbl_RcpDesc2" runat="server" SkinID="LBL_HD" Width="100%">Description2:</asp:Label>
+                                </td>
+                                <td>
+                                    <asp:TextBox ID="txt_RcpDesc2" runat="server" Width="100%" SkinID="TXT_V1" TabIndex="4" />
+                                </td>
+                            </tr>
+                            <!--Row 3-->
+                            <tr>
+                                <!-- Category -->
+                                <td>
+                                    <asp:Label ID="lbl_RcpCateCode" runat="server" SkinID="LBL_HD" Width="100%">Category:</asp:Label>
+                                </td>
+                                <td>
+                                    <dx:ASPxComboBox ID="ddl_Category" runat="server" Width="100%" IncrementalFilteringMode="Contains" TabIndex="5" OnLoad="ddl_Category_Load">
+                                    </dx:ASPxComboBox>
+                                </td>
+                                <!-- Unit -->
+                                <td>
+                                    <asp:Label ID="lbl_RcpUnit" runat="server" SkinID="LBL_HD" Width="100%">Unit of Portion:</asp:Label>
+                                </td>
+                                <td>
+                                    <dx:ASPxComboBox ID="ddl_RcpUnit" runat="server" Width="100%" IncrementalFilteringMode="Contains" TabIndex="6" OnLoad="ddl_RcpUnit_Load">
+                                    </dx:ASPxComboBox>
+                                </td>
+                            </tr>
+                            <!--Row 4-->
+                            <tr>
+                                <!-- Locaiton -->
+                                <td>
+                                    <asp:Label ID="lbl_Location" runat="server" SkinID="LBL_HD">Location:</asp:Label>
+                                </td>
+                                <td colspan="3">
+                                    <dx:ASPxComboBox ID="ddl_Location" runat="server" Width="100%" IncrementalFilteringMode="Contains" TabIndex="7" OnLoad="ddl_Location_Load">
+                                    </dx:ASPxComboBox>
+                                </td>
+                            </tr>
+                            <!--Row 5-->
+                            <tr>
+                                <!-- Portion Size  -->
+                                <td>
+                                    <asp:Label ID="lbl_PortionSize" runat="server" SkinID="LBL_HD" Width="100%">Portion Size:</asp:Label>
+                                </td>
+                                <td>
+                                    <dx:ASPxSpinEdit ID="se_PortionSize" runat="server" Width="60px" TabIndex="8" AutoPostBack="true" Number="1" AllowNull="False" SpinButtons-ShowIncrementButtons="False"
+                                        NumberType="Integer" HorizontalAlign="Right" OnNumberChanged="se_PortionSize_NumberChanged" />
+                                </td>
+                                <!-- Cost of Portion  -->
+                                <td>
+                                    <asp:Label ID="lbl_PortionCost" runat="server" SkinID="LBL_HD" Width="100%">Cost of Portion:</asp:Label>
+                                </td>
+                                <td>
+                                    <dx:ASPxSpinEdit ID="se_PortionCost" runat="server" Width="100%" TabIndex="9" SpinButtons-ShowIncrementButtons="False" AllowNull="False" HorizontalAlign="Right"
+                                        ReadOnly="true" />
+                                </td>
+                            </tr>
+                            <!--Row 6-->
+                            <tr>
+                                <!-- Preparation Time -->
                                 <td style="width: 30%;">
                                     <asp:Label ID="lbl_Preparetime" runat="server" SkinID="LBL_HD" Width="100%">Preparation Time (Minutes):</asp:Label>
                                 </td>
@@ -447,20 +306,141 @@
                                     </dx:ASPxSpinEdit>
                                 </td>
                             </tr>
+                            <!--Row 7-->
+                            <tr>
+                                <!-- Remark -->
+                                <td colspan="4" style="vertical-align: top;">
+                                    <asp:Label ID="lbl_Remark" runat="server" SkinID="LBL_HD" Width="100%">Remark:</asp:Label>
+                                    <asp:TextBox ID="txt_Remark" runat="server" Width="100%" Rows="2" TextMode="MultiLine" SkinID="TXT_V1" TabIndex="11" />
+                                </td>
+                            </tr>
+                            <!--Row 8-->
+                            <tr>
+                                <!-- Preparation -->
+                                <td colspan="4" style="vertical-align: top;">
+                                    <asp:Label ID="lbl_Prepartion" runat="server" SkinID="LBL_HD" Width="100%">Preparation:</asp:Label>
+                                    <asp:TextBox ID="txt_Preparation" runat="server" Width="100%" Rows="4" TextMode="MultiLine" SkinID="TXT_V1" TabIndex="12" />
+                                </td>
+                            </tr>
                         </table>
                     </td>
-                </tr>
-                <!-- Row 9 -->
-                <tr>
-                    <!-- Image Load Button -->
-                    <td colspan="2" style="text-align: right;">
-                    </td>
-                    <!-- Remark -->
-                    <td>
-                        <asp:Label ID="lbl_Remark" runat="server" SkinID="LBL_HD" Width="100%">Remark:</asp:Label>
-                    </td>
-                    <td colspan="3">
-                        <asp:TextBox ID="txt_Remark" runat="server" Width="100%" Rows="1" TextMode="MultiLine" SkinID="TXT_V1" TabIndex="8" />
+                    <!-- Summary -->
+                    <td style="vertical-align: top; width: 260px;">
+                        <br />
+                        <div class="card" style="width: 100%; height: auto; padding: 5px 0 5px 5px;">
+                            <table style="width: 100%; padding: 5px;">
+                                <tr>
+                                    <td colspan="2">
+                                        <asp:Label ID="Label8" runat="server" Font-Size="Small" Font-Bold="true" Text="Summary" />
+                                    </td>
+                                </tr>
+                                <!--Total Cost-->
+                                <tr>
+                                    <td>
+                                        <asp:Label runat="server" ID="label0" Width="100" Text="Total Cost" />
+                                    </td>
+                                    <td>
+                                        <dx:ASPxSpinEdit ID="se_TotalCost" runat="server" Width="100%" TabIndex="101" AllowNull="False" NullText="0" HorizontalAlign="Right" SpinButtons-ShowIncrementButtons="false"
+                                            ReadOnly="true" BackColor="#d0d3d4">
+                                        </dx:ASPxSpinEdit>
+                                    </td>
+                                </tr>
+                                <!--Total Mix-->
+                                <tr>
+                                    <td>
+                                        <asp:Label runat="server" ID="Label1" Font-Bold="true" Text="Total Mix (%)" />
+                                    </td>
+                                    <td>
+                                        <div class="flex">
+                                            <dx:ASPxSpinEdit ID="se_TotalMixRate" runat="server" Width="40%" AutoPostBack="true" TabIndex="102" AllowNull="False" NullText="0" HorizontalAlign="Right"
+                                                OnNumberChanged="se_TotalMixRate_NumberChanged">
+                                                <SpinButtons ShowIncrementButtons="false" />
+                                            </dx:ASPxSpinEdit>
+                                            <dx:ASPxSpinEdit ID="se_TotalMix" runat="server" Width="60%" TabIndex="102" AllowNull="False" NullText="0" HorizontalAlign="Right" SpinButtons-ShowIncrementButtons="false"
+                                                ReadOnly="true" BackColor="#d0d3d4">
+                                            </dx:ASPxSpinEdit>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!--Cost of Total Cost-->
+                                <tr>
+                                    <td>
+                                        <asp:Label runat="server" ID="Label2" Text="Cost of Total Mix" />
+                                    </td>
+                                    <td>
+                                        <dx:ASPxSpinEdit ID="se_CostTotalMix" runat="server" Width="100%" TabIndex="103" AllowNull="False" NullText="0" HorizontalAlign="Right">
+                                            <SpinButtons ShowIncrementButtons="false" />
+                                        </dx:ASPxSpinEdit>
+                                    </td>
+                                </tr>
+                                <!--Net Price-->
+                                <tr>
+                                    <td>
+                                        <asp:Label runat="server" ID="Label3" Font-Bold="true" Text="Net Price" />
+                                    </td>
+                                    <td>
+                                        <dx:ASPxSpinEdit ID="se_NetPrice" runat="server" Width="100%" AutoPostBack="true" TabIndex="104" AllowNull="False" NullText="0" HorizontalAlign="Right"
+                                            OnNumberChanged="se_NetPrice_NumberChanged">
+                                            <SpinButtons ShowIncrementButtons="false" />
+                                        </dx:ASPxSpinEdit>
+                                    </td>
+                                </tr>
+                                <!--Gross Price-->
+                                <tr>
+                                    <td>
+                                        <asp:Label runat="server" ID="Label4" Font-Bold="true" Text="Gross Price" />
+                                    </td>
+                                    <td>
+                                        <dx:ASPxSpinEdit ID="se_GrossPrice" runat="server" Width="100%" AutoPostBack="true" TabIndex="104" AllowNull="False" NullText="0" HorizontalAlign="Right"
+                                            OnNumberChanged="se_GrossPrice_NumberChanged">
+                                            <SpinButtons ShowIncrementButtons="false" />
+                                        </dx:ASPxSpinEdit>
+                                    </td>
+                                </tr>
+                                <!--Net Cost-->
+                                <tr>
+                                    <td>
+                                        <asp:Label runat="server" ID="Label5" Text="Net Cost (%)" />
+                                    </td>
+                                    <td>
+                                        <dx:ASPxSpinEdit ID="se_NetCost" runat="server" Width="100%" AutoPostBack="true" TabIndex="105" AllowNull="False" NullText="0" HorizontalAlign="Right"
+                                            OnNumberChanged="se_NetCost_NumberChanged">
+                                            <SpinButtons ShowIncrementButtons="false" />
+                                        </dx:ASPxSpinEdit>
+                                    </td>
+                                </tr>
+                                <!--Gross Cost-->
+                                <tr>
+                                    <td>
+                                        <asp:Label runat="server" ID="Label6" Text="Gross Cost (%)" />
+                                    </td>
+                                    <td>
+                                        <dx:ASPxSpinEdit ID="se_GrossCost" runat="server" Width="100%" AutoPostBack="true" TabIndex="106" AllowNull="False" NullText="0" HorizontalAlign="Right"
+                                            OnNumberChanged="se_GrossCost_NumberChanged">
+                                            <SpinButtons ShowIncrementButtons="false" />
+                                        </dx:ASPxSpinEdit>
+                                    </td>
+                                </tr>
+                                <!--Tax and Service-->
+                                <tr>
+                                    <td colspan="2">
+                                        <br />
+                                        <div class="flex flex-justify-content-between">
+                                            <div>
+                                                <span>Tax : </span>
+                                                <asp:Label runat="server" ID="lbl_TaxRate" />
+                                                <span>%</span>
+                                            </div>
+                                            <div>
+                                                <span>Service : </span>
+                                                <asp:Label runat="server" ID="lbl_ServiceRate" />
+                                                <span>%</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
                     </td>
                 </tr>
             </table>
@@ -728,8 +708,8 @@
                     </dx:PopupControlContentControl>
                 </ContentCollection>
             </dx:ASPxPopupControl>
-            <dx:ASPxPopupControl ID="pop_ConfirmSave" ClientInstanceName="pop_ConfirmSave" runat="server" CloseAction="CloseButton" HeaderText="Save"
-                Modal="True" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowCloseButton="False" Width="300px">
+            <dx:ASPxPopupControl ID="pop_ConfirmSave" ClientInstanceName="pop_ConfirmSave" runat="server" CloseAction="CloseButton" HeaderText="Save" Modal="True"
+                PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowCloseButton="False" Width="300px">
                 <HeaderStyle HorizontalAlign="Left" />
                 <ContentCollection>
                     <dx:PopupControlContentControl ID="PopupControlContentControl2" runat="server">
@@ -750,6 +730,7 @@
         <Triggers>
             <asp:AsyncPostBackTrigger ControlID="menu_CmdBar" EventName="ItemClick" />
             <asp:AsyncPostBackTrigger ControlID="menu_CmdItem" EventName="ItemClick" />
+            <asp:PostBackTrigger ControlID = "btn_UploadImg" />
         </Triggers>
     </asp:UpdatePanel>
     <asp:UpdateProgress ID="UpdateProgress" runat="server" AssociatedUpdatePanelID="UpdatePanel">
@@ -770,4 +751,28 @@
             </div>
         </ProgressTemplate>
     </asp:UpdateProgress>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var img_id = '#<%= img_RcpImage.ClientID %>';
+
+           
+
+//            $('#btn_Upload').on('change', function () {
+//                readURL(this);
+//            });
+
+
+            function readURL(input) {
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        $(img_id).attr('src', e.target.result);
+                    }
+
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+        });
+    </script>
 </asp:Content>
