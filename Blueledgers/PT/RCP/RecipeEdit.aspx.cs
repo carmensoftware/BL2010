@@ -977,15 +977,14 @@ ORDER BY
             var totalMix = RoundAmt(totalCost * RoundAmt(totalMixRate / 100));
             var costTotalMix = totalCost + totalMix;
 
+            se_TotalMix.Number = totalMix;
+            se_CostTotalMix.Number = costTotalMix;
+
             var netPrice = se_NetPrice.Number;
             var grossPrice = se_GrossPrice.Number;
 
             var netCost = GetValueByCostTotalMix(netPrice);
             var grossCost = GetValueByCostTotalMix(grossPrice);
-
-
-            se_TotalMix.Number = totalMix;
-            se_CostTotalMix.Number = costTotalMix;
 
             se_NetCost.Number = netCost;
             se_GrossCost.Number = grossCost;
@@ -1423,7 +1422,7 @@ WHERE
         private decimal GetCostOfPortion()
         {
             var size = GetValue(se_PortionSize);
-            var totalCost = GetValue(se_TotalCost);
+            var totalCost = GetValue(se_TotalCost) + GetValue(se_TotalMix);
 
             var unitCost = size == 0 ? 0 : RoundAmt(totalCost / size);
 
@@ -1549,11 +1548,11 @@ WHERE
         {
             var sql = new Helpers.SQL(hf_ConnStr.Value);
             var parameters = new SqlParameter[] { new SqlParameter("@Code", productCode), new SqlParameter("@ToDate", toDate) };
-            var dt = sql.ExecuteQuery("SELECT TOP(1) ISNULL(Amount,0) as Cost FROM [IN].Inventory WHERE ProductCode=@code AND CAST(CommittedDate AS DATE) <= CAST(@toDate AS DATE) ORDER BY CommittedDate DESC", parameters);
+            var dt = sql.ExecuteQuery("SELECT TOP(1) ROUND(PriceOnLots/ [IN], APP.DigitAmt()) as Cost FROM [IN].Inventory WHERE [Type]='RC' AND ProductCode=@code AND CAST(CommittedDate AS DATE) <= CAST(@toDate AS DATE) ORDER BY CommittedDate DESC", parameters);
 
             var cost = 0m;
 
-            if (dt.Rows.Count > 0)
+            if (dt != null && dt.Rows.Count > 0)
             {
                 cost = GetDecimal(dt.Rows[0][0].ToString());
             }
