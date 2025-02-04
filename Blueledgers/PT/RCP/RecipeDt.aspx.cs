@@ -101,8 +101,10 @@ namespace BlueLedger.PL.PT.RCP
             lblCostOfPortion.Text = string.Format("{0:#,##0.00}", drRecipe["PortionCost"]);
             lblTotalCost.Text = string.Format("{0:#,##0.00}", drRecipe["RcpCost"]);
             lblTotalMix.Text = string.Format("{0:0.00}", drRecipe["MixRatio"]);
+            var costOfTotalMix = Convert.ToDecimal(drRecipe["RcpCost"]) + Convert.ToDecimal(drRecipe["MixCost"]);
+            //lblCostOfTotalMix.Text = string.Format("{0:#,##0.00}", drRecipe["MixCost"]);
             lblCostOfTotalMix.Text = string.Format("{0:#,##0.00}", drRecipe["MixCost"]);
-            lblNetPrice.Text = string.Format("{0:#,##0.00}", drRecipe["NetPrice"]);
+            lblNetPrice.Text = string.Format("{0:#,##0.00}", costOfTotalMix);
             lblGrossPrice.Text = string.Format("{0:#,##0.00}", drRecipe["GrossPrice"]);
             lblNetCost.Text = string.Format("{0:0.00}", drRecipe["NetCost"]);
             lblGrossCost.Text = string.Format("{0:0.00}", drRecipe["GrossCost"]);
@@ -240,16 +242,19 @@ namespace BlueLedger.PL.PT.RCP
                 // Added on: 15/09/2017, By: Fon, For: Update cost of Recipe.
                 case "UPDATE":
                     var id = Request.Params["ID"] == null ? "" : Request.Params["ID"].ToString();
-                    var parameters = new Blue.DAL.DbParameter[1];
+                    //var parameters = new Blue.DAL.DbParameter[1];
 
-                    parameters[0] = new Blue.DAL.DbParameter("@RcpCode", id);
+                    //parameters[0] = new Blue.DAL.DbParameter("@RcpCode", id);
 
                     //bool result = rcpDt.UpdateCostOfRcpLst(dbParams, LoginInfo.ConnStr);
 
-                    bool result = rcpDt.UpdateCostOfRecipe(parameters, LoginInfo.ConnStr);
+                    //bool result = rcpDt.UpdateCostOfRecipe(parameters, LoginInfo.ConnStr);
 
-                    if (result)
-                        Response.Redirect(Request.Url.ToString());
+
+                    bu.DbExecuteQuery(string.Format("EXEC [PT].[UpdateRecipeCost] '{0}'", id), null, LoginInfo.ConnStr);
+
+                    Response.Redirect(Request.Url.ToString());
+                    //AlertMessageBox(id);
 
                     break;
                 // End Added.

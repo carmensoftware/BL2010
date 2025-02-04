@@ -64,13 +64,17 @@ namespace BlueLedger.PL.PT.RCP
                 // Added on: 15/09/2017, By: Fon
                 // Note: Added in Business Layer
                 case "UC":
-                    var parameters = new Blue.DAL.DbParameter[1];
-                    parameters[0] = new Blue.DAL.DbParameter("@RcpCode", "");
+
+
+                    rcpDt.DbExecuteQuery("EXEC [PT].[UpdateRecipeCost]", null, LoginInfo.ConnStr);
+
+                    //var parameters = new Blue.DAL.DbParameter[1];
+                    //parameters[0] = new Blue.DAL.DbParameter("@RcpCode", "");
 
                     //bool result = rcpDt.UpdateCostOfRecipe(p, LoginInfo.ConnStr);
-                    bool result = rcpDt.UpdateCostOfRecipe(parameters, LoginInfo.ConnStr);
+                    //bool result = rcpDt.UpdateCostOfRecipe(parameters, LoginInfo.ConnStr);
 
-                    if (result)
+                    //if (result)
                         Response.Redirect("RecipeList.aspx");
 
                     break;

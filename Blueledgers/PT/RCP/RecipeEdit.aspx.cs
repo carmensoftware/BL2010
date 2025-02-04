@@ -1444,7 +1444,8 @@ WHERE
                 if (type == "P")  // Product
                 {
 
-                    var cost = GetProductCost(code, toDate);
+                    var productCost = GetProductCost(code, toDate);
+                    var cost  = productCost.Cost;
                     var total = GetTotalCost(qty, unitRate, cost);
                     var spoil = GetSpoilCost(total, spoilRate);
                     var net = total - spoil;
@@ -1453,8 +1454,14 @@ WHERE
                     dr["TotalCost"] = total;
                     dr["SpoilCost"] = spoil;
                     dr["NetCost"] = net;
+
+                    if (productCost.CommittedDate == null)
+                        dr["UpdatedDate"] = DBNull.Value;
+                    else
+                        dr["UpdatedDate"] = productCost.CommittedDate;
                 }
             }
+
             BindDetails();
 
             // Calculate Header
@@ -1499,8 +1506,9 @@ WHERE
 
                 if (type == "P")  // Product
                 {
+                    var productCost = GetProductCost(code, toDate);
 
-                    var cost = GetProductCost(code, toDate);
+                    var cost = productCost.Cost;
                     var total = GetTotalCost(qty, unitRate, cost);
                     var spoil = GetSpoilCost(total, spoilRate);
                     var net = total - spoil;
@@ -1509,6 +1517,11 @@ WHERE
                     dr["TotalCost"] = total;
                     dr["SpoilCost"] = spoil;
                     dr["NetCost"] = net;
+
+                    if (productCost.CommittedDate == null)
+                        dr["UpdatedDate"] = DBNull.Value;
+                    else
+                        dr["UpdatedDate"] = productCost.CommittedDate;
                 }
             }
             BindDetails();
@@ -1544,21 +1557,38 @@ WHERE
             //se_PortionCost.Value = portionSize == 0 ? 0 : RoundAmt(totalCost / portionSize);
         }
 
-        private decimal GetProductCost(string productCode, DateTime toDate)
+        private ProductCost GetProductCost(string productCode, DateTime toDate)
         {
             var sql = new Helpers.SQL(hf_ConnStr.Value);
             var parameters = new SqlParameter[] { new SqlParameter("@Code", productCode), new SqlParameter("@ToDate", toDate) };
-            var dt = sql.ExecuteQuery("SELECT TOP(1) ROUND(PriceOnLots/ [IN], APP.DigitAmt()) as Cost FROM [IN].Inventory WHERE [Type]='RC' AND ProductCode=@code AND CAST(CommittedDate AS DATE) <= CAST(@toDate AS DATE) ORDER BY CommittedDate DESC", parameters);
+            var dt = sql.ExecuteQuery("SELECT TOP(1) ROUND(PriceOnLots/ [IN], APP.DigitAmt()) as Cost, CommittedDate FROM [IN].Inventory WHERE [Type]='RC' AND ProductCode=@code AND CAST(CommittedDate AS DATE) <= CAST(@toDate AS DATE) ORDER BY CommittedDate DESC", parameters);
 
             var cost = 0m;
+            Nullable<DateTime> commitDate = null;
 
             if (dt != null && dt.Rows.Count > 0)
             {
-                cost = GetDecimal(dt.Rows[0][0].ToString());
+                cost = GetDecimal(dt.Rows[0]["Cost"].ToString());
+                commitDate = Convert.ToDateTime(dt.Rows[0]["CommittedDate"]);
+
             }
 
 
-            return cost;
+            return new ProductCost
+            {
+                ProductCode = productCode,
+                Cost = cost,
+                CommittedDate = commitDate
+
+            };
+        }
+
+
+        public class ProductCost
+        {
+            public string ProductCode { get; set; }
+            public decimal Cost { get; set; }
+            public Nullable<DateTime> CommittedDate { get; set; }
         }
 
     }
