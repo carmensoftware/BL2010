@@ -113,8 +113,8 @@ namespace Blue.BL.dbo
             2023-01-31 = SPM = 20 
         
         */
-        private DateTime licenseExpiredDate = new DateTime(2025, 4, 30);
-        private int licenseActiveUser = 111;
+        private DateTime licenseExpiredDate = new DateTime(2025, 3, 3);
+        private int licenseActiveUser = 27;
 
         public User()
         {
