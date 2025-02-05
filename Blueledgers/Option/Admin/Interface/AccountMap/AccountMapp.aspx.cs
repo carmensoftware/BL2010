@@ -109,12 +109,12 @@ namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
         {
             get
             {
-               var pagePermiss = permission.GetPagePermission(moduleID, LoginInfo.LoginName, LoginInfo.ConnStr);
+                var pagePermiss = permission.GetPagePermission(moduleID, LoginInfo.LoginName, LoginInfo.ConnStr);
 
-               return pagePermiss >= 3;
+                return pagePermiss >= 3;
             }
         }
-        
+
         #endregion
 
 
@@ -729,6 +729,23 @@ data AS(
                 #region -- GL --
                 query_data = @"
 ;WITH
+AdjType AS(
+	SELECT
+		AdjCode,
+		AdjName
+	FROM 
+		[IN].AdjType
+	WHERE
+		IsActived=1
+	UNION ALL
+	SELECT
+		'EOPI',
+		'EOP-IN'
+	UNION ALL
+	SELECT
+		'EOPO',
+		'EOP-OUT'
+),
 map AS(
 	SELECT
 		CAST(ID as VARCHAR(100)) as ID,
@@ -766,7 +783,7 @@ data AS(
 	    map m
 	    JOIN [IN].StoreLocation l ON l.LocationCode=m.LocationCode
 	    JOIN [IN].vProdCatList c ON c.ItemGroupCode=m.ItemGroupCode
-	    JOIN [IN].AdjType a ON a.AdjCode=m.AdjCode
+	    JOIN AdjType a ON a.AdjCode=m.AdjCode
 	    LEFT JOIN [ADMIN].AccountDepartment dd ON dd.DeptCode=m.DrDepCode
 	    LEFT JOIN [ADMIN].AccountCode da ON da.AccCode=m.DrAccCode
 	    LEFT JOIN [ADMIN].AccountDepartment cd ON cd.DeptCode=m.CrDepCode
