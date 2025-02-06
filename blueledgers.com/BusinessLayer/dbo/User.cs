@@ -73,7 +73,7 @@ namespace Blue.BL.dbo
             2025-02-28 = chalongmarina = 8
             2025-02-28 = tinbaron = 18
             2025-02-28 = verandaresortautograph = 3+10 = 13
-            2025-02-28 = hotellotussukhumvit = 15+2 = 17
+            2025-02-28 = hotellotussukhumvit = 15+2 = 17 + 4 = 21
             2025-02-28 = bayvillaskohphangan = 1+5 = 6
             2025-02-28 = selinaserenityrawai = 6
 
@@ -111,10 +111,12 @@ namespace Blue.BL.dbo
             2023-10-31 = Best Western Premier Bayphere Pattaya = 25         
             2023-01-31 = 12TheResidence = 3
             2023-01-31 = SPM = 20 
+         * 
+         *  2025-03-03 = HopInn
         
         */
-        private DateTime licenseExpiredDate = new DateTime(2025, 3, 3);
-        private int licenseActiveUser = 27;
+        private DateTime licenseExpiredDate = new DateTime(2025, 2, 28);
+        private int licenseActiveUser = 21;
 
         public User()
         {
