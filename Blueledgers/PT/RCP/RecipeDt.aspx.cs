@@ -103,8 +103,8 @@ namespace BlueLedger.PL.PT.RCP
             lblTotalMix.Text = string.Format("{0:0.00}", drRecipe["MixRatio"]);
             var costOfTotalMix = Convert.ToDecimal(drRecipe["RcpCost"]) + Convert.ToDecimal(drRecipe["MixCost"]);
             //lblCostOfTotalMix.Text = string.Format("{0:#,##0.00}", drRecipe["MixCost"]);
-            lblCostOfTotalMix.Text = string.Format("{0:#,##0.00}", drRecipe["MixCost"]);
-            lblNetPrice.Text = string.Format("{0:#,##0.00}", costOfTotalMix);
+            lblCostOfTotalMix.Text = string.Format("{0:#,##0.00}", costOfTotalMix);
+            lblNetPrice.Text = string.Format("{0:#,##0.00}", drRecipe["NetPrice"]);
             lblGrossPrice.Text = string.Format("{0:#,##0.00}", drRecipe["GrossPrice"]);
             lblNetCost.Text = string.Format("{0:0.00}", drRecipe["NetCost"]);
             lblGrossCost.Text = string.Format("{0:0.00}", drRecipe["GrossCost"]);
@@ -251,10 +251,10 @@ namespace BlueLedger.PL.PT.RCP
                     //bool result = rcpDt.UpdateCostOfRecipe(parameters, LoginInfo.ConnStr);
 
 
-                    bu.DbExecuteQuery(string.Format("EXEC [PT].[UpdateRecipeCost] '{0}'", id), null, LoginInfo.ConnStr);
+                    bu.DbExecuteQuery(string.Format("EXEC [PT].[UpdateRecipeCost] @RcpCode='{0}'", id), null, LoginInfo.ConnStr);
 
+                    //AlertMessageBox("Cost updated.");
                     Response.Redirect(Request.Url.ToString());
-                    //AlertMessageBox(id);
 
                     break;
                 // End Added.

@@ -111,7 +111,7 @@ namespace BlueLedger.PL.PC.PR
         {
             get
             {
-                 var id = string.IsNullOrEmpty(Request.QueryString["VID"].ToString()) ? 0 : Convert.ToInt32(Request.QueryString["VID"]);
+                var id = string.IsNullOrEmpty(Request.QueryString["VID"].ToString()) ? 0 : Convert.ToInt32(Request.QueryString["VID"]);
 
                 return viewHandler.GetWFStep(id, hf_ConnStr.Value);
 
@@ -165,6 +165,7 @@ namespace BlueLedger.PL.PC.PR
         {
             // Check login
             base.Page_Load(sender, e);
+
 
             if (!IsPostBack)
             {
@@ -479,8 +480,13 @@ namespace BlueLedger.PL.PC.PR
             SqlConnection con = new SqlConnection(LoginInfo.ConnStr);
             con.Open();
 
-            string sqlStr = "select * from [App].WFDt where [Step] = '" + wfStep + "' ";
-            sqlStr += "and [WFId] = '" + wfId + "' ";
+            var step = wfStep;
+
+            if (Request.QueryString["Type"] != null && Request.QueryString["Type"].ToString() == "C")
+                step = 1;
+
+            string sqlStr = "select * from [App].WFDt where [Step] = '" + step.ToString() + "' ";
+            sqlStr += "and [WFId] = 1 ";
             SqlCommand cmd = new SqlCommand(sqlStr, con);
             SqlDataAdapter da = new SqlDataAdapter(cmd);
             da.Fill(dt);
@@ -739,6 +745,16 @@ namespace BlueLedger.PL.PC.PR
                 {
                     foreach (DataRow dr in dt.Rows)
                     {
+                        if (string.IsNullOrEmpty(dr["OrderUnit"].ToString()))
+                        {
+                            var productCode = dr["ProductCode"].ToString();
+                            var error = string.Format("Invalid order unit at '{0}'", productCode);
+
+                            AlertMessageBox(error);
+                            return;
+                        }
+
+
                         if (!string.IsNullOrEmpty(dr.RowError))
                         {
                             AlertMessageBox(dr.RowError);
@@ -2523,7 +2539,6 @@ namespace BlueLedger.PL.PC.PR
             DataRow drWFDt = dsWF.Tables["APPwfdt"].Rows[0];
             string controlEnable = "EnableField";
             string controlHide = "HideField";
-
 
             //hong visible change delivery date 10092013
             if (grd_PrDt1.EditIndex == -1)
