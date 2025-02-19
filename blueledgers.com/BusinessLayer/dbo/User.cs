@@ -75,7 +75,7 @@ namespace Blue.BL.dbo
             2025-02-28 = tinbaron = 18
             2025-02-28 = verandaresortautograph = 3+10 = 13
             2025-02-28 = hotellotussukhumvit = 15+2 = 17 + 2 = 19
-            2025-02-28 = bayvillaskohphangan = 1+5 = 6
+            2025-02-28 = bayvillaskohphangan = 1+5+1 = 7
             2025-02-28 = selinaserenityrawai = 6
 
             2025-02-28 = korabeachresort = 10 + 22 = 32
@@ -116,8 +116,8 @@ namespace Blue.BL.dbo
          *  2025-03-03 = HopInn
         
         */
-        private DateTime licenseExpiredDate = new DateTime(2025, 4, 30);
-        private int licenseActiveUser = 500;
+        private DateTime licenseExpiredDate = new DateTime(2025, 05, 31);
+        private int licenseActiveUser = 140;
 
         public User()
         {
