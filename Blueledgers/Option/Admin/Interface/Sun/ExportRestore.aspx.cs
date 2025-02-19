@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Web.UI.WebControls;
 using BlueLedger.PL.BaseClass;
+using System.Collections.Generic;
 
 namespace BlueLedger.PL.Option.Admin.Interface.Sun
 {
@@ -87,7 +88,7 @@ namespace BlueLedger.PL.Option.Admin.Interface.Sun
             //da.Fill(ds, "vPre_Restore");
 
             //grd_Preview2.DataSource = ds;
-            string sql = string.Format("SELECT * FROM [ADMIN].vExportToAP WHERE DocDate BETWEEN '{0}' AND '{1}'", txt_FromDate.Date.ToString("yyyy-MM-dd"), txt_ToDate.Date.ToString("yyyy-MM-dd"));
+            string sql = string.Format("SELECT * FROM [ADMIN].vExportToAP WHERE CommittedDate BETWEEN '{0}' AND '{1}'", txt_FromDate.Date.ToString("yyyy-MM-dd"), txt_ToDate.Date.ToString("yyyy-MM-dd"));
             grd_Preview2.DataSource = bu.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
             grd_Preview2.DataBind();
         }
@@ -114,11 +115,27 @@ namespace BlueLedger.PL.Option.Admin.Interface.Sun
 
         private void RestoreExport(DateTime dateFrom, DateTime dateTo)
         {
-            string sql = string.Format("UPDATE PC.Rec SET ExportStatus = 0 WHERE CAST(RecDate AS DATE) BETWEEN '{0}' AND '{1}'", dateFrom.ToString("yyyy-MM-dd"), dateTo.ToString("yyyy-MM-dd"));
-            bu.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
+            var sql = @"
+DECLARE @doc TABLE(
+	DocNo nvarchar(20) NOT NULL,
 
-            sql = string.Format("UPDATE PC.Cn SET ExportStatus = 0 WHERE CAST(CnDate AS DATE) BETWEEN '{0}' AND '{1}'", dateFrom.ToString("yyyy-MM-dd"), dateTo.ToString("yyyy-MM-dd"));
-            bu.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
+	PRIMARY KEY (DocNo)
+)
+INSERT INTO @doc SELECT DISTINCT DocNo FROM [ADMIN].vExportToAP WHERE CommittedDate BETWEEN @FrDate AND @ToDate
+
+UPDATE PC.Rec SET ExportStatus = 0 WHERE RecNo IN (SELECT DocNo FROM @doc)
+UPDATE PC.Cn SET ExportStatus = 0 WHERE CnNo IN (SELECT DocNo FROM @doc)";
+            var p = new List<Blue.DAL.DbParameter>();
+            p.Add(new Blue.DAL.DbParameter("@FrDate", dateFrom.ToString("yyyy-MM-dd")));
+            p.Add(new Blue.DAL.DbParameter("@FrDate", dateTo.ToString("yyyy-MM-dd")));
+
+            bu.DbExecuteQuery(sql, p.ToArray(), LoginInfo.ConnStr);
+
+            //string sql = string.Format("UPDATE PC.Rec SET ExportStatus = 0 WHERE CAST(RecDate AS DATE) BETWEEN '{0}' AND '{1}'", dateFrom.ToString("yyyy-MM-dd"), dateTo.ToString("yyyy-MM-dd"));
+            //bu.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
+
+            //sql = string.Format("UPDATE PC.Cn SET ExportStatus = 0 WHERE CAST(CnDate AS DATE) BETWEEN '{0}' AND '{1}'", dateFrom.ToString("yyyy-MM-dd"), dateTo.ToString("yyyy-MM-dd"));
+            //bu.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
         }
 
         private void isExp(string _exp)

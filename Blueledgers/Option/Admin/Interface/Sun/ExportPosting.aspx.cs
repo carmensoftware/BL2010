@@ -79,7 +79,7 @@ namespace BlueLedger.PL.Option.Admin.Interface.Sun
 
             con = new SqlConnection(LoginInfo.ConnStr);
             con.Open();
-            string sqlText = "SELECT COUNT(*) FROM [ADMIN].vExportToAP WHERE CAST(DocDate AS DATE) BETWEEN CAST(@FFDate AS DATE) AND CAST(@TTDate AS DATE) AND ISNULL(TheAccountNumber, '') = ''";
+            string sqlText = "SELECT COUNT(*) FROM [ADMIN].vExportToAP WHERE CAST(CommittedDate AS DATE) BETWEEN CAST(@FFDate AS DATE) AND CAST(@TTDate AS DATE) AND ISNULL(TheAccountNumber, '') = ''";
             cmd.Connection = con;
             cmd.CommandText = sqlText;
             cmd.Parameters.Add("FFDate", System.Data.SqlDbType.DateTime).Value = txt_FromDate.Date.ToString("yyyy-MM-dd");
@@ -131,7 +131,7 @@ namespace BlueLedger.PL.Option.Admin.Interface.Sun
             con = new SqlConnection(LoginInfo.ConnStr);
 
             //rptquery = "Select * from vPre_Exp where DocDate >= @FFDate and DocDate <= @TTDate";
-            string sqlText = "SELECT * FROM [ADMIN].vExportToAP WHERE CAST(DocDate AS DATE) BETWEEN CAST(@FFDate AS DATE) AND CAST(@TTDate AS DATE) Order By DocDate, DocNo, RecordType Desc";
+            string sqlText = "SELECT * FROM [ADMIN].vExportToAP WHERE CAST(CommittedDate AS DATE) BETWEEN CAST(@FFDate AS DATE) AND CAST(@TTDate AS DATE) Order By DocDate, DocNo, RecordType Desc";
             cmd.CommandType = System.Data.CommandType.Text;
             cmd.CommandText = sqlText;
             cmd.Connection = con;
