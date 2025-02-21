@@ -3024,14 +3024,15 @@ namespace BlueLedger.PL.PC.PR
                 if (e.Row.FindControl("ddl_ProductCode_av") != null)
                 {
                     var ddl_ProductCode_av = e.Row.FindControl("ddl_ProductCode_av") as ASPxComboBox;
+                    
 
                     if (Request.Params["ID"] != null)
                     {
                         ddl_ProductCode_av.Visible = !IsExistInField("PC.PrDt.ProductCode", controlHide);
                         ddl_ProductCode_av.Enabled = IsExistInField("PC.PrDt.ProductCode", controlEnable);
-
-                        ddl_ProductCode_av.Value = DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString();
+                        ddl_ProductCode_av.Value = DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString().Trim();
                     }
+
                 }
                 // Description
                 if (e.Row.FindControl("lbl_DescEN_av") != null)
