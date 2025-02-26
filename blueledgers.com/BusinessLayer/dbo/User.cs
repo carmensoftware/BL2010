@@ -12,14 +12,27 @@ namespace Blue.BL.dbo
         private readonly Blue.BL.ADMIN.UserStore userStore = new Blue.BL.ADMIN.UserStore();
 
         /* 
+            2026-02-28 = cafedelmarphuket =46
+            2026-02-28 = gcmt = 1
+
+          
+            2026-01-31 = bayvillaskohphangan = 1+5+1 = 7
+            2026-01-31 = hotellotussukhumvit = 15+2 = 17 + 2 = 19
+            2026-01-31 = verandaresortautograph = 3+10 = 13
+            2026-01-31 = urbanalangsuanbkk = 7
+            2026-01-31 = legacysuites = 22
+          
+          
             2026-01-31 = bwpluscarapace =17
             2026-01-31 = boulevardhotelbangkok = 10 + 17 = 27
-            2025-01-31 = bestwesternchatuchak = 9
+            2026-01-31 = bestwesternchatuchak = 9
+            2026-01-31 = Phuket Emerald = 15+5 = 20 (15)
 
           
          
             2025-11-30 = skyviewresortphuket = 11
             2025-11-30 = wyndhamgardennaithon = 21
+            2025-11-30 = chalongmarina = 8
 
             2025-10-31 = siamese = 24+2 = 26 + 20 + 10 = 56
             2024-10-30 = BlumonkeyKrabi = 6
@@ -31,6 +44,7 @@ namespace Blue.BL.dbo
             2025-09-30 = TheSarojin = 3
             2025-09-30 = kckohchang = 17
           
+            2025-08-31 = Diamond Cottage = 15+5=20
           
             2025-08-31 = palayanagroup = 2+20 = 22
             2025-08-31 = surestaytheiconic = 11
@@ -56,6 +70,7 @@ namespace Blue.BL.dbo
             2025-05-31 = HotelSensai (Chiang Mai) = 3+8 = 11 ปรับเป็น 10 ตาม license (27052024_blueledgers.xlsx)
             2025-05-31 = chi = 2
             2025-05-31 = wyndhamgardenphuketkamala = 3
+            2025-05-31 = sorahotels = 9
 
             2025-04-30 = surestaytheiconicari = 10        
             2025-04-30 = bestwesternratchada = 10        
@@ -63,42 +78,34 @@ namespace Blue.BL.dbo
             2025-04-30 = belairebangkok = 11
             2025-04-30 = firaphuketbeachclub = 5
 
+            2025-03-31 = tinbaron = 18
+            2025-03-31 = hopinnth = 27
+            2025-03-31 = twinlotus (on permise) = 16
+            2025-03-31 = DeevanaPhuket = 65=> 69
+            2025-03-31 = ibis = 999
+            2025-03-31 = kappasensesubud = 17
+         
             2025-03-31 = silavadeepoolsparesort = 28
             2025-03-31 = wyndhamjomtienpattaya = 20 + 2 = 22
             2025-03-31 = absoluteresorts = 1
             2025-03-31 = teerapatgroup = 5 + 5 = 10
 
-            2025-02-28 = G Nimman = 1
-            2025-02-28 = Cafedelmar Phuket =46
-            2025-02-28 = Diamond Cottage = 15+5=20
-            2025-02-28 = chalongmarina = 8
-            2025-02-28 = tinbaron = 18
-            2025-02-28 = verandaresortautograph = 3+10 = 13
-            2025-02-28 = hotellotussukhumvit = 15+2 = 17 + 2 = 19
-            2025-02-28 = bayvillaskohphangan = 1+5+1 = 7
-            2025-02-28 = selinaserenityrawai = 6
 
+
+            2025-02-28 = selinaserenityrawai = 6
             2025-02-28 = korabeachresort = 10 + 22 = 32
             2025-02-28 = blumonkeybangtaophuket = 6
-            2025-02-28 = DeevanaPhuket = 65=> 69
-            2025-02-28 = HopInn = 27
             2025-02-28 = blumonkeybangsaen = 5
-            2025-02-28 = twinlotus (on permise) = 16
-            2025-02-28 = urbanalangsuanbkk = 7
             2025-02-28 = brownstarling = 18
-            2025-02-28 = Phuket Emerald = 15+5 = 20 (15)
-            2025-02-28 = kappasensesubud = 17
           
-            2025-02-28 = ibis = 999
           
+            --------- Expired -------------
             2025-01-31 = OKM = 50
             2025-01-31 = ramadadmabangkok = 19
-            2025-01-31 = hopinnth = 27
             2025-01-31 = sztowerthai = 13
             2025-01-31 = MHRH = 3
 
           
-            --------- Expired -------------
             2024-07-31 = Nexen = 20
             2024-07-31 = Public House = 6
             2024-07-31 = rxvwellness = 35
@@ -112,12 +119,10 @@ namespace Blue.BL.dbo
             2023-10-31 = Best Western Premier Bayphere Pattaya = 25         
             2023-01-31 = 12TheResidence = 3
             2023-01-31 = SPM = 20 
-         * 
-         *  2025-03-03 = HopInn
         
         */
-        private DateTime licenseExpiredDate = new DateTime(2025, 05, 31);
-        private int licenseActiveUser = 140;
+        private DateTime licenseExpiredDate = new DateTime(2025, 3, 31);
+        private int licenseActiveUser = 999;
 
         public User()
         {

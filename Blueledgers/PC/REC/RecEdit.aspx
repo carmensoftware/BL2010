@@ -431,7 +431,7 @@
                                         <tr>
                                             <%--<td></td>--%>
                                             <td>
-                                                <asp:CheckBox ID="chk_AdjDisc" runat="server" Checked='<%# Eval("DiscAdj").ToString()=="1" %>' Text='Adjust' Enabled="false" />
+                                                <asp:CheckBox ID="chk_AdjDisc" runat="server" AutoPostBack="true" Checked='<%# Eval("DiscAdj").ToString()=="1" %>' Text='Adjust' Enabled="false" />
                                                 <asp:Label ID="Label13" runat="server" SkinID="LBL_HD_GRD" Text="Discount % : " />
                                                 <asp:Label ID="Label14" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("Discount")) %></asp:Label>
                                             </td>
@@ -464,7 +464,7 @@
                                         <tr>
                                             <%--<td></td>--%>
                                             <td>
-                                                <asp:CheckBox ID="chk_AdjTax" runat="server" Checked='<%# Eval("TaxAdj").ToString()=="1" %>' Text='Adjust' Enabled="false" />
+                                                <asp:CheckBox ID="chk_AdjTax" runat="server" Text='Adjust' Enabled="false" />
                                                 <asp:Label ID="Label18" runat="server" SkinID="LBL_HD_GRD" Text="Tax : " />
                                                 <%--<asp:Label ID="Label19" runat="server" SkinID="LBL_NR_1"><%# Eval("TaxTypeName") %></asp:Label>--%>
                                                 <asp:Label ID="Label20" runat="server" SkinID="LBL_NR_1"><%# FormatAmt(Eval("TaxRate")) %></asp:Label>
@@ -637,13 +637,15 @@
                                                     &nbsp;
                                                     <dx:ASPxSpinEdit runat="server" ID="se_TaxRate" AutoPostBack="true" Width="40" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right"
                                                         OnNumberChanged="se_TaxRate_NumberChanged" />
+                                                    &nbsp;&nbsp;
+                                                    <asp:Button runat="server" ID="btn_CalTax" Text="Calculuation" OnClick="btn_CalTax_Click" />
                                                 </td>
                                                 <!-- Tax -->
                                                 <td style="text-align: right">
                                                     <asp:Label ID="Label21" runat="server" SkinID="LBL_HD_GRD" Text="Tax" />
                                                 </td>
                                                 <td style="text-align: right">
-                                                    <dx:ASPxSpinEdit runat="server" ID="se_CurrTaxAmt" Width="100%" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right"
+                                                    <dx:ASPxSpinEdit runat="server" ID="se_CurrTaxAmt" Width="100%" AutoPostBack="true" MinValue="0" NullText="0" SpinButtons-ShowIncrementButtons="false" HorizontalAlign="Right"
                                                         Enabled='<%# Eval("TaxAdj")=="1" %>' OnNumberChanged="se_CurrTaxAmt_NumberChanged" />
                                                 </td>
                                                 <td style="text-align: right">

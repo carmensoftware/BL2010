@@ -376,8 +376,8 @@ namespace BlueLedger.PL.IN.REC
                 var rate = string.IsNullOrEmpty(DataBinder.Eval(dataItem, "Rate").ToString()) ? 1 : Convert.ToDecimal(DataBinder.Eval(dataItem, "Rate"));
                 var price = string.IsNullOrEmpty(DataBinder.Eval(dataItem, "Price").ToString()) ? 0 : Convert.ToDecimal(DataBinder.Eval(dataItem, "Price"));
 
-                var discAdj = DataBinder.Eval(dataItem, "DiscAdj").ToString() == "1";
-                var taxAdj = DataBinder.Eval(dataItem, "TaxAdj").ToString() == "1";
+                var discAdj = Convert.ToBoolean(DataBinder.Eval(dataItem, "DiscAdj"));
+                var taxAdj = Convert.ToBoolean(DataBinder.Eval(dataItem, "TaxAdj"));
                 var taxRate = Convert.ToDecimal(DataBinder.Eval(dataItem, "TaxRate"));
 
                 var currDiscAmt = Convert.ToDecimal(DataBinder.Eval(dataItem, "CurrDiscAmt"));
@@ -629,6 +629,44 @@ namespace BlueLedger.PL.IN.REC
                     //DataBinder.Eval(dataItem, "ExpiryDate") 
                     //de.Text = FormatDate(DataBinder.Eval(e.Row.DataItem, "ExpiryDate"));
                 }
+
+                if (e.Row.FindControl("chk_AdjTax") != null)
+                {
+                    var chk = e.Row.FindControl("chk_AdjTax") as CheckBox;
+
+                    chk.Checked = taxAdj;
+
+                }
+
+
+
+                if (e.Row.FindControl("lbl_DiscAmt") != null)
+                {
+                    var label = e.Row.FindControl("lbl_DiscAmt") as Label;
+
+                    label.Text = FormatAmt(diccountAmt);
+                }
+                if (e.Row.FindControl("lbl_TaxAmt") != null)
+                {
+                    var label = e.Row.FindControl("lbl_TaxAmt") as Label;
+
+                    label.Text = FormatAmt(taxAmt);
+                }
+                if (e.Row.FindControl("lbl_NetAmt") != null)
+                {
+                    var label = e.Row.FindControl("lbl_NetAmt") as Label;
+
+                    label.Text = FormatAmt(netAmt);
+                }
+                if (e.Row.FindControl("lbl_TotalAmt") != null)
+                {
+                    var label = e.Row.FindControl("lbl_TotalAmt") as Label;
+
+                    label.Text = FormatAmt(totalAmt);
+                }
+
+
+
 
                 #region --Additional--
                 // Base Qty
@@ -939,7 +977,7 @@ ORDER BY
             var chk_AdjDisc = row.FindControl("chk_AdjDisc") as CheckBox;
             var se_DiscRate = row.FindControl("se_DiscRate") as ASPxSpinEdit;
 
-            var chk_AdjTax = row.FindControl("chk_AdjDisc") as CheckBox;
+            var chk_AdjTax = row.FindControl("chk_AdjTax") as CheckBox;
             var ddl_TaxType = row.FindControl("ddl_TaxType") as DropDownList;
             var se_TaxRate = row.FindControl("se_TaxRate") as ASPxSpinEdit;
 
@@ -986,6 +1024,7 @@ ORDER BY
             dr["CurrNetAmt"] = Convert.ToDecimal(se_CurrNetAmt.Value);
             dr["CurrTaxAmt"] = Convert.ToDecimal(se_CurrTaxAmt.Value);
             dr["CurrTotalAmt"] = Convert.ToDecimal(lbl_CurrTotalAmt_Row.Text);
+
 
             dr["DiccountAmt"] = Convert.ToDecimal(lbl_DiscAmt.Text.Trim());
             dr["NetAmt"] = Convert.ToDecimal(lbl_NetAmt.Text.Trim());
@@ -1219,12 +1258,14 @@ ORDER BY
             var ddl_TaxType = row.FindControl("ddl_TaxType") as DropDownList;
             var se_TaxRate = row.FindControl("se_TaxRate") as ASPxSpinEdit;
             var se_CurrTaxAmt = row.FindControl("se_CurrTaxAmt") as ASPxSpinEdit;
-            
-            if (isManual)
-            {
-                ddl_TaxType.Enabled = item.Checked;
-                se_TaxRate.Enabled = item.Checked;
-            }
+
+            //if (isManual)
+            //{
+            //ddl_TaxType.Enabled = item.Checked;
+            //se_TaxRate.Enabled = item.Checked;
+            //}
+            ddl_TaxType.Enabled = item.Checked;
+            se_TaxRate.Enabled = item.Checked;
 
             se_CurrTaxAmt.Enabled = item.Checked;
 
@@ -1235,6 +1276,8 @@ ORDER BY
 
                 ddl_TaxType.SelectedValue = hf_TaxType.Value;
                 se_TaxRate.Value = hf_TaxRate.Value;
+
+                CalculateItem(sender);
             }
             //var se_CurrTaxAmt = row.FindControl("se_CurrTaxAmt") as ASPxSpinEdit;
 
@@ -1275,6 +1318,29 @@ ORDER BY
         protected void se_CurrTaxAmt_NumberChanged(object sender, EventArgs e)
         {
             var item = sender as ASPxSpinEdit;
+            var row = item.NamingContainer as GridViewRow;
+
+            var chk_AdjTax = row.FindControl("chk_AdjTax") as CheckBox;
+
+            if (chk_AdjTax.Checked)
+            {
+                var se_CurrNetAmt = row.FindControl("se_CurrNetAmt") as ASPxSpinEdit;
+                var se_CurrTaxAmt = row.FindControl("se_CurrTaxAmt") as ASPxSpinEdit;
+                var lbl_CurrTotalAmt_Dt = row.FindControl("lbl_CurrTotalAmt_Dt") as Label;
+
+                var currTotalAmt = se_CurrNetAmt.Number + se_CurrTaxAmt.Number;
+
+                lbl_CurrTotalAmt_Dt.Text = FormatAmt(currTotalAmt);
+
+                SetBaseItems(item);
+            }
+            else
+                CalculateItem(item);
+        }
+
+        protected void btn_CalTax_Click(object sender, EventArgs e)
+        {
+            var item = sender as Button;
 
             CalculateItem(item);
         }
@@ -1336,12 +1402,17 @@ ORDER BY
             var currTaxAmt = Convert.ToDecimal(se_CurrTaxAmt.Value);
             var currNetAmt = 0m;
             var currTotalAmt = 0m;
-
+            var total = 0m;
 
             currDiscAmt = RoundAmt(totalPrice * discRate / 100);
 
+            //if (adjTax)
+            //{
+            //    currNetAmt = se_CurrNetAmt.Number;
+            //    currTaxAmt = se_CurrTaxAmt.Number;
 
-
+            //}
+            //else
             if (taxType == "A")
             {
                 currNetAmt = totalPrice - currDiscAmt;
@@ -1349,7 +1420,7 @@ ORDER BY
             }
             else
             {
-                var total = totalPrice - currDiscAmt;
+                total = totalPrice - currDiscAmt;
 
                 currTaxAmt = RoundAmt(total * taxRate / (taxRate + 100));
                 currNetAmt = total - currTaxAmt;
@@ -1365,10 +1436,6 @@ ORDER BY
             //var lbl_CurrNetAmt_Dt = row.FindControl("lbl_CurrNetAmt_Dt") as Label;
             var lbl_CurrTotalAmt_Dt = row.FindControl("lbl_CurrTotalAmt_Dt") as Label;
 
-            var lbl_DiscAmt = row.FindControl("lbl_DiscAmt") as Label;
-            var lbl_NetAmt = row.FindControl("lbl_NetAmt") as Label;
-            var lbl_TaxAmt = row.FindControl("lbl_TaxAmt") as Label;
-            var lbl_TotalAmt = row.FindControl("lbl_TotalAmt") as Label;
 
             // Currency
             se_CurrDiscAmt.Number = currDiscAmt;
@@ -1381,20 +1448,57 @@ ORDER BY
             lbl_CurrTotalAmt_Dt.Text = lbl_CurrTotalAmt_Row.Text;
 
 
+            SetBaseItems(sender);
+            //var lbl_DiscAmt = row.FindControl("lbl_DiscAmt") as Label;
+            //var lbl_NetAmt = row.FindControl("lbl_NetAmt") as Label;
+            //var lbl_TaxAmt = row.FindControl("lbl_TaxAmt") as Label;
+            //var lbl_TotalAmt = row.FindControl("lbl_TotalAmt") as Label;
+
+
+            //var currRate = Convert.ToDecimal(se_CurrencyRate.Value);
+            //var discAmt = RoundAmt(currDiscAmt * currRate);
+            //var netAmt = RoundAmt(currNetAmt * currRate);
+            //var taxAmt = RoundAmt(currTaxAmt * currRate);
+            //var totalAmt = RoundAmt(currTotalAmt * currRate);
+
+            //// Base
+            //lbl_DiscAmt.Text = FormatAmt(discAmt);
+            //lbl_NetAmt.Text = FormatAmt(netAmt);
+            //lbl_TaxAmt.Text = FormatAmt(taxAmt);
+            //lbl_TotalAmt.Text = FormatAmt(totalAmt);
+
+            se_CurrDiscAmt.ReadOnly = !chk_AdjDisc.Checked;
+            se_CurrTaxAmt.ReadOnly = !chk_AdjTax.Checked;
+        }
+
+        private void SetBaseItems(object sender)
+        {
+            var row = (sender as Control).NamingContainer;
+
+            var se_CurrDiscAmt = row.FindControl("se_CurrDiscAmt") as ASPxSpinEdit;
+            var se_CurrNetAmt = row.FindControl("se_CurrNetAmt") as ASPxSpinEdit;
+            var se_CurrTaxAmt = row.FindControl("se_CurrTaxAmt") as ASPxSpinEdit;
+            var lbl_CurrTotalAmt_Dt = row.FindControl("lbl_CurrTotalAmt_Dt") as Label;
+
+            var currTotalAmt = Convert.ToDecimal(lbl_CurrTotalAmt_Dt.Text);
+
             var currRate = Convert.ToDecimal(se_CurrencyRate.Value);
-            var discAmt = RoundAmt(currDiscAmt * currRate);
-            var netAmt = RoundAmt(currNetAmt * currRate);
-            var taxAmt = RoundAmt(currTaxAmt * currRate);
+            var discAmt = RoundAmt(se_CurrDiscAmt.Number * currRate);
+            var netAmt = RoundAmt(se_CurrNetAmt.Number * currRate);
+            var taxAmt = RoundAmt(se_CurrTaxAmt.Number * currRate);
             var totalAmt = RoundAmt(currTotalAmt * currRate);
 
             // Base
+            var lbl_DiscAmt = row.FindControl("lbl_DiscAmt") as Label;
+            var lbl_NetAmt = row.FindControl("lbl_NetAmt") as Label;
+            var lbl_TaxAmt = row.FindControl("lbl_TaxAmt") as Label;
+            var lbl_TotalAmt = row.FindControl("lbl_TotalAmt") as Label;
+
             lbl_DiscAmt.Text = FormatAmt(discAmt);
             lbl_NetAmt.Text = FormatAmt(netAmt);
             lbl_TaxAmt.Text = FormatAmt(taxAmt);
             lbl_TotalAmt.Text = FormatAmt(totalAmt);
 
-            se_CurrDiscAmt.ReadOnly = !chk_AdjDisc.Checked;
-            se_CurrTaxAmt.ReadOnly = !chk_AdjTax.Checked;
         }
 
         // pop_SessionTimeout
@@ -1532,6 +1636,8 @@ VALUES ";
 	@PoDtNo{0},
 	0,
 	@Comment{0}),", dtNo.ToString());
+                var taxAdj = Convert.ToBoolean(dr["TaxAdj"]); // ? "1" : "0";
+
                 parameters.Add(new SqlParameter(string.Format("LocationCode{0}", dtNo), dr["LocationCode"].ToString()));
                 parameters.Add(new SqlParameter(string.Format("ProductCode{0}", dtNo), dr["ProductCode"].ToString()));
                 parameters.Add(new SqlParameter(string.Format("UnitCode{0}", dtNo), dr["UnitCode"].ToString()));
@@ -1543,7 +1649,8 @@ VALUES ";
                 parameters.Add(new SqlParameter(string.Format("Price{0}", dtNo), dr["Price"]));
                 parameters.Add(new SqlParameter(string.Format("DiscAdj{0}", dtNo), dr["DiscAdj"]));
                 parameters.Add(new SqlParameter(string.Format("Discount{0}", dtNo), dr["Discount"]));
-                parameters.Add(new SqlParameter(string.Format("TaxAdj{0}", dtNo), dr["TaxAdj"]));
+                //parameters.Add(new SqlParameter(string.Format("TaxAdj{0}", dtNo), dr["TaxAdj"]));
+                parameters.Add(new SqlParameter(string.Format("TaxAdj{0}", dtNo), taxAdj));
                 parameters.Add(new SqlParameter(string.Format("TaxType{0}", dtNo), dr["TaxType"].ToString()));
                 parameters.Add(new SqlParameter(string.Format("TaxRate{0}", dtNo), dr["TaxRate"]));
                 parameters.Add(new SqlParameter(string.Format("CurrDiscAmt{0}", dtNo), dr["CurrDiscAmt"]));
