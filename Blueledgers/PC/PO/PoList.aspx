@@ -32,18 +32,15 @@
                 Height="480px" Width="980px" PopupVerticalAlign="WindowCenter" HeaderText="<%$ Resources:PO_Default, pop_PR %>" SkinID="Default2">
                 <ContentCollection>
                     <dx:PopupControlContentControl ID="PopupControlContentControl2" runat="server" Width="100%">
+                        <div>
+                            <asp:Label ID="lbl_Title_popPR" runat="server" SkinID="LBL_NR_1">Currency: </asp:Label>
+                            <asp:DropDownList ID="ddl_CurrCode" runat="server" Width="200px" AutoPostBack="true" OnInit="ddl_CurrCode_Init" OnSelectedIndexChanged="ddl_CurrCode_SelectedIndexChanged">
+                            </asp:DropDownList>
+                        </div>
+                        <br />
                         <table border="0" cellpadding="1" cellspacing="0" style="width: 100%;">
                             <tr>
                                 <td>
-                                    <div style="height: 30px; width: 940px;">
-                                        <asp:Label ID="lbl_Title_popPR" runat="server" SkinID="LBL_NR_1">Currency: </asp:Label>
-                                        <%--/* It display something wrong on popup*/--%>
-                                        <%--<ajaxToolkit:ComboBox ID="comb_CurrCode" runat="server" DropDownStyle="DropDownList"
-                                                        AutoCompleteMode="SuggestAppend" Width="100px" OnInit="comb_CurrCode_Init">
-                                                    </ajaxToolkit:ComboBox>--%>
-                                        <asp:DropDownList ID="ddl_CurrCode" runat="server" Width="200px" AutoPostBack="true" OnInit="ddl_CurrCode_Init" OnSelectedIndexChanged="ddl_CurrCode_SelectedIndexChanged">
-                                        </asp:DropDownList>
-                                    </div>
                                     <div style="height: 400px; width: 940px; overflow: auto;">
                                         <asp:GridView ID="grd_PRList2" runat="server" AutoGenerateColumns="False" KeyFieldName="PRNo" SkinID="GRD_V1" Width="100%" OnRowDataBound="grd_PRList2_RowDataBound"
                                             Visible="true">
@@ -123,7 +120,6 @@
                                 <td align="right" width="100%">
                                     <div style="width: auto; overflow: auto; padding-right: 15px;">
                                         <asp:Button ID="btn_Generate" runat="server" Text="<%$ Resources:PO_Default, btn_Generate %>" SkinID="BTN_V1" OnClick="btn_Generate_Click" />
-                                        <%--<asp:Button ID="btn_PR" runat="server" Text="Generate" SkinID="BTN_V1" OnClick="btn_PR_Click" />--%>
                                     </div>
                                 </td>
                             </tr>
@@ -224,34 +220,36 @@
                     </dx:PopupControlContentControl>
                 </ContentCollection>
             </dx:ASPxPopupControl>
-            <dx:ASPxPopupControl ID="pop_Confirm" runat="server" CloseAction="CloseButton" Modal="True" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter"
-                ShowCloseButton="False" HeaderText="">
+            <dx:ASPxPopupControl runat="server" ID="pop_Confirm" ClientInstanceName="pop_Confirm" Width="420" HeaderText="Purchase Order generation" Modal="True" CloseAction="CloseButton" ShowCloseButton="true"
+                PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter">
                 <ContentCollection>
                     <dx:PopupControlContentControl ID="PopupControlContentControl1" runat="server">
-                        <table border="0" cellpadding="5" cellspacing="0" width="100%">
-                            <tr>
-                                <td align="center" colspan="2" height="50px">
-                                    <asp:Label ID="Label4" runat="server" SkinID="LBL_NR" Text="<%$ Resources:PO_Default, lbl_MsgError1 %>"></asp:Label>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td align="right">
-                                    <dx:ASPxButton ID="btn_Confrim" runat="server" Text="<%$ Resources:PO_Default, btn_Confrim %>" OnClick="btn_Confrim_Click">
-                                    </dx:ASPxButton>
-                                </td>
-                                <td align="left">
-                                    <dx:ASPxButton ID="btn_Abort" runat="server" Text="<%$ Resources:PO_Default, btn_Abort %>" OnClick="btn_Abort_Click" Style="height: 24px">
-                                    </dx:ASPxButton>
-                                </td>
-                            </tr>
-                        </table>
+                        <div style="display: flex; justify-content: center">
+                            <asp:Label ID="lbl_ConfirmGenerate" runat="server" SkinID="LBL_NR" Text=""></asp:Label>
+                        </div>
+                        <br />
+                        <br />
+                        <div style="display: flex; justify-content: center">
+                            <asp:Button ID="btn_Confrim" runat="server" Text="<%$ Resources:PO_Default, btn_Confrim %>" OnClick="btn_Confrim_Click" />
+                            &nbsp; &nbsp; &nbsp; &nbsp;
+                            <%--<dx:ASPxButton ID="btn_Abort" runat="server" Text="<%$ Resources:PO_Default, btn_Abort %>" OnClick="btn_Abort_Click" Style="height: 24px"></dx:ASPxButton>--%>
+                            <asp:Button ID="Button1" runat="server" Text="Cancel" OnClientClick="pop_Confirm.Hide();" />
+                        </div>
                     </dx:PopupControlContentControl>
                 </ContentCollection>
             </dx:ASPxPopupControl>
-            <dx:ASPxPopupControl ID="pop_Warning" runat="server" Modal="True" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" HeaderText="Error message">
+            <dx:ASPxPopupControl ID="pop_Warning" ClientInstanceName="pop_Warning" runat="server" Width="420" Modal="True" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter"
+                HeaderText="Warning">
                 <ContentCollection>
                     <dx:PopupControlContentControl ID="PopupControlContentControl4" runat="server">
-                        <asp:Label ID="lbl_Warning" runat="server"></asp:Label>
+                        <div style="display: flex; justify-content: center">
+                            <asp:Label ID="lbl_Warning" runat="server" />
+                        </div>
+                        <br />
+                        <br />
+                        <div style="display: flex; justify-content: center">
+                            <asp:Button runat="server" Width="80" Text="Ok" OnClientClick="pop_Warning.Hide()" />
+                        </div>
                     </dx:PopupControlContentControl>
                 </ContentCollection>
             </dx:ASPxPopupControl>

@@ -32,7 +32,7 @@ namespace Blue.BL.dbo
          
             2025-11-30 = skyviewresortphuket = 11
             2025-11-30 = wyndhamgardennaithon = 21
-            2025-11-30 = chalongmarina = 8
+            2025-11-30 = chalongmarina = 8+2=10
 
             2025-10-31 = siamese = 24+2 = 26 + 20 + 10 = 56
             2024-10-30 = BlumonkeyKrabi = 6
@@ -84,19 +84,18 @@ namespace Blue.BL.dbo
             2025-03-31 = DeevanaPhuket = 65=> 69
             2025-03-31 = ibis = 999
             2025-03-31 = kappasensesubud = 17
+            2025-03-31 = korabeachresort = 10 + 22 = 32
+            2025-03-31 = blumonkeybangtaophuket = 6
+            2025-03-31 = brownstarling = 18
          
             2025-03-31 = silavadeepoolsparesort = 28
             2025-03-31 = wyndhamjomtienpattaya = 20 + 2 = 22
             2025-03-31 = absoluteresorts = 1
             2025-03-31 = teerapatgroup = 5 + 5 = 10
+            2025-03-31 = selinaserenityrawai = 6+? = 8
 
 
-
-            2025-02-28 = selinaserenityrawai = 6
-            2025-02-28 = korabeachresort = 10 + 22 = 32
-            2025-02-28 = blumonkeybangtaophuket = 6
             2025-02-28 = blumonkeybangsaen = 5
-            2025-02-28 = brownstarling = 18
           
           
             --------- Expired -------------
@@ -122,7 +121,7 @@ namespace Blue.BL.dbo
         
         */
         private DateTime licenseExpiredDate = new DateTime(2025, 3, 31);
-        private int licenseActiveUser = 999;
+        private int licenseActiveUser = 18;
 
         public User()
         {

@@ -112,33 +112,6 @@ namespace BlueLedger.PL.PC.PO
             base.Page_Load(sender, e);
         }
 
-        //private void menu_ItemClick(object source, DevExpress.Web.ASPxMenu.MenuItemEventArgs e)
-        //{
-        //    switch (e.Item.Name.ToUpper())
-        //    {
-        //        case "PR":
-        //            DisplayPrList();
-        //            break;
-
-        //        case "PODT":
-        //            const string reportLink3 = "../../RPT/ReportCriteria.aspx?category=001&reportid=109";
-        //            ClientScript.RegisterStartupScript(GetType(), "newWindow",
-        //                "<script>window.open('" + reportLink3 + "','_blank')</script>");
-        //            break;
-
-        //        case "POSM":
-        //            //Session["dtBuKeys"] = ListPage.dtBuKeys;
-        //            const string reportLink1 = "../../RPT/ReportCriteria.aspx?category=001&reportid=124";
-        //            ClientScript.RegisterStartupScript(GetType(), "newWindow",
-        //                "<script>window.open('" + reportLink1 + "','_blank')</script>");
-        //            break;
-
-        //        case "CLOSEPO":
-        //            DisplayClosePO();
-        //            break;
-        //    }
-        //}
-
         protected void btn_SuccessOk_Click(object sender, EventArgs e)
         {
             // Redirec to POEdit.aspx page
@@ -147,19 +120,23 @@ namespace BlueLedger.PL.PC.PO
 
         protected void btn_Confrim_Click(object sender, EventArgs e)
         {
-            SavePO();
+            GeneratePO();
+            //SavePO();
         }
 
         protected void btn_Generate_Click(object sender, EventArgs e)
         {
-            if (grd_PRList2.Rows.Count > 0)
+            var selectedItems = grd_PRList2.Rows.Cast<GridViewRow>().Count(r => ((CheckBox)r.FindControl("Chk_Item")).Checked);
+
+            if (selectedItems > 0)
             {
-                //Call pop up confirm
+                lbl_ConfirmGenerate.Text = string.Format("{0} selected item(s) to generate PO.", selectedItems);
                 pop_Confirm.ShowOnPageLoad = true;
             }
             else
             {
-                lbl_Warning.Text = @"Do not have data to generate PO.";
+                //lbl_Warning.Text = @"Do not have data to generate PO.";
+                lbl_Warning.Text = "Please select any Purchase Request.";
                 pop_Warning.ShowOnPageLoad = true;
             }
         }
@@ -903,7 +880,7 @@ namespace BlueLedger.PL.PC.PO
             var frVendor = ddl_Print_VendorFrom.SelectedItem.Value.ToString();
             var toVendor = ddl_Print_VendorTo.SelectedItem.Value.ToString();
 
-            sql.AppendFormat(" AND Vendor BETWEEN '{0}' AND '{1}' ",  frVendor, toVendor);
+            sql.AppendFormat(" AND Vendor BETWEEN '{0}' AND '{1}' ", frVendor, toVendor);
 
             var docStatusList = new List<string>();
 
@@ -1432,6 +1409,23 @@ namespace BlueLedger.PL.PC.PO
             //    }
         }
 
+        protected void GeneratePO()
+        {
+            SavePO();
+
+            //var selectedItems = grd_PRList2.Rows.Cast<GridViewRow>()
+            //    .Where(x => ((CheckBox)x.FindControl("Chk_Item")).Checked)
+            //    .Select(x => ((Label)x.FindControl("lbl_RefNo")).Text.Trim())
+            //    .ToArray();
+
+            //var currCode = ddl_CurrCode.SelectedValue;
+            //var currRate = currency.GetLastCurrencyRate(currCode, DateTime.Now, LoginInfo.ConnStr);
+
+
+
+        }
+
+
         protected void SavePO()
         {
             var selectedPrNo = string.Empty;
@@ -1833,5 +1827,11 @@ namespace BlueLedger.PL.PC.PO
         }
 
         #endregion
+
+        private void ShowWarning(string text)
+        {
+            lbl_Warning.Text = text;
+            pop_Warning.ShowOnPageLoad = true;
+        }
     }
 }

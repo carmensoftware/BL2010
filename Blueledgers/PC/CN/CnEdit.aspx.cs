@@ -1491,6 +1491,7 @@ namespace BlueLedger.PL.PC.CN
             var ddl_Vendor = UpdatePanelHead.FindControl("ddl_Vendor") as ASPxComboBox;
             var lbl_Vendor = UpdatePanelHead.FindControl("lbl_Vendor") as Label;
             var ddl_Rec = sender as ASPxComboBox;
+
             string vendor = string.Empty;
             if (ddl_Vendor.Value != null)
             {
@@ -1500,9 +1501,6 @@ namespace BlueLedger.PL.PC.CN
             {
                 vendor = lbl_Vendor.Text.Split(new[] { " : " }, StringSplitOptions.None)[0];
             }
-
-
-
 
             // Order By RecNo DESC
             DataView dv = rec.GetListByVendor(vendor, hf_ConnStr.Value).DefaultView;
