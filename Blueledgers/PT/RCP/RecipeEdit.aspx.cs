@@ -654,31 +654,35 @@ ORDER BY
             var lbl_UnitRate = ddl.NamingContainer.FindControl("lbl_UnitRate") as Label;
 
             var rowId = hf_RowId.Value;
-            var type = ddl.Value == null ? "" : ddl.SelectedItem.GetValue("Type").ToString();
-            var code = ddl.Value == null ? "" : ddl.Value.ToString();
-            var baseUnit = ddl.Value == null ? "" : ddl.SelectedItem.GetValue("BaseUnit").ToString();
-            var unit = ddl_Unit.Value == null ? "" : ddl_Unit.Value.ToString();
 
-            BindUnit(ddl, type, code);
-
-            var drUnit = _dtUnit.AsEnumerable().FirstOrDefault(x => x.Field<string>("Code") == unit);
-
-            var unitRate = 0m;
-
-            if (drUnit == null)
+            if (ddl.SelectedItem != null)
             {
-                ddl_Unit.SelectedIndex = 0;
-                unitRate = GetDecimal(ddl_Unit.SelectedItem.GetValue("Rate").ToString());
-            }
-            else
-            {
-                unitRate = drUnit.Field<decimal>("Rate");
-            }
+                var type = ddl.Value == null ? "" : ddl.SelectedItem.GetValue("Type").ToString();
+                var code = ddl.Value == null ? "" : ddl.Value.ToString();
+                var baseUnit = ddl.Value == null ? "" : ddl.SelectedItem.GetValue("BaseUnit").ToString();
+                var unit = ddl_Unit.Value == null ? "" : ddl_Unit.Value.ToString();
+
+                BindUnit(ddl, type, code);
+
+                var drUnit = _dtUnit.AsEnumerable().FirstOrDefault(x => x.Field<string>("Code") == unit);
+
+                var unitRate = 0m;
+
+                if (drUnit == null)
+                {
+                    ddl_Unit.SelectedIndex = 0;
+                    unitRate = GetDecimal(ddl_Unit.SelectedItem.GetValue("Rate").ToString());
+                }
+                else
+                {
+                    unitRate = drUnit.Field<decimal>("Rate");
+                }
 
 
-            lbl_ItemType.Text = type;
-            lbl_BaseUnit.Text = baseUnit;
-            lbl_UnitRate.Text = ddl_Unit.Value == null ? "0" : FormatUnitRate(unitRate.ToString());
+                lbl_ItemType.Text = type;
+                lbl_BaseUnit.Text = baseUnit;
+                lbl_UnitRate.Text = ddl_Unit.Value == null ? "0" : FormatUnitRate(unitRate.ToString());
+            }
         }
 
         protected void ddl_Unit_Load(object sender, EventArgs e)
