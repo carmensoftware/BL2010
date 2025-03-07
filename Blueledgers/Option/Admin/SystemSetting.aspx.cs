@@ -473,9 +473,10 @@ namespace BlueLedger.PL.Option.Admin
                 email.To = txt_TestReceiver.Text;
                 email.Subject = string.Format("Test sending mail from Blueledgers ({0}) at {1}", LoginInfo.BuInfo.BuCode, DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"));
                 email.Body = string.Format("This is testing to send email from '{0} : {1}'.", LoginInfo.BuInfo.BuCode, LoginInfo.BuInfo.BuName);
-                email.Send();
+                
+                var error = email.Send();
 
-                lbl_TestReceiver.Text = "Mail sent.";
+                lbl_TestReceiver.Text = string.IsNullOrEmpty(error) ? "Mail sent." : error;
             }
         }
 
