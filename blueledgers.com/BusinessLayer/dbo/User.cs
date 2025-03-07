@@ -67,6 +67,7 @@ namespace Blue.BL.dbo
             2025-06-30 = BaanSamuiResort = 8
             2025-06-30 = maduzi = 20
 
+            2025-05-31 = mybeachphuket = 10
             2025-05-31 = HotelSensai (Chiang Mai) = 3+8 = 11 ปรับเป็น 10 ตาม license (27052024_blueledgers.xlsx)
             2025-05-31 = chi = 2
             2025-05-31 = wyndhamgardenphuketkamala = 3
@@ -120,8 +121,8 @@ namespace Blue.BL.dbo
             2023-01-31 = SPM = 20 
         
         */
-        private DateTime licenseExpiredDate = new DateTime(2025, 3, 31);
-        private int licenseActiveUser = 180;
+        private DateTime licenseExpiredDate = new DateTime(2025, 5, 31);
+        private int licenseActiveUser = 10;
 
         public User()
         {
