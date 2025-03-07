@@ -675,7 +675,7 @@ ORDER BY
                 }
                 else
                 {
-                    unitRate = drUnit.Field<decimal>("Rate");
+                    unitRate = drUnit.Field<decimal>("Rate") == null ? 0m : drUnit.Field<decimal>("Rate");
                 }
 
 
