@@ -2340,6 +2340,24 @@ ORDER BY
                             {
                                 var items  = JsonConvert.DeserializeObject<List<SaleItem>>(jsonSale.ToString());
 
+                                // update some field that use in various verions
+                                // Outlet = OutletCode
+                                // ItemCode = PLU
+                                // Qty = Quantity
+
+                                foreach (var item in items)
+                                {
+                                    item.Outlet = string.IsNullOrEmpty(item.Outlet) ? item.OutletCode : item.Outlet;
+                                    item.OutletCode = string.IsNullOrEmpty(item.OutletCode) ? item.Outlet : item.OutletCode;
+
+                                    item.PLU = string.IsNullOrEmpty(item.PLU) ? item.ItemCode : item.PLU;
+                                    item.ItemCode = string.IsNullOrEmpty(item.ItemCode) ? item.PLU : item.ItemCode;
+
+                                    item.Qty = string.IsNullOrEmpty(item.Qty.ToString()) ? item.Quantity : item.Qty;
+                                    item.Quantity = string.IsNullOrEmpty(item.Quantity.ToString()) ? item.Qty : item.Quantity;
+                                }
+
+
                                 if (!string.IsNullOrEmpty(source))
                                 {
                                     foreach (var item in items)
@@ -2740,9 +2758,14 @@ WHERE
         internal class SaleItem
         {
             public string Outlet { get; set; }
+            public string OutletCode { get; set; }
+
             public string PLU { get; set; }
             public string ItemCode { get; set; }
+
+            public decimal Quantity { get; set; }
             public decimal Qty { get; set; }
+            
             public decimal UnitPrice { get; set; }
             public decimal Total { get; set; }
         }
