@@ -56,7 +56,9 @@ namespace BlueLedger.PL.PC.PL.Vendor
         private void Control_HeaderMenuBar()
         {
             int pagePermiss = rolePermiss.GetPagePermission(moduleID, LoginInfo.LoginName, LoginInfo.ConnStr);
+
             ListPage.CreateItems.Visible = (pagePermiss >= 3) ? ListPage.CreateItems.Visible : false;
+            ListPage.CreateItems.Enabled = ListPage.CreateItems.Visible;
             ListPage.menuItems.FindByName("IM").Visible = (pagePermiss >= 3) ? ListPage.menuItems.FindByName("IM").Visible : false;
             ListPage.menuItems.FindByName("EX").Visible = (pagePermiss >= 3) ? ListPage.menuItems.FindByName("EX").Visible : false;
         }
@@ -114,6 +116,7 @@ namespace BlueLedger.PL.PC.PL.Vendor
         }
 
         #region "PopUpChooseVendor"
+      
         protected void btn_OK_Click(object sender, EventArgs e)
         {
             //if (ddl_Vendor.Value != null)

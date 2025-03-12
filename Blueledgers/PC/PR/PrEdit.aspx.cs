@@ -745,14 +745,14 @@ namespace BlueLedger.PL.PC.PR
                 {
                     foreach (DataRow dr in dt.Rows)
                     {
-                        if (string.IsNullOrEmpty(dr["OrderUnit"].ToString()))
-                        {
-                            var productCode = dr["ProductCode"].ToString();
-                            var error = string.Format("Invalid order unit at '{0}'", productCode);
+                        //if (string.IsNullOrEmpty(dr["OrderUnit"].ToString()))
+                        //{
+                        //    var productCode = dr["ProductCode"].ToString();
+                        //    var error = string.Format("Invalid order unit at '{0}'", productCode);
 
-                            AlertMessageBox(error);
-                            return;
-                        }
+                        //    AlertMessageBox(error);
+                        //    return;
+                        //}
 
 
                         if (!string.IsNullOrEmpty(dr.RowError))

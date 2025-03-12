@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Net;
 using System.Text;
+using Newtonsoft.Json;
 
 /// <summary>
 /// Summary description for API
@@ -23,12 +24,12 @@ public class API
     {
         try
         {
-            using(var client = new WebClient())
+            using (var client = new WebClient())
             {
                 client.BaseAddress = _host.TrimEnd('/') + "/";
                 client.Headers.Add("Authorization", _auth);
 
-                var data =  client.DownloadData(SetEndpoint(endpoint));
+                var data = client.DownloadData(SetEndpoint(endpoint));
 
 
                 return Encoding.UTF8.GetString(data);
@@ -41,11 +42,37 @@ public class API
         }
     }
 
+    public string Post(string endpoint, string data)
+    {
+
+        var result = "";
+
+        try
+        {
+            using (WebClient wc = new WebClient())
+            {
+                wc.Headers[HttpRequestHeader.ContentType] = "application/json"; //application/x-www-form-urlencoded";
+                wc.BaseAddress = _host.TrimEnd('/') + "/";
+                wc.Headers.Add("Authorization", _auth);
+
+                result = wc.UploadString(SetEndpoint(endpoint), data);
+
+            }
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
+
+    }
+
 
     // Private method(s)
     private string SetEndpoint(string endpoint)
     {
         return endpoint.Trim().TrimStart('/');
-    } 
+    }
 
 }

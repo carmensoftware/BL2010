@@ -8,6 +8,7 @@ using BlueLedger.PL.BaseClass;
 using System.Data.SqlClient;
 using Blue.DAL;
 using System.Globalization;
+using Newtonsoft.Json;
 
 /// <summary>
 /// Summary description for SendEmailWorkflow
@@ -49,6 +50,79 @@ public static class SendEmailWorkflow
     }
 
     public static bool Send(string approveCode, string docNo, int wfId, int wfStep, string loginName, string connectionString)
+    {
+        var errorMessage = string.Empty;
+
+        var code = approveCode.ToUpper();
+
+        try
+        {
+            string sql = string.Format("SELECT TOP(1) InboxNo, StepTo FROM [IM].[Inbox] WHERE [RefNo]='{0}' AND [Sender]='{1}' AND StepFrom = {2} ORDER BY InboxNo DESC", docNo, loginName, wfStep);
+            var dtInbox = DbExecuteQuery(sql, null, connectionString);
+
+            if (dtInbox != null && dtInbox.Rows.Count > 0) // Found
+            {
+                var dr = dtInbox.Rows[0];
+
+                var inboxNo = dr["InboxNo"].ToString();
+                var stepTo = Convert.ToInt32(dr["StepTo"]);
+
+                var mailTo = "";
+
+                if (code == "A")
+                    mailTo = Get_InvolvedLoginFromApprovals(docNo, wfId, stepTo, connectionString);
+                else
+                    mailTo = Get_InvolvedEmail(docNo, connectionString);
+
+                if (!string.IsNullOrEmpty(mailTo.Trim()))
+                {
+
+                    sql = string.Format("UPDATE [IM].Inbox SET Reciever = @mailTo WHERE InboxNo = {0}", inboxNo);
+                    var p = new Blue.DAL.DbParameter[] { new DbParameter("@mailTo", mailTo) };
+
+                    DbExecuteQuery(sql, p, connectionString);
+
+                    var sysConnStr = System.Configuration.ConfigurationManager.AppSettings["ConnStr"].ToString();
+
+                    var dtBu = DbExecuteQuery("SELECT TOP(1) RTRIM(LTRIM([BuCode])) FROM [ADMIN].Bu", null, connectionString);
+                    var buCode = dtBu != null & dtBu.Rows.Count > 0 ? dtBu.Rows[0][0].ToString() : "";
+
+                    var dtApi = DbExecuteQuery("SELECT TOP(1) ClientID FROM [dbo].[BuAPI] WHERE AppName='CARMEN' AND BuCode=@BuCode", new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@BuCode", buCode) }, sysConnStr);
+
+                    if (dtApi != null && dtApi.Rows.Count > 0)
+                    {
+                        var token = dtApi.Rows[0][0].ToString();
+
+                        var dtConfig = DbExecuteQuery("SELECT RTRIM(LTRIM([Value])) FROM APP.Config WHERE [Module]='APP' AND SubModule='IM' AND [Key]='WebServer'", null, connectionString);
+                        var webServer = dtConfig != null && dtConfig.Rows.Count > 0 ? dtConfig.Rows[0][0].ToString() : "";
+                        var url = webServer.Trim().TrimEnd('/') + "/blueledgers.api";
+
+                        var api = new API(url, token);
+
+                        var result = api.Post("api/mail/inbox/" + inboxNo, "");
+
+                        errorMessage = "";
+                    }
+                    else
+                        errorMessage = "Invalid token.";
+                }
+
+            }
+            else // not found
+            {
+                errorMessage = "Email does not exists.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+
+
+        return string.IsNullOrEmpty(errorMessage);
+    }
+
+    public static bool Send_Old(string approveCode, string docNo, int wfId, int wfStep, string loginName, string connectionString)
     {
         var errorMessage = string.Empty;
 
@@ -150,7 +224,7 @@ public static class SendEmailWorkflow
             p1.Add(new DbParameter("@IsSent", string.IsNullOrEmpty(errorMessage) ? "1" : "0"));
             p1.Add(new DbParameter("@Error", errorMessage));
 
-            DbExecuteQuery(sql, p1.ToArray(),  connectionString);
+            DbExecuteQuery(sql, p1.ToArray(), connectionString);
 
         }
         else // not found
@@ -374,7 +448,7 @@ SELECT * FROM @list");
         email.Port = Convert.ToInt16(smtpConfig.Value("port"));
         email.EnableSsl = smtpConfig.Value("enablessl").ToUpper() == "TRUE";
         email.IsAuthentication = smtpConfig.Value("authenticate").ToUpper() == "TRUE";
-        
+
         if (email.IsAuthentication)
         {
             email.Name = smtpConfig.Value("name");
@@ -488,7 +562,7 @@ SELECT * FROM @list");
         var vid = drView["ViewNo"].ToString();
 
 
-        var dtBu = DbExecuteQuery("SELECT TOP 1 * FROM [ADMIN].Bu",null,connectionString);
+        var dtBu = DbExecuteQuery("SELECT TOP 1 * FROM [ADMIN].Bu", null, connectionString);
         var dr = dtBu.Rows[0];
 
         var buCode = dr["BuCode"].ToString();
