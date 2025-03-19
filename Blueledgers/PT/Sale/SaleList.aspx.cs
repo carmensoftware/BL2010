@@ -1624,7 +1624,6 @@ VALUES (@RefId, @Type, 'Saved', @Description, NULL, @CreateBy, @CreateDate, @Upd
             pop_Alert.ShowOnPageLoad = true;
         }
 
-
         protected void btn_Interface_Post_Click(object sender, EventArgs e)
         {
             lbl_Intf_Confirm_PostDate.Text = string.Format("Confirm to post data on {0}?", Convert.ToDateTime(_PosData.Date).ToString("dd/MM/yyyy"));
