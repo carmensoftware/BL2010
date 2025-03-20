@@ -202,6 +202,7 @@ namespace BlueLedger.PL.UserControls.ViewHandler
             this.Page_Setting();
         }
 
+
         /// <summary>
         /// 
         /// </summary>
@@ -249,13 +250,29 @@ namespace BlueLedger.PL.UserControls.ViewHandler
             lst_SelCols.ValueField = "FieldName";
             lst_SelCols.DataBind();
 
+
             // Display ViewHandlerCrtr data            
             grd_Criterias.DataSource = dsViewHandler.Tables[viewHandlerCrtr.TableName];
             grd_Criterias.DataBind();
 
-            //grd_Criteria.DataSource = dsViewHandler.Tables[viewHandlerCrtr.TableName];
-            //grd_Criteria.DataBind();
+
+
         }
+
+        private void GetListOrderBy_Selected(int viewNo)
+        {
+            var query = string.Format("SELECT * FROM [APP].ViewHandlerOrder WHERE ViewNo={0} ORDER BY VieewOrderNo, SeqNo", viewNo);
+            var dt = field.DbExecuteQuery(query, null, LoginInfo.ConnStr);
+
+            list_OrderBy_Selected.Items.Clear();
+
+            if (dt != null && dt.Rows.Count > 0)
+            {
+
+            }
+
+        }
+
 
         /// <summary>
         /// Get schema name by pagecode
@@ -485,7 +502,7 @@ namespace BlueLedger.PL.UserControls.ViewHandler
                         PopupWindow pcWindow    = new PopupWindow("Please enter View Name");
                         pcWindow.ShowOnPageLoad = true;
                         pcWindow.Modal          = true;
-                        ASPxPopupControl.Windows.Add(pcWindow);
+                        //ASPxPopupControl.Windows.Add(pcWindow);
                         return;
                     }
 
@@ -495,7 +512,7 @@ namespace BlueLedger.PL.UserControls.ViewHandler
                         PopupWindow pcWindow    = new PopupWindow("Please select display column");
                         pcWindow.ShowOnPageLoad = true;
                         pcWindow.Modal          = true;
-                        ASPxPopupControl.Windows.Add(pcWindow);
+                        //ASPxPopupControl.Windows.Add(pcWindow);
                         return;
                     }
 
@@ -865,9 +882,10 @@ namespace BlueLedger.PL.UserControls.ViewHandler
         {
             if (lst_AvaCols.SelectedItem != null)
             {
-                lst_SelCols.Items.Add(lst_AvaCols.SelectedItem);                
+                lst_SelCols.Items.Add(lst_AvaCols.SelectedItem);
             }
         }
+
 
         /// <summary>
         /// Remove View Column

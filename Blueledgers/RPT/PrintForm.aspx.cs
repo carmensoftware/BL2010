@@ -77,7 +77,7 @@ public partial class RPT_PrintForm : BasePage
         WebReport1.Report = report;
         WebReport1.ReportDone = true;
 
-        WebReport1.Width = 1024;
+        WebReport1.Width = 1140;
         WebReport1.Height = new System.Web.UI.WebControls.Unit(WebReport1.Report.Pages[0].Height);
     }
 }
