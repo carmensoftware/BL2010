@@ -1,8 +1,9 @@
 <%@ Page Title="" Language="C#" MasterPageFile="~/Master/In/SkinDefault.master" AutoEventWireup="true" CodeFile="RecLst.aspx.cs" Inherits="BlueLedger.PL.IN.REC.RecLst" %>
 
 <%@ MasterType VirtualPath="~/master/In/SkinDefault.master" %>
-<%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxPopupControl" TagPrefix="dx" %>
 <%@ Register Assembly="DevExpress.Web.ASPxEditors.v10.1" Namespace="DevExpress.Web.ASPxEditors" TagPrefix="dx" %>
+<%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxPopupControl" TagPrefix="dx" %>
+<%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxPopupControl" TagPrefix="dx" %>
 <%@ Register Src="../../UserControl/ViewHandler/ListPage2.ascx" TagName="ListPage2" TagPrefix="uc1" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="cph_Main" runat="Server">
     <uc1:ListPage2 ID="ListPage2" runat="server" DetailPageURL="Rec.aspx" KeyFieldName="RecNo" ListPageCuzURL="RecView.aspx" PageCode="[PC].[vRECList]" Title="Receiving" />
@@ -678,9 +679,6 @@
                             </tr>
                             <tr>
                                 <td align="center">
-                                    <%--<dx:ASPxButton CausesValidation="false" ID="btn_Warning" runat="server" Text="OK"
-                                            Width="50px" OnClick="btn_Warning_Click">
-                                        </dx:ASPxButton>--%>
                                     <asp:Button ID="btn_Warning" runat="server" Text="<%$ Resources:PC_REC_RecLst, btn_Warning %>" Width="50px" OnClick="btn_Warning_Click" SkinID="BTN_V1" />
                                 </td>
                             </tr>
@@ -739,6 +737,73 @@
                             &nbsp;&nbsp;&nbsp;
                             <asp:Button ID="BtnCancelVendorMapping" runat="server" Text="Cancel" Width="65px" SkinID="BTN_V1" OnClick="BtnCancelVendorMapping_Click" />
                         </div>
+                    </dx:PopupControlContentControl>
+                </ContentCollection>
+            </dx:ASPxPopupControl>
+            <dx:ASPxPopupControl runat="server" ID="pop_PrintByBatch" HeaderText="Print by batch" Modal="True" Width="320" CloseAction="CloseButton" ShowPageScrollbarWhenModal="True"
+                AutoUpdatePosition="True" AllowDragging="True" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="Middle">
+                <ContentCollection>
+                    <dx:PopupControlContentControl ID="PopupControlContentControl10" runat="server">
+                        <div style="margin-bottom: 5px;">
+                            <asp:Label ID="Label26" runat="server" Text="Date Type" />
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <dx:ASPxComboBox runat="server" ID="ddl_Print_DateType" AutoPostBack="true" Width="100%" DropDownStyle="DropDownList">
+                                <Items>
+                                    <dx:ListEditItem Text="Receiving Date" Value="PoDate" Selected="True" />
+                                    <dx:ListEditItem Text="Invoice Date" Value="DeliveryDate" />
+                                    <dx:ListEditItem Text="Commit Date" Value="DeliveryDate" />
+                                </Items>
+                            </dx:ASPxComboBox>
+                        </div>
+                        <div style="margin-bottom: 5px;">
+                            <asp:Label ID="Label27" runat="server" Text="Date from" />
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <dx:ASPxDateEdit runat="server" ID="date_Print_From" AutoPostBack="true" Width="100%" OnDateChanged="date_Print_From_DateChanged" />
+                        </div>
+                        <div style="margin-bottom: 5px;">
+                            <asp:Label ID="Label28" runat="server" Text="to" />
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <dx:ASPxDateEdit runat="server" ID="date_Print_To" AutoPostBack="true" Width="100%" OnDateChanged="date_Print_To_DateChanged" />
+                        </div>
+                        <div style="margin-bottom: 5px;">
+                            <asp:Label ID="Label29" runat="server" Text="Vendor from" />
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <dx:ASPxComboBox ID="ddl_Print_VendorFrom" runat="server" AutoPostBack="true" Width="100%" DropDownStyle="DropDownList" IncrementalFilteringMode="Contains">
+                            </dx:ASPxComboBox>
+                        </div>
+                        <div style="margin-bottom: 5px;">
+                            <asp:Label ID="Label30" runat="server" Text="to" />
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <dx:ASPxComboBox ID="ddl_Print_VendorTo" runat="server" AutoPostBack="true" Width="100%" DropDownStyle="DropDownList" IncrementalFilteringMode="Contains">
+                            </dx:ASPxComboBox>
+                        </div>
+
+                         <div style="margin-bottom: 5px;">
+                            <asp:Label ID="Label31" runat="server" Text="Document Status" />
+                        </div>
+                        <div style="margin-bottom: 10px; display: flex; flex-flow: column;">
+                            <asp:CheckBox runat="server" ID="chk_Report_Status_Received" Checked="true" Width="240" Text="Received" />
+                            <asp:CheckBox runat="server" ID="chk_Report_Status_Committed" Checked="true" Width="240" Text="Committed" />
+                            <asp:CheckBox runat="server" ID="chk_Report_Status_Voided" Width="240" Text="Voided" />
+                        </div>
+                        <hr />
+                         <asp:UpdatePanel ID="UpdatePanel1" runat="server">
+                            <ContentTemplate>
+                                <div style="display: flex; justify-content: flex-start;">
+                                    <asp:Button runat="server" ID="btn_Print_View" Width="80" Text="View" OnClick="btn_Print_View_Click" />
+                                </div>
+                            </ContentTemplate>
+                            <Triggers>
+                                <asp:PostBackTrigger ControlID="btn_Print_View" />
+                            </Triggers>
+                        </asp:UpdatePanel>
+
+
                     </dx:PopupControlContentControl>
                 </ContentCollection>
             </dx:ASPxPopupControl>

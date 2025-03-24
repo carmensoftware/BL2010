@@ -6,6 +6,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using BlueLedger.PL.BaseClass;
 using DevExpress.Web.ASPxEditors;
+using System.Text;
 
 namespace BlueLedger.PL.IN.REC
 {
@@ -71,6 +72,15 @@ namespace BlueLedger.PL.IN.REC
             if (!IsPostBack)
             {
                 Session.Remove("vendor");
+
+                var btn_PrintByDate = new DevExpress.Web.ASPxMenu.MenuItem("Print by Batch...", "PrintByBatch");
+
+                btn_PrintByDate.ItemStyle.ForeColor = System.Drawing.Color.White;
+                btn_PrintByDate.ItemStyle.Font.Size = FontUnit.Smaller;
+                btn_PrintByDate.NavigateUrl = "~/PC/REC/RecLst.aspx?MENU=PrintByBatch";
+                ListPage2.menuItems.Insert(ListPage2.menuItems.Count - 2, btn_PrintByDate);
+
+
                 Page_Retrieve();
             }
             else
@@ -105,16 +115,6 @@ namespace BlueLedger.PL.IN.REC
                         ddl_VendorHQCancel.DataBind();
                     }
 
-                    // Comment on: 21-08/2017, By: Fon 
-                    //if (pop_VendorMapping.ShowOnPageLoad)
-                    //{
-                    //    //ddl_VendorLocal.DataSource = (DataTable)Session["vendor"];
-                    //    //ddl_VendorLocal.DataBind();
-
-                    //    //DataTable dtGetList = _vendor.GetList(LoginInfo.ConnStr);
-                    //    //ddl_VendorLocal.DataSource = dtGetList;
-                    //    //ddl_VendorLocal.DataBind();
-                    //}
 
                 }
 
@@ -162,6 +162,10 @@ namespace BlueLedger.PL.IN.REC
 
                     case "COMMIT":
                         Response.Redirect("RecCommitByBatch.aspx?BuCode=" + LoginInfo.BuInfo.BuCode);
+                        break;
+
+                    case "PRINTBYBATCH":
+                        DisplayPrintByBatch();
                         break;
                 }
             }
@@ -663,7 +667,7 @@ namespace BlueLedger.PL.IN.REC
             pop_Warning.ShowOnPageLoad = false;
             pop_HQ.ShowOnPageLoad = false;
 
-            Response.Redirect("~/Option/Admin/Interface/Sun/VendorMapp.aspx");
+            //Response.Redirect("~/Option/Admin/Interface/Sun/VendorMapp.aspx");
         }
 
         /// <summary>
@@ -1291,12 +1295,12 @@ namespace BlueLedger.PL.IN.REC
             pop_SelectVendor.ShowOnPageLoad = false;
             pop_SelectLocation.ShowOnPageLoad = false;
         }
-        
+
         #endregion
 
         // Added on: 17/08/2017, By: Fon
         // Note: If U cannot find value of ddl_location, it's mean your PoNo didn't exist in [pc].[Prdt]
-        
+
         #region About Currency
         protected void comb_CurrCode_Init(object sender, EventArgs e)
         {
@@ -1374,7 +1378,150 @@ namespace BlueLedger.PL.IN.REC
         }
         #endregion
 
+        #region --Print by batch--
+        private void DisplayPrintByBatch()
+        {
+            date_Print_From.Date = DateTime.Today.Date;
+            date_Print_To.Date = DateTime.Today.Date;
 
+            var dtVendor = bu.DbExecuteQuery("SELECT VendorCode as [Code], [Name] FROM AP.Vendor ORDER BY VendorCode", null, LoginInfo.ConnStr);
+
+            var ddl1 = ddl_Print_VendorFrom;
+            var ddl2 = ddl_Print_VendorTo;
+
+            ddl1.Items.Clear();
+            ddl2.Items.Clear();
+
+            if (dtVendor != null && dtVendor.Rows.Count > 0)
+            {
+                var items = dtVendor.AsEnumerable()
+                    .Select(x => new ListEditItem
+                    {
+                        Value = x.Field<string>("Code"),
+                        Text = x.Field<string>("Code") + " : " + x.Field<string>("Name")
+                    })
+                    .ToArray();
+
+                ddl1.Items.AddRange(items);
+                ddl2.Items.AddRange(items);
+
+                ddl1.SelectedIndex = 0;
+                ddl2.SelectedIndex = items.Length - 1;
+            }
+
+
+            pop_PrintByBatch.ShowOnPageLoad = true;
+        }
+
+        protected void date_Print_From_DateChanged(object sender, EventArgs e)
+        {
+            var dateFrom = date_Print_From.Date;
+            var dateTo = date_Print_To.Date;
+
+            if (dateTo < dateFrom)
+            {
+                date_Print_To.Date = dateFrom;
+            }
+        }
+
+        protected void date_Print_To_DateChanged(object sender, EventArgs e)
+        {
+            var dateFrom = date_Print_From.Date;
+            var dateTo = date_Print_To.Date;
+
+            if (dateTo < dateFrom)
+            {
+                date_Print_From.Date = dateTo;
+            }
+        }
+
+        protected void btn_Print_View_Click(object sender, EventArgs e)
+        {
+            var sql = @"
+;WITH
+i AS(
+	SELECT
+		HdrNo,
+		CAST(MIN(CommittedDate) AS DATE) AS CommittedDate
+	FROM
+		[IN].Inventory
+	WHERE
+		[Type]='RC'
+		AND CAST(CommittedDate as DATE) BETWEEN @FrDate AND @ToDate
+	GROUP BY
+		HdrNo
+
+)
+SELECT
+	RecNo
+FROM
+	PC.Rec
+	LEFT JOIN i
+		ON i.HdrNo=rec.RecNo
+WHERE
+	CASE @DateType
+		WHEN 1 THEN InvoiceDate
+		WHEN 2 THEN i.CommittedDate
+		ELSE RecDate
+	END BETWEEN @FrDate AND @ToDate
+	AND rec.VendorCode BETWEEN CASE WHEN ISNULL(@FrVendor,'')='' THEN rec.VendorCode ELSE @FrVendor END AND CASE WHEN ISNULL(@ToVendor,'')='' THEN rec.VendorCode ELSE @ToVendor END
+	AND DocStatus IN(
+		CASE WHEN @IsReceive = 1 THEN 'Received' ELSE NULL END,
+		CASE WHEN @IsCommit = 1 THEN 'Committed' ELSE NULL END,
+		CASE WHEN @IsVoid = 1 THEN 'VOIDED' ELSE NULL END
+	)
+ORDER BY
+	RecNo";
+            var parameters = new List<Blue.DAL.DbParameter>();
+
+            parameters.Add(new Blue.DAL.DbParameter("@DateType", ddl_Print_DateType.SelectedIndex.ToString()));
+            parameters.Add(new Blue.DAL.DbParameter("@FrDate", date_Print_From.Date.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture)));
+            parameters.Add(new Blue.DAL.DbParameter("@ToDate", date_Print_To.Date.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture)));
+            parameters.Add(new Blue.DAL.DbParameter("@FrVendor", ddl_Print_VendorFrom.Value.ToString()));
+            parameters.Add(new Blue.DAL.DbParameter("@ToVendor", ddl_Print_VendorTo.Value.ToString()));
+            parameters.Add(new Blue.DAL.DbParameter("@IsReceive", chk_Report_Status_Received.Checked ? "1" : "0"));
+            parameters.Add(new Blue.DAL.DbParameter("@IsCommit", chk_Report_Status_Committed.Checked ? "1" : "0"));
+            parameters.Add(new Blue.DAL.DbParameter("@IsVoid", chk_Report_Status_Voided.Checked ? "1" : "0"));
+
+
+            var dt = bu.DbExecuteQuery(sql.ToString(), parameters.ToArray(), LoginInfo.ConnStr);
+
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                var items = dt.AsEnumerable()
+                    .Select(x => x.Field<string>("RecNo"))
+                    .ToArray();
+
+                var id = Guid.NewGuid().ToString();
+                
+                Session[id] = string.Join(",", items);
+
+
+                var urlBuilder = new UriBuilder(Request.Url.AbsoluteUri) { Path = Request.ApplicationPath, Query = null, Fragment = null };
+                var report = "ReceivingForm";
+                var url = urlBuilder.ToString().TrimEnd('/') + string.Format("/RPT/PrintForm.aspx?Report={0}&ID={1}", report, id);
+
+                Page.ClientScript.RegisterStartupScript(this.GetType(), "OpenWindow", string.Format("window.open('{0}','_newtab');", url), true);
+            }
+            else
+            {
+                lbl_Warning.Text = "No data";
+                pop_Warning.ShowOnPageLoad = true;
+
+            }
+        }
+
+
+        private void OpenReportNewTab(string id)
+        {
+            var urlBuilder = new UriBuilder(Request.Url.AbsoluteUri) { Path = Request.ApplicationPath, Query = null, Fragment = null };
+            var report = "ReceivingForm";
+            var url = urlBuilder.ToString().TrimEnd('/') + string.Format("/RPT/PrintForm.aspx?Report={0}&ID={1}", report, id);
+
+            Page.ClientScript.RegisterStartupScript(this.GetType(), "OpenWindow", string.Format("window.open('{0}','_newtab');", url), true);
+        }
+
+        #endregion
 
     }
 }

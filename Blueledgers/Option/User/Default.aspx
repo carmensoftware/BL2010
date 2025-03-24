@@ -198,4 +198,6 @@
         }
     </script>
     <uc5:PasswordDialog ID="dlgPassword" runat="server" />
+    <hr />
+    <asp:Label runat="server" ID="lbl_Session" Font-Size="Large" />
 </asp:Content>

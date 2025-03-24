@@ -904,14 +904,19 @@ namespace BlueLedger.PL.PC.PO
 
             if (dt != null && dt.Rows.Count > 0)
             {
-                var poList = dt.AsEnumerable()
+                var items = dt.AsEnumerable()
                     .Select(x => x.Field<string>("PoNo"))
                     .ToArray();
 
+                var id = Guid.NewGuid().ToString();
+
+                Session[id] = string.Join(",", items);
+
+                //var id = string.Join(",", items);
                 var urlBuilder = new UriBuilder(Request.Url.AbsoluteUri) { Path = Request.ApplicationPath, Query = null, Fragment = null };
-                var id = string.Join(",", poList);
                 var report = "PurchaseOrderForm";
-                var url = urlBuilder.ToString().TrimEnd('/') + string.Format("/RPT/PrintForm.aspx?ID={0}&Report={1}", id, report);
+                var url = urlBuilder.ToString().TrimEnd('/') + string.Format("/RPT/PrintForm.aspx?Report={0}&ID={1}", report, id);
+                //var url = urlBuilder.ToString().TrimEnd('/') + string.Format("/RPT/PrintForm.aspx?ID={0}&Report={1}", id, report);
 
                 Page.ClientScript.RegisterStartupScript(this.GetType(), "OpenWindow", string.Format("window.open('{0}','_newtab');", url), true);
             }

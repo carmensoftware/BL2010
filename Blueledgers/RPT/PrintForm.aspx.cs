@@ -8,9 +8,10 @@ public partial class RPT_PrintForm : BasePage
     FastReport.Report report = new FastReport.Report();
     string id = string.Empty;
 
+
     protected override void Page_Load(object sender, EventArgs e)
     {
-        id = Request.QueryString["ID"];
+        id = Request.QueryString["ID"] == null ? "" : Request.QueryString["ID"].ToString();
 
         string reportName = Request.QueryString["Report"];
         string rptID = string.Empty;
@@ -49,18 +50,46 @@ public partial class RPT_PrintForm : BasePage
 
 
         report.StartReport += new EventHandler(report_StartReport);
+        
+        //var items = id.Split(',');
 
-        var items = id.Split(',');
+        //foreach (var item in items)
+        //{
+        //    report.Load(Server.MapPath("~/App_Files/Reports").TrimEnd('/') + "/" + reportName);
+        //    report.SetParameterValue("ID", item);
+        //    report.Prepare(true);
+        //}
 
-        foreach (var item in items)
+        if (id.Length > 30)
         {
-            report.Load(Server.MapPath("~/App_Files/Reports").TrimEnd('/') + "/" + reportName);
-            report.SetParameterValue("ID", item);
-            report.Prepare(true);
+            var list = Session[id].ToString();
+            var items = list.Split(',');
+
+            foreach (var item in items)
+            {
+                report.Load(Server.MapPath("~/App_Files/Reports").TrimEnd('/') + "/" + reportName);
+                report.SetParameterValue("ID", item);
+                report.Prepare(true);
+            }
+
+            //Session.Remove(id);
+
+        }
+        else
+        {
+            var items = id.Split(',');
+
+            foreach (var item in items)
+            {
+                report.Load(Server.MapPath("~/App_Files/Reports").TrimEnd('/') + "/" + reportName);
+                report.SetParameterValue("ID", item);
+                report.Prepare(true);
+            }
         }
 
-        //WebReport1.Width = 1200;
-        //WebReport1.Height = 740;
+
+        WebReport1.Width = 1200;
+        WebReport1.Height = 740;
     }
 
     protected void report_StartReport(object sender, EventArgs e)
