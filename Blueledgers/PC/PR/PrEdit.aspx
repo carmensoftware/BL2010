@@ -341,7 +341,7 @@
                             <ItemStyle Width="140px" />
                         </asp:TemplateField>
                         <%-- DtNo --%>
-                        <asp:BoundField HeaderText="No." DataField="PrDtNo" ItemStyle-Width="30" />
+                        <asp:BoundField HeaderText="No." DataField="PrDtNo" ItemStyle-Width="30" ReadOnly="true" />
                         <%--Detail--%>
                         <asp:TemplateField>
                             <HeaderTemplate>
@@ -744,9 +744,16 @@
                                                 </div>
                                             </td>
                                             <td>
-                                                <dx:ASPxComboBox ID="ddl_Vendor_av" runat="server" Width="200px" EnableCallbackMode="true" CallbackPageSize="100" IncrementalFilteringMode="Contains" ValueField="VendorCode"
+                                                <%--<dx:ASPxComboBox ID="ddl_Vendor_av" runat="server" Width="200px" EnableCallbackMode="true" CallbackPageSize="100" IncrementalFilteringMode="Contains" ValueField="VendorCode"
                                                     ValueType="System.String" TextFormatString="{0} : {1}" OnLoad="ddl_Vendor_av_Load" OnItemsRequestedByFilterCondition="ddl_Vendor_av_OnItemsRequestedByFilterCondition_SQL"
                                                     OnItemRequestedByValue="ddl_Vendor_av_OnItemRequestedByValue_SQL">
+                                                    <Columns>
+                                                        <dx:ListBoxColumn Caption="Code" FieldName="VendorCode" Width="70px" />
+                                                        <dx:ListBoxColumn Caption="Name" FieldName="Name" Width="300px" />
+                                                    </Columns>
+                                                </dx:ASPxComboBox>--%>
+                                                <dx:ASPxComboBox ID="ddl_Vendor_av" runat="server" Width="200px" EnableCallbackMode="true" CallbackPageSize="50" IncrementalFilteringMode="Contains" ValueField="VendorCode"
+                                                    ValueType="System.String" TextFormatString="{0} : {1}" OnLoad="ddl_Vendor_av_Load">
                                                     <Columns>
                                                         <dx:ListBoxColumn Caption="Code" FieldName="VendorCode" Width="70px" />
                                                         <dx:ListBoxColumn Caption="Name" FieldName="Name" Width="300px" />
@@ -863,6 +870,7 @@
                             <ItemTemplate>
                                 <tr id="TR_Summmary" runat="server" style="display: none">
                                     <td colspan="4" style="padding-left: 30px; padding-top: 10px;">
+                                        <%--Request & Approve--%>
                                         <asp:Panel ID="p_Issue_Expand" runat="server">
                                             <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                                 <tr>
@@ -996,8 +1004,7 @@
                                                 </tr>
                                             </table>
                                         </asp:Panel>
-                                        <%--/* View Mode */--%>
-                                        <%--/* Added Currency On: 15/08/2017, By: Fon */--%>
+                                        <%--Allocate Vendor--%>
                                         <asp:Panel ID="p_AllocateVendor_Expand" runat="server">
                                             <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                                 <tr>
@@ -1125,6 +1132,7 @@
                                                 </tr>
                                             </table>
                                         </asp:Panel>
+                                        <%--Price Comparision--%>
                                         <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                             <tr style="background-color: #DADADA; height: 17px;">
                                                 <td>
@@ -1169,6 +1177,11 @@
                                                                 <HeaderStyle HorizontalAlign="Right" />
                                                                 <ItemStyle HorizontalAlign="Right" />
                                                             </asp:BoundField>
+                                                            <%--9--%>
+                                                            <asp:BoundField HeaderText="Tax" DataField="Tax" HeaderStyle-HorizontalAlign="Center" ItemStyle-HorizontalAlign="Center" />
+                                                            <asp:BoundField HeaderText="Rate" DataField="TaxRate" HeaderStyle-HorizontalAlign="Right" ItemStyle-HorizontalAlign="Right" />
+                                                            <asp:BoundField HeaderText="Currency" DataField="CurrencyCode" HeaderStyle-HorizontalAlign="Center" ItemStyle-HorizontalAlign="Center" />
+                                                            <asp:BoundField HeaderText="Rate" DataField="CurrencyRate" HeaderStyle-HorizontalAlign="Left" ItemStyle-HorizontalAlign="Left" />
                                                             <asp:BoundField HeaderText="<%$ Resources:PC_PR_PrEdit, lbl_Min_Compare_Nm %>" DataField="QtyFrom">
                                                                 <HeaderStyle HorizontalAlign="Right" />
                                                                 <ItemStyle HorizontalAlign="Right" />
@@ -1177,11 +1190,7 @@
                                                                 <HeaderStyle HorizontalAlign="Right" />
                                                                 <ItemStyle HorizontalAlign="Right" />
                                                             </asp:BoundField>
-                                                            <%--11--%>
-                                                            <asp:BoundField DataField="Tax" Visible="false" />
-                                                            <asp:BoundField DataField="TaxRate" Visible="false" />
-                                                            <asp:BoundField DataField="CurrencyCode" Visible="false" />
-                                                            <asp:BoundField DataField="CurrencyRate" Visible="false" />
+                                                            <%--13--%>
                                                             <asp:TemplateField HeaderText="">
                                                                 <ItemTemplate>
                                                                     <dx:ASPxButton ID="btn_Assign_av" runat="server" Text="Assign" OnClick="btn_Assign_av_Click">
@@ -1194,6 +1203,7 @@
                                                 </td>
                                             </tr>
                                         </table>
+                                        <%--Onhand On Ordered ...--%>
                                         <table border="0" cellpadding="2" cellspacing="0" width="100%">
                                             <tr style="vertical-align: top">
                                                 <td class="TD_LINE_GRD" style="width: 7%;">
@@ -1272,6 +1282,8 @@
                                                 </td>
                                             </tr>
                                         </table>
+                                        <br />
+                                        <%--Comment--%>
                                         <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                             <tr style="background-color: #DADADA; height: 17px;">
                                                 <td>
@@ -1284,7 +1296,8 @@
                                                 </td>
                                             </tr>
                                         </table>
-                                        <%--Command Bar--%>
+                                        <%--Edit/Delete--%>
+                                        <br />
                                         <table border="0" cellpadding="0" cellspacing="0" width="100%;">
                                             <tr style="height: 17px;">
                                                 <td align="right" style="padding-right: 10px">
@@ -1299,7 +1312,8 @@
                             </ItemTemplate>
                             <EditItemTemplate>
                                 <tr id="TR_Summmary" runat="server">
-                                    <td colspan="4" style="padding-left: 30px">
+                                    <td colspan="4" style="padding-left: 30px; padding-top: 10px;">
+                                        <%--Request & Approve--%>
                                         <asp:Panel ID="p_Issue_Expand" runat="server">
                                             <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                                 <tr>
@@ -1425,7 +1439,7 @@
                                                 </tr>
                                             </table>
                                         </asp:Panel>
-                                        <%-- /* EditMode */--%>
+                                        <%--Allocate Vendor--%>
                                         <asp:Panel ID="p_AllocateVendor_Expand" runat="server">
                                             <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                                 <tr>
@@ -1584,6 +1598,7 @@
                                                 </tr>
                                             </table>
                                         </asp:Panel>
+                                        <%--Price Comparision--%>
                                         <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                             <tr style="background-color: #DADADA; height: 17px;">
                                                 <td>
@@ -1595,6 +1610,7 @@
                                                     <asp:GridView ID="grd_PriceCompare1" runat="server" AutoGenerateColumns="False" Width="100%" SkinID="GRD_V1" EmptyDataText="No Data to Display" EnableModelValidation="True"
                                                         ShowFooter="True">
                                                         <Columns>
+                                                            <%--1--%>
                                                             <asp:BoundField HeaderText="<%$ Resources:PC_PR_PrEdit, lbl_BU_Compare_Nm %>" DataField="BuCode">
                                                                 <HeaderStyle HorizontalAlign="Left" />
                                                             </asp:BoundField>
@@ -1611,6 +1627,7 @@
                                                                 <HeaderStyle HorizontalAlign="Right" />
                                                                 <ItemStyle HorizontalAlign="Right" />
                                                             </asp:BoundField>
+                                                            <%--6--%>
                                                             <asp:BoundField HeaderText="<%$ Resources:PC_PR_PrEdit, lbl_Price_Compare_Nm %>" DataField="Price">
                                                                 <HeaderStyle HorizontalAlign="Right" />
                                                                 <ItemStyle HorizontalAlign="Right" />
@@ -1627,6 +1644,11 @@
                                                                 <HeaderStyle HorizontalAlign="Right" />
                                                                 <ItemStyle HorizontalAlign="Right" />
                                                             </asp:BoundField>
+                                                            <%--9--%>
+                                                            <asp:BoundField HeaderText="Tax" DataField="Tax" HeaderStyle-HorizontalAlign="Center" ItemStyle-HorizontalAlign="Center" />
+                                                            <asp:BoundField HeaderText="Rate" DataField="TaxRate" HeaderStyle-HorizontalAlign="Right" ItemStyle-HorizontalAlign="Right" />
+                                                            <asp:BoundField HeaderText="Currency" DataField="CurrencyCode" HeaderStyle-HorizontalAlign="Center" ItemStyle-HorizontalAlign="Center" />
+                                                            <asp:BoundField HeaderText="Rate" DataField="CurrencyRate" HeaderStyle-HorizontalAlign="Left" ItemStyle-HorizontalAlign="Left" />
                                                             <asp:BoundField HeaderText="<%$ Resources:PC_PR_PrEdit, lbl_Min_Compare_Nm %>" DataField="QtyFrom">
                                                                 <HeaderStyle HorizontalAlign="Right" />
                                                                 <ItemStyle HorizontalAlign="Right" />
@@ -1635,6 +1657,7 @@
                                                                 <HeaderStyle HorizontalAlign="Right" />
                                                                 <ItemStyle HorizontalAlign="Right" />
                                                             </asp:BoundField>
+                                                            <%--13--%>
                                                             <asp:TemplateField HeaderText="#">
                                                                 <ItemTemplate>
                                                                     <dx:ASPxButton ID="btn_Assign_av" runat="server" Text="Assign" OnClick="btn_Assign_av_Click">
@@ -1646,6 +1669,7 @@
                                                 </td>
                                             </tr>
                                         </table>
+                                        <%--Onhand On Ordered ...--%>
                                         <table border="0" cellpadding="2" cellspacing="0" width="100%">
                                             <tr style="vertical-align: top">
                                                 <td class="TD_LINE_GRD" style="width: 7%;">
@@ -1724,6 +1748,8 @@
                                                 </td>
                                             </tr>
                                         </table>
+                                        <br />
+                                        <%--Comment--%>
                                         <table border="0" cellpadding="2" cellspacing="0" width="100%">
                                             <tr style="background-color: #DADADA; height: 17px;">
                                                 <td>
@@ -1737,6 +1763,7 @@
                                             </tr>
                                         </table>
                                         <br />
+                                        <%--Edit/Delete--%>
                                         <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                             <tr style="height: 17px" align="right">
                                                 <td style="padding-right: 10px;">
