@@ -1,11 +1,8 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Master/In/SkinDefault.master" AutoEventWireup="true"
-    CodeFile="RecCommitByBatch.aspx.cs" Inherits="BlueLedger.PL.IN.REC.RecCommitByBatch" %>
-    
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Master/In/SkinDefault.master" AutoEventWireup="true" CodeFile="RecCommitByBatch.aspx.cs" Inherits="BlueLedger.PL.IN.REC.RecCommitByBatch" %>
+
 <%@ MasterType VirtualPath="~/master/In/SkinDefault.master" %>
-<%@ Register Assembly="DevExpress.Web.ASPxEditors.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a"
-    Namespace="DevExpress.Web.ASPxEditors" TagPrefix="dx" %>
-<%@ Register Assembly="DevExpress.Web.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a"
-    Namespace="DevExpress.Web.ASPxPopupControl" TagPrefix="dx" %>
+<%@ Register Assembly="DevExpress.Web.ASPxEditors.v10.1" Namespace="DevExpress.Web.ASPxEditors" TagPrefix="dx" %>
+<%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxPopupControl" TagPrefix="dx" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="cph_Main" runat="Server">
     <table width="100%" border="0" cellpadding="0" cellspacing="0">
         <tr>
@@ -25,13 +22,11 @@
                             </table>
                         </td>
                         <td align="right">
-                            <dx:ASPxButton ID="btn_Back" runat="server" BackColor="Transparent" Height="16px"
-                                Width="42px" ToolTip="Back" OnClick="btn_Back_Click" HorizontalAlign="Right" EnableViewState="False">
-                                <BackgroundImage ImageUrl="~/App_Themes/Default/Images/master/icon/gray-back.png"
-                                    Repeat="NoRepeat" HorizontalPosition="left" VerticalPosition="center" />
+                            <dx:ASPxButton ID="btn_Back" runat="server" BackColor="Transparent" Height="16px" Width="42px" ToolTip="Back" OnClick="btn_Back_Click" HorizontalAlign="Right"
+                                EnableViewState="False">
+                                <BackgroundImage ImageUrl="~/App_Themes/Default/Images/master/icon/gray-back.png" Repeat="NoRepeat" HorizontalPosition="left" VerticalPosition="center" />
                                 <HoverStyle>
-                                    <BackgroundImage HorizontalPosition="left" ImageUrl="~/App_Themes/Default/Images/master/icon/back.png"
-                                        Repeat="NoRepeat" VerticalPosition="center" />
+                                    <BackgroundImage HorizontalPosition="left" ImageUrl="~/App_Themes/Default/Images/master/icon/back.png" Repeat="NoRepeat" VerticalPosition="center" />
                                 </HoverStyle>
                                 <Border BorderStyle="None" />
                             </dx:ASPxButton>
@@ -42,8 +37,7 @@
         </tr>
         <tr>
             <td align="left">
-                <asp:GridView ID="grd_RecCommitByBatch" runat="server" Width="100%" SkinID="GRD_V1"
-                    AutoGenerateColumns="False" DataKeyNames="RecNo" OnRowDataBound="grd_RecCommitByBatch_RowDataBound"
+                <asp:GridView ID="grd_RecCommitByBatch" runat="server" Width="100%" SkinID="GRD_V1" AutoGenerateColumns="False" DataKeyNames="RecNo" OnRowDataBound="grd_RecCommitByBatch_RowDataBound"
                     EmptyDataText="No Data to Display" EnableModelValidation="True" EnableViewState="False">
                     <Columns>
                         <asp:TemplateField HeaderText="<%$ Resources:PC_REC_RecCommitByBatch, lbl_Charp %>">
@@ -120,15 +114,13 @@
         </tr>
         <tr align="right">
             <td>
-                <asp:Button ID="btn_Ok" runat="server" Text="<%$ Resources:PC_REC_RecCommitByBatch, btn_Ok %>" OnClick="btn_Ok_Click" Width="60px"
-                    SkinID="BTN_V1"  EnableViewState="False"/>
+                <asp:Button ID="btn_Ok" runat="server" Text="<%$ Resources:PC_REC_RecCommitByBatch, btn_Ok %>" OnClick="btn_Ok_Click" Width="60px" SkinID="BTN_V1" EnableViewState="False" />
             </td>
         </tr>
     </table>
     <asp:HiddenField ID="hf_ConnStr" runat="server" />
-    <dx:ASPxPopupControl ID="pop_ConfrimCommit" ClientInstanceName="pop_ConfrimCommit"
-        runat="server" Width="300px" CloseAction="CloseButton" HeaderText="<%$ Resources:PC_REC_RecCommitByBatch, Confirm %>" Modal="True"
-        PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowCloseButton="False" EnableViewState="False">
+    <dx:ASPxPopupControl ID="pop_ConfrimCommit" ClientInstanceName="pop_ConfrimCommit" runat="server" Width="300px" CloseAction="CloseButton" HeaderText="<%$ Resources:PC_REC_RecCommitByBatch, Confirm %>"
+        Modal="True" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowCloseButton="False" EnableViewState="False">
         <ContentStyle VerticalAlign="Top">
         </ContentStyle>
         <ContentCollection>
@@ -145,17 +137,16 @@
                                 SkinID="BTN_V1" Style="height: 26px" EnableViewState="False" />
                         </td>
                         <td align="left">
-                            <asp:Button ID="btn_CancelCommit" runat="server" Text="<%$ Resources:PC_REC_RecCommitByBatch, btn_CancelCommit %>" Width="50px" SkinID="BTN_V1"
-                                OnClick="btn_CancelCommit_Click" EnableViewState="False" />
+                            <asp:Button ID="btn_CancelCommit" runat="server" Text="<%$ Resources:PC_REC_RecCommitByBatch, btn_CancelCommit %>" Width="50px" SkinID="BTN_V1" OnClick="btn_CancelCommit_Click"
+                                EnableViewState="False" />
                         </td>
                     </tr>
                 </table>
             </dx:PopupControlContentControl>
         </ContentCollection>
     </dx:ASPxPopupControl>
-    <dx:ASPxPopupControl ID="pop_Warning" ClientInstanceName="pop_Warning" runat="server"
-        Width="300px" CloseAction="CloseButton" HeaderText="<%$ Resources:PC_REC_RecCommitByBatch, Warning %>" Modal="True" PopupHorizontalAlign="WindowCenter"
-        PopupVerticalAlign="WindowCenter" ShowCloseButton="False" EnableViewState="False">
+    <dx:ASPxPopupControl ID="pop_Warning" ClientInstanceName="pop_Warning" runat="server" Width="300px" CloseAction="CloseButton" HeaderText="<%$ Resources:PC_REC_RecCommitByBatch, Warning %>"
+        Modal="True" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowCloseButton="False" EnableViewState="False">
         <ContentStyle VerticalAlign="Top">
         </ContentStyle>
         <ContentCollection>
@@ -168,8 +159,8 @@
                     </tr>
                     <tr>
                         <td align="center">
-                            <asp:Button ID="btn_Warning" runat="server" Text="<%$ Resources:PC_REC_RecCommitByBatch, btn_Warning %>" OnClick="btn_Warning_Click" Width="50px"
-                                SkinID="BTN_V1" EnableViewState="False" />
+                            <asp:Button ID="btn_Warning" runat="server" Text="<%$ Resources:PC_REC_RecCommitByBatch, btn_Warning %>" OnClick="btn_Warning_Click" Width="50px" SkinID="BTN_V1"
+                                EnableViewState="False" />
                         </td>
                     </tr>
                 </table>

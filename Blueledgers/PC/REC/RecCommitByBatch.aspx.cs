@@ -12,8 +12,6 @@ namespace BlueLedger.PL.IN.REC
         #region "Attributes"
 
         private readonly Blue.BL.dbo.Bu bu = new Blue.BL.dbo.Bu();
-        private readonly DataSet dsRecCommit = new DataSet();
-        private readonly DataSet dsUpdatePO = new DataSet();
         private readonly Blue.BL.IN.Inventory inv = new Blue.BL.IN.Inventory();
         private readonly Blue.BL.PC.Priod period = new Blue.BL.PC.Priod();
         private readonly Blue.BL.PC.PO.PO po = new Blue.BL.PC.PO.PO();
@@ -22,21 +20,25 @@ namespace BlueLedger.PL.IN.REC
         private readonly Blue.BL.PC.REC.REC rec = new Blue.BL.PC.REC.REC();
         private readonly Blue.BL.PC.REC.RECDt recDt = new Blue.BL.PC.REC.RECDt();
 
+        #endregion
+
+        private readonly DataSet dsRecCommit = new DataSet();
+        private readonly DataSet dsUpdatePO = new DataSet();
         private string MsgError = string.Empty;
         private DataSet dsInventory = new DataSet();
 
-        #endregion
-
-        protected override void Page_Load(object sender, EventArgs e)
-        {
-            //Check Login
-            base.Page_Load(sender, e);
-            Page_Setting();
-        }
 
         protected void Page_Init(object sender, EventArgs e)
         {
             hf_ConnStr.Value = bu.GetConnectionString(Request.Params["BuCode"]);
+        }
+
+
+        protected override void Page_Load(object sender, EventArgs e)
+        {
+            base.Page_Load(sender, e);
+
+            Page_Setting();
         }
 
         private void Page_Setting()
@@ -45,275 +47,10 @@ namespace BlueLedger.PL.IN.REC
             grd_RecCommitByBatch.DataBind();
         }
 
-        //private void UpdateInventoryForCommit(DataRow drRecDt)
-        //{
-        //    //FIFO Calculation
-        //    var invQty = prodUnit.GetQtyAfterChangeUnit(drRecDt["ProductCode"].ToString(),
-        //        prodUnit.GetInvenUnit(drRecDt["ProductCode"].ToString(), hf_ConnStr.Value),
-        //        drRecDt["RcvUnit"].ToString(), decimal.Parse(drRecDt["RecQty"].ToString()), hf_ConnStr.Value);
-
-        //    var netPrice = Math.Round(Convert.ToDecimal(drRecDt["NetAmt"].ToString()), 2);
-        //    var pricePerQty = Math.Round((netPrice / (invQty == 0 ? 1 : invQty)), 2);
-        //    var diffCount = Math.Round((netPrice - (pricePerQty * (invQty))), 2) * 100;
-
-        //    if (diffCount == 0)
-        //    {
-        //        //Find Inventory and update
-        //        foreach (DataRow drInv in dsRecCommit.Tables[inv.TableName].Rows)
-        //        {
-        //            if (drInv["HdrNo"].ToString() == drRecDt["RecNo"].ToString() &&
-        //                drInv["DtNo"].ToString() == drRecDt["RecDtNo"].ToString())
-        //            {
-        //                drInv["InvNo"] = 1;
-        //                drInv["ProductCode"] = drRecDt["ProductCode"].ToString();
-        //                drInv["Location"] = drRecDt["LocationCode"].ToString();
-        //                drInv["IN"] = invQty;
-        //                drInv["OUT"] = Convert.ToDecimal("0.00");
-        //                //drInv["Amount"] = Convert.ToDecimal(drRecDt["NetAmt"] == null ? Convert.ToDecimal("0.00") : drRecDt["NetAmt"]);
-        //                drInv["Amount"] = pricePerQty;
-        //                drInv["FIFOAudit"] = pricePerQty;
-        //                drInv["FIFOMng"] = System.DBNull.Value;
-        //                drInv["FIFOBank"] = System.DBNull.Value;
-        //                drInv["MAvgAudit"] = System.DBNull.Value;
-        //                drInv["MAvgMng"] = System.DBNull.Value;
-        //                drInv["MAvgBank"] = System.DBNull.Value;
-        //                //drInv["PAvgAudit"] = inv.SetPAvgAudit(startDate, endDate, drInv["Location"].ToString(), drInv["ProductCode"].ToString(), LoginInfo.ConnStr);
-        //                drInv["PAvgAudit"] = System.DBNull.Value;
-        //                drInv["PAvgMng"] = System.DBNull.Value;
-        //                drInv["PAvgBank"] = System.DBNull.Value;
-        //                drInv["RptAudit"] = System.DBNull.Value;
-        //                drInv["RptMng"] = System.DBNull.Value;
-        //                drInv["RptBank"] = System.DBNull.Value;
-        //                drInv["CommittedDate"] = ServerDateTime.Date;
-        //                drInv["Type"] = "RC";
-        //            }
-        //        }
-        //    }
-        //    else
-        //    {
-        //        //Find Inventory
-        //        for (var i = 0; i < 2; i++)
-        //        {
-        //            if (i == 0)
-        //            {
-        //                foreach (DataRow drInv in dsRecCommit.Tables[inv.TableName].Rows)
-        //                {
-        //                    //ดูว่าเป็น inventory ที่ต้องการ update ?
-        //                    if (drRecDt["RecNo"].ToString() == drInv["HdrNo"].ToString() &&
-        //                        drRecDt["RecDtNo"].ToString() == drInv["DtNo"].ToString())
-        //                    {
-        //                        drInv["InvNo"] = i + 1;
-        //                        drInv["ProductCode"] = drRecDt["ProductCode"].ToString();
-        //                        drInv["Location"] = drRecDt["LocationCode"].ToString();
-        //                        drInv["IN"] = invQty - Math.Abs(diffCount);
-        //                        drInv["OUT"] = Convert.ToDecimal("0.00");
-        //                        //drInv["Amount"] = Convert.ToDecimal(drRecDt["NetAmt"] == null ? Convert.ToDecimal("0.00") : drRecDt["NetAmt"]);
-        //                        drInv["Amount"] = pricePerQty;
-        //                        drInv["FIFOAudit"] = pricePerQty;
-        //                        drInv["FIFOMng"] = System.DBNull.Value;
-        //                        drInv["FIFOBank"] = System.DBNull.Value;
-        //                        drInv["MAvgAudit"] = System.DBNull.Value;
-        //                        drInv["MAvgMng"] = System.DBNull.Value;
-        //                        drInv["MAvgBank"] = System.DBNull.Value;
-        //                        //drInv["PAvgAudit"] = inv.SetPAvgAudit(startDate, endDate, drInv["Location"].ToString(), drInv["ProductCode"].ToString(), LoginInfo.ConnStr);
-        //                        drInv["PAvgAudit"] = System.DBNull.Value;
-        //                        drInv["PAvgMng"] = System.DBNull.Value;
-        //                        drInv["PAvgBank"] = System.DBNull.Value;
-        //                        drInv["RptAudit"] = System.DBNull.Value;
-        //                        drInv["RptMng"] = System.DBNull.Value;
-        //                        drInv["RptBank"] = System.DBNull.Value;
-        //                        drInv["CommittedDate"] = ServerDateTime.Date;
-        //                        drInv["Type"] = "RC";
-        //                    }
-        //                }
-        //            }
-        //            else
-        //            {
-        //                //add new row
-        //                var drInvNew = dsRecCommit.Tables[inv.TableName].NewRow();
-
-        //                drInvNew["HdrNo"] = drRecDt["RecNo"].ToString();
-        //                drInvNew["DtNo"] = (drRecDt["RecDtNo"]);
-        //                drInvNew["InvNo"] = i + 1;
-        //                drInvNew["ProductCode"] = drRecDt["ProductCode"].ToString();
-        //                drInvNew["Location"] = drRecDt["LocationCode"].ToString();
-        //                drInvNew["IN"] = Math.Abs(diffCount);
-
-        //                if (diffCount < 0)
-        //                {
-        //                    drInvNew["Amount"] = pricePerQty - Convert.ToDecimal("0.01");
-        //                    drInvNew["FIFOAudit"] = pricePerQty - Convert.ToDecimal("0.01");
-        //                }
-        //                else
-        //                {
-        //                    drInvNew["Amount"] = pricePerQty + Convert.ToDecimal("0.01");
-        //                    drInvNew["FIFOAudit"] = pricePerQty + Convert.ToDecimal("0.01");
-        //                }
-
-        //                drInvNew["OUT"] = Convert.ToDecimal("0.00");
-        //                //drInvNew["Amount"] = Convert.ToDecimal(drRecDt["NetAmt"] == null ? Convert.ToDecimal("0.00") : drRecDt["NetAmt"]);
-        //                drInvNew["FIFOMng"] = System.DBNull.Value;
-        //                drInvNew["FIFOBank"] = System.DBNull.Value;
-        //                drInvNew["MAvgAudit"] = System.DBNull.Value;
-        //                drInvNew["MAvgMng"] = System.DBNull.Value;
-        //                drInvNew["MAvgBank"] = System.DBNull.Value;
-        //                //drInvNew["PAvgAudit"] = inv.SetPAvgAudit(startDate, endDate, drInvNew["Location"].ToString(), drInvNew["ProductCode"].ToString(), LoginInfo.ConnStr);
-        //                drInvNew["PAvgAudit"] = System.DBNull.Value;
-        //                drInvNew["PAvgMng"] = System.DBNull.Value;
-        //                drInvNew["PAvgBank"] = System.DBNull.Value;
-        //                drInvNew["RptAudit"] = System.DBNull.Value;
-        //                drInvNew["RptMng"] = System.DBNull.Value;
-        //                drInvNew["RptBank"] = System.DBNull.Value;
-        //                drInvNew["CommittedDate"] = ServerDateTime.Date;
-        //                drInvNew["Type"] = "RC";
-
-        //                dsRecCommit.Tables[inv.TableName].Rows.Add(drInvNew);
-        //            }
-        //        }
-        //    }
-        //}
-
-
-        private void UpdateInventoryForCommit(DataRow drRecDt)
-        {
-            var dsSave = dsRecCommit;
-
-            RecFunc recFunc = new RecFunc(hf_ConnStr.Value.ToString());
-            recFunc.UpdateInventoryForCommit(dsSave, drRecDt);
-
-            // Remark for using shared funciton. (RecEdit, RecCommitByBatch, RecCreateManual)
-
-            ////FIFO Calculation
-            //var invQty = prodUnit.GetQtyAfterChangeUnit(drRecDt["ProductCode"].ToString(),
-            //    prodUnit.GetInvenUnit(drRecDt["ProductCode"].ToString(), hf_ConnStr.Value),
-            //    drRecDt["RcvUnit"].ToString(),
-            //    decimal.Parse(drRecDt["RecQty"].ToString()) + decimal.Parse(drRecDt["FOCQty"].ToString()),
-            //    hf_ConnStr.Value);
-
-            //var netPrice = Math.Round(Convert.ToDecimal(drRecDt["NetAmt"].ToString()), 2);
-            //var pricePerQty = Math.Round((netPrice / (invQty == 0 ? 1 : invQty)), 2);
-            //var diffCount = Math.Round((netPrice - (pricePerQty * (invQty == 0 ? 1 : invQty))), 2) * 100;
-
-            //if (diffCount == 0)
-            //{
-            //    var drInv = dsSave.Tables[inv.TableName].NewRow();
-
-            //    drInv["HdrNo"] = drRecDt["RecNo"].ToString();
-            //    drInv["DtNo"] = drRecDt["RecDtNo"].ToString();
-            //    drInv["InvNo"] = 1;
-            //    drInv["ProductCode"] = drRecDt["ProductCode"].ToString();
-            //    drInv["Location"] = drRecDt["LocationCode"].ToString();
-            //    drInv["IN"] = invQty;
-            //    drInv["OUT"] = Convert.ToDecimal("0.00");
-            //    drInv["Amount"] = pricePerQty;
-            //    drInv["FIFOAudit"] = pricePerQty;
-            //    drInv["FIFOMng"] = System.DBNull.Value;
-            //    drInv["FIFOBank"] = System.DBNull.Value;
-            //    drInv["MAvgAudit"] = System.DBNull.Value;
-            //    drInv["MAvgMng"] = System.DBNull.Value;
-            //    drInv["MAvgBank"] = System.DBNull.Value;
-            //    drInv["PAvgAudit"] = 0; // Move the average cost calculation to after completed save Inventory Ledgers 
-            //    drInv["CommittedDate"] = dsSave.Tables[rec.TableName].Rows[0]["RecDate"];
-            //    drInv["PAvgMng"] = System.DBNull.Value;
-            //    drInv["PAvgBank"] = System.DBNull.Value;
-            //    drInv["RptAudit"] = System.DBNull.Value;
-            //    drInv["RptMng"] = System.DBNull.Value;
-            //    drInv["RptBank"] = System.DBNull.Value;
-            //    drInv["Type"] = "RC";
-
-            //    dsSave.Tables[inv.TableName].Rows.Add(drInv);
-
-            //    //// ขอเพิ่มเข้า fifo table
-            //    //DataRow drFifo = dsFifo.Tables[Fifo.TableName].NewRow();
-            //    //drFifo["HdrNo"] = drInv["HdrNo"];
-            //    //drFifo["LocationCode"] = drInv["Location"];
-            //    //drFifo["ProductCode"] = drInv["ProductCode"];
-            //    //drFifo["RcvQty"] = drInv["IN"];
-            //    //drFifo["RcvPrice"] = drInv["Amount"];
-            //    //drFifo["RcvRemain"] = drInv["IN"];
-            //    //drFifo["CreatedDate"] = drInv["CommittedDate"];
-            //    //dsFifo.Tables[Fifo.TableName].Rows.Add(drFifo);
-            //}
-            //else
-            //{
-            //    for (var i = 0; i < 2; i++)
-            //    {
-            //        var drInv = dsSave.Tables[inv.TableName].NewRow();
-
-            //        drInv["HdrNo"] = drRecDt["RecNo"].ToString();
-            //        drInv["DtNo"] = (drRecDt["RecDtNo"]);
-            //        drInv["InvNo"] = i + 1;
-            //        drInv["ProductCode"] = drRecDt["ProductCode"].ToString();
-            //        drInv["Location"] = drRecDt["LocationCode"].ToString();
-
-            //        if (i == 0)
-            //        {
-            //            drInv["IN"] = invQty - Math.Abs(diffCount);
-            //            drInv["FIFOAudit"] = pricePerQty;
-            //            drInv["Amount"] = pricePerQty;
-            //        }
-            //        else
-            //        {
-            //            drInv["IN"] = Math.Abs(diffCount);
-
-            //            if (diffCount < 0)
-            //            {
-            //                //case : QuantityPerUnit * Quantity > Net
-            //                drInv["Amount"] = pricePerQty - Convert.ToDecimal("0.01");
-            //                drInv["FIFOAudit"] = pricePerQty - Convert.ToDecimal("0.01");
-            //            }
-            //            else
-            //            {
-            //                //case : QuantityPerUnit * Quantity < Net
-            //                drInv["Amount"] = pricePerQty + Convert.ToDecimal("0.01");
-            //                drInv["FIFOAudit"] = pricePerQty + Convert.ToDecimal("0.01");
-            //            }
-            //        }
-
-            //        drInv["OUT"] = Convert.ToDecimal("0.00");
-            //        drInv["FIFOMng"] = System.DBNull.Value;
-            //        drInv["FIFOBank"] = System.DBNull.Value;
-            //        drInv["MAvgAudit"] = System.DBNull.Value;
-            //        drInv["MAvgMng"] = System.DBNull.Value;
-            //        drInv["MAvgBank"] = System.DBNull.Value;
-            //        drInv["PAvgAudit"] = 0;
-            //        drInv["CommittedDate"] = dsSave.Tables[rec.TableName].Rows[0]["RecDate"];
-
-            //        drInv["PAvgMng"] = System.DBNull.Value;
-            //        drInv["PAvgBank"] = System.DBNull.Value;
-            //        drInv["RptAudit"] = System.DBNull.Value;
-            //        drInv["RptMng"] = System.DBNull.Value;
-            //        drInv["RptBank"] = System.DBNull.Value;
-            //        drInv["Type"] = "RC";
-
-            //        dsSave.Tables[inv.TableName].Rows.Add(drInv);
-
-            //        //// ขอเพิ่มเข้า fifo table
-            //        //DataRow drFifo = dsFifo.Tables[Fifo.TableName].NewRow();
-            //        //drFifo["HdrNo"] = drInv["HdrNo"];
-            //        //drFifo["LocationCode"] = drInv["Location"];
-            //        //drFifo["ProductCode"] = drInv["ProductCode"];
-            //        //drFifo["RcvQty"] = drInv["IN"];
-            //        //drFifo["RcvPrice"] = drInv["Amount"];
-            //        //drFifo["RcvRemain"] = drInv["IN"];
-            //        //drFifo["CreatedDate"] = drInv["CommittedDate"];
-            //        //dsFifo.Tables[Fifo.TableName].Rows.Add(drFifo);
-            //    }
-            //}
-        }
-
-
-        protected void btn_CancelCommit_Click(object sender, EventArgs e)
-        {
-            pop_ConfrimCommit.ShowOnPageLoad = false;
-        }
-
         protected void grd_RecCommitByBatch_RowDataBound(object sender, GridViewRowEventArgs e)
         {
             if (e.Row.RowType == DataControlRowType.DataRow)
             {
-                //CheckBox chk_Item = e.Row.FindControl("chk_Item") as CheckBox;
-
                 if (e.Row.FindControl("lbl_RecDate") != null)
                 {
                     var lbl_RecDate = e.Row.FindControl("lbl_RecDate") as Label;
@@ -322,11 +59,6 @@ namespace BlueLedger.PL.IN.REC
                             .ToString(LoginInfo.BuFmtInfo.FmtSDate);
                 }
 
-                //if (e.Row.FindControl("lbl_RecNo") != null)
-                //{
-                //    Label lbl_RecNo = e.Row.FindControl("lbl_RecNo") as Label;
-                //    lbl_RecNo.Text = DataBinder.Eval(e.Row.DataItem, "RecNo").ToString();
-                //}
 
                 if (e.Row.FindControl("hpl_RecNo") != null)
                 {
@@ -376,7 +108,7 @@ namespace BlueLedger.PL.IN.REC
                 if (e.Row.FindControl("lbl_Status") != null)
                 {
                     var lbl_Status = e.Row.FindControl("lbl_Status") as Label;
-                    // lbl_Status.Text = DataBinder.Eval(e.Row.DataItem, "DocStatus").ToString();
+
                     if (DataBinder.Eval(e.Row.DataItem, "PoSource").ToString().Trim() == "")
                         lbl_Status.Text = "MANUAL";
                     else
@@ -385,11 +117,14 @@ namespace BlueLedger.PL.IN.REC
             }
         }
 
-        #region "Button"
-
         protected void btn_Back_Click(object sender, EventArgs e)
         {
             Response.Redirect("RecLst.aspx");
+        }
+
+        protected void btn_CancelCommit_Click(object sender, EventArgs e)
+        {
+            pop_ConfrimCommit.ShowOnPageLoad = false;
         }
 
         protected void btn_Ok_Click(object sender, EventArgs e)
@@ -456,9 +191,7 @@ namespace BlueLedger.PL.IN.REC
 
         protected void btn_ConfrimCommit_Click(object sender, EventArgs e)
         {
-            //List<object> values = grd_RecCommitByBatch.GetSelectedFieldValues("RecNo");
             var value = string.Empty;
-
             var values = new List<string>();
 
             // Keep selected items to values[];
@@ -641,6 +374,13 @@ namespace BlueLedger.PL.IN.REC
             }
         }
 
-        #endregion
+        private void UpdateInventoryForCommit(DataRow drRecDt)
+        {
+            var dsSave = dsRecCommit;
+
+            RecFunc recFunc = new RecFunc(hf_ConnStr.Value.ToString());
+            recFunc.UpdateInventoryForCommit(dsSave, drRecDt);
+
+        }
     }
 }
