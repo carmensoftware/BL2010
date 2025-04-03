@@ -390,8 +390,8 @@
                         <HeaderStyle HorizontalAlign="Center" Width="10px" />
                         <ItemStyle HorizontalAlign="Center" Width="10px" />
                     </asp:TemplateField>
-                    <asp:BoundField HeaderText="No#" DataField="PrDtNo">
-                    </asp:BoundField>
+                    <%-- DtNo --%>
+                    <asp:BoundField HeaderText="No." DataField="PrDtNo" ItemStyle-Width="60" />
                     <%--Vendor--%>
                     <asp:TemplateField HeaderText="<%$ Resources:PC_PR_Pr, lbl_Vendor_Grd_Nm %>">
                         <ItemTemplate>

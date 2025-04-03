@@ -125,7 +125,7 @@ namespace Blue.BL.dbo
         */
 
         private DateTime licenseExpiredDate = new DateTime(2025, 6, 30);
-        private int licenseActiveUser = 23;
+        private int licenseActiveUser = 230;
 
         public User()
         {

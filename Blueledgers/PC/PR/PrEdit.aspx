@@ -200,7 +200,6 @@
                                 <dx:ListBoxColumn Caption="Description" FieldName="Description" Width="360px" />
                             </Columns>
                         </dx:ASPxComboBox>
-                        <%--<asp:RequiredFieldValidator ID="Req_JobCode" runat="server" ErrorMessage="*" ValidationGroup="grd_Group_av" ControlToValidate="ddl_JobCode" Display="Dynamic" />--%>
                     </td>
                     <td>
                     </td>
@@ -341,6 +340,9 @@
                             <HeaderStyle Width="140px" />
                             <ItemStyle Width="140px" />
                         </asp:TemplateField>
+                                                <%-- DtNo --%>
+                        <asp:BoundField HeaderText="No." DataField="PrDtNo" ItemStyle-Width="30" />
+
                         <%--Detail--%>
                         <asp:TemplateField>
                             <HeaderTemplate>
@@ -697,14 +699,13 @@
                                     </div>
                                     <!--DeliveryPoint-->
                                     <div style="display: inline-block;">
-                                        <dx:ASPxComboBox ID="ddl_DeliPoint" runat="server" Width="160px" ValueField="DptCode"  ValueType="System.String" TextFormatString="{0} : {1}"
-											EnableCallbackMode="true" CallbackPageSize="25" DropDownRows="15" OnLoad="ddl_DeliPoint_Load">
+                                        <dx:ASPxComboBox ID="ddl_DeliPoint" runat="server" Width="160px" ValueField="DptCode" ValueType="System.String" TextFormatString="{0} : {1}" EnableCallbackMode="true"
+                                            CallbackPageSize="25" DropDownRows="15" OnLoad="ddl_DeliPoint_Load">
                                             <Columns>
                                                 <dx:ListBoxColumn Caption="Code" FieldName="DptCode" Width="30px" />
                                                 <dx:ListBoxColumn Caption="Name" FieldName="Name" Width="240px" />
                                             </Columns>
                                         </dx:ASPxComboBox>
-									
                                         <asp:HiddenField ID="hf_DeliPoint" runat="server" />
                                     </div>
                                     <!--Currency Code-->
@@ -845,8 +846,8 @@
                                                 </div>
                                             </td>
                                             <td>
-                                                <dx:ASPxComboBox ID="ddl_CurrRate_av" runat="server" Width="80px" AutoPostBack="True" DropDownStyle="DropDown" IncrementalFilteringMode="Contains" ValueField="CurrencyRate" TextFormatString="{0:N6}"
-                                                    OnLoad="ddl_CurrRate_av_Load" OnSelectedIndexChanged="ddl_CurrRate_av_SelectedIndexChanged">
+                                                <dx:ASPxComboBox ID="ddl_CurrRate_av" runat="server" Width="80px" AutoPostBack="True" DropDownStyle="DropDown" IncrementalFilteringMode="Contains" ValueField="CurrencyRate"
+                                                    TextFormatString="{0:N6}" OnLoad="ddl_CurrRate_av_Load" OnSelectedIndexChanged="ddl_CurrRate_av_SelectedIndexChanged">
                                                     <Columns>
                                                         <dx:ListBoxColumn Caption="Rate" FieldName="CurrencyRate" />
                                                         <dx:ListBoxColumn Caption="Input Date" FieldName="InputDate" />
