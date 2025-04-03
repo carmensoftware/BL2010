@@ -2647,7 +2647,7 @@ ORDER BY
 
         protected string FormatQty(object sender)
         {
-            return string.Format("{0:N" + DefaultAmtDigit.ToString() + "}", Convert.ToDecimal(sender));
+            return string.Format("{0:N" + DefaultQtyDigit.ToString() + "}", Convert.ToDecimal(sender));
         }
 
         // Consumption
