@@ -79,6 +79,7 @@ namespace Blue.BL.dbo
             2025-04-30 = indochinephuket = 27
             2025-04-30 = belairebangkok = 11
             2025-04-30 = firaphuketbeachclub = 5
+            2025-04-30 = sztowerthai = 13
 
             2025-03-31 = tinbaron = 18
             2025-03-31 = hopinnth = 27
@@ -103,7 +104,6 @@ namespace Blue.BL.dbo
             --------- Expired -------------
             2025-01-31 = OKM = 50
             2025-01-31 = ramadadmabangkok = 19
-            2025-01-31 = sztowerthai = 13
             2025-01-31 = MHRH = 3
 
           
@@ -123,8 +123,8 @@ namespace Blue.BL.dbo
         
         */
 
-        private DateTime licenseExpiredDate = new DateTime(2025, 6, 30);
-        private int licenseActiveUser = 400;
+        private DateTime licenseExpiredDate = new DateTime(2025, 8, 31);
+        private int licenseActiveUser = 130;
 
         public User()
         {
