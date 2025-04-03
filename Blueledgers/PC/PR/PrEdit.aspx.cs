@@ -360,7 +360,7 @@ namespace BlueLedger.PL.PC.PR
                 }
             }
             //txt_PrDate.Text = DateTime.Parse(drPr["PrDate"].ToString()).ToString("dd/MM/yyyy");
-			txt_PrDate.Text = Convert.ToDateTime(drPr["PrDate"]).ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            txt_PrDate.Text = Convert.ToDateTime(drPr["PrDate"]).ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
             txt_PrDate.Enabled = (MODE.ToUpper() == "NEW"
                 //? workFlowDt.IsEnableEdit(wfId, wfStep, "PC.Pr.PRDate", hf_ConnStr.Value)
                 ? IsExistInField("PC.Pr.PRDate", "EnableField")
@@ -670,10 +670,10 @@ namespace BlueLedger.PL.PC.PR
                         if (DBNull.Value.Equals(drPrDt["ApprStatus"]))
                             drPrDt["ApprStatus"] = workFlow.GetDtApprStatus("PC", "PR", hf_ConnStr.Value);
                     }
-					
-					var dtUser = bu.DbExecuteQuery(string.Format("SELECT TOP(1) DepartmentCode FROM [ADMIN].vUser WHERE LoginName ='{0}'", LoginInfo.LoginName), null, hf_ConnStr.Value);
-					if (dtUser != null && dtUser.Rows.Count > 0)
-						drPr["HOD"] = dtUser.Rows[0][0].ToString();
+
+                    var dtUser = bu.DbExecuteQuery(string.Format("SELECT TOP(1) DepartmentCode FROM [ADMIN].vUser WHERE LoginName ='{0}'", LoginInfo.LoginName), null, hf_ConnStr.Value);
+                    if (dtUser != null && dtUser.Rows.Count > 0)
+                        drPr["HOD"] = dtUser.Rows[0][0].ToString();
                 }
 
                 if (MODE.ToUpper() == "EDIT")
@@ -704,7 +704,7 @@ namespace BlueLedger.PL.PC.PR
                 drPr["UpDatedDate"] = ServerDateTime;
                 drPr["UpdatedBy"] = LoginInfo.LoginName;
 
-               
+
 
                 drPr["AddField1"] = ddl_JobCode.SelectedIndex > -1 ? ddl_JobCode.Value.ToString() : string.Empty;
 
@@ -1419,10 +1419,20 @@ namespace BlueLedger.PL.PC.PR
 
             var lbl_ReqQty_av = grd_PR.FindControl("lbl_ReqQty_av") as Label;
             var lbl_ApprQty_av = (Label)grd_PR.FindControl("lbl_ApprQty_av");
+            var txt_ReqQty_av = grd_PR.FindControl("txt_ReqQty_av") as ASPxSpinEdit;
+            var txt_ApprQty_av = grd_PR.FindControl("txt_ApprQty_av") as ASPxSpinEdit;
 
-            lbl_ApprQty_av.Text = string.IsNullOrEmpty(lbl_ApprQty_av.Text) ? lbl_ReqQty_av.Text : lbl_ApprQty_av.Text;
+            var apprQty = 0m;
 
+            if (lbl_ReqQty_av != null)
+            {
+                apprQty = Convert.ToDecimal(string.IsNullOrEmpty(lbl_ApprQty_av.Text) ? lbl_ReqQty_av.Text : lbl_ApprQty_av.Text);
+            }
 
+            if (txt_ReqQty_av != null)
+            {
+                apprQty = txt_ApprQty_av.Number == 0m ? txt_ReqQty_av.Number : txt_ApprQty_av.Number;
+            }
 
             var vendorCode = gvr_SelectedPriceList.Cells[2].Text.Split(':')[0].Trim();
             var vendorName = gvr_SelectedPriceList.Cells[2].Text.Split(':')[1].Trim();
@@ -1430,101 +1440,15 @@ namespace BlueLedger.PL.PC.PR
             // Find PR detail bu code
             var drPrDt = dsPR.Tables[prDt.TableName].Rows[((GridViewRow)gvr_SelectedPriceList.Parent.Parent.Parent.Parent.Parent.Parent).DataItemIndex];
 
-            //// Find selected price list
-            //// Get Price List Data
-            //DateTime datePriceList = DateTime.Parse(txt_PrDate.Text);
-
-            //if (drPrDt["ProductCode"].ToString() != string.Empty)
-            //{
-            //    if (ddl_PrType.SelectedItem.Value == "1") //Marketlist
-            //    {
-            //        datePriceList = DateTime.Parse(drPrDt["ReqDate"].ToString());
-
-            //        if (LoginInfo.BuInfo.IsHQ)
-            //        {
-            //            priceList.GetListHQ(dsPriceList, LoginInfo.BuInfo.BuGrpCode, drPrDt["ProductCode"].ToString(),
-            //                DateTime.Parse(drPrDt["ReqDate"].ToString()), decimal.Parse(drPrDt["ReqQty"].ToString()),
-            //                drPrDt["OrderUnit"].ToString());
-            //        }
-            //        else
-            //        {
-            //            priceList.GetList(dsPriceList, drPrDt["ProductCode"].ToString(),
-            //                DateTime.Parse(drPrDt["ReqDate"].ToString()), decimal.Parse(drPrDt["ReqQty"].ToString()),
-            //                drPrDt["OrderUnit"].ToString(), LoginInfo.ConnStr);
-            //        }
-            //    }
-            //    else //Non market list
-            //    {
-            //        datePriceList = DateTime.Parse(txt_PrDate.Text);
-
-            //        if (LoginInfo.BuInfo.IsHQ)
-            //        {
-            //            priceList.GetListHQ(dsPriceList, LoginInfo.BuInfo.BuGrpCode, drPrDt["ProductCode"].ToString(),
-            //                DateTime.Parse(txt_PrDate.Text), decimal.Parse(drPrDt["ReqQty"].ToString()),
-            //                drPrDt["OrderUnit"].ToString());
-            //        }
-            //        else
-            //        {
-            //            priceList.GetList(dsPriceList, drPrDt["ProductCode"].ToString(),
-            //                DateTime.Parse(txt_PrDate.Text), decimal.Parse(drPrDt["ReqQty"].ToString()),
-            //                drPrDt["OrderUnit"].ToString(), LoginInfo.ConnStr);
-            //        }
-            //    }
-            //}
-
-
-            //if (dsPriceList.Tables[priceList.TableName].Rows.Count == 0)
-            //{
-            //    lbl_PopupAlert.Text = string.Format("Not found any Price List on date {0}", datePriceList.ToShortDateString());
-            //    pop_Alert.ShowOnPageLoad = true;
-
-            //    return;
-            //}
-
-            //// Store Selected Pricelist to DataRow
-            //var drPriceList = dsPriceList.Tables[priceList.TableName].Rows[gvr_SelectedPriceList.DataItemIndex];
-
-            //// Compare selected pricelist
-            //if (drPrDt["BuCode"].ToString().ToUpper() == gvr_SelectedPriceList.Cells[0].Text.Split(':')[0].Trim().ToUpper())
-            //{
-            //    // Use own price list
-            //    // Do nothing, ready to assign selected price list to pr detail.
-            //}
-            //else
-            //{
-            //    // Use price list of other properties
-            //    // Check Exist Vendor                
-            //    var getVendor = vendor.IsExist(ref vendorCode, ref vendorName,
-            //        bu.GetConnectionString(drPrDt["BuCode"].ToString()));
-
-            //    // Vendor Not Exist or Unknow Occur
-            //    if (!getVendor)
-            //    {
-            //        if (vendorName != string.Empty)
-            //        {
-            //            // Display "Vendor is not exist in [BU Name], please add [VendorName] profile to [BU Name]"
-
-
-            //            Session["drPrDt"] = drPrDt;
-            //            Session["drPriceList"] = drPriceList;
-            //            Session["dsPriceList"] = dsPriceList;
-
-            //            pop_AddPriceLst.ShowOnPageLoad = true;
-            //            return;
-            //        }
-            //        // Display "Unknow Error Occurs, please contact admin"
-            //        return;
-            //    }
-            //}
             string price = gvr_SelectedPriceList.Cells[5].Text;
             string discPercent = gvr_SelectedPriceList.Cells[6].Text;
             string discAmt = gvr_SelectedPriceList.Cells[7].Text;
             string focQty = gvr_SelectedPriceList.Cells[8].Text;
 
-            string taxType = gvr_SelectedPriceList.Cells[11].Text;
-            string taxRate = gvr_SelectedPriceList.Cells[12].Text;
-            string currencyCode = gvr_SelectedPriceList.Cells[13].Text;
-            string currencyRate = gvr_SelectedPriceList.Cells[14].Text;
+            string taxType = gvr_SelectedPriceList.Cells[9].Text;
+            string taxRate = gvr_SelectedPriceList.Cells[10].Text;
+            string currencyCode = gvr_SelectedPriceList.Cells[11].Text;
+            string currencyRate = gvr_SelectedPriceList.Cells[12].Text;
 
             price = string.IsNullOrEmpty(price) ? "0" : price;
             discPercent = string.IsNullOrEmpty(discPercent) ? "0" : discPercent;
@@ -1540,21 +1464,7 @@ namespace BlueLedger.PL.PC.PR
 
 
             // Assign Selected Price list to PR Detail.
-            drPrDt["VendorCode"] = vendorCode;
-            //drPrDt["FOCQty"] = drPriceList["FOC"];
-            //drPrDt["Price"] = drPriceList["Price"];
-            //drPrDt["TaxType"] = drPriceList["Tax"].ToString();
-            //drPrDt["TaxRate"] = drPriceList["TaxRate"].ToString();
-            //drPrDt["DiscPercent"] = (drPriceList["DiscountPercent"].ToString() == string.Empty
-            //    ? "0.00"
-            //    : drPriceList["DiscountPercent"].ToString());
-            //drPrDt["DiscAmt"] = (drPriceList["DiscountAmt"].ToString() == string.Empty
-            //    ? "0.00"
-            //    : drPriceList["DiscountAmt"].ToString());
-            //drPrDt["CurrencyCode"] = drPriceList["CurrencyCode"].ToString();
-            //drPrDt["CurrencyRate"] = drPriceList["CurrencyRate"].ToString();
-
-
+            drPrDt["VendorCode"] = vendorCode.Trim();
             drPrDt["FOCQty"] = Convert.ToDecimal(focQty);
             drPrDt["Price"] = Convert.ToDecimal(price);
             drPrDt["TaxType"] = taxType;
@@ -1564,21 +1474,14 @@ namespace BlueLedger.PL.PC.PR
             drPrDt["CurrencyCode"] = currencyCode;
             drPrDt["CurrencyRate"] = Convert.ToDecimal(currencyRate);
 
-
-            //drPrDt["ApprQty"] = decimal.Parse(lbl_ReqQty_av.Text);
-            drPrDt["ApprQty"] = decimal.Parse(lbl_ApprQty_av.Text);
+            //drPrDt["ApprQty"] = decimal.Parse(lbl_ApprQty_av.Text);
+            drPrDt["ApprQty"] = apprQty;
 
             var DiscAmt = decimal.Parse(drPrDt["DiscAmt"].ToString());
             var DiscPercent = decimal.Parse(drPrDt["DiscPercent"].ToString());
             var ApprQty = decimal.Parse(drPrDt["ApprQty"].ToString());
 
-            // Modified on: 10/08/2017, By: Fon
-            // var Price = decimal.Parse(drPrDt["Price"].ToString());
-            // var price = decimal.Parse(drPrDt["Price"].ToString());
-            // var priceRate = price * currency.GetLastCurrencyRate(drPriceList["CurrencyCode"].ToString(), Convert.ToDateTime(txt_PrDate.Text), LoginInfo.ConnStr);
             var priceRate = Convert.ToDecimal(price) * Convert.ToDecimal(currencyRate);
-            //drPrDt["CurrencyAmt"] = price * ApprQty;
-            // Ens Modified.
 
             // Update DiscPercent and DiscAmt                
             if (DiscAmt == 0 && DiscPercent > 0)
@@ -1602,34 +1505,11 @@ namespace BlueLedger.PL.PC.PR
             var discPerUnit = (priceRate * DiscPercent) / 100;
             var calAmt = CalAmt(priceRate, DiscAmt, decimal.Parse(drPrDt["ApprQty"].ToString()));
 
-            //drPrDt["TotalAmt"] = Amount(drPrDt["TaxType"].ToString(),
-            //    decimal.Parse(drPrDt["TaxRate"].ToString())
-            //    , priceRate, discPerUnit, decimal.Parse(drPrDt["ApprQty"].ToString()));
 
-            //drPrDt["NetAmt"] = NetAmt(drPrDt["TaxType"].ToString(),
-            //    decimal.Parse(drPrDt["TaxRate"].ToString())
-            //    , priceRate, discPerUnit, decimal.Parse(drPrDt["ApprQty"].ToString()));
-
-            //drPrDt["TaxAmt"] = TaxAmt(drPrDt["TaxType"].ToString(),
-            //    decimal.Parse(drPrDt["TaxRate"].ToString())
-            //    , priceRate, discPerUnit, decimal.Parse(drPrDt["ApprQty"].ToString()));
-
-
-
-
-            drPrDt["CurrNetAmt"] = NetAmt(drPrDt["TaxType"].ToString(),
-                decimal.Parse(drPrDt["TaxRate"].ToString())
-                , priceRate, discPerUnit, decimal.Parse(drPrDt["ApprQty"].ToString()));
-
+            drPrDt["CurrNetAmt"] = NetAmt(drPrDt["TaxType"].ToString(), decimal.Parse(drPrDt["TaxRate"].ToString()), priceRate, discPerUnit, decimal.Parse(drPrDt["ApprQty"].ToString()));
             drPrDt["CurrDiscAmt"] = drPrDt["DiscAmt"];
-
-            drPrDt["CurrTaxAmt"] = TaxAmt(drPrDt["TaxType"].ToString(),
-                decimal.Parse(drPrDt["TaxRate"].ToString())
-                , priceRate, discPerUnit, decimal.Parse(drPrDt["ApprQty"].ToString()));
-
-            drPrDt["CurrTotalAmt"] = Amount(drPrDt["TaxType"].ToString(),
-                decimal.Parse(drPrDt["TaxRate"].ToString())
-                , priceRate, discPerUnit, decimal.Parse(drPrDt["ApprQty"].ToString()));
+            drPrDt["CurrTaxAmt"] = TaxAmt(drPrDt["TaxType"].ToString(), decimal.Parse(drPrDt["TaxRate"].ToString()), priceRate, discPerUnit, decimal.Parse(drPrDt["ApprQty"].ToString()));
+            drPrDt["CurrTotalAmt"] = Amount(drPrDt["TaxType"].ToString(), decimal.Parse(drPrDt["TaxRate"].ToString()), priceRate, discPerUnit, decimal.Parse(drPrDt["ApprQty"].ToString()));
 
             decimal currRate = Convert.ToDecimal(drPrDt["CurrencyRate"].ToString());
             if (currRate == 0)
@@ -2934,10 +2814,11 @@ namespace BlueLedger.PL.PC.PR
                 }
 
                 // Vendor
+                var vendorCode = DataBinder.Eval(e.Row.DataItem, "VendorCode").ToString().Trim();
+
                 if (e.Row.FindControl("lbl_Vendor_av") != null)
                 {
                     var lbl_Vendor_av = e.Row.FindControl("lbl_Vendor_av") as Label;
-                    var vendorCode = DataBinder.Eval(e.Row.DataItem, "VendorCode").ToString();
                     var vendorName = string.IsNullOrEmpty(vendorCode) ? string.Empty : vendor.GetName(vendorCode, buConnStr);
 
                     lbl_Vendor_av.Visible = true;
@@ -2945,15 +2826,25 @@ namespace BlueLedger.PL.PC.PR
                     lbl_Vendor_av.ToolTip = lbl_Vendor_av.Text;
                 }
 
+
                 if (e.Row.FindControl("ddl_Vendor_av") != null)
                 {
-                    var ddl_ProductCode_av = e.Row.FindControl("ddl_ProductCode_av") as ASPxComboBox;
                     var ddl_Vendor_av = e.Row.FindControl("ddl_Vendor_av") as ASPxComboBox;
 
-                    ddl_ProductCode_av.Value = DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString();
-                    ddl_Vendor_av.Value = DataBinder.Eval(e.Row.DataItem, "VendorCode").ToString();
+                    ddl_Vendor_av.Value = vendorCode;
                     ddl_Vendor_av.ToolTip = ddl_Vendor_av.Text;
                 }
+
+
+                //if (e.Row.FindControl("ddl_Vendor_av") != null)
+                //{
+                //    var ddl_ProductCode_av = e.Row.FindControl("ddl_ProductCode_av") as ASPxComboBox;
+                //    var ddl_Vendor_av = e.Row.FindControl("ddl_Vendor_av") as ASPxComboBox;
+
+                //    ddl_ProductCode_av.Value = DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString();
+                //    ddl_Vendor_av.Value = DataBinder.Eval(e.Row.DataItem, "VendorCode").ToString();
+                //    ddl_Vendor_av.ToolTip = ddl_Vendor_av.Text;
+                //}
 
                 // Location
                 if (e.Row.FindControl("lbl_LocationCode_av") != null)
@@ -2965,9 +2856,14 @@ namespace BlueLedger.PL.PC.PR
                                                storeLct.GetName(DataBinder.Eval(e.Row.DataItem, "LocationCode").ToString(), buConnStr);
                     lbl_LocationCode_av.ToolTip = lbl_LocationCode_av.Text;
                 }
+
+                var productCode = DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString().Trim();
+
+
                 if (e.Row.FindControl("ddl_LocationCode_av") != null)
                 {
                     var ddl_LocationCode_av = e.Row.FindControl("ddl_LocationCode_av") as ASPxComboBox;
+
                     ddl_LocationCode_av.Visible = !IsExistInField("PC.PrDt.LocationCode", controlHide);
                     ddl_LocationCode_av.Enabled = IsExistInField("PC.PrDt.LocationCode", controlEnable);
                     ddl_LocationCode_av.Value = DataBinder.Eval(e.Row.DataItem, "LocationCode").ToString().Trim();
@@ -2979,10 +2875,28 @@ namespace BlueLedger.PL.PC.PR
                         ddl_ProductCode_av.DataSource = product.GetLookUp_ByLocationCodeCateType(ddl_PrType.Value.ToString(), DataBinder.Eval(e.Row.DataItem, "LocationCode").ToString(), buConnStr);
                         ddl_ProductCode_av.DataBind();
 
+                        ddl_ProductCode_av.Value = productCode;
+                        ddl_ProductCode_av.ToolTip = ddl_ProductCode_av.Text;
+
+                        ddl_ProductCode_av.Visible = !IsExistInField("PC.PrDt.ProductCode", controlHide);
+                        ddl_ProductCode_av.Enabled = IsExistInField("PC.PrDt.ProductCode", controlEnable);
                     }
 
-
                 }
+
+                //if (e.Row.FindControl("ddl_ProductCode_av") != null)
+                //{
+                //    var ddl_ProductCode_av = e.Row.FindControl("ddl_ProductCode_av") as ASPxComboBox;
+
+                //    if (Request.Params["ID"] != null)
+                //    {
+                //        ddl_ProductCode_av.Visible = !IsExistInField("PC.PrDt.ProductCode", controlHide);
+                //        ddl_ProductCode_av.Enabled = IsExistInField("PC.PrDt.ProductCode", controlEnable);
+
+                //        ddl_ProductCode_av.Value = DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString();
+                //    }
+                //}
+
 
                 // Product
                 if (e.Row.FindControl("lbl_SKU_av") != null)
@@ -2998,18 +2912,9 @@ namespace BlueLedger.PL.PC.PR
                     lbl_SKU_av.ToolTip = lbl_SKU_av.Text;
                     //}
                 }
-                if (e.Row.FindControl("ddl_ProductCode_av") != null)
-                {
-                    var ddl_ProductCode_av = e.Row.FindControl("ddl_ProductCode_av") as ASPxComboBox;
 
-                    if (Request.Params["ID"] != null)
-                    {
-                        ddl_ProductCode_av.Visible = !IsExistInField("PC.PrDt.ProductCode", controlHide);
-                        ddl_ProductCode_av.Enabled = IsExistInField("PC.PrDt.ProductCode", controlEnable);
 
-                        ddl_ProductCode_av.Value = DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString();
-                    }
-                }
+
                 // Description
                 if (e.Row.FindControl("lbl_DescEN_av") != null)
                 {
@@ -4067,6 +3972,7 @@ namespace BlueLedger.PL.PC.PR
 
             // Added on: 18/01/2018
             bool isAllocateVendor = Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["IsAllocateVendor"]);
+
             if (isAllocateVendor)
             {
                 ASPxComboBox ddl_Vendor_av = (ASPxComboBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_Vendor_av");
@@ -5243,20 +5149,6 @@ namespace BlueLedger.PL.PC.PR
         protected void ddl_JobCode_OnItemsRequestedByFilterCondition_SQL(object source, ListEditItemsRequestedByFilterConditionEventArgs e)
         {
             var ddl_JobCode = source as ASPxComboBox;
-            //var dsJobCode = new DataSet();
-            //var result = jobCode.GetJobCodeList(dsJobCode, e.Filter, (e.BeginIndex + 1).ToString(), (e.EndIndex + 1).ToString(), LoginInfo.ConnStr);
-
-            //if (result)
-            //{
-            //    ddl_JobCode.DataSource = dsJobCode.Tables[jobCode.TableName];
-            //    ddl_JobCode.DataBind();
-            //    ddl_JobCode.ToolTip = ddl_JobCode.Text;
-
-            //    //Added on: 2017/03/29, By: Fon, for that ddl have only 1 list.
-            //    if (dsJobCode.Tables[jobCode.TableName].Rows.Count == 1)
-            //        ddl_JobCode.SelectedIndex = 0;
-            //}
-
 
             string sqlText = string.Empty;
 
@@ -5317,84 +5209,72 @@ namespace BlueLedger.PL.PC.PR
 
         protected void ddl_Vendor_av_Load(object sender, EventArgs e)
         {
-            // if (Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["IsAllocateVendor"]))
-            // {
-                // var ComboBox = sender as ASPxComboBox;
-                // var txt_ReqQty_av = ComboBox.Parent.Parent.Parent.FindControl("txt_ReqQty_av") as ASPxSpinEdit;
-                // var buCode = dsPR.Tables[prDt.TableName].Rows[((GridViewRow)ComboBox.NamingContainer).DataItemIndex]["BuCode"].ToString();
-                // var drPrDtEdit = dsPR.Tables[prDt.TableName].Rows[((GridViewRow)ComboBox.Parent.Parent.Parent).DataItemIndex];
-				
-				// var dt = vendor.DbExecuteQuery("SELECT VendorCode, Name FROM [AP].Vendor WHERE IsActive = 1", null, LoginInfo.ConnStr);
+            var ddl = sender as ASPxComboBox;
 
+            var dt = bu.DbExecuteQuery("SELECT VendorCode, [Name], [Description] AS Branch FROM AP.Vendor WHERE IsActive = 1 ORDER BY VendorCode", null, hf_ConnStr.Value);
 
+            ddl.DataSource = dt;
+            ddl.ValueField = "VendorCode";
+            ddl.DataBind();
 
-                // ComboBox.DataSource = dt;
-				// //ComboBox.DataSource = vendor.GetLookUp(LoginInfo.ConnStr);
-                // ComboBox.DataBind();
-            // }
-
-        }
-		
-		protected void ddl_Vendor_av_Load1(object sender, EventArgs e)
-        {
-            if (Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["IsAllocateVendor"]))
-            {
-                var ComboBox = sender as ASPxComboBox;
-                var txt_ReqQty_av = ComboBox.Parent.Parent.Parent.FindControl("txt_ReqQty_av") as ASPxSpinEdit;
-                var buCode = dsPR.Tables[prDt.TableName].Rows[((GridViewRow)ComboBox.NamingContainer).DataItemIndex]["BuCode"].ToString();
-                var drPrDtEdit = dsPR.Tables[prDt.TableName].Rows[((GridViewRow)ComboBox.Parent.Parent.Parent).DataItemIndex];
-				
-				var dt = vendor.DbExecuteQuery("SELECT VendorCode, Name FROM [AP].Vendor WHERE IsActive = 1", null, LoginInfo.ConnStr);
-
-
-
-                ComboBox.DataSource = dt;
-				//ComboBox.DataSource = vendor.GetLookUp(LoginInfo.ConnStr);
-                ComboBox.DataBind();
-            }
 
         }
 
 
         protected void ddl_Vendor_av_OnItemsRequestedByFilterCondition_SQL(object source, ListEditItemsRequestedByFilterConditionEventArgs e)
         {
-                            var comboBox = (ASPxComboBox)source;
+            var comboBox = (ASPxComboBox)source;
 
-                            SqlDataSource1.ConnectionString = LoginInfo.ConnStr;
+            SqlDataSource1.ConnectionString = LoginInfo.ConnStr;
+            SqlDataSource1.SelectCommand =
+@"SELECT 
+    VendorCode, 
+    Name, 
+    [Description] AS Branch
+FROM 
+    (
+        SELECT 
+            VendorCode, 
+            Name, 
+            [Description], 
+            ROW_NUMBER() OVER(ORDER BY VendorCode) as rn 
+        FROM 
+            [AP].[Vendor] 
+        WHERE 
+            IsActive = 1
+            AND (LTRIM(RTRIM(VendorCode)) LIKE @filter OR [Name] LIKE @filter)
+    ) as st
+WHERE 
+    st.[rn] BETWEEN @startIndex AND @endIndex";
 
-                            SqlDataSource1.SelectCommand = 
-                                @"SELECT VendorCode, Name , [Description] AS Branch
-                                FROM (SELECT VendorCode, Name, [Description], ROW_NUMBER() OVER(ORDER BY VendorCode) as rn 
-                                      FROM [AP].[Vendor] 
-                        	          WHERE (VendorCode + ' ' + Name LIKE @filter) AND IsActive = 1) as st
-                                WHERE st.[rn] BETWEEN @startIndex AND @endIndex";
-
-                            SqlDataSource1.SelectParameters.Clear();
-                            SqlDataSource1.SelectParameters.Add("filter", TypeCode.String, string.Format("%{0}%", e.Filter));
-                            SqlDataSource1.SelectParameters.Add("startIndex", TypeCode.Int64, (e.BeginIndex + 1).ToString());
-                            SqlDataSource1.SelectParameters.Add("endIndex", TypeCode.Int64, (e.EndIndex + 1).ToString());
-                            comboBox.DataSource = SqlDataSource1;
-                            comboBox.DataBind();
-                            comboBox.ToolTip = comboBox.Text;
+            SqlDataSource1.SelectParameters.Clear();
+            SqlDataSource1.SelectParameters.Add("filter", TypeCode.String, string.Format("%{0}%", e.Filter.Trim()));
+            SqlDataSource1.SelectParameters.Add("startIndex", TypeCode.Int64, (e.BeginIndex + 1).ToString());
+            SqlDataSource1.SelectParameters.Add("endIndex", TypeCode.Int64, (e.EndIndex + 1).ToString());
+            
+            comboBox.DataSource = SqlDataSource1;
+            comboBox.DataBind();
+            comboBox.ToolTip = comboBox.Text;
 
         }
 
         protected void ddl_Vendor_av_OnItemRequestedByValue_SQL(object source, ListEditItemRequestedByValueEventArgs e)
         {
-                var comboBox = (ASPxComboBox)source;
+            if (e.Value == null)
+                return;
 
-                if (e.Value == null)
-                    return;
+            var comboBox = (ASPxComboBox)source;
 
-                SqlDataSource1.SelectCommand = @"SELECT VendorCode, Name , [Description] AS Branch FROM [AP].[Vendor] WHERE VendorCode = @VendorCode ";
-                SqlDataSource1.ConnectionString = LoginInfo.ConnStr;
-                SqlDataSource1.SelectParameters.Clear();
-                SqlDataSource1.SelectParameters.Add("VendorCode", TypeCode.String, e.Value.ToString());
-                comboBox.DataSource = SqlDataSource1;
-                comboBox.DataBind();
-                comboBox.ToolTip = comboBox.Text;
+            SqlDataSource1.ConnectionString = LoginInfo.ConnStr;
+            SqlDataSource1.SelectCommand = @"SELECT VendorCode, Name , [Description] AS Branch FROM [AP].[Vendor] WHERE LTRIM(RTRIM(VendorCode)) = @VendorCode ";
+            SqlDataSource1.SelectParameters.Clear();
+            SqlDataSource1.SelectParameters.Add("VendorCode", TypeCode.String, e.Value.ToString().Trim());
 
-          
+            comboBox.DataSource = SqlDataSource1;
+            comboBox.DataBind();
+            comboBox.ToolTip = comboBox.Text;
+
+
         }
 
         #endregion

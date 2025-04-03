@@ -59,8 +59,18 @@ public partial class RPT_PrintForm : BasePage
         //    report.SetParameterValue("ID", item);
         //    report.Prepare(true);
         //}
+        if(id.IndexOf(',') > 0)
+        {
+            var items = id.Split(',');
 
-        if (id.Length > 30)
+            foreach (var item in items)
+            {
+                report.Load(Server.MapPath("~/App_Files/Reports").TrimEnd('/') + "/" + reportName);
+                report.SetParameterValue("ID", item);
+                report.Prepare(true);
+            }
+        }
+        else if (id.Length > 30)
         {
             var list = Session[id].ToString();
             var items = list.Split(',');
