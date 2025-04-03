@@ -340,9 +340,8 @@
                             <HeaderStyle Width="140px" />
                             <ItemStyle Width="140px" />
                         </asp:TemplateField>
-                                                <%-- DtNo --%>
+                        <%-- DtNo --%>
                         <asp:BoundField HeaderText="No." DataField="PrDtNo" ItemStyle-Width="30" />
-
                         <%--Detail--%>
                         <asp:TemplateField>
                             <HeaderTemplate>
