@@ -454,11 +454,17 @@ namespace BlueLedger.PL.UserControls
                     // Check Onhand
                     if (WfStep < wfStepCount) continue;
 
-                    var get = _prDt.GetStockSummary(Ds, dtSchema[j]["ProductCode"].ToString()
-                        , Ds.Tables[TableSchema].Rows[0]["LocationCode"].ToString(), sDate, ConnStr);
-                    var onHand = decimal.Parse(Ds.Tables[_prDt.TableName].Rows[0]["OnHand"].ToString() == string.Empty
-                        ? "0"
-                        : Ds.Tables[_prDt.TableName].Rows[0]["OnHand"].ToString());
+                    var get = _prDt.GetStockSummary(Ds, dtSchema[j]["ProductCode"].ToString(), Ds.Tables[TableSchema].Rows[0]["LocationCode"].ToString(), sDate, ConnStr);
+
+                    var onHand = 0m;
+
+                    if (Ds.Tables[_prDt.TableName].Rows.Count > 0)
+                    {
+
+                        onHand = decimal.Parse(Ds.Tables[_prDt.TableName].Rows[0]["OnHand"].ToString() == string.Empty
+                            ? "0"
+                            : Ds.Tables[_prDt.TableName].Rows[0]["OnHand"].ToString());
+                    }
 
                     // Check null Approve qty
                     if (string.IsNullOrEmpty(dtSchema[j]["allocateQty"].ToString()))

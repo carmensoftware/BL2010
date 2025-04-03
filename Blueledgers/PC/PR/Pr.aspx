@@ -368,6 +368,8 @@
     <asp:UpdatePanel ID="UpdatePanel1" runat="server">
         <ContentTemplate>
             <asp:GridView ID="grd_PRDt1" runat="server" AutoGenerateColumns="False" SkinID="GRD_V1" OnRowDataBound="grd_PRDt1_RowDataBound">
+                <HeaderStyle HorizontalAlign="Left" VerticalAlign="Top" />
+                <RowStyle HorizontalAlign="Left" VerticalAlign="Top" />
                 <Columns>
                     <%--Expand Button--%>
                     <asp:TemplateField HeaderText="#">
@@ -388,6 +390,8 @@
                         <HeaderStyle HorizontalAlign="Center" Width="10px" />
                         <ItemStyle HorizontalAlign="Center" Width="10px" />
                     </asp:TemplateField>
+                    <asp:BoundField HeaderText="No#" DataField="PrDtNo">
+                    </asp:BoundField>
                     <%--Vendor--%>
                     <asp:TemplateField HeaderText="<%$ Resources:PC_PR_Pr, lbl_Vendor_Grd_Nm %>">
                         <ItemTemplate>
@@ -507,7 +511,6 @@
                         </FooterTemplate>
                     </asp:TemplateField>
                     <%--ReqDate--%>
-                    <%--<asp:BoundField DataField="ReqDate" HeaderText="<%$ Resources:PC_PR_Pr, lbl_DelivDate_Grd_Nm %>" DataFormatString="{0:d}">--%>
                     <asp:BoundField DataField="ReqDate" HeaderText="Delivery on" DataFormatString="{0:d}">
                         <HeaderStyle HorizontalAlign="Left" Width="250px" />
                         <ItemStyle HorizontalAlign="Left" Width="250px" />
@@ -847,7 +850,6 @@
             </asp:GridView>
         </ContentTemplate>
     </asp:UpdatePanel>
-    
     <%--Total Summary --%>
     <div style="display: flex; justify-content: flex-end;">
         <uc:TotalSummary runat="server" ID="TotalSummary" />
