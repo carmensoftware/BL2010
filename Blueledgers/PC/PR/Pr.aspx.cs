@@ -713,15 +713,15 @@ namespace BlueLedger.PL.PC.PR
         {
             // Display/Hide Edit TabPage in Edit Form
             // if (viewHandler.GetWFStep(int.Parse(Request.Cookies["[PC].[vPrList]"].Value.ToString()), hf_ConnStr.Value) <
-            // 2)
+                // 2)
             // {
-            // pc_Prdt.TabPages[1].Enabled = false; // Hide Allocate Buyer
+                // pc_Prdt.TabPages[1].Enabled = false; // Hide Allocate Buyer
             // }
 
             // if (viewHandler.GetWFStep(int.Parse(Request.Cookies["[PC].[vPrList]"].Value.ToString()), hf_ConnStr.Value) <
-            // 3)
+                // 3)
             // {
-            // pc_Prdt.TabPages[2].Enabled = false; // Hide Allocate Vendor
+                // pc_Prdt.TabPages[2].Enabled = false; // Hide Allocate Vendor
             // }
         }
 
@@ -1133,6 +1133,100 @@ namespace BlueLedger.PL.PC.PR
             RejectItems(true);
         }
 
+        private void RejectItems(bool sendMail)
+        {
+            var rejectItemCount = 0;
+
+            var sbPrDtNo = new StringBuilder();
+
+            for (var i = 0; i <= grd_PRDt1.Rows.Count - 1; i++)
+            {
+                var Chk_Item = (CheckBox)grd_PRDt1.Rows[i].Cells[0].FindControl("Chk_Item");
+
+                if (Chk_Item.Checked)
+                {
+                    var drReject = dsPR.Tables[prDt.TableName].Rows[grd_PRDt1.Rows[i].DataItemIndex];
+
+                    if (drReject["ApprStatus"].ToString().Contains('R'))
+                    {
+                        continue;
+                    }
+
+                    var Step = (wfStep - 1) * 10;
+
+                    if (wfStep > 1)
+                    {
+                        if (!drReject["ApprStatus"].ToString().Substring(Step).StartsWith("_"))
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            rejectItemCount++;
+                        }
+                    }
+
+                    sbPrDtNo.Append((sbPrDtNo.Length > 0
+                        ? ", " + drReject["PRDtNo"].ToString() + " "
+                        : drReject["PRDtNo"].ToString()));
+
+                    var dbParams = new Blue.DAL.DbParameter[5];
+                    dbParams[0] = new Blue.DAL.DbParameter("@PrNo", dsPR.Tables[pr.TableName].Rows[0]["PRNo"].ToString());
+                    //dbParams[1] = new Blue.DAL.DbParameter("@PrDtNo", sbPrDtNo.ToString());
+                    dbParams[1] = new Blue.DAL.DbParameter("@PrDtNo", drReject["PrDtNo"].ToString());
+                    dbParams[2] = new Blue.DAL.DbParameter("@Step", wfStep.ToString());
+                    dbParams[3] = new Blue.DAL.DbParameter("@LoginName", LoginInfo.LoginName);
+                    dbParams[4] = new Blue.DAL.DbParameter("@Comment", txt_RejectMessage.Text.Trim());
+
+                    // Modified on: 10/10/2017, By: Fon
+                    //workFlowDt.ExcecuteApprRule("APP.WF_PR_REJECT", dbParams, hf_ConnStr.Value);
+                    string spRej = workFlowDt.GetRejRule(wfId, wfStep, LoginInfo.ConnStr);
+                    if (spRej != string.Empty)
+                        workFlowDt.ExcecuteApprRule(spRej, dbParams, hf_ConnStr.Value);
+                    else
+                        return;
+                    // End Modified.
+                }
+            }
+
+
+            pop_Reject.ShowOnPageLoad = false;
+            pop_ConfirmReject.ShowOnPageLoad = false;
+
+            // Added on: 2017/05/23, By: Fon
+            // Send email
+
+            if (sendMail)
+            {
+
+                bool sentComplete = true;
+                bool isSentEmail = Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["SentEmail"]);
+
+                if (isSentEmail)
+                {
+                    lbl_hide_action.Text = "Redirect".ToUpper();
+                    lbl_hide_value.Text = rejectItemCount == dsPR.Tables[prDt.TableName].Rows.Count ? "true" : "false";
+
+                    //sentComplete = SendEmail("R");
+                    sentComplete = SendEmailWorkflow.Send("R", prNo, wfId, wfStep, LoginInfo.LoginName, hf_ConnStr.Value);
+                }
+
+                if (sentComplete)
+                {
+                    Response.Redirect("PrList.aspx");
+                    //// Origin ver.
+                    //if (rejectItemCount == dsPR.Tables[prDt.TableName].Rows.Count)
+                    //{
+                    //    Response.Redirect("PrList.aspx");
+                    //}
+                    //else
+                    //{
+                    //    Page_Retrieve();
+                    //}
+                }
+            }
+        }
+
         protected void btn_CancelReject_Click(object sender, EventArgs e)
         {
             pop_ConfirmReject.ShowOnPageLoad = false;
@@ -1169,7 +1263,7 @@ namespace BlueLedger.PL.PC.PR
 
         protected void btn_ConfirmApprove_Click(object sender, EventArgs e)
         {
-            Approve();
+            ConfirmApprove();
         }
 
         private void SplitAndRejectItems()
@@ -1326,6 +1420,192 @@ namespace BlueLedger.PL.PC.PR
                 return string.Empty;
         }
 
+        private void ConfirmApprove()
+        {
+            var step = (wfStep - 1) * 10;
+            var confirmApproveCount = 0;
+            var approveCount = 0;
+            var noSelectedVendorCount = 0;
+
+            bool isAllocateVendor = Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["IsAllocateVendor"]);
+
+            if (wfStep > 1)
+            {
+                if (isAllocateVendor)
+                {
+                    #region Allocated Vendor Process
+                    for (var i = 0; i <= grd_PRDt1.Rows.Count - 1; i++)
+                    {
+                        var Chk_Item = (CheckBox)grd_PRDt1.Rows[i].Cells[0].FindControl("Chk_Item");
+
+                        //if (Chk_Item.Checked)
+                        if (Chk_Item.Checked && Chk_Item.Visible)
+                        {
+                            var drApprove = dsPR.Tables[prDt.TableName].Rows[grd_PRDt1.Rows[i].DataItemIndex];
+                            var apprStatus = drApprove["ApprStatus"].ToString();
+
+                            bool isRejected = apprStatus.Contains('R');
+                            bool isSendBack = apprStatus.Length >= wfStep * 10 + 10 ? !apprStatus.Substring(wfStep * 10, 10).Contains('_') : false;
+
+                            confirmApproveCount++;
+                            if (isRejected || isSendBack)
+                                continue;
+
+                            if (drApprove["VendorCode"].ToString().Trim() == "")
+                            {
+                                //NotApprove++;
+                                noSelectedVendorCount++;
+                                continue;
+                            }
+                            else
+                            {
+                                approveCount++;
+                            }
+
+                            var dbParams = new Blue.DAL.DbParameter[3];
+                            dbParams[0] = new Blue.DAL.DbParameter("@PrNo", dsPR.Tables[pr.TableName].Rows[0]["PRNo"].ToString());
+                            dbParams[1] = new Blue.DAL.DbParameter("@PrDtNo", drApprove["PRDtNo"].ToString());
+                            dbParams[2] = new Blue.DAL.DbParameter("@LoginName", LoginInfo.LoginName);
+
+                            // Modified on: 10/10/2017, By: Fon
+                            // workFlowDt.ExcecuteApprRule("APP.WF_PR_APPR_STEP_" + wfStep, dbParams, hf_ConnStr.Value);
+                            string apprRules = wfDt.GetApprRule(wfId, wfStep, LoginInfo.ConnStr);
+                            if (apprRules != string.Empty)
+                                workFlowDt.ExcecuteApprRule(apprRules, dbParams, hf_ConnStr.Value);
+                            else
+                                return;
+                            // End Mdoified     
+                        }
+                    }
+
+                    if (noSelectedVendorCount == confirmApproveCount)
+                    {
+                        lbl_Approve_Chk.Text = "No vendor is assigned.";
+
+                    }
+                    //Count Approve.
+                    //else if (Approve == 0 && NotApprove >= 0)
+                    else if (approveCount == 0 && noSelectedVendorCount >= 0)
+                    {
+                        lbl_Approve_Chk.Text = "No item is approved.";
+                    }
+                    //else if (Approve > 0 && NotApprove == 0)
+                    else if (approveCount > 0 && noSelectedVendorCount == 0)
+                    {
+                        lbl_Approve_Chk.Text = "Approval is successful.";
+                    }
+                    //else if (Approve > 0 && NotApprove > 0)
+                    else if (approveCount > 0 && noSelectedVendorCount > 0)
+                    {
+                        //lbl_Approve_Chk.Text = Approve + " item(s) are approved.<br>" + NotApprove + " item(s) are not approved.";
+                        lbl_Approve_Chk.Text = approveCount + " item(s) are approved.<br>" + noSelectedVendorCount + " item(s) are not approved.";
+                    }
+                    #endregion
+                }
+                else
+                {
+                    #region Standard Process
+                    for (var i = 0; i <= grd_PRDt1.Rows.Count - 1; i++)
+                    {
+                        var Chk_Item = (CheckBox)grd_PRDt1.Rows[i].Cells[0].FindControl("Chk_Item");
+
+                        //if (Chk_Item.Checked)
+                        if (Chk_Item.Checked && Chk_Item.Visible)
+                        {
+                            var drApprove = dsPR.Tables[prDt.TableName].Rows[grd_PRDt1.Rows[i].DataItemIndex];
+
+                            bool isRejected = drApprove["ApprStatus"].ToString().Contains('R');
+                            bool isApproved = drApprove["ApprStatus"].ToString().Substring(step).StartsWith("A");
+                            bool isSendBack = false;
+
+                            if (drApprove["ApprStatus"].ToString().Length > (wfStep * 10))
+                                if (!drApprove["ApprStatus"].ToString().Substring(wfStep * 10, 10).Contains('_'))
+                                    isSendBack = true;
+
+                            confirmApproveCount++;
+                            if (isRejected || isApproved || isSendBack)
+                                continue;
+
+                            var dbParams = new Blue.DAL.DbParameter[3];
+                            dbParams[0] = new Blue.DAL.DbParameter("@PrNo",
+                                dsPR.Tables[pr.TableName].Rows[0]["PRNo"].ToString());
+                            dbParams[1] = new Blue.DAL.DbParameter("@PrDtNo", drApprove["PRDtNo"].ToString());
+                            dbParams[2] = new Blue.DAL.DbParameter("@LoginName", LoginInfo.LoginName);
+
+                            // Modified on: 10/10/2017, By: Fon
+                            string apprRules = wfDt.GetApprRule(wfId, wfStep, LoginInfo.ConnStr);
+                            if (apprRules != string.Empty)
+                                workFlowDt.ExcecuteApprRule(apprRules, dbParams, hf_ConnStr.Value);
+                            else
+                                return;
+                            // End Mdoified   
+
+                        }
+                    }
+
+                    lbl_Approve_Chk.Text = confirmApproveCount + " item(s) are approved.";
+                    #endregion
+                }
+
+            }
+
+            btn_OK_PopApprClose.Visible = false;
+            btn_OK_PopApprFunction.Visible = false;
+            pop_ConfirmApprove.ShowOnPageLoad = false;
+
+            if (confirmApproveCount == 0)
+            {
+                lbl_Approve_Chk.Text = "No detail is selected.";
+                btn_OK_PopApprClose.Visible = true;
+                pop_Approve.ShowOnPageLoad = true;
+            }
+            else
+            {
+                //Added on: 2017/05/23, By: Fon
+                bool sentable = false;
+                if (Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["SentEmail"]))
+                {
+                    lbl_hide_action.Text = "Redirect".ToUpper();
+                    lbl_hide_value.Text = true.ToString();
+                    //sentable = SendEmail("A");
+                    sentable = SendEmailWorkflow.Send("A", prNo, wfId, wfStep, LoginInfo.LoginName, hf_ConnStr.Value);
+                }
+
+
+                if (chk_Approve_NoShowMessage.Checked)
+                {
+                    Response.Redirect("PrList.aspx");
+                }
+                else
+                {
+                    /* old ver.*/
+                    //pop_ConfirmApprove.ShowOnPageLoad = false;
+                    //pop_OKApprove_Succ.ShowOnPageLoad = true;
+
+                    // Modified on: 2017/04, By: Fon
+                    if (Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["IsAllocateVendor"]))
+                    {
+                        if (noSelectedVendorCount == confirmApproveCount || approveCount == 0 && noSelectedVendorCount >= 0 || approveCount > 0 && noSelectedVendorCount > 0)
+                            btn_OK_PopApprClose.Visible = true;
+                        else
+                            btn_OK_PopApprFunction.Visible = true;
+
+                    }
+                    else
+                    {
+                        btn_OK_PopApprFunction.Visible = true;
+                    }
+
+
+
+                    pop_Approve.ShowOnPageLoad = true;
+                }
+            }
+
+
+
+        }
+
 
         protected void btn_CancelApprove_Click(object sender, EventArgs e)
         {
@@ -1373,9 +1653,65 @@ namespace BlueLedger.PL.PC.PR
                 return;
             }
 
-            SendBack();
-        }
+            var sbPrDtNo = new StringBuilder();
 
+            for (var i = 0; i <= grd_PRDt1.Rows.Count - 1; i++)
+            {
+                var Chk_Item = (CheckBox)grd_PRDt1.Rows[i].Cells[0].FindControl("Chk_Item");
+                if (Chk_Item.Checked)
+                {
+                    var drSendBack = dsPR.Tables[prDt.TableName].Rows[grd_PRDt1.Rows[i].DataItemIndex];
+                    var Step = (wfStep - 1) * 10;
+
+
+                    // Modified on: 2017/05/22, By: Fon
+                    if (wfStep > 1)
+                    {
+                        if (drSendBack["ApprStatus"].ToString().Contains('R'))
+                        {
+                            continue;
+                        }
+
+                        if (!drSendBack["ApprStatus"].ToString().Substring(Step).StartsWith("_"))
+                        {
+                            continue;
+                        }
+                    }
+
+                    //sbPrDtNo.Append((sbPrDtNo.Length > 0 ? ", " + drSendBack["PRDtNo"].ToString() + " " : drSendBack["PRDtNo"].ToString()));
+
+                    var dbParams = new Blue.DAL.DbParameter[6];
+                    dbParams[0] = new Blue.DAL.DbParameter("@PrNo", dsPR.Tables[pr.TableName].Rows[0]["PRNo"].ToString());
+                    dbParams[1] = new Blue.DAL.DbParameter("@PrDtNo", dsPR.Tables[prDt.TableName].Rows[i]["PRDtNo"].ToString());
+                    dbParams[2] = new Blue.DAL.DbParameter("@CurrentStep", wfStep.ToString());
+                    dbParams[3] = new Blue.DAL.DbParameter("@Step", ddl_SendBack.Value.ToString());
+                    dbParams[4] = new Blue.DAL.DbParameter("@LoginName", LoginInfo.LoginName);
+                    dbParams[5] = new Blue.DAL.DbParameter("@Comment", txt_SendBackMessage.Text.Trim());
+
+                    // Modified on: 10/10/2017, By: Fon
+                    string sendBkRule = workFlowDt.GetSendBkRule(wfId, wfStep, LoginInfo.ConnStr);
+                    if (sendBkRule != string.Empty) workFlowDt.ExcecuteApprRule(sendBkRule, dbParams, hf_ConnStr.Value);
+                    else return;
+                    // End Modified.
+
+                }
+            }
+
+            var isSentEmail = Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["SentEmail"]);
+
+            if (isSentEmail)
+            {
+                lbl_hide_action.Text = "Redirect".ToUpper();
+                lbl_hide_value.Text = true.ToString();
+
+                SendEmailWorkflow.Send("S", prNo, wfId, wfStep, LoginInfo.LoginName, hf_ConnStr.Value);
+            }
+
+            pop_SendBack.ShowOnPageLoad = false;
+            pop_ConfirmSendback.ShowOnPageLoad = false;
+
+            Response.Redirect("PrList.aspx");
+        }
 
         protected void btn_CancelSendback_Click(object sender, EventArgs e)
         {
@@ -1978,14 +2314,6 @@ namespace BlueLedger.PL.PC.PR
         }
 
 
-        private void ShowAlert(string text)
-        {
-            lbl_PopupAlert.Text = text;
-
-            lbl_hide_action.Text = "";
-            pop_Alert.ShowOnPageLoad = true;
-        }
-
 
 
         protected void chk_Approve_NoShowMessage_CheckedChanged(object sender, EventArgs e)
@@ -1997,472 +2325,408 @@ namespace BlueLedger.PL.PC.PR
             aCookie.Expires = DateTime.Now.AddDays(3650);
             Response.Cookies.Add(aCookie);
         }
-
-
-        #region -- Approval --
-
-        private void Approve()
+        /*
+        #region Email
+        protected bool SendEmail1(string approveCode)
         {
-            var drWfDt = dsWF.Tables["APPwfdt"].Rows[0];
+            //string errorMessage = SentMail(approveCode.ToUpper());
 
-            var prDtNoList = new List<string>();
+            //if (errorMessage != string.Empty)
+            //{
+            //    lbl_PopupAlert.Text = "Mail server is not configured.";
+            //    lbl_PopupAlert.Text += "<br/>(code: " + errorMessage + ")";
 
-            //var isAllocateVendor = Convert.ToBoolean(drWfDt["IsAllocateVendor"]);
+            //    pop_Alert.ShowOnPageLoad = true;
+            //    return false;
+            //}
+            return true;
+        }
 
-            var dtPrDt = dsPR.Tables[prDt.TableName];
+        //protected string SentMail(string approveCode)
+        private bool SendEmail(string approveCode)
+        {
+            string errorMessage = string.Empty;
 
-            for (var i = 0; i <= grd_PRDt1.Rows.Count - 1; i++)
+            approveCode = approveCode.ToUpper();
+
+            // Get recent record from [IM].Inbox (After WF Stored update to IM.Inbox)
+            string sql = string.Format("SELECT TOP(1) * FROM [IM].[Inbox] WHERE [RefNo]='{0}' AND [Sender]='{1}' AND StepFrom = {2} ORDER BY [InboxNo] DESC", prNo, LoginInfo.LoginName, wfStep);
+			
+            var dtPr = pr.DbExecuteQuery(sql, null, hf_ConnStr.Value);
+
+            if (dtPr.Rows.Count > 0) // Found
             {
-                var Chk_Item = (CheckBox)grd_PRDt1.Rows[i].Cells[0].FindControl("Chk_Item");
+                DataRow dr = dtPr.Rows[0];
+                string mailFrom = "", mailTo = "";
 
-                if (Chk_Item.Checked && Chk_Item.Visible)
+                int toStep = int.Parse(dr["StepTo"].ToString());
+                string inboxNo = dr["InboxNo"].ToString();
+                string refNo = dr["RefNo"].ToString();
+                string subject = dr["Subject"].ToString();
+                string mailBody = GnxLib.EnDecryptString(dr["Message"].ToString(), GnxLib.EnDeCryptor.DeCrypt);
+
+                try
                 {
-                    var dr = dtPrDt.Rows[grd_PRDt1.Rows[i].DataItemIndex];
+                    // Now: SendBack & Approve 's ["receiver"] is @email  // Test: PR17050002
+                    if (approveCode.ToUpper() == "A")
+                        mailTo = Get_InvolvedLoginFromApprovals(toStep);
+                    // Now: Reject 's ["receiver"] is LoginName
+                    else if (approveCode.ToUpper() == "R" || approveCode.ToUpper() == "S")
+                        mailTo = Get_InvolvedEmail();
 
-                    var prDtNo = dr["PrDtNo"].ToString();
-                    var isApprove = !dr["ApprStatus"].ToString().Contains("R") && !dr["ApprStatus"].ToString().Contains("_");
+                    #region sending email
 
-                    if (isApprove)
+                    var email = new Mail();
+                    string encryptSMTP = config.GetValue("SYS", "Mail", "ServerString", LoginInfo.ConnStr);
+                    var smtpConfig = new KeyValues();
+
+                    smtpConfig.Text = GnxLib.EnDecryptString(encryptSMTP, GnxLib.EnDeCryptor.DeCrypt);
+
+                    email.SmtpServer = smtpConfig.Value("smtp");
+                    email.Port = Convert.ToInt16(smtpConfig.Value("port"));
+                    email.EnableSsl = smtpConfig.Value("enablessl").ToLower() == "true";
+                    email.IsAuthentication = smtpConfig.Value("authenticate").ToLower() == "true";
+
+                    if (email.IsAuthentication)
                     {
-                        prDtNoList.Add(prDtNo);
+                        email.Name = smtpConfig.Value("name");
+                        email.UserName = smtpConfig.Value("username");
+                        email.Password = smtpConfig.Value("password");
                     }
 
+                    email.From = mailFrom;
+                    email.To = mailTo;
+                    email.Subject = subject;
+                    email.Body = mailBody;
+
+                    // Update Receiver to [IM].Inbox
+                    sql = string.Format("UPDATE [IM].Inbox SET Reciever = '{0}' WHERE InboxNo = {1}", mailTo, inboxNo);
+                    pr.DbParseQuery(sql, null, hf_ConnStr.Value);
+
+                    errorMessage = email.Send();
+
+                    #endregion
                 }
-            }
-
-            var sp_Pr_Wf_Name = wfDt.GetApprRule(wfId, wfStep, LoginInfo.ConnStr);
-
-            if (sp_Pr_Wf_Name != string.Empty)
-            {
-                foreach (var prDtNo in prDtNoList)
+                catch (Exception ex)
                 {
-                    var dbParams = new Blue.DAL.DbParameter[3];
-                    dbParams[0] = new Blue.DAL.DbParameter("@PrNo", prNo);
-                    dbParams[1] = new Blue.DAL.DbParameter("@PrDtNo", prDtNo);
-                    dbParams[2] = new Blue.DAL.DbParameter("@LoginName", LoginInfo.LoginName);
-
-                    workFlowDt.ExcecuteApprRule(sp_Pr_Wf_Name, dbParams, hf_ConnStr.Value);
+                    errorMessage = ex.Message.ToString();
                 }
 
+                sql = string.Format("INSERT INTO [IM].MailLog(LogDate,InboxNo,RefNo,IsSent,Error) VALUES('{0}',{1},'{2}',{3},'{4}' )",
+                    DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), // LogDate
+                    inboxNo, // InboxNo
+                    refNo,  // RefNo
+                    string.IsNullOrEmpty(errorMessage)?1:0,
+                    errorMessage);
+                pr.DbParseQuery(sql, null, hf_ConnStr.Value);
+
             }
-            else
+            else // not found
             {
-                ShowAlert("Invalid configuration 'ApprRule'.");
-                return;
+                errorMessage = "Not found approval email.";
             }
 
-            lbl_Approve_Chk.Text = prDtNoList.Count().ToString() + " item(s) are approved.";
 
+            return string.IsNullOrEmpty(errorMessage);
 
-            btn_OK_PopApprClose.Visible = false;
-            btn_OK_PopApprFunction.Visible = false;
-            pop_ConfirmApprove.ShowOnPageLoad = false;
+            //DataSet dsEmail = Get_LastInboxRecord();
+            //dsEmail.Tables[0].TableName = "dtLastInbox";
 
-            #region --Send mail--
-
-
-
-            SendEmailWorkflow.Send("A", prNo, wfId, wfStep, LoginInfo.LoginName, hf_ConnStr.Value);
-
-            #endregion
-
-            Response.Redirect("PrList.aspx");
-
-            //if (confirmApproveCount == 0)
+            //if (dsEmail.Tables["dtLastInbox"].Rows.Count > 0)
             //{
-            //    lbl_Approve_Chk.Text = "No detail is selected.";
-            //    btn_OK_PopApprClose.Visible = true;
-            //    pop_Approve.ShowOnPageLoad = true;
+            //    #region Found Inbox
+            //    string from = string.Empty;
+            //    string to = string.Empty;
+
+            //    try
+            //    {
+            //        int toStep = int.Parse(dsEmail.Tables["dtLastInbox"].Rows[0]["StepTo"].ToString());
+            //        string inboxNo = dsEmail.Tables["dtLastInbox"].Rows[0]["InboxNo"].ToString();
+            //        string subject = dsEmail.Tables["dtLastInbox"].Rows[0]["Subject"].ToString();
+            //        string body = GnxLib.EnDecryptString(dsEmail.Tables["dtLastInbox"].Rows[0]["Message"].ToString(), GnxLib.EnDeCryptor.DeCrypt);
+
+            //        // Now: SendBack & Approve 's ["receiver"] is @email  // Test: PR17050002
+            //        if (approveCode.ToUpper() == "A")
+            //        {
+            //            string receiver = Get_InvolvedLoginFromApprovals(toStep);
+
+            //            to = receiver;
+            //        }
+            //        // Now: Reject 's ["receiver"] is LoginName
+            //        else if (approveCode.ToUpper() == "R" || approveCode.ToUpper() == "S")
+            //        {
+            //            string receiver = Get_InvolvedEmail();
+
+            //            to = receiver;
+            //        }
+            //        string r = to;
+            //        //to = ConvertLoginName_ToEmail(to);
+
+
+            //        #region Use Email Calss
+            //        Mail email = new Mail();
+
+            //        //string serverValue = dsEmail.Tables["dtSMTP"].Rows[0]["Value"].ToString();
+            //        string encryptSMTP = config.GetValue("SYS", "Mail", "ServerString", LoginInfo.ConnStr);
+            //        KeyValues smtpConfig = new KeyValues();
+            //        smtpConfig.Text = GnxLib.EnDecryptString(encryptSMTP, GnxLib.EnDeCryptor.DeCrypt);
+
+
+            //        bool isAuth = smtpConfig.Value("authenticate").ToUpper() == "TRUE";
+
+            //        email.SmtpServer = smtpConfig.Value("smtp");
+            //        email.Port = Convert.ToInt16(smtpConfig.Value("port"));
+            //        email.EnableSsl = smtpConfig.Value("enablessl").ToUpper() == "TRUE";
+            //        email.IsAuthentication = isAuth;
+            //        if (isAuth)
+            //        {
+            //            email.Name = smtpConfig.Value("name");
+            //            email.UserName = smtpConfig.Value("username");
+            //            email.Password = smtpConfig.Value("password");
+            //        }
+
+            //        email.From = from;
+            //        email.To = to;
+            //        email.Subject = subject;
+            //        email.Body = body;
+
+            //        // Update Receiver to [IM].Inbox
+            //        string sql = string.Format("UPDATE [IM].Inbox SET Reciever = '{0}' WHERE InboxNo = {1}", to.ToString(), inboxNo.ToString());
+            //        pr.DbParseQuery(sql, null, hf_ConnStr.Value.ToString());
+
+            //        string error = email.Send();
+
+            //        if (error != string.Empty)
+            //            errorMessage = "InboxNo: " + inboxNo + " has error '" + error + "'";
+
+            //        #endregion
+
+            //        return errorMessage;
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        return ex.Message.ToString();
+            //    }
             //}
+            //#endregion
             //else
             //{
-            //    #region --Send Email for Approve--
+            //    return errorMessage;
+            //}
+        }
 
-            //    bool sentable = false;
+        //protected DataSet Get_LastInboxRecord()
+        //{
+        //    string cmdStr = "DECLARE @Email nvarchar(100)";
+        //    cmdStr += " SET @Email = (SELECT Email FROM [ADMIN].[vUser]";
+        //    cmdStr += string.Format(" WHERE [LoginName] = '{0}')", LoginInfo.LoginName);
+        //    cmdStr += " ;WITH rs AS (";
+        //    cmdStr += " SELECT TOP(1) * FROM [IM].[Inbox]";
+        //    cmdStr += string.Format(" WHERE [RefNo] = '{0}'", prNo);
+        //    cmdStr += " AND [Sender] = CASE ";
 
-            //    if (Convert.ToBoolean(drWfDt["SentEmail"]))
-            //    {
-            //        lbl_hide_action.Text = "Redirect".ToUpper();
-            //        lbl_hide_value.Text = true.ToString();
+        //    cmdStr += string.Format(" WHEN ([Sender] = 'demo@blueledgers.com') THEN '{0}'", LoginInfo.LoginName);
 
-            //        sentable = SendEmailWorkflow.Send("A", prNo, wfId, wfStep, LoginInfo.LoginName, hf_ConnStr.Value);
-            //    }
+        //    cmdStr += " WHEN ([Sender] LIKE '%@%' + '%.com%') THEN @Email";
+        //    cmdStr += string.Format(" ELSE '{0}' END", LoginInfo.LoginName);
+        //    cmdStr += " ORDER BY [InboxNo] DESC)";
+        //    cmdStr += " SELECT * FROM rs";
 
-            //    #endregion
+        //    DataSet dsInbox = new DataSet();
+        //    SqlConnection con = new SqlConnection(LoginInfo.ConnStr);
+        //    con.Open();
 
-            //    if (chk_Approve_NoShowMessage.Checked)
-            //    {
-            //        Response.Redirect("PrList.aspx");
-            //    }
-            //    else
-            //    {
-            //        /* old ver.*/
-            //        //pop_ConfirmApprove.ShowOnPageLoad = false;
-            //        //pop_OKApprove_Succ.ShowOnPageLoad = true;
+        //    SqlCommand cmd = new SqlCommand(cmdStr, con);
+        //    SqlDataAdapter da = new SqlDataAdapter(cmd);
+        //    da.Fill(dsInbox);
+        //    con.Close();
 
-            //        // Modified on: 2017/04, By: Fon
-            //        if (Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["IsAllocateVendor"]))
-            //        {
-            //            if (noSelectedVendorCount == confirmApproveCount || approveCount == 0 && noSelectedVendorCount >= 0 || approveCount > 0 && noSelectedVendorCount > 0)
-            //                btn_OK_PopApprClose.Visible = true;
-            //            else
-            //                btn_OK_PopApprFunction.Visible = true;
+        //    return dsInbox;
+        //}
 
-            //        }
-            //        else
-            //        {
-            //            btn_OK_PopApprFunction.Visible = true;
-            //        }
-
+        protected string ConvertLoginName_ToEmail(string strLogin)
+        {
+            string strEmail = string.Empty;
+            if (strLogin != null)
+            {
 
 
-            //        pop_Approve.ShowOnPageLoad = true;
-            //    }
+                List<string> login = strLogin.Split(';').ToList();
+
+                foreach (string l in login)
+                {
+                    string strCmd = "SELECT [Email] FROM [ADMIN].[vUser]";
+                    strCmd += string.Format(" WHERE [LoginName] = '{0}'", l);
+
+                    DataTable dt = new DataTable();
+                    SqlConnection con = new SqlConnection(LoginInfo.ConnStr);
+
+                    con.Open();
+                    SqlCommand cmd = new SqlCommand(strCmd, con);
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    da.Fill(dt);
+
+                    if (dt.Rows.Count > 0)
+                        strEmail += dt.Rows[0][0].ToString() + ";";
+                    else
+                        strEmail += l + ";";
+                    con.Close();
+                }
+            }
+
+
+            //string strCmd = "SELECT [Email] FROM [ADMIN].[vUser]";
+            //strCmd += string.Format(" WHERE [LoginName] = '{0}'", LoginInfo.LoginName);
+
+            //DataTable dt = new DataTable();
+            //SqlConnection con = new SqlConnection(LoginInfo.ConnStr);
+
+            //for (int i = 0; i < login.Count; i++)
+            //{
+            //    con.Open();
+            //    SqlCommand cmd = new SqlCommand(strCmd, con);
+            //    SqlDataAdapter da = new SqlDataAdapter(cmd);
+            //    da.Fill(dt);
+            //    con.Close();
+
+            //    if (dt.Rows.Count > 0)
+            //        strEmail += dt.Rows[0][0].ToString() + ";";
             //}
 
-
-
+            return strEmail;
         }
 
-
-        private void SendBack()
+        protected string Get_InvolvedEmail()
         {
-            var sbPrDtNo = new StringBuilder();
+            // Should alert the relevant.
+            string email = string.Empty;
+            string cmdStr = "SELECT DISTINCT h.ProcessBy, u.Email";
+            cmdStr += " FROM [APP].[WFHis] AS h";
+            cmdStr += " LEFT JOIN [ADMIN].[vUser] AS u ON h.ProcessBy COLLATE Latin1_General_CI_AS = u.LoginName COLLATE Latin1_General_CI_AS";
+            cmdStr += string.Format(" WHERE RefNo = '{0}'", prNo);
 
-            for (var i = 0; i <= grd_PRDt1.Rows.Count - 1; i++)
+            DataTable dt = new DataTable();
+            SqlConnection con = new SqlConnection(LoginInfo.ConnStr);
+            con.Open();
+
+            SqlCommand cmd = new SqlCommand(cmdStr, con);
+            SqlDataAdapter da = new SqlDataAdapter(cmd);
+            da.Fill(dt);
+            con.Close();
+
+            foreach (DataRow dr in dt.Rows)
             {
-                var Chk_Item = (CheckBox)grd_PRDt1.Rows[i].Cells[0].FindControl("Chk_Item");
-                if (Chk_Item.Checked)
-                {
-                    var drSendBack = dsPR.Tables[prDt.TableName].Rows[grd_PRDt1.Rows[i].DataItemIndex];
-                    var Step = (wfStep - 1) * 10;
-
-
-                    // Modified on: 2017/05/22, By: Fon
-                    if (wfStep > 1)
-                    {
-                        if (drSendBack["ApprStatus"].ToString().Contains('R'))
-                        {
-                            continue;
-                        }
-
-                        if (!drSendBack["ApprStatus"].ToString().Substring(Step).StartsWith("_"))
-                        {
-                            continue;
-                        }
-                    }
-
-                    //sbPrDtNo.Append((sbPrDtNo.Length > 0 ? ", " + drSendBack["PRDtNo"].ToString() + " " : drSendBack["PRDtNo"].ToString()));
-
-                    var dbParams = new Blue.DAL.DbParameter[6];
-                    dbParams[0] = new Blue.DAL.DbParameter("@PrNo", dsPR.Tables[pr.TableName].Rows[0]["PRNo"].ToString());
-                    dbParams[1] = new Blue.DAL.DbParameter("@PrDtNo", dsPR.Tables[prDt.TableName].Rows[i]["PRDtNo"].ToString());
-                    dbParams[2] = new Blue.DAL.DbParameter("@CurrentStep", wfStep.ToString());
-                    dbParams[3] = new Blue.DAL.DbParameter("@Step", ddl_SendBack.Value.ToString());
-                    dbParams[4] = new Blue.DAL.DbParameter("@LoginName", LoginInfo.LoginName);
-                    dbParams[5] = new Blue.DAL.DbParameter("@Comment", txt_SendBackMessage.Text.Trim());
-
-                    // Modified on: 10/10/2017, By: Fon
-                    string sendBkRule = workFlowDt.GetSendBkRule(wfId, wfStep, LoginInfo.ConnStr);
-                    if (sendBkRule != string.Empty) workFlowDt.ExcecuteApprRule(sendBkRule, dbParams, hf_ConnStr.Value);
-                    else return;
-                    // End Modified.
-
-                }
+                email += dr["Email"].ToString() + ";";
             }
-
-            var isSentEmail = Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["SentEmail"]);
-
-            if (isSentEmail)
-            {
-                lbl_hide_action.Text = "Redirect".ToUpper();
-                lbl_hide_value.Text = true.ToString();
-
-                SendEmailWorkflow.Send("S", prNo, wfId, wfStep, LoginInfo.LoginName, hf_ConnStr.Value);
-            }
-
-            pop_SendBack.ShowOnPageLoad = false;
-            pop_ConfirmSendback.ShowOnPageLoad = false;
-
-            Response.Redirect("PrList.aspx");
+            return email;
         }
 
-        private void RejectItems(bool sendMail)
+        protected string Get_InvolvedLoginFromApprovals(int toStep)
         {
-            var rejectItemCount = 0;
+            string prNo = Request.Params["ID"];
 
-            var sbPrDtNo = new StringBuilder();
+            #region
+            string sql = string.Format(
 
-            for (var i = 0; i <= grd_PRDt1.Rows.Count - 1; i++)
+@"DECLARE @list TABLE ( [LoginName] NVARCHAR(100), [Email] NVARCHAR(MAX) )
+DECLARE @approvals NVARCHAR(MAX) = ( SELECT [Approvals] FROM [APP].[WFDt]  WHERE [WFId] = @wfId AND [Step] = @wfStep )
+               
+IF ISNULL((SELECT IsHOD FROM [APP].[WFDt] WHERE [WFId] = @wfId AND [Step] = @wfStep), 0) = 1
+BEGIN
+	DECLARE @CreateBy NVARCHAR(20) = (SELECT CreatedBy FROM PC.PR WHERE PrNo = '" + prNo + @"');
+	DECLARE @DeptCode NVARCHAR(20) = (SELECT DepartmentCode FROM [ADMIN].vUser WHERE LoginName = @CreateBy)
+
+    INSERT INTO @list ( [LoginName], Email )
+    SELECT LoginName, Email FROM  [ADMIN].vHeadOfDepartment WHERE DepCode = @DeptCode
+	
+END
+ELSE
+BEGIN
+    WHILE LEN(@approvals) > 0
+    BEGIN
+	    DECLARE @subAppr NVARCHAR(100) = SUBSTRING(@approvals, 1, CHARINDEX(',', @approvals) - 1)
+	    IF(@subAppr LIKE '#%')
+	    BEGIN
+		    INSERT INTO @list ( [LoginName], Email )
+		    SELECT vU.[LoginName], vU.[Email]
+		    FROM [ADMIN].[vUser] AS vU 
+		    LEFT JOIN @list AS l ON l.LoginName COLLATE Latin1_General_CI_AS = vU.[LoginName] COLLATE Latin1_General_CI_AS
+		    WHERE vU.[LoginName] = REPLACE(@subAppr, '#', '') AND l.LoginName IS NULL 
+	    END
+	    ELSE
+	    BEGIN
+		    INSERT INTO @list ( [LoginName], Email )
+		    SELECT ur.[LoginName], vU.[Email]
+		    FROM [ADMIN].[UserRole] AS ur
+		    LEFT JOIN @list AS l ON l.[LoginName] COLLATE Latin1_General_CI_AS = ur.[LoginName] COLLATE Latin1_General_CI_AS
+            JOIN [ADMIN].[vUser] AS vU ON vU.[LoginName] COLLATE Latin1_General_CI_AS= ur.[LoginName] COLLATE Latin1_General_CI_AS
+		    WHERE ur.[RoleName] = @subAppr AND ur.[IsActive] = 1 AND l.LoginName IS NULL
+	    END
+	
+	    SET @approvals = STUFF(@approvals, 1, LEN(@subAppr)+1, '')
+    END
+END
+SELECT * FROM @list
+
+");
+
+            //@"DECLARE @list TABLE ( [LoginName] NVARCHAR(100), [Email] NVARCHAR(MAX) )
+            //  DECLARE @approvals NVARCHAR(MAX) = ( SELECT [Approvals] FROM [APP].[WFDt] 
+            //                                      WHERE [WFId] = @wfId AND [Step] = @wfStep )
+            //	
+            //              WHILE LEN(@approvals) > 0
+            //                BEGIN
+            //	                DECLARE @subAppr NVARCHAR(100) = SUBSTRING(@approvals, 1, CHARINDEX(',', @approvals) - 1)
+            //	                IF(@subAppr LIKE '#%')
+            //	                BEGIN
+            //		                INSERT INTO @list ( [LoginName], Email )
+            //		                SELECT l.[LoginName], vU.[Email]
+            //		                FROM [ADMIN].[vUser] AS vU 
+            //		                LEFT JOIN @list AS l ON l.LoginName = vU.[LoginName]
+            //		                WHERE vU.[LoginName] = REPLACE(@subAppr, ',', '') AND l.LoginName IS NULL 
+            //	                END
+            //	                ELSE
+            //	                BEGIN
+            //		                INSERT INTO @list ( [LoginName], Email )
+            //		                SELECT ur.[LoginName], vU.[Email]
+            //		                FROM [ADMIN].[UserRole] AS ur
+            //		                LEFT JOIN @list AS l ON l.[LoginName] = ur.[LoginName]
+            //		                JOIN [ADMIN].[vUser] AS vU ON vU.[LoginName] = ur.[LoginName]
+            //		                WHERE ur.[RoleName] = @subAppr AND ur.[IsActive] = 1 AND l.LoginName IS NULL
+            //	                END
+            //	
+            //	                select * from @list
+            //	                SET @approvals = STUFF(@approvals, 1, LEN(@subAppr)+1, '')
+            //                END");
+            #endregion
+            string login = string.Empty;
+            SqlConnection con = new SqlConnection(LoginInfo.ConnStr);
+            DataTable dt = new DataTable();
+            try
             {
-                var Chk_Item = (CheckBox)grd_PRDt1.Rows[i].Cells[0].FindControl("Chk_Item");
+                con.Open();
+                SqlCommand cmd = new SqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("@wfId", wfId);
+                cmd.Parameters.AddWithValue("@wfStep", toStep);
 
-                if (Chk_Item.Checked)
-                {
-                    var drReject = dsPR.Tables[prDt.TableName].Rows[grd_PRDt1.Rows[i].DataItemIndex];
-
-                    if (drReject["ApprStatus"].ToString().Contains('R'))
-                    {
-                        continue;
-                    }
-
-                    var Step = (wfStep - 1) * 10;
-
-                    if (wfStep > 1)
-                    {
-                        if (!drReject["ApprStatus"].ToString().Substring(Step).StartsWith("_"))
-                        {
-                            continue;
-                        }
-                        else
-                        {
-                            rejectItemCount++;
-                        }
-                    }
-
-                    sbPrDtNo.Append((sbPrDtNo.Length > 0
-                        ? ", " + drReject["PRDtNo"].ToString() + " "
-                        : drReject["PRDtNo"].ToString()));
-
-                    var dbParams = new Blue.DAL.DbParameter[5];
-                    dbParams[0] = new Blue.DAL.DbParameter("@PrNo", dsPR.Tables[pr.TableName].Rows[0]["PRNo"].ToString());
-                    //dbParams[1] = new Blue.DAL.DbParameter("@PrDtNo", sbPrDtNo.ToString());
-                    dbParams[1] = new Blue.DAL.DbParameter("@PrDtNo", drReject["PrDtNo"].ToString());
-                    dbParams[2] = new Blue.DAL.DbParameter("@Step", wfStep.ToString());
-                    dbParams[3] = new Blue.DAL.DbParameter("@LoginName", LoginInfo.LoginName);
-                    dbParams[4] = new Blue.DAL.DbParameter("@Comment", txt_RejectMessage.Text.Trim());
-
-                    // Modified on: 10/10/2017, By: Fon
-                    //workFlowDt.ExcecuteApprRule("APP.WF_PR_REJECT", dbParams, hf_ConnStr.Value);
-                    string spRej = workFlowDt.GetRejRule(wfId, wfStep, LoginInfo.ConnStr);
-                    if (spRej != string.Empty)
-                        workFlowDt.ExcecuteApprRule(spRej, dbParams, hf_ConnStr.Value);
-                    else
-                        return;
-                    // End Modified.
-                }
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                da.Fill(dt);
+            }
+            catch (Exception ex)
+            {
+                return null;
             }
 
+            con.Close();
 
-            pop_Reject.ShowOnPageLoad = false;
-            pop_ConfirmReject.ShowOnPageLoad = false;
-
-            // Added on: 2017/05/23, By: Fon
-            // Send email
-
-            if (sendMail)
+            foreach (DataRow dr in dt.Rows)
             {
-
-                bool sentComplete = true;
-                bool isSentEmail = Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["SentEmail"]);
-
-                if (isSentEmail)
-                {
-                    lbl_hide_action.Text = "Redirect".ToUpper();
-                    lbl_hide_value.Text = rejectItemCount == dsPR.Tables[prDt.TableName].Rows.Count ? "true" : "false";
-
-                    //sentComplete = SendEmail("R");
-                    sentComplete = SendEmailWorkflow.Send("R", prNo, wfId, wfStep, LoginInfo.LoginName, hf_ConnStr.Value);
-                }
-
-                if (sentComplete)
-                {
-                    Response.Redirect("PrList.aspx");
-                }
+                //login += dr["LoginName"].ToString() + ";";
+                login += dr["Email"].ToString() + ";";
             }
+            return login;
         }
-
-        private void Approve1()
-        {
-            var confirmApproveCount = 0;
-            var approveCount = 0;
-            var noSelectedVendorCount = 0;
-            var step = (wfStep - 1) * 10;
-
-            var drWfDt = dsWF.Tables["APPwfdt"].Rows[0];
-
-            var isAllocateVendor = Convert.ToBoolean(drWfDt["IsAllocateVendor"]);
-
-            if (wfStep > 1)
-            {
-                if (isAllocateVendor)
-                {
-                    #region Allocated Vendor Process
-
-                    for (var i = 0; i <= grd_PRDt1.Rows.Count - 1; i++)
-                    {
-                        var Chk_Item = (CheckBox)grd_PRDt1.Rows[i].Cells[0].FindControl("Chk_Item");
-
-                        //if (Chk_Item.Checked)
-                        if (Chk_Item.Checked && Chk_Item.Visible)
-                        {
-                            var drApprove = dsPR.Tables[prDt.TableName].Rows[grd_PRDt1.Rows[i].DataItemIndex];
-                            var apprStatus = drApprove["ApprStatus"].ToString();
-
-                            bool isRejected = apprStatus.Contains('R');
-                            bool isSendBack = apprStatus.Length >= wfStep * 10 + 10 ? !apprStatus.Substring(wfStep * 10, 10).Contains('_') : false;
-
-                            confirmApproveCount++;
-                            if (isRejected || isSendBack)
-                                continue;
-
-                            if (drApprove["VendorCode"].ToString().Trim() == "")
-                            {
-                                //NotApprove++;
-                                noSelectedVendorCount++;
-                                continue;
-                            }
-                            else
-                            {
-                                approveCount++;
-                            }
-
-                            var dbParams = new Blue.DAL.DbParameter[3];
-                            dbParams[0] = new Blue.DAL.DbParameter("@PrNo", dsPR.Tables[pr.TableName].Rows[0]["PRNo"].ToString());
-                            dbParams[1] = new Blue.DAL.DbParameter("@PrDtNo", drApprove["PRDtNo"].ToString());
-                            dbParams[2] = new Blue.DAL.DbParameter("@LoginName", LoginInfo.LoginName);
-
-                            string apprRules = wfDt.GetApprRule(wfId, wfStep, LoginInfo.ConnStr);
-
-                            if (apprRules != string.Empty)
-                                workFlowDt.ExcecuteApprRule(apprRules, dbParams, hf_ConnStr.Value);
-                            else
-                                return;
-                            // End Mdoified     
-                        }
-                    }
-
-                    if (noSelectedVendorCount == confirmApproveCount)
-                    {
-                        lbl_Approve_Chk.Text = "No vendor is assigned.";
-
-                    }
-                    //Count Approve.
-                    //else if (Approve == 0 && NotApprove >= 0)
-                    else if (approveCount == 0 && noSelectedVendorCount >= 0)
-                    {
-                        lbl_Approve_Chk.Text = "No item is approved.";
-                    }
-                    //else if (Approve > 0 && NotApprove == 0)
-                    else if (approveCount > 0 && noSelectedVendorCount == 0)
-                    {
-                        lbl_Approve_Chk.Text = "Approval is successful.";
-                    }
-                    //else if (Approve > 0 && NotApprove > 0)
-                    else if (approveCount > 0 && noSelectedVendorCount > 0)
-                    {
-                        //lbl_Approve_Chk.Text = Approve + " item(s) are approved.<br>" + NotApprove + " item(s) are not approved.";
-                        lbl_Approve_Chk.Text = approveCount + " item(s) are approved.<br>" + noSelectedVendorCount + " item(s) are not approved.";
-                    }
-                    #endregion
-                }
-                else
-                {
-                    #region Standard Process
-                    for (var i = 0; i <= grd_PRDt1.Rows.Count - 1; i++)
-                    {
-                        var Chk_Item = (CheckBox)grd_PRDt1.Rows[i].Cells[0].FindControl("Chk_Item");
-
-                        //if (Chk_Item.Checked)
-                        if (Chk_Item.Checked && Chk_Item.Visible)
-                        {
-                            var drApprove = dsPR.Tables[prDt.TableName].Rows[grd_PRDt1.Rows[i].DataItemIndex];
-
-                            bool isRejected = drApprove["ApprStatus"].ToString().Contains('R');
-                            bool isApproved = drApprove["ApprStatus"].ToString().Substring(step).StartsWith("A");
-                            bool isSendBack = false;
-
-                            if (drApprove["ApprStatus"].ToString().Length > (wfStep * 10))
-                                if (!drApprove["ApprStatus"].ToString().Substring(wfStep * 10, 10).Contains('_'))
-                                    isSendBack = true;
-
-                            confirmApproveCount++;
-                            if (isRejected || isApproved || isSendBack)
-                                continue;
-
-                            var dbParams = new Blue.DAL.DbParameter[3];
-                            dbParams[0] = new Blue.DAL.DbParameter("@PrNo",
-                                dsPR.Tables[pr.TableName].Rows[0]["PRNo"].ToString());
-                            dbParams[1] = new Blue.DAL.DbParameter("@PrDtNo", drApprove["PRDtNo"].ToString());
-                            dbParams[2] = new Blue.DAL.DbParameter("@LoginName", LoginInfo.LoginName);
-
-                            // Modified on: 10/10/2017, By: Fon
-                            string apprRules = wfDt.GetApprRule(wfId, wfStep, LoginInfo.ConnStr);
-                            if (apprRules != string.Empty)
-                                workFlowDt.ExcecuteApprRule(apprRules, dbParams, hf_ConnStr.Value);
-                            else
-                                return;
-                            // End Mdoified   
-
-                        }
-                    }
-
-                    lbl_Approve_Chk.Text = confirmApproveCount + " item(s) are approved.";
-                    #endregion
-                }
-
-            }
-
-            btn_OK_PopApprClose.Visible = false;
-            btn_OK_PopApprFunction.Visible = false;
-            pop_ConfirmApprove.ShowOnPageLoad = false;
-
-            if (confirmApproveCount == 0)
-            {
-                lbl_Approve_Chk.Text = "No detail is selected.";
-                btn_OK_PopApprClose.Visible = true;
-                pop_Approve.ShowOnPageLoad = true;
-            }
-            else
-            {
-                #region --Send Email for Approve--
-
-                bool sentable = false;
-
-                if (Convert.ToBoolean(drWfDt["SentEmail"]))
-                {
-                    lbl_hide_action.Text = "Redirect".ToUpper();
-                    lbl_hide_value.Text = true.ToString();
-
-                    sentable = SendEmailWorkflow.Send("A", prNo, wfId, wfStep, LoginInfo.LoginName, hf_ConnStr.Value);
-                }
-
-                #endregion
-
-                if (chk_Approve_NoShowMessage.Checked)
-                {
-                    Response.Redirect("PrList.aspx");
-                }
-                else
-                {
-                    /* old ver.*/
-                    //pop_ConfirmApprove.ShowOnPageLoad = false;
-                    //pop_OKApprove_Succ.ShowOnPageLoad = true;
-
-                    // Modified on: 2017/04, By: Fon
-                    if (Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["IsAllocateVendor"]))
-                    {
-                        if (noSelectedVendorCount == confirmApproveCount || approveCount == 0 && noSelectedVendorCount >= 0 || approveCount > 0 && noSelectedVendorCount > 0)
-                            btn_OK_PopApprClose.Visible = true;
-                        else
-                            btn_OK_PopApprFunction.Visible = true;
-
-                    }
-                    else
-                    {
-                        btn_OK_PopApprFunction.Visible = true;
-                    }
-
-
-
-                    pop_Approve.ShowOnPageLoad = true;
-                }
-            }
-
-
-
-        }
-
         #endregion
+        */
     }
 }

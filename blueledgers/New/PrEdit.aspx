@@ -4,7 +4,7 @@
 <%@ Register Assembly="DevExpress.Web.ASPxEditors.v10.1" Namespace="DevExpress.Web.ASPxEditors" TagPrefix="dx" %>
 <%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxPopupControl" TagPrefix="dx" %>
 <%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxMenu" TagPrefix="dx" %>
-<%@ Register Src="../../UserControl/ProcessStatus.ascx" TagName="ProcessStatus" TagPrefix="uc1" %>
+<%@ Register Src="~/UserControl/ProcessStatus.ascx" TagName="ProcessStatus" TagPrefix="uc1" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
     <style>
         .flex
