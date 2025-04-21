@@ -4,7 +4,7 @@
 <%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxPopupControl" TagPrefix="dx" %>
 <%@ Register Assembly="DevExpress.Web.ASPxEditors.v10.1" Namespace="DevExpress.Web.ASPxEditors" TagPrefix="dx" %>
 <%@ Register Assembly="DevExpress.Web.ASPxGridView.v10.1" Namespace="DevExpress.Web.ASPxGridView" TagPrefix="dx" %>
-<%@ Register Src="../StockMovement.ascx" TagName="StockMovement" TagPrefix="uc2" %>
+<%@ Register Src="~/PC/StockMovement.ascx" TagName="StockMovement" TagPrefix="uc2" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="cph_Main" runat="Server">
     <style type="text/css">
         th, td

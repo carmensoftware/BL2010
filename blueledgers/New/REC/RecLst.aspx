@@ -4,7 +4,7 @@
 <%@ Register Assembly="DevExpress.Web.ASPxEditors.v10.1" Namespace="DevExpress.Web.ASPxEditors" TagPrefix="dx" %>
 <%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxPopupControl" TagPrefix="dx" %>
 <%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxPopupControl" TagPrefix="dx" %>
-<%@ Register Src="../../UserControl/ViewHandler/ListPage2.ascx" TagName="ListPage2" TagPrefix="uc1" %>
+<%@ Register Src="~/UserControl/ViewHandler/ListPage2.ascx" TagName="ListPage2" TagPrefix="uc1" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="cph_Main" runat="Server">
     <uc1:ListPage2 ID="ListPage2" runat="server" DetailPageURL="Rec.aspx" KeyFieldName="RecNo" ListPageCuzURL="RecView.aspx" PageCode="[PC].[vRECList]" Title="Receiving" />
     <asp:UpdatePanel ID="upd_CreatePObyPR" runat="server">
