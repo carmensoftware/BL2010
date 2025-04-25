@@ -681,6 +681,11 @@ namespace BlueLedger.PL.Option.ProdCat
         {
             pop_Warning.ShowOnPageLoad = false;
         }
+
+        protected void btn_Delete_Click(object sender, EventArgs e)
+        {
+
+        }
         #endregion
 
         #region "Added on 2016-11-09"

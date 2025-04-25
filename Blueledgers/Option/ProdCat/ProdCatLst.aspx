@@ -1,10 +1,8 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Master/In/SkinDefault.master" AutoEventWireup="true" CodeFile="ProdCatLst.aspx.cs" Inherits="BlueLedger.PL.Option.ProdCat.ProdCatLst" %>
 
-<%@ Register Assembly="DevExpress.Web.ASPxEditors.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Web.ASPxEditors"
-    TagPrefix="dx" %>
 <%@ MasterType VirtualPath="~/master/In/SkinDefault.master" %>
+<%@ Register Assembly="DevExpress.Web.ASPxEditors.v10.1" Namespace="DevExpress.Web.ASPxEditors" TagPrefix="dx" %>
 <%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxPopupControl" TagPrefix="dx" %>
-<%@ Register Assembly="DevExpress.Web.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Web.ASPxMenu" TagPrefix="dx" %>
 <%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxMenu" TagPrefix="dx" %>
 <asp:Content ID="Content2" ContentPlaceHolderID="cph_Main" runat="Server">
     <style type="text/css">
@@ -206,12 +204,14 @@
                     <asp:LinkButton ID="btnUploadHide" runat="server" Text="hide" CssClass="HideControl" OnClick="btnUploadHide_Click"></asp:LinkButton>
                 </div>
             </div>
+            <br />
             <asp:Panel ID="pnSearch" runat="server" DefaultButton="btnS" Width="100%">
                 <div style="float: right;">
                     <asp:TextBox ID="txtSearch" runat="server" Width="200px"></asp:TextBox>
                     <asp:ImageButton ID="btnS" AlternateText="Search" runat="server" OnClick="btnS_Click" ImageUrl="~/App_Themes/Default/Images/master/in/Default/search.png" />
                 </div>
             </asp:Panel>
+            <br />
             <div class="printable">
                 <table style="width: 100%; padding-top: 15px;">
                     <tr>
@@ -226,6 +226,7 @@
                             <div class="font-style" style="margin-left: 50px; width: 90%;">
                                 <asp:Label ID="lblLevelDesc" runat="server" Text="" Width="170px" Font-Bold="true" Font-Size="14px"></asp:Label>
                                 <asp:Label ID="lblLevelNo" runat="server" Visible="false"></asp:Label>
+                                <asp:HiddenField runat="server" ID="hf_LevelNo" />
                                 <br />
                                 <table>
                                     <tr>
@@ -265,8 +266,6 @@
                                             <asp:Label ID="lbl03" runat="server" Width="100px" Text="Category Type: "></asp:Label>
                                         </td>
                                         <td>
-                                            <%--<asp:TextBox ID="txtCategoryType" runat="server" CssClass="marginTB" Visible="false"
-                                    Enabled="false"></asp:TextBox>--%>
                                             <asp:DropDownList ID="ddlCategoryType" runat="server" CssClass="marginTB" Width="150px" AppendDataBoundItems="true" Enabled="false" OnInit="ddlCategoryType_Init">
                                                 <asp:ListItem Selected="True" Value="-1" Text=""></asp:ListItem>
                                             </asp:DropDownList>
@@ -293,14 +292,6 @@
                                     <tr>
                                         <td style="width: 10%;">
                                             <asp:CheckBox ID="cbTActive" runat="server" Enabled="false" />
-                                            <%--  <div>
-                                                
-                                                <label class="switch">
-                                                   <input type="checkbox" id="cbTActive" runat="server" disabled="disabled" />
-                                                    <div class="slider round">
-                                                    </div>
-                                                </label>
-                                            </div>--%>
                                         </td>
                                         <td style="width: 90%;">
                                             <label>
@@ -308,6 +299,7 @@
                                         </td>
                                     </tr>
                                 </table>
+                                <br />
                                 <br />
                                 <asp:Label ID="lbl06" runat="server" Width="100px" Text="AuthRules: " Visible="false"></asp:Label>
                                 <asp:CheckBox ID="cbAuthRules" runat="server" CssClass="marginTB" Enabled="false" Visible="false" />
@@ -325,11 +317,14 @@
                     </tr>
                 </table>
             </div>
-            <div style="width: 100%;">
+            <br />
+            <br />
+            <asp:Label ID="lbl_Test" runat="server" Font-Size="Large"></asp:Label>
+            <%--<div style="width: 100%;">
                 <asp:Label ID="lbl_Test" runat="server"></asp:Label>
                 <asp:GridView ID="gv_Test" runat="server" AutoGenerateColumns="true">
                 </asp:GridView>
-            </div>
+            </div>--%>
             <dx:ASPxPopupControl ID="pop_Warning" ClientInstanceName="pop_Warning" runat="server" Width="300px" CloseAction="CloseButton" HeaderText="Warning" Modal="True"
                 PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowCloseButton="False">
                 <ContentStyle VerticalAlign="Top">
