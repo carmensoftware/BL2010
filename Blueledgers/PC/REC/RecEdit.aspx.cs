@@ -43,7 +43,7 @@ namespace BlueLedger.PL.IN.REC
         private readonly Blue.BL.Option.Inventory.Unit unit = new Blue.BL.Option.Inventory.Unit();
         private readonly Blue.BL.AP.Vendor vendor = new Blue.BL.AP.Vendor();
 
-        private readonly BlueLedger.PL.IN.REC.RecFunc recFunc = new BlueLedger.PL.IN.REC.RecFunc();
+        //private readonly BlueLedger.PL.IN.REC.RecFunc recFunc = new BlueLedger.PL.IN.REC.RecFunc();
         private readonly Blue.BL.Ref.Currency currency = new Blue.BL.Ref.Currency();
 
         private string MsgError = string.Empty;
@@ -283,7 +283,7 @@ namespace BlueLedger.PL.IN.REC
                 rec.GetListByRecNo(dsRecEdit, ref MsgError, recNo, hf_ConnStr.Value);
                 recDt.GetListByRecNo(dsSave, ref MsgError, recNo, hf_ConnStr.Value);
                 recDt.GetListByRecNo(dsRecEdit, recNo, hf_ConnStr.Value);
-                inv.GetListByHdrNo(dsSave, recNo, hf_ConnStr.Value);
+                //inv.GetListByHdrNo(dsSave, recNo, hf_ConnStr.Value);
 
 
                 //// Create Schema for ExtraCost
@@ -1653,7 +1653,7 @@ namespace BlueLedger.PL.IN.REC
             // End Added.
 
             ASPxDateEdit de_ExpiryDate = (ASPxDateEdit)grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("de_ExpiryDate");
-            
+
             if (decimal.Parse(txt_DiscAmt.Text) < 0)
             {
                 txt_DiscAmt.Text = "0.00";
@@ -2648,1091 +2648,305 @@ namespace BlueLedger.PL.IN.REC
             }
         }
 
-        private void UpdateInventoryForCommit(DataRow drRecDt)
-        {
-            recFunc.SetConnectionString(hf_ConnStr.Value);
-            recFunc.UpdateInventoryForCommit(dsSave, drRecDt);
-
-            // Remark for using shared funciton. (RecEdit, RecCommitByBatch, RecCreateManual)
-
-            ////FIFO Calculation
-            //var invQty = prodUnit.GetQtyAfterChangeUnit(drRecDt["ProductCode"].ToString(),
-            //    prodUnit.GetInvenUnit(drRecDt["ProductCode"].ToString(), hf_ConnStr.Value),
-            //    drRecDt["RcvUnit"].ToString(),
-            //    decimal.Parse(drRecDt["RecQty"].ToString()) + decimal.Parse(drRecDt["FOCQty"].ToString()),
-            //    hf_ConnStr.Value);
-
-            //var netPrice = Math.Round(Convert.ToDecimal(drRecDt["NetAmt"].ToString()), 2);
-            //var pricePerQty = Math.Round((netPrice / (invQty == 0 ? 1 : invQty)), 2);
-            //var diffCount = Math.Round((netPrice - (pricePerQty * (invQty == 0 ? 1 : invQty))), 2) * 100;
-
-            //if (diffCount == 0)
-            //{
-            //    var drInv = dsSave.Tables[inv.TableName].NewRow();
-
-            //    drInv["HdrNo"] = drRecDt["RecNo"].ToString();
-            //    drInv["DtNo"] = drRecDt["RecDtNo"].ToString();
-            //    drInv["InvNo"] = 1;
-            //    drInv["ProductCode"] = drRecDt["ProductCode"].ToString();
-            //    drInv["Location"] = drRecDt["LocationCode"].ToString();
-            //    drInv["IN"] = invQty;
-            //    drInv["OUT"] = Convert.ToDecimal("0.00");
-            //    drInv["Amount"] = pricePerQty;
-            //    drInv["FIFOAudit"] = pricePerQty;
-            //    drInv["FIFOMng"] = System.DBNull.Value;
-            //    drInv["FIFOBank"] = System.DBNull.Value;
-            //    drInv["MAvgAudit"] = System.DBNull.Value;
-            //    drInv["MAvgMng"] = System.DBNull.Value;
-            //    drInv["MAvgBank"] = System.DBNull.Value;
-            //    drInv["PAvgAudit"] = 0; // Move the average cost calculation to after completed save Inventory Ledgers 
-            //    drInv["CommittedDate"] = dsSave.Tables[rec.TableName].Rows[0]["RecDate"];
-            //    drInv["PAvgMng"] = System.DBNull.Value;
-            //    drInv["PAvgBank"] = System.DBNull.Value;
-            //    drInv["RptAudit"] = System.DBNull.Value;
-            //    drInv["RptMng"] = System.DBNull.Value;
-            //    drInv["RptBank"] = System.DBNull.Value;
-            //    drInv["Type"] = "RC";
-
-            //    dsSave.Tables[inv.TableName].Rows.Add(drInv);
-
-            //    //// ขอเพิ่มเข้า fifo table
-            //    //DataRow drFifo = dsFifo.Tables[Fifo.TableName].NewRow();
-            //    //drFifo["HdrNo"] = drInv["HdrNo"];
-            //    //drFifo["LocationCode"] = drInv["Location"];
-            //    //drFifo["ProductCode"] = drInv["ProductCode"];
-            //    //drFifo["RcvQty"] = drInv["IN"];
-            //    //drFifo["RcvPrice"] = drInv["Amount"];
-            //    //drFifo["RcvRemain"] = drInv["IN"];
-            //    //drFifo["CreatedDate"] = drInv["CommittedDate"];
-            //    //dsFifo.Tables[Fifo.TableName].Rows.Add(drFifo);
-            //}
-            //else
-            //{
-            //    for (var i = 0; i < 2; i++)
-            //    {
-            //        var drInv = dsSave.Tables[inv.TableName].NewRow();
-
-            //        drInv["HdrNo"] = drRecDt["RecNo"].ToString();
-            //        drInv["DtNo"] = (drRecDt["RecDtNo"]);
-            //        drInv["InvNo"] = i + 1;
-            //        drInv["ProductCode"] = drRecDt["ProductCode"].ToString();
-            //        drInv["Location"] = drRecDt["LocationCode"].ToString();
-
-            //        if (i == 0)
-            //        {
-            //            drInv["IN"] = invQty - Math.Abs(diffCount);
-            //            drInv["FIFOAudit"] = pricePerQty;
-            //            drInv["Amount"] = pricePerQty;
-            //        }
-            //        else
-            //        {
-            //            drInv["IN"] = Math.Abs(diffCount);
-
-            //            if (diffCount < 0)
-            //            {
-            //                //case : QuantityPerUnit * Quantity > Net
-            //                drInv["Amount"] = pricePerQty - Convert.ToDecimal("0.01");
-            //                drInv["FIFOAudit"] = pricePerQty - Convert.ToDecimal("0.01");
-            //            }
-            //            else
-            //            {
-            //                //case : QuantityPerUnit * Quantity < Net
-            //                drInv["Amount"] = pricePerQty + Convert.ToDecimal("0.01");
-            //                drInv["FIFOAudit"] = pricePerQty + Convert.ToDecimal("0.01");
-            //            }
-            //        }
-
-            //        drInv["OUT"] = Convert.ToDecimal("0.00");
-            //        drInv["FIFOMng"] = System.DBNull.Value;
-            //        drInv["FIFOBank"] = System.DBNull.Value;
-            //        drInv["MAvgAudit"] = System.DBNull.Value;
-            //        drInv["MAvgMng"] = System.DBNull.Value;
-            //        drInv["MAvgBank"] = System.DBNull.Value;
-            //        drInv["PAvgAudit"] = 0;
-            //        drInv["CommittedDate"] = dsSave.Tables[rec.TableName].Rows[0]["RecDate"];
-
-            //        drInv["PAvgMng"] = System.DBNull.Value;
-            //        drInv["PAvgBank"] = System.DBNull.Value;
-            //        drInv["RptAudit"] = System.DBNull.Value;
-            //        drInv["RptMng"] = System.DBNull.Value;
-            //        drInv["RptBank"] = System.DBNull.Value;
-            //        drInv["Type"] = "RC";
-
-            //        dsSave.Tables[inv.TableName].Rows.Add(drInv);
-
-            //        //// ขอเพิ่มเข้า fifo table
-            //        //DataRow drFifo = dsFifo.Tables[Fifo.TableName].NewRow();
-            //        //drFifo["HdrNo"] = drInv["HdrNo"];
-            //        //drFifo["LocationCode"] = drInv["Location"];
-            //        //drFifo["ProductCode"] = drInv["ProductCode"];
-            //        //drFifo["RcvQty"] = drInv["IN"];
-            //        //drFifo["RcvPrice"] = drInv["Amount"];
-            //        //drFifo["RcvRemain"] = drInv["IN"];
-            //        //drFifo["CreatedDate"] = drInv["CommittedDate"];
-            //        //dsFifo.Tables[Fifo.TableName].Rows.Add(drFifo);
-            //    }
-            //}
-        }
-
-        //private void DeleteItem()
-        //{
-        //    for (var i = 0; i < delValues.Count; i += 3)
-        //    {
-        //        po.GetListByPoNo2(dsPoUpdate, ref MsgError, delValues[i], hf_ConnStr.Value);
-        //        poDt.GetPoDtByPoNo(dsPoUpdate, ref MsgError, delValues[i], hf_ConnStr.Value);
-
-        //        foreach (DataRow drDelItem in dsPoUpdate.Tables[poDt.TableName].Rows)
-        //        {
-        //            if (drDelItem["PoNo"].ToString() == delValues[i] && drDelItem["PoDt"].ToString() == delValues[i + 1])
-        //            {
-        //                drDelItem["RcvQty"] = Convert.ToDecimal(drDelItem["RcvQty"].ToString()) -
-        //                                      Convert.ToDecimal(delValues[i + 2]);
-        //                break;
-        //            }
-        //        }
-
-        //        dsPoUpdate.Tables[po.TableName].Rows[0]["DocStatus"] = "Partial";
-
-        //        po.Save(dsPoUpdate, hf_ConnStr.Value);
-        //        dsPoUpdate.Clear();
-        //    }
-        //}
-
 
         private void SaveAndCommit(string strAction)
         {
+            var _mode = Request.Params["MODE"].ToUpper();
+            var _action = string.Empty;
+
             Page.Validate();
-            if (Page.IsValid)
+
+
+            //var OpenPeriod = period.GetLatestOpenEndDate(LoginInfo.ConnStr);
+            //var InvCommittedDate = de_RecDate.Date.Date <= OpenPeriod.Date ? OpenPeriod : DateTime.Now;
+
+            var deliPoint = cmb_DeliPoint.Value.ToString().Split(':')[0];
+            var currRate = Convert.ToDecimal(txt_ExRateAu.Text);
+
+
+            //For Edit 
+            if (_mode.ToUpper() == "EDIT")
             {
-                var MODE = Request.Params["MODE"];
-                var _action = string.Empty;
+                _action = "MODIFY";
 
-                var OpenPeriod = period.GetLatestOpenEndDate(LoginInfo.ConnStr);
-                var InvCommittedDate = de_RecDate.Date.Date <= OpenPeriod.Date ? OpenPeriod : DateTime.Now;
-                var deliPoint = cmb_DeliPoint.Value.ToString().Split(':')[0];
-                var currRate = Convert.ToDecimal(txt_ExRateAu.Text);
+                #region
+                var drSave = dsSave.Tables[rec.TableName].Rows[0];
 
-                //For Edit 
-                if (MODE.ToUpper() == "EDIT")
+                //drSave["RecNo"] = txt_RecNo.Text;
+                drSave["Description"] = txt_Desc.Text.Trim();
+                drSave["DeliPoint"] = deliPoint;
+                drSave["InvoiceNo"] = txt_InvNo.Text.Trim();
+                drSave["VendorCode"] = lbl_VendorCode.Text;
+                drSave["CurrencyCode"] = ddl_Currency.Value.ToString();
+                drSave["ExRateAudit"] = currRate;
+                drSave["CurrencyRate"] = currRate;
+                drSave["IsCashConsign"] = Convert.ToBoolean(chk_CashConsign.Checked);
+                drSave["ExportStatus"] = false;
+                drSave["UpdatedDate"] = ServerDateTime;
+                drSave["UpdatedBy"] = LoginInfo.LoginName;
+
+                if (strAction == "Committed")
                 {
-                    _action = "MODIFY";
+                    bool isAVCO = config.GetValue("IN", "SYS", "COST", hf_ConnStr.Value).ToUpper() == "AVCO";
 
-                    #region
-                    var drSave = dsSave.Tables[rec.TableName].Rows[0];
-
-                    //drSave["RecNo"] = txt_RecNo.Text;
-                    drSave["Description"] = txt_Desc.Text.Trim();
-                    drSave["DeliPoint"] = deliPoint;
-                    drSave["InvoiceNo"] = txt_InvNo.Text.Trim();
-                    drSave["VendorCode"] = lbl_VendorCode.Text;
-                    drSave["CurrencyCode"] = ddl_Currency.Value.ToString();
-                    drSave["ExRateAudit"] = currRate;
-                    drSave["CurrencyRate"] = currRate;
-                    drSave["IsCashConsign"] = Convert.ToBoolean(chk_CashConsign.Checked);
-                    drSave["ExportStatus"] = false;
-                    drSave["UpdatedDate"] = ServerDateTime;
-                    drSave["UpdatedBy"] = LoginInfo.LoginName;
-
-                    if (strAction == "Committed")
-                    {
-                        bool isAVCO = config.GetValue("IN", "SYS", "COST", hf_ConnStr.Value).ToUpper() == "AVCO";
-
-                        //drSave["CommitDate"] = isAVCO ? drSave["RecDate"] : InvCommittedDate;
-                        drSave["CommitDate"] = DateTime.Now;
-                        drSave["DocStatus"] = "Committed";
-                    }
-                    else
-                    {
-                        drSave["DocStatus"] = "Received";
-                    }
-
-                    if (de_InvDate.Value != null)
-                    {
-                        drSave["InvoiceDate"] = de_InvDate.Date.Date;
-                    }
-                    else
-                    {
-                        drSave["InvoiceDate"] = DBNull.Value;
-                    }
-
-                    //drSave["TotalExtraCost"] = string.IsNullOrEmpty(se_TotalExtraCost.Text) ? 0m : Convert.ToDecimal(se_TotalExtraCost.Value);
-                    drSave["TotalExtraCost"] = se_TotalExtraCost.Number;
-
-                    if (rdb_ExtraCostByAmt.Checked)
-                        drSave["ExtraCostBy"] = "A";
-                    else
-                        drSave["ExtraCostBy"] = "Q";
-
-                    #endregion
-                }
-                else //For Create
-                {
-                    _action = "CREATE";
-
-                    #region
-                    rec.GetStructure(dsSave, hf_ConnStr.Value);
-                    var drSaveNew = dsSave.Tables[rec.TableName].NewRow();
-
-
-                    // For new
-                    string recNo = rec.GetNewID(de_RecDate.Date.Date, hf_ConnStr.Value);
-                    drSaveNew["RecNo"] = recNo;
-                    drSaveNew["RecDate"] = de_RecDate.Date.Date;
-                    drSaveNew["Description"] = txt_Desc.Text;
-                    drSaveNew["DeliPoint"] = deliPoint;
-                    drSaveNew["InvoiceNo"] = txt_InvNo.Text.Trim();
-                    drSaveNew["VendorCode"] = lbl_VendorCode.Text.Trim();
-                    drSaveNew["CurrencyCode"] = ddl_Currency.Value.ToString();
-                    drSaveNew["ExRateAudit"] = currRate;
-                    drSaveNew["CurrencyRate"] = currRate;
-
-                    drSaveNew["IsCashConsign"] = Convert.ToBoolean(chk_CashConsign.Checked);
-                    drSaveNew["CreatedDate"] = ServerDateTime;
-                    drSaveNew["CreatedBy"] = LoginInfo.LoginName;
-                    drSaveNew["UpdatedDate"] = InvCommittedDate;
-                    drSaveNew["UpdatedBy"] = LoginInfo.LoginName;
-                    drSaveNew["ExportStatus"] = false;
-                    drSaveNew["PoSource"] = dsRecEdit.Tables[rec.TableName].Rows[0]["PoSource"];
-
-                    if (drSaveNew.Table.Columns.Contains("TotalExtraCost"))
-                        drSaveNew["TotalExtraCost"] = Convert.ToDecimal(se_TotalExtraCost.Number);
-
-                    if (de_InvDate.Value != null)
-                    {
-                        drSaveNew["InvoiceDate"] = DateTime.Parse(de_InvDate.Date.ToString());
-                    }
-                    else
-                    {
-                        drSaveNew["InvoiceDate"] = DBNull.Value;
-                    }
-
-                    if (strAction == "Committed")
-                    {
-                        drSaveNew["DocStatus"] = "Committed";
-                        //drSaveNew["CommitDate"] = ServerDateTime;
-                        drSaveNew["CommitDate"] = InvCommittedDate;
-                    }
-                    else
-                    {
-                        drSaveNew["DocStatus"] = "Received";
-                    }
-
-                    if (drSaveNew.Table.Columns.Contains("TotalExtraCost"))
-                        drSaveNew["TotalExtraCost"] = se_TotalExtraCost.Text == string.Empty ? 0m : Convert.ToDecimal(se_TotalExtraCost.Value.ToString());
-
-                    dsSave.Tables[rec.TableName].Rows.Add(drSaveNew);
-
-                    // Extra Cost
-                    //foreach (DataRow dr in dsRecEdit.Tables[recExtCost].Rows)
-                    //{
-                    //    if (dr.RowState != DataRowState.Deleted)
-                    //        dr["RecNo"] = recNo;
-                    //}
-
-
-                    recDt.GetStructure(dsSave, hf_ConnStr.Value);
-
-                    if (grd_RecEdit.Rows.Count > 0)
-                    {
-                        foreach (DataRow drSelectedNew in dsRecEdit.Tables[recDt.TableName].Rows)
-                        {
-                            if (drSelectedNew.RowState != DataRowState.Deleted)
-                            {
-                                if ((Convert.ToDecimal(drSelectedNew["RecQty"]) > 0))
-                                {
-                                    // For Detail
-                                    var drRecdtNew = dsSave.Tables[recDt.TableName].NewRow();
-
-                                    drRecdtNew["RecNo"] = recNo; //rec.GetNewID(DateTime.Parse(de_RecDate.Text), hf_ConnStr.Value);
-                                    drRecdtNew["RecDtNo"] = RecDtNo + 1;
-                                    drRecdtNew["LocationCode"] = drSelectedNew["LocationCode"];
-                                    drRecdtNew["ProductCode"] = drSelectedNew["ProductCode"];
-                                    drRecdtNew["UnitCode"] = drSelectedNew["UnitCode"];
-                                    drRecdtNew["OrderQty"] = Convert.ToDecimal(drSelectedNew["OrderQty"]);
-                                    drRecdtNew["FOCQty"] =
-                                        (Convert.ToDecimal(drSelectedNew["FOCQty"] == DBNull.Value
-                                            ? 0
-                                            : (decimal)drSelectedNew["FOCQty"]));
-                                    drRecdtNew["RecQty"] =
-                                        (Convert.ToDecimal(drSelectedNew["RecQty"] == DBNull.Value
-                                            ? 0
-                                            : (decimal)drSelectedNew["RecQty"]));
-                                    drRecdtNew["Price"] =
-                                        (Convert.ToDecimal(drSelectedNew["Price"] == DBNull.Value
-                                            ? 0
-                                            : (decimal)drSelectedNew["Price"]));
-                                    drRecdtNew["Discount"] =
-                                        (Convert.ToDecimal(drSelectedNew["Discount"] == DBNull.Value
-                                            ? 0
-                                            : (decimal)drSelectedNew["Discount"]));
-                                    drRecdtNew["TaxType"] = drSelectedNew["TaxType"];
-                                    drRecdtNew["TaxRate"] = drSelectedNew["TaxRate"];
-                                    drRecdtNew["TaxAdj"] = (bool)drSelectedNew["TaxAdj"];
-
-                                    drRecdtNew["NetAmt"] = drSelectedNew["NetAmt"];
-                                    drRecdtNew["TaxAmt"] = drSelectedNew["TaxAmt"];
-                                    drRecdtNew["DiccountAmt"] = drSelectedNew["DiccountAmt"];
-                                    drRecdtNew["TotalAmt"] = drSelectedNew["TotalAmt"];
-
-                                    drRecdtNew["CurrNetAmt"] = drSelectedNew["CurrNetAmt"];
-                                    drRecdtNew["CurrTaxAmt"] = drSelectedNew["CurrTaxAmt"];
-                                    drRecdtNew["CurrDiscAmt"] = drSelectedNew["CurrDiscAmt"];
-                                    drRecdtNew["CurrTotalAmt"] = drSelectedNew["CurrTotalAmt"];
-
-
-                                    drRecdtNew["PoNo"] = drSelectedNew["PoNo"];
-                                    drRecdtNew["PoDtNo"] = drSelectedNew["PoDtNo"];
-                                    drRecdtNew["PrNo"] = drSelectedNew["PrNo"];
-                                    drRecdtNew["NetDrAcc"] = drSelectedNew["NetDrAcc"];
-                                    drRecdtNew["TaxDrAcc"] = drSelectedNew["TaxDrAcc"];
-                                    drRecdtNew["ExportStatus"] = false;
-                                    drRecdtNew["Descen"] = drSelectedNew["Descen"];
-                                    drRecdtNew["Descll"] = drSelectedNew["Descll"];
-                                    drRecdtNew["Comment"] = drSelectedNew["Comment"];
-                                    drRecdtNew["Rate"] = drSelectedNew["Rate"];
-                                    drRecdtNew["RcvUnit"] = drSelectedNew["RcvUnit"];
-                                    drRecdtNew["DiscAdj"] = drSelectedNew["DiscAdj"];
-                                    drRecdtNew["Status"] = (strAction == "Committed" ? "Committed" : "Received");
-                                    if (drRecdtNew.Table.Columns.Contains("TotalExtraCost"))
-                                    {
-                                        drRecdtNew["ExpiryDate"] = drSelectedNew["ExpiryDate"];
-                                        drRecdtNew["ExtraCost"] = drSelectedNew["ExtraCost"];
-                                    }
-                                    // Add new record
-                                    dsSave.Tables[recDt.TableName].Rows.Add(drRecdtNew);
-
-                                    RecDtNo = Convert.ToInt32(drRecdtNew["RecDtNo"]);
-
-                                    //this.UpdateInventoryForCommit(drRecdtNew);
-                                }
-                                else
-                                {
-                                    lbl_WarningDelete.Text = "Receiving is not complete";
-                                    pop_WarningDelete.ShowOnPageLoad = true;
-                                    return;
-                                }
-                            }
-                        }
-                    }
-                    #endregion
-                }
-
-                // Update Inventory Ledger ****************************************************
-                if (!string.IsNullOrEmpty(txt_RecNo.Text))
-                {
-                    var sql = string.Format("DELETE FROM [IN].Inventory WHERE HdrNo='{0}' AND [Type]='RC'", txt_RecNo.Text);
-                    rec.DbExecuteQuery(sql, null, hf_ConnStr.Value);
-                }
-
-                if (dsSave.Tables[inv.TableName] == null)
-                {
-                    inv.GetListByHdrNo(dsSave, dsSave.Tables[rec.TableName].Rows[0]["RecNo"].ToString(), hf_ConnStr.Value);
-                }
-
-                //if (strAction == "Committed")
-                //{
-                //    foreach (DataRow dr in dsSave.Tables[recDt.TableName].Rows)
-                //    {
-                //        if (dr.RowState != DataRowState.Deleted)
-                //        {
-                //            dr["Status"] = "Committed";
-                //            UpdateInventoryForCommit(dr);
-                //        }
-                //    }
-                //}
-
-                // Re-Calculation Extra Cost
-                if (se_TotalExtraCost.Number > 0)
-                {
-                    AllocateExtraCost();
-
-                    var dtRecDt = dsRecEdit.Tables[recDt.TableName];
-                    var dtSave = dsSave.Tables[recDt.TableName];
-
-                    for (int i = 0; i < dtRecDt.Rows.Count; i++)
-                    {
-                        if (dtRecDt.Rows[i].RowState != DataRowState.Deleted)
-                        {
-                            dtSave.Rows[i]["ExtraCost"] = dtRecDt.Rows[i]["ExtraCost"];
-                        }
-                    }
-                }
-
-
-                //Save Data to 3 tables Rec, RecDt and Inventory.
-                var result = rec.Save(dsSave, hf_ConnStr.Value);
-
-                if (result)
-                {
-                    #region
-                    string recNo = string.Empty;
-
-                    if (MODE == "EDIT")
-                        recNo = txt_RecNo.Text;
-                    else
-                        recNo = dsSave.Tables[rec.TableName].Rows[0]["RecNo"].ToString();
-
-                    // Update PC.RecExtCost
-                    string sqlDel = string.Format("DELETE FROM PC.RecExtCost WHERE RecNo = '{0}';", recNo);
-                    string sqlIns = string.Empty;
-
-                    DataTable dt = dsRecEdit.Tables[recExtCost];
-                    if (dt.Rows.Count > 0)
-                    {
-                        int i = 0;
-                        foreach (DataRow dr in dt.Rows)
-                        {
-                            if (dr.RowState != DataRowState.Deleted)
-                                sqlIns += string.Format("('{0}', {1}, {2}, {3}),", recNo, ++i, dr["TypeId"].ToString(), dr["Amount"].ToString());
-                        }
-
-                        if (sqlIns != string.Empty)
-                        {
-                            sqlIns = "INSERT INTO PC.RecExtCost (RecNo, DtNo, TypeId, Amount) VALUES " + sqlIns;
-                            sqlIns = sqlIns.Remove(sqlIns.Length - 1);  // remove last comma (,)
-                        }
-
-
-
-                    }
-                    rec.DbExecuteQuery(sqlDel + sqlIns, null, hf_ConnStr.Value);
-
-                    // ------------------------------
-                    if (strAction == "Committed")
-                    {
-                        var docNo = recNo;
-                        recFunc.InsertInventory(hf_ConnStr.Value, docNo, DateTime.Now);
-                    }
-
-
-                    _transLog.Save("PC", "REC", recNo, _action, string.Empty, LoginInfo.LoginName, hf_ConnStr.Value);
-
-                    //Update Po.DocStatus, PoDt.RcvQty, Product.LastCost(Update only commit)
-                    UpdateRelateTable(recNo);
-                    // Update average cost ********************************************************
-                    inv.UpdateAverageCostByDocument(recNo, LoginInfo.ConnStr);
-                    // ****************************************************************************
-
-                    if (strAction == "Committed")
-                    {
-                        _transLog.Save("PC", "REC", recNo, "COMMIT", string.Empty, LoginInfo.LoginName, hf_ConnStr.Value);
-                        pop_ConfirmCommit.ShowOnPageLoad = false;
-                    }
-                    else
-                        pop_ConfirmSave.ShowOnPageLoad = false;
-
-                    Response.Redirect("Rec.aspx?ID=" + recNo + "&BuCode=" + Request.Params["BuCode"] + "&Vid=" + Request.Params["Vid"]);
-                    #endregion
+                    drSave["CommitDate"] = DateTime.Now;
+                    drSave["DocStatus"] = "Committed";
                 }
                 else
                 {
-                    lbl_WarningOth.Text = "Error while saving.";
-                    pop_Warning.ShowOnPageLoad = true;
-
+                    drSave["DocStatus"] = "Received";
                 }
 
-            } // if Page.Valid
-        }
-
-
-        //private void SaveAndCommit_old(string strAction)
-        //{
-        //    Page.Validate();
-        //    if (Page.IsValid)
-        //    {
-        //        DateTime OpenPeriod = period.GetLatestOpenEndDate(LoginInfo.ConnStr).AddHours(23).AddMinutes(55);
-
-        //        // DateTime OpenPeriod = GetOpenPeriod();
-        //        DateTime InvCommittedDate;
-
-        //        if (DateTime.Today > OpenPeriod)  // Over than open period (DateTime)
-        //        {
-        //            if (de_RecDate.Date.Date <= OpenPeriod.Date)
-        //                InvCommittedDate = OpenPeriod;
-        //            else
-        //                InvCommittedDate = DateTime.Today;
-        //        }
-        //        else // In period
-        //            InvCommittedDate = DateTime.Today;
-
-
-        //        var MODE = Request.Params["MODE"];
-        //        var value = cmb_DeliPoint.Value.ToString().Split(':');
-
-        //        //For Edit 
-        //        if (MODE.ToUpper() == "EDIT")
-        //        {
-        //            #region
-        //            var drSave = dsSave.Tables[rec.TableName].Rows[0];
-
-        //            drSave["RecNo"] = txt_RecNo.Text;
-
-        //            drSave["Description"] = (txt_Desc.Text != null ? txt_Desc.Text : string.Empty);
-        //            drSave["DeliPoint"] = value[0];
-        //            drSave["InvoiceNo"] = (txt_InvNo.Text != null ? txt_InvNo.Text : string.Empty);
-        //            drSave["VendorCode"] = lbl_VendorCode.Text;
-        //            drSave["CurrencyCode"] = ddl_Currency.Value.ToString();
-        //            drSave["ExRateAudit"] = Convert.ToDecimal(txt_ExRateAu.Text);
-        //            // Added on: 15/08/2017, By: Fon, For: New Muti-currency.
-        //            drSave["CurrencyRate"] = Convert.ToDecimal(txt_ExRateAu.Text);
-
-        //            drSave["IsCashConsign"] = Convert.ToBoolean(chk_CashConsign.Checked);
-        //            drSave["UpdatedDate"] = ServerDateTime;
-        //            drSave["UpdatedBy"] = LoginInfo.LoginName;
-        //            drSave["ExportStatus"] = false;
-
-        //            if (strAction == "Committed")
-        //            {
-        //                drSave["DocStatus"] = "Committed";
-        //                //drSave["CommitDate"] = ServerDateTime;
-        //                drSave["CommitDate"] = InvCommittedDate;
-        //            }
-        //            else
-        //            {
-        //                drSave["DocStatus"] = "Received";
-        //            }
-
-        //            if (de_InvDate.Value != null)
-        //            {
-        //                drSave["InvoiceDate"] = DateTime.Parse(de_InvDate.Date.ToString());
-        //            }
-        //            else
-        //            {
-        //                drSave["InvoiceDate"] = DBNull.Value;
-        //            }
-        //            #endregion
-        //        }
-        //        else //For Create
-        //        {
-        //            #region
-        //            rec.GetStructure(dsSave, hf_ConnStr.Value);
-        //            var drSaveNew = dsSave.Tables[rec.TableName].NewRow();
-
-        //            // For new
-        //            drSaveNew["RecNo"] = rec.GetNewID(DateTime.Parse(de_RecDate.Text), hf_ConnStr.Value);
-        //            drSaveNew["RecDate"] =
-        //                DateTime.Parse(de_RecDate.Date.ToShortDateString() + " " + ServerDateTime.TimeOfDay);
-        //            drSaveNew["Description"] = (txt_Desc.Text != null ? txt_Desc.Text : string.Empty);
-        //            drSaveNew["DeliPoint"] = value[0];
-        //            drSaveNew["InvoiceNo"] = (txt_InvNo.Text != null ? txt_InvNo.Text : string.Empty);
-        //            drSaveNew["VendorCode"] = lbl_VendorCode.Text;
-        //            drSaveNew["CurrencyCode"] = ddl_Currency.Value.ToString();
-        //            drSaveNew["ExRateAudit"] = Convert.ToDecimal(txt_ExRateAu.Text);
-
-        //            // Added on: 15/08/2017, By: Fon, For: New Muti-currency
-        //            drSaveNew["CurrencyRate"] = Convert.ToDecimal(txt_ExRateAu.Text);
-
-        //            drSaveNew["IsCashConsign"] = Convert.ToBoolean(chk_CashConsign.Checked);
-        //            drSaveNew["CreatedDate"] = ServerDateTime;
-        //            drSaveNew["CreatedBy"] = LoginInfo.LoginName;
-        //            //drSaveNew["UpdatedDate"] = ServerDateTime;
-        //            drSaveNew["UpdatedDate"] = InvCommittedDate;
-        //            drSaveNew["UpdatedBy"] = LoginInfo.LoginName;
-        //            drSaveNew["ExportStatus"] = false;
-        //            drSaveNew["PoSource"] = dsRecEdit.Tables[rec.TableName].Rows[0]["PoSource"];
-
-        //            if (de_InvDate.Value != null)
-        //            {
-        //                drSaveNew["InvoiceDate"] = DateTime.Parse(de_InvDate.Date.ToString());
-        //            }
-        //            else
-        //            {
-        //                drSaveNew["InvoiceDate"] = DBNull.Value;
-        //            }
-
-        //            if (strAction == "Committed")
-        //            {
-        //                drSaveNew["DocStatus"] = "Committed";
-        //                //drSaveNew["CommitDate"] = ServerDateTime;
-        //                drSaveNew["CommitDate"] = InvCommittedDate;
-        //            }
-        //            else
-        //            {
-        //                drSaveNew["DocStatus"] = "Received";
-        //            }
-
-        //            dsSave.Tables[rec.TableName].Rows.Add(drSaveNew);
-
-        //            recDt.GetStructure(dsSave, hf_ConnStr.Value);
-
-        //            if (grd_RecEdit.Rows.Count > 0)
-        //            {
-        //                foreach (DataRow drSelectedNew in dsRecEdit.Tables[recDt.TableName].Rows)
-        //                {
-        //                    if (drSelectedNew.RowState != DataRowState.Deleted)
-        //                    {
-        //                        if ((Convert.ToDecimal(drSelectedNew["RecQty"]) > 0))
-        //                        {
-        //                            // For Detail
-        //                            var drRecdtNew = dsSave.Tables[recDt.TableName].NewRow();
-
-        //                            drRecdtNew["RecNo"] = rec.GetNewID(DateTime.Parse(de_RecDate.Text), hf_ConnStr.Value);
-        //                            drRecdtNew["RecDtNo"] = RecDtNo + 1;
-        //                            drRecdtNew["LocationCode"] = drSelectedNew["LocationCode"];
-        //                            drRecdtNew["ProductCode"] = drSelectedNew["ProductCode"];
-        //                            drRecdtNew["UnitCode"] = drSelectedNew["UnitCode"];
-        //                            drRecdtNew["OrderQty"] = Convert.ToDecimal(drSelectedNew["OrderQty"]);
-        //                            drRecdtNew["FOCQty"] =
-        //                                (Convert.ToDecimal(drSelectedNew["FOCQty"] == DBNull.Value
-        //                                    ? 0
-        //                                    : (decimal)drSelectedNew["FOCQty"]));
-        //                            drRecdtNew["RecQty"] =
-        //                                (Convert.ToDecimal(drSelectedNew["RecQty"] == DBNull.Value
-        //                                    ? 0
-        //                                    : (decimal)drSelectedNew["RecQty"]));
-        //                            drRecdtNew["Price"] =
-        //                                (Convert.ToDecimal(drSelectedNew["Price"] == DBNull.Value
-        //                                    ? 0
-        //                                    : (decimal)drSelectedNew["Price"]));
-        //                            drRecdtNew["Discount"] =
-        //                                (Convert.ToDecimal(drSelectedNew["Discount"] == DBNull.Value
-        //                                    ? 0
-        //                                    : (decimal)drSelectedNew["Discount"]));
-        //                            drRecdtNew["DiccountAmt"] =
-        //                                (Convert.ToDecimal(drSelectedNew["DiccountAmt"] == DBNull.Value
-        //                                    ? 0
-        //                                    : (decimal)drSelectedNew["DiccountAmt"]));
-        //                            drRecdtNew["TaxType"] = drSelectedNew["TaxType"];
-        //                            drRecdtNew["TaxRate"] = drSelectedNew["TaxRate"];
-        //                            drRecdtNew["TaxAdj"] = (bool)drSelectedNew["TaxAdj"];
-        //                            drRecdtNew["NetAmt"] =
-        //                                (Convert.ToDecimal(drSelectedNew["NetAmt"] == DBNull.Value
-        //                                    ? 0
-        //                                    : (decimal)drSelectedNew["NetAmt"]));
-        //                            drRecdtNew["TaxAmt"] =
-        //                                (Convert.ToDecimal(drSelectedNew["TaxAmt"] == DBNull.Value
-        //                                    ? 0
-        //                                    : (decimal)drSelectedNew["TaxAmt"]));
-        //                            drRecdtNew["TotalAmt"] =
-        //                                (Convert.ToDecimal(drSelectedNew["TotalAmt"] == DBNull.Value
-        //                                    ? 0
-        //                                    : (decimal)drSelectedNew["TotalAmt"]));
-        //                            drRecdtNew["PoNo"] = drSelectedNew["PoNo"];
-        //                            drRecdtNew["PoDtNo"] = drSelectedNew["PoDtNo"];
-        //                            drRecdtNew["PrNo"] = drSelectedNew["PrNo"];
-        //                            drRecdtNew["NetDrAcc"] = drSelectedNew["NetDrAcc"];
-        //                            drRecdtNew["TaxDrAcc"] = drSelectedNew["TaxDrAcc"];
-        //                            drRecdtNew["ExportStatus"] = false;
-        //                            drRecdtNew["Descen"] = drSelectedNew["Descen"];
-        //                            drRecdtNew["Descll"] = drSelectedNew["Descll"];
-        //                            drRecdtNew["Comment"] = drSelectedNew["Comment"];
-        //                            drRecdtNew["Rate"] = drSelectedNew["Rate"];
-        //                            drRecdtNew["RcvUnit"] = drSelectedNew["RcvUnit"];
-        //                            drRecdtNew["Status"] = (strAction == "Committed" ? "Committed" : "Received");
-
-        //                            // Add new record
-        //                            dsSave.Tables[recDt.TableName].Rows.Add(drRecdtNew);
-
-        //                            RecDtNo = Convert.ToInt32(drRecdtNew["RecDtNo"]);
-
-        //                            //this.UpdateInventoryForCommit(drRecdtNew);
-        //                        }
-        //                        else
-        //                        {
-        //                            lbl_WarningDelete.Text = "Receiving is not complete";
-        //                            pop_WarningDelete.ShowOnPageLoad = true;
-        //                            return;
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //            #endregion
-        //        }
-
-
-        //        // Update Inventory Ledger ****************************************************
-        //        if (dsSave.Tables[inv.TableName] == null)
-        //        {
-        //            inv.GetListByHdrNo(dsSave, dsSave.Tables[rec.TableName].Rows[0]["RecNo"].ToString(), hf_ConnStr.Value);
-        //        }
-
-        //        foreach (DataRow drDelete in dsSave.Tables[inv.TableName].Rows)
-        //        {
-        //            if (drDelete.RowState != DataRowState.Deleted)
-        //            {
-        //                drDelete.Delete();
-        //            }
-        //        }
-
-
-
-
-        //        for (var i = dsSave.Tables[recDt.TableName].Rows.Count - 1; i >= 0; i--)
-        //        {
-        //            var drSelected = dsSave.Tables[recDt.TableName].Rows[i];
-
-        //            if (drSelected.RowState != DataRowState.Deleted)
-        //            {
-        //                if (Convert.ToDecimal(drSelected["RecQty"]) > 0)
-        //                {
-        //                    if (strAction == "Committed")
-        //                    {
-        //                        drSelected["Status"] = "Committed";
-        //                        UpdateInventoryForCommit(drSelected);
-        //                    }
-
-        //                    drSelected["Status"] = strAction;
-        //                }
-        //                else // if (Convert.ToDecimal(drSelected["RecQty"]) <= 0)
-        //                {
-        //                    drSelected.Delete();
-        //                }
-        //                //else
-        //                //{
-        //                //    lbl_WarningDelete.Text = "Receiving is not complete";
-        //                //    pop_WarningDelete.ShowOnPageLoad = true;
-
-        //                //    return;
-        //                //}
-        //            }  //if not deleted.
-        //        }
-
-        //        // ********************************************************************************
-
-        //        //Save Data to 3 tables Rec, RecDt and Inventory.
-        //        string recNo = string.Empty;
-        //        var result = rec.Save(dsSave, hf_ConnStr.Value);
-        //        if (result)
-        //        #region
-        //        {
-        //            //Update Po.DocStatus, PoDt.RcvQty, Product.LastCost(Update only commit)
-        //            UpdateRelateTable();
-        //            {
-
-        //                //CreateAccountMap(dsRecEdit, hf_ConnStr.Value);
-        //                //string RecNo = string.Empty;
-
-        //                if (MODE == "EDIT")
-        //                {
-        //                    recNo = txt_RecNo.Text;
-
-        //                }
-        //                else
-        //                {
-        //                    recNo = dsSave.Tables[rec.TableName].Rows[0]["RecNo"].ToString();
-        //                }
-
-        //                // Update average cost ********************************************************
-        //                //Get StartDate and EndDate for update Avg in inventory                    
-        //                //var startDate = period.GetStartDate(Convert.ToDateTime(dsSave.Tables[rec.TableName].Rows[0]["RecDate"]), hf_ConnStr.Value);
-        //                //var endDate = period.GetEndDate(Convert.ToDateTime(dsSave.Tables[rec.TableName].Rows[0]["RecDate"]), hf_ConnStr.Value);
-
-        //                //foreach (DataRow drRecDt in dsSave.Tables[recDt.TableName].Rows)
-        //                //{
-        //                //inv.SetPAvgAudit(startDate, endDate, drRecDt["LocationCode"].ToString(), drRecDt["ProductCode"].ToString(), hf_ConnStr.Value);
-        //                //}
-
-        //                inv.UpdateAverageCostByDocument(recNo, LoginInfo.ConnStr);
-        //                // ****************************************************************************
-
-        //                pop_ConfirmSave.ShowOnPageLoad = false;
-
-        //                // Added on: 20/09/2017, By: Fon
-        //                ClassLogTool pctool = new ClassLogTool();
-        //                pctool.SaveActionLog("RC", recNo, strAction);
-        //                // End Added.
-
-        //                Response.Redirect("Rec.aspx?ID=" + recNo + "&BuCode=" + Request.Params["BuCode"] + "&Vid=" + Request.Params["Vid"]);
-        //            }
-        //        }
-        //        #endregion
-
-        //    } // if Page.Valid
-        //}
-
-        //private void CreateAccountMap(DataSet dsSave, string connStr)
-        //{
-        //foreach (DataRow item in dsSave.Tables[recDt.TableName].Rows)
-        //{
-        //    var p = product.GetProductCategory(item["ProductCode"].ToString(), connStr);
-
-        //    var s = new StringBuilder().AppendFormat(
-        //        @"BusinessUnitCode = '{0}' and StoreCode = '{1}'  and ItemGroupCode = '{2}' and PostType = 'AP'",
-        //        Request.Params["BuCode"], item["LocationCode"], p).ToString();
-        //    //s += " and ItemGroupCode = '" + p + "'";
-        //    //s += " and A1 = 'RC'";
-
-        //    var ds = new DataSet();
-        //    accountMapp.GetStructure(ds, connStr);
-
-
-        //    var dt = accountMapp.GetList(connStr);
-        //    var drs = dt.Select(s).ToList();
-
-        //    if (drs.Count <= 0)
-        //    {
-        //        var dr = ds.Tables[accountMapp.TableName].NewRow();
-        //        dr["ID"] = Guid.NewGuid(); // accMapp.GetNewID(connStr);
-        //        dr["BusinessUnitCode"] = Request.Params["BuCode"];
-        //        dr["StoreCode"] = item["LocationCode"];
-        //        //dr["ItemGroupCode"] = p;
-        //        //dr["A1"] = "RC";
-        //        dr["A3"] = item["NetDrAcc"];
-        //        dr["A4"] = item["TaxDrAcc"];
-        //        dr["PostType"] = "AP";
-
-        //        ds.Tables[accountMapp.TableName].Rows.Add(dr);
-
-        //        var save = accountMapp.Save(ds, connStr);
-
-        //        if (save)
-        //        {
-        //            //Response.Write("SUCCESS");
-        //        }
-        //    }
-        //}
-        //}
-
-
-        private void UpdateRelateTable(string recNo)
-        {
-
-            // Update to podetail and Po status.
-            var MsgError = string.Empty;
-            var strChkPo = string.Empty;
-            var strPo = string.Empty;
-            var strChkProd = string.Empty;
-            var strProd = string.Empty;
-
-            var returnPO = false;
-            var returnProd = false;
-
-            if (dsSave.Tables[rec.TableName].Rows[0]["PoSource"].ToString() != string.Empty &&
-                dsSave.Tables[rec.TableName].Rows[0]["PoSource"].ToString() != LoginInfo.BuInfo.BuCode)
-            {
-                hf_ConnStr.Value = bu.GetConnectionString(dsSave.Tables[rec.TableName].Rows[0]["PoSource"].ToString());
-            }
-
-            foreach (DataRow drChkPoNo in dsSave.Tables[recDt.TableName].Rows)
-            {
-                if (drChkPoNo.RowState != DataRowState.Deleted)
+                if (de_InvDate.Value != null)
                 {
-                    if (strPo == string.Empty)
-                    {
-                        strPo = "'" + drChkPoNo["PoNo"] + "'";
-                        strChkPo = drChkPoNo["PoNo"].ToString();
-                    }
-                    else
-                    {
-                        if (strChkPo != drChkPoNo["PoNo"].ToString())
-                        {
-                            strPo += ", '" + drChkPoNo["PoNo"] + "'";
-                            strChkPo = drChkPoNo["PoNo"].ToString();
-                        }
-                    }
-
-                    if (strProd == string.Empty)
-                    {
-                        strProd = "'" + drChkPoNo["ProductCode"] + "'";
-                        strChkProd = drChkPoNo["ProductCode"].ToString();
-                    }
-                    else
-                    {
-                        if (strChkProd != drChkPoNo["ProductCode"].ToString())
-                        {
-                            strProd += ", '" + drChkPoNo["ProductCode"] + "'";
-                            strChkProd = drChkPoNo["ProductCode"].ToString();
-                        }
-                    }
+                    drSave["InvoiceDate"] = de_InvDate.Date.Date;
+                }
+                else
+                {
+                    drSave["InvoiceDate"] = DBNull.Value;
                 }
 
+                //drSave["TotalExtraCost"] = string.IsNullOrEmpty(se_TotalExtraCost.Text) ? 0m : Convert.ToDecimal(se_TotalExtraCost.Value);
+                drSave["TotalExtraCost"] = se_TotalExtraCost.Number;
+
+                if (rdb_ExtraCostByAmt.Checked)
+                    drSave["ExtraCostBy"] = "A";
+                else
+                    drSave["ExtraCostBy"] = "Q";
+
+                #endregion
             }
-
-            if (strChkPo != string.Empty)
+            else //For Create
             {
-                po.GetList_PoNo(dsPoUpdate, ref MsgError, strPo, hf_ConnStr.Value);
-                poDt.GetPoDt_PoNo(dsPoUpdate, ref MsgError, strPo, hf_ConnStr.Value);
-            }
+                _action = "CREATE";
 
-            product.Get2(dsSave, ref MsgError, strProd, hf_ConnStr.Value);
+                #region
+                rec.GetStructure(dsSave, hf_ConnStr.Value);
+                var drSaveNew = dsSave.Tables[rec.TableName].NewRow();
 
-            //Retrieve Data PO and PODt for Update field.
-            foreach (DataRow drSelected in dsSave.Tables[recDt.TableName].Rows)
-            {
-                if (drSelected.RowState != DataRowState.Deleted)
+
+                // For new
+                string newRecNo = rec.GetNewID(de_RecDate.Date.Date, hf_ConnStr.Value);
+                drSaveNew["RecNo"] = newRecNo;
+                drSaveNew["RecDate"] = de_RecDate.Date.Date;
+                drSaveNew["Description"] = txt_Desc.Text;
+                drSaveNew["DeliPoint"] = deliPoint;
+                drSaveNew["InvoiceNo"] = txt_InvNo.Text.Trim();
+                drSaveNew["VendorCode"] = lbl_VendorCode.Text.Trim();
+                drSaveNew["CurrencyCode"] = ddl_Currency.Value.ToString();
+                drSaveNew["ExRateAudit"] = currRate;
+                drSaveNew["CurrencyRate"] = currRate;
+
+                drSaveNew["IsCashConsign"] = Convert.ToBoolean(chk_CashConsign.Checked);
+                drSaveNew["CreatedDate"] = ServerDateTime;
+                drSaveNew["CreatedBy"] = LoginInfo.LoginName;
+                drSaveNew["UpdatedDate"] = ServerDateTime;
+                drSaveNew["UpdatedBy"] = LoginInfo.LoginName;
+                drSaveNew["ExportStatus"] = false;
+                drSaveNew["PoSource"] = dsRecEdit.Tables[rec.TableName].Rows[0]["PoSource"];
+
+                if (drSaveNew.Table.Columns.Contains("TotalExtraCost"))
+                    drSaveNew["TotalExtraCost"] = Convert.ToDecimal(se_TotalExtraCost.Number);
+
+                if (de_InvDate.Value != null)
                 {
-                    //Case select edit than delete item detail. 
-                    if (delValues.Count > 0)
+                    drSaveNew["InvoiceDate"] = DateTime.Parse(de_InvDate.Date.ToString());
+                }
+                else
+                {
+                    drSaveNew["InvoiceDate"] = DBNull.Value;
+                }
+
+                if (strAction == "Committed")
+                {
+                    drSaveNew["DocStatus"] = "Committed";
+                    drSaveNew["CommitDate"] = ServerDateTime;
+                }
+                else
+                {
+                    drSaveNew["DocStatus"] = "Received";
+                }
+
+                if (drSaveNew.Table.Columns.Contains("TotalExtraCost"))
+                    drSaveNew["TotalExtraCost"] = se_TotalExtraCost.Text == string.Empty ? 0m : Convert.ToDecimal(se_TotalExtraCost.Value.ToString());
+
+                dsSave.Tables[rec.TableName].Rows.Add(drSaveNew);
+
+                recDt.GetStructure(dsSave, hf_ConnStr.Value);
+
+                if (grd_RecEdit.Rows.Count > 0)
+                {
+                    foreach (DataRow drSelectedNew in dsRecEdit.Tables[recDt.TableName].Rows)
                     {
-                        //for (var i = 0; i < delValues.Count; i += 3)
-                        for (var i = 0; i < delValues.Count; i++)
+                        if (drSelectedNew.RowState != DataRowState.Deleted)
                         {
-                            foreach (DataRow drDelItem in dsPoUpdate.Tables[poDt.TableName].Rows)
+                            if ((Convert.ToDecimal(drSelectedNew["RecQty"]) > 0))
                             {
-                                //if (drDelItem["PoNo"].ToString() == delValues[i] &&
-                                //    drDelItem["PoDt"].ToString() == delValues[i + 1])
-                                //{
-                                //    drDelItem["RcvQty"] = Convert.ToDecimal(drDelItem["RcvQty"].ToString()) - Convert.ToDecimal(delValues[i + 2]);
-                                //    break;
-                                //}
-                                string poNo = delValues[i].Split(',')[0];
-                                string poDtNo = delValues[i].Split(',')[1];
-                                string rcvQty = delValues[i].Split(',')[2];
+                                // For Detail
+                                var drRecdtNew = dsSave.Tables[recDt.TableName].NewRow();
 
-                                if (drDelItem["PoNo"].ToString() == poNo && drDelItem["PoDt"].ToString() == poDtNo)
+                                drRecdtNew["RecNo"] = newRecNo; //rec.GetNewID(DateTime.Parse(de_RecDate.Text), hf_ConnStr.Value);
+                                drRecdtNew["RecDtNo"] = RecDtNo + 1;
+                                drRecdtNew["LocationCode"] = drSelectedNew["LocationCode"];
+                                drRecdtNew["ProductCode"] = drSelectedNew["ProductCode"];
+                                drRecdtNew["UnitCode"] = drSelectedNew["UnitCode"];
+                                drRecdtNew["OrderQty"] = Convert.ToDecimal(drSelectedNew["OrderQty"]);
+                                drRecdtNew["FOCQty"] =
+                                    (Convert.ToDecimal(drSelectedNew["FOCQty"] == DBNull.Value
+                                        ? 0
+                                        : (decimal)drSelectedNew["FOCQty"]));
+                                drRecdtNew["RecQty"] =
+                                    (Convert.ToDecimal(drSelectedNew["RecQty"] == DBNull.Value
+                                        ? 0
+                                        : (decimal)drSelectedNew["RecQty"]));
+                                drRecdtNew["Price"] =
+                                    (Convert.ToDecimal(drSelectedNew["Price"] == DBNull.Value
+                                        ? 0
+                                        : (decimal)drSelectedNew["Price"]));
+                                drRecdtNew["Discount"] =
+                                    (Convert.ToDecimal(drSelectedNew["Discount"] == DBNull.Value
+                                        ? 0
+                                        : (decimal)drSelectedNew["Discount"]));
+                                drRecdtNew["TaxType"] = drSelectedNew["TaxType"];
+                                drRecdtNew["TaxRate"] = drSelectedNew["TaxRate"];
+                                drRecdtNew["TaxAdj"] = (bool)drSelectedNew["TaxAdj"];
+
+                                drRecdtNew["NetAmt"] = drSelectedNew["NetAmt"];
+                                drRecdtNew["TaxAmt"] = drSelectedNew["TaxAmt"];
+                                drRecdtNew["DiccountAmt"] = drSelectedNew["DiccountAmt"];
+                                drRecdtNew["TotalAmt"] = drSelectedNew["TotalAmt"];
+
+                                drRecdtNew["CurrNetAmt"] = drSelectedNew["CurrNetAmt"];
+                                drRecdtNew["CurrTaxAmt"] = drSelectedNew["CurrTaxAmt"];
+                                drRecdtNew["CurrDiscAmt"] = drSelectedNew["CurrDiscAmt"];
+                                drRecdtNew["CurrTotalAmt"] = drSelectedNew["CurrTotalAmt"];
+
+
+                                drRecdtNew["PoNo"] = drSelectedNew["PoNo"];
+                                drRecdtNew["PoDtNo"] = drSelectedNew["PoDtNo"];
+                                drRecdtNew["PrNo"] = drSelectedNew["PrNo"];
+                                drRecdtNew["NetDrAcc"] = drSelectedNew["NetDrAcc"];
+                                drRecdtNew["TaxDrAcc"] = drSelectedNew["TaxDrAcc"];
+                                drRecdtNew["ExportStatus"] = false;
+                                drRecdtNew["Descen"] = drSelectedNew["Descen"];
+                                drRecdtNew["Descll"] = drSelectedNew["Descll"];
+                                drRecdtNew["Comment"] = drSelectedNew["Comment"];
+                                drRecdtNew["Rate"] = drSelectedNew["Rate"];
+                                drRecdtNew["RcvUnit"] = drSelectedNew["RcvUnit"];
+                                drRecdtNew["DiscAdj"] = drSelectedNew["DiscAdj"];
+                                drRecdtNew["Status"] = (strAction == "Committed" ? "Committed" : "Received");
+                                if (drRecdtNew.Table.Columns.Contains("TotalExtraCost"))
                                 {
-                                    drDelItem["RcvQty"] = Convert.ToDecimal(drDelItem["RcvQty"].ToString()) - Convert.ToDecimal(rcvQty);
-                                    break;
+                                    drRecdtNew["ExpiryDate"] = drSelectedNew["ExpiryDate"];
+                                    drRecdtNew["ExtraCost"] = drSelectedNew["ExtraCost"];
                                 }
+                                // Add new record
+                                dsSave.Tables[recDt.TableName].Rows.Add(drRecdtNew);
+
+                                RecDtNo = Convert.ToInt32(drRecdtNew["RecDtNo"]);
 
                             }
-
-                            dsPoUpdate.Tables[po.TableName].Rows[0]["DocStatus"] = "Partial";
+                            else
+                            {
+                                lbl_WarningDelete.Text = "Receiving is not complete";
+                                pop_WarningDelete.ShowOnPageLoad = true;
+                                return;
+                            }
                         }
                     }
-
-                    var decSum = recDt.GetSumRecQty(drSelected["PoNo"].ToString(), drSelected["PoDtNo"].ToString(),
-                        LoginInfo.ConnStr);
-
-                    foreach (DataRow drPoDt in dsPoUpdate.Tables[poDt.TableName].Rows)
-                    {
-                        if (drSelected["PoNo"].Equals(drPoDt["PoNo"]) & drSelected["PoDtNo"].Equals(drPoDt["PoDt"]))
-                        {
-                            drPoDt["RcvQty"] = decSum;
-                        }
-                    }
-
                 }
+                #endregion
+            }
+
+            var recNo = _mode == "EDIT" ? txt_RecNo.Text : dsSave.Tables[rec.TableName].Rows[0]["RecNo"].ToString();
+
+
+            // Update Inventory Ledger ****************************************************
+            if (!string.IsNullOrEmpty(txt_RecNo.Text))
+            {
+                var sql = string.Format("DELETE FROM [IN].Inventory WHERE HdrNo='{0}' AND [Type]='RC'", txt_RecNo.Text);
+                rec.DbExecuteQuery(sql, null, hf_ConnStr.Value);
+
+                inv.GetListByHdrNo(dsSave, recNo, hf_ConnStr.Value);
             }
 
 
-            if (MODE.ToUpper() == "EDIT")
+            // Re-Calculation Extra Cost
+            if (se_TotalExtraCost.Number > 0)
             {
-                // Update PC.PoDt : RcvQty , FocQty
-                for (int i = 0; i < delValues.Count; i++)
+                AllocateExtraCost();
+
+                var dtRecDt = dsRecEdit.Tables[recDt.TableName];
+                var dtSave = dsSave.Tables[recDt.TableName];
+
+                for (int i = 0; i < dtRecDt.Rows.Count; i++)
                 {
-                    string poNo = delValues[i].Split(',')[0];
-                    string poDtNo = delValues[i].Split(',')[1];
-                    string rcvQty = delValues[i].Split(',')[2];
-                    string focQty = delValues[i].Split(',')[3];
-
-                    string sql = string.Format("UPDATE PC.PoDt SET RcvQty = RcvQty-{0}, FocQty = FocQty-{1} WHERE PoNo = '{2}' AND PoDt = {3}", rcvQty, focQty, poNo, poDtNo);
-                    recDt.DbExecuteQuery(sql, null, hf_ConnStr.Value);
-
-                    // Update PC.Po : DocStatus
-
-                    sql = string.Format("SELECT COUNT(*) AS RecordCount FROM PC.REC rec JOIN PC.RecDt recdt ON recdt.RecNo = rec.RecNo WHERE DocStatus <> 'Voided' AND recdt.PoNo = '{0}'", poNo);
-                    DataTable dt = recDt.DbExecuteQuery(sql, null, hf_ConnStr.Value);
-                    int recordCount = Convert.ToInt32(dt.Rows[0]["RecordCount"]);
-
-                    if (recordCount == 0) // Not found po in receiving
-                        sql = string.Format("UPDATE PC.Po SET DocStatus = 'Printed' WHERE PoNo = '{0}'", poNo);
-                    else
-                        sql = string.Format("UPDATE PC.Po SET DocStatus = 'Partial' WHERE PoNo = '{0}'", poNo);
-                    recDt.DbExecuteQuery(sql, null, hf_ConnStr.Value);
-
-
-
+                    if (dtRecDt.Rows[i].RowState != DataRowState.Deleted)
+                    {
+                        dtSave.Rows[i]["ExtraCost"] = dtRecDt.Rows[i]["ExtraCost"];
+                    }
                 }
             }
 
-            returnPO = po.Save(dsPoUpdate, hf_ConnStr.Value);
-            returnProd = product.Save(dsSave, hf_ConnStr.Value);
 
-            //Check order quantity,receive quantity and cancel quantity.
-            //if receive quantity plus cancel quantitty equal to order quantity or more than order quantity,PO's document status change to 'Received'.
-            DataTable dtPo = rec.DbExecuteQuery(string.Format("SELECT DISTINCT PoNo FROM PC.RECDt WHERE RecNo = '{0}'", recNo), null, LoginInfo.ConnStr);
+            var result = rec.Save(dsSave, hf_ConnStr.Value);
 
-            foreach (DataRow dr in dtPo.Rows)
+            if (result)
             {
-                string poNo = dr["PoNo"].ToString();
-                // Check if there is some detail of PO that still remain OrdQty (OrdQty <> RcvQTy + CancelQty)
-                string sql = "SELECT COUNT(*) as RecordCount";
-                sql += " FROM PC.PoDt";
-                sql += " WHERE OrdQty <> RcvQty+CancelQty";
-                sql += string.Format(" AND PoNo = '{0}'", poNo);
+                rec.DbExecuteQuery("EXEC PC.RecUpdatePo @DocNo", new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@DocNo", recNo) }, LoginInfo.ConnStr);
 
-                DataTable dt = recDt.DbExecuteQuery(sql, null, hf_ConnStr.Value);
-                if (dt.Rows[0]["RecordCount"].ToString() == "0")
-                    sql = string.Format("UPDATE PC.Po SET DocStatus = 'Completed' WHERE PoNo = '{0}'", poNo);
-                else
-                    sql = string.Format("UPDATE PC.Po SET DocStatus = 'Partial' WHERE PoNo = '{0}'", poNo);
 
-                recDt.DbExecuteQuery(sql, null, hf_ConnStr.Value);
+                _transLog.Save("PC", "REC", recNo, _action, string.Empty, LoginInfo.LoginName, hf_ConnStr.Value);
+
+                // Update PC.RecExtCost
+                string sqlDel = string.Format("DELETE FROM PC.RecExtCost WHERE RecNo = '{0}';", recNo);
+                string sqlIns = string.Empty;
+
+                DataTable dt = dsRecEdit.Tables[recExtCost];
+                if (dt.Rows.Count > 0)
+                {
+                    int i = 0;
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        if (dr.RowState != DataRowState.Deleted)
+                            sqlIns += string.Format("('{0}', {1}, {2}, {3}),", recNo, ++i, dr["TypeId"].ToString(), dr["Amount"].ToString());
+                    }
+
+                    if (sqlIns != string.Empty)
+                    {
+                        sqlIns = "INSERT INTO PC.RecExtCost (RecNo, DtNo, TypeId, Amount) VALUES " + sqlIns;
+                        sqlIns = sqlIns.Remove(sqlIns.Length - 1);  // remove last comma (,)
+                    }
+                }
+
+                rec.DbExecuteQuery(sqlDel + sqlIns, null, hf_ConnStr.Value);
+                // ------------------------------
+
+                rec.DbExecuteQuery("UPDATE PC.RecDt SET [Status]='Received' WHERE RecNo=@DocNo", new Blue.DAL.DbParameter[]{ new Blue.DAL.DbParameter("@DocNo", recNo)}, LoginInfo.ConnStr);
+
+                // ------------------------------
+                if (strAction == "Committed")
+                {
+
+                    rec.DbExecuteQuery("EXEC PC.RecCommit @DocNo", new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@DocNo", recNo) }, LoginInfo.ConnStr);
+
+                    _transLog.Save("PC", "REC", recNo, "COMMIT", string.Empty, LoginInfo.LoginName, hf_ConnStr.Value);
+                }
+
+                pop_ConfirmCommit.ShowOnPageLoad = false;
+                pop_ConfirmSave.ShowOnPageLoad = false;
+
+                Response.Redirect("Rec.aspx?ID=" + recNo + "&BuCode=" + Request.Params["BuCode"] + "&Vid=" + Request.Params["Vid"]);
             }
+            else
+            {
+                lbl_WarningOth.Text = "Error while saving.";
+                pop_Warning.ShowOnPageLoad = true;
 
-            //decimal TotalOrdQty = 0;
-            //decimal TotalRcvQty = 0;
-            //decimal TotalCancelQty = 0;
-
-            //foreach (DataRow drPo in dsPoUpdate.Tables[po.TableName].Rows)
-            //{
-            //    TotalOrdQty = 0;
-            //    TotalRcvQty = 0;
-            //    TotalCancelQty = 0;
-
-            //    foreach (DataRow drPoDtCheck in dsPoUpdate.Tables[poDt.TableName].Rows)
-            //    {
-            //        if (drPoDtCheck.RowState != DataRowState.Deleted) //& drPoDtCheck.RowState == DataRowState.Modified
-            //        {
-            //            if (drPoDtCheck["PoNo"].ToString() == drPo["PoNo"].ToString())
-            //            {
-            //                TotalOrdQty += Convert.ToDecimal(drPoDtCheck["OrdQty"].ToString());
-            //                TotalRcvQty += Convert.ToDecimal(drPoDtCheck["RcvQty"].ToString());
-            //                TotalCancelQty += Convert.ToDecimal(drPoDtCheck["CancelQty"].ToString());
-            //            }
-            //        }
-            //    }
-
-            //    if (TotalOrdQty <= TotalRcvQty + TotalCancelQty)
-            //    {
-            //        //2013-03-01 
-            //        if (drPo["DocStatus"].ToString().ToUpper() == "PARTIAL" ||
-            //            drPo["DocStatus"].ToString().ToUpper() == "PRINTED")
-            //        {
-            //            drPo["DocStatus"] = "Completed";
-            //        }
-            //        else
-            //        {
-            //            // Case: 1 Po มี Rec หลายใบ ถ้ากด Commit Rec ใบใดใบหนึ่ง Status ของ PO = Partial
-            //            // ซึ่งต้องอธิบายให้ User เข้าใจคือ ยังมีใบ PO ที่ค้างอยู่ใน Rec ใบอื่นอยู่ ถ้ากด Commit ครบ สถานะของ PO ก็จะเป็น Completed
-            //            // แต่ปัญหาที่พบคือ กรณีที่ Rec กด Save ทำ PO ครบทุก Detail สถานะของ PO เป็น Partial ซึ่งต้องเป็น Completed
-            //            DataTable dtRec = new DataTable();
-            //            var intRecStatus = 0;
-            //            var intComStatus = 0;
-
-            //            dtRec = rec.GetListByRecStatus(drPo["PoNo"].ToString(), hf_ConnStr.Value);
-            //            if (dtRec != null && dtRec.Rows.Count > 0)
-            //            {
-            //                foreach (DataRow drChkDocStatus in dtRec.Rows)
-            //                {
-            //                    if (drChkDocStatus["DocStatus"].ToString().ToUpper() == "RECEIVED")
-            //                    {
-            //                        intRecStatus += 1;
-            //                    }
-            //                    else if (drChkDocStatus["DocStatus"].ToString().ToUpper() == "COMMITTED")
-            //                    {
-            //                        intComStatus += 1;
-            //                    }
-            //                }
-
-            //                if (intRecStatus == dtRec.Rows.Count)
-            //                {
-            //                    drPo["DocStatus"] = "Completed";
-            //                }
-            //                else
-            //                {
-            //                    if (intComStatus == dtRec.Rows.Count)
-            //                    {
-            //                        drPo["DocStatus"] = "Completed";
-            //                    }
-            //                    else
-            //                    {
-            //                        drPo["DocStatus"] = "Partial";
-            //                    }
-            //                }
-            //            }
-
-            //        }
-            //    }
-            //    else
-            //    {
-            //        drPo["DocStatus"] = "Partial";
-            //    }
-            //}
-
+            }
 
         }
+
 
         #endregion
 
@@ -4111,8 +3325,15 @@ namespace BlueLedger.PL.IN.REC
         {
             string errorMessage = string.Empty;
 
+
             if (grd_RecEdit.Rows.Count > 0)
             {
+                var startPeriodDate = period.GetLatestOpenStartDate(LoginInfo.ConnStr);
+
+                if (de_RecDate.Date < startPeriodDate)
+                {
+                    errorMessage = string.Format("Date should be on the openning period '{0}'.", startPeriodDate.ToString("dd/MM/yyyy"));
+                }
 
                 if (de_RecDate.Date.Date > DateTime.Today.Date)
                     errorMessage = "Receiving date does not allow in advance.";

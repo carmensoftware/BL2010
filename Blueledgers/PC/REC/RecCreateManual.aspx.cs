@@ -32,7 +32,7 @@ namespace BlueLedger.PL.IN.REC
 
         private readonly Blue.BL.Ref.Currency currency = new Blue.BL.Ref.Currency();
         private readonly Blue.BL.APP.Config config = new Blue.BL.APP.Config();
-        private readonly BlueLedger.PL.IN.REC.RecFunc recFunc = new BlueLedger.PL.IN.REC.RecFunc();
+        //private readonly BlueLedger.PL.IN.REC.RecFunc recFunc = new BlueLedger.PL.IN.REC.RecFunc();
 
         public DataSet dsImport = new DataSet();
         public DataSet DsRecEdit
@@ -225,6 +225,13 @@ namespace BlueLedger.PL.IN.REC
 
             if (grd_RecEdit.Rows.Count > 0)
             {
+                var startPeriodDate = period.GetLatestOpenStartDate(LoginInfo.ConnStr);
+
+                if (de_RecDate.Date < startPeriodDate)
+                {
+                    errorMessage = string.Format("Date should be on the openning period '{0}'.", startPeriodDate.ToString("dd/MM/yyyy"));
+                }
+
 
                 if (de_RecDate.Date.Date > DateTime.Today.Date)
                     errorMessage = "Receiving date does not allow in advance.";
@@ -3137,20 +3144,20 @@ as st where st.[rn] between @startIndex and @endIndex";
 
         private void SaveAndCommit(string strAction)
         {
+           
             Page.Validate();
 
             if (Page.IsValid)
             {
-                var mode = Request.Params["MODE"];
+                var _mode = Request.Params["MODE"];
                 var _action = string.Empty;
 
-                var OpenPeriod = period.GetLatestOpenEndDate(LoginInfo.ConnStr);
-                var InvCommittedDate = de_RecDate.Date.Date <= OpenPeriod.Date ? OpenPeriod : DateTime.Now;
+                //var OpenPeriod = period.GetLatestOpenEndDate(LoginInfo.ConnStr);
+                //var InvCommittedDate = de_RecDate.Date.Date <= OpenPeriod.Date ? OpenPeriod : DateTime.Now;
+               
                 var deliPoint = cmb_DeliPoint.Value.ToString().Split(':')[0];
                 var currencyRate = Convert.ToDecimal(txt_ExRateAu.Text);
                 bool isAVCO = config.GetValue("IN", "SYS", "COST", hf_ConnStr.Value).ToUpper() == "AVCO";
-
-
 
                 // Re-Calculation Extra Cost
                 AllocateExtraCost();
@@ -3158,14 +3165,12 @@ as st where st.[rn] between @startIndex and @endIndex";
                 //For Edit 
                 #region EDIT
 
-                if (mode.ToUpper() == "EDIT")
+                if (_mode.ToUpper() == "EDIT")
                 {
                     _action = "MODIFY";
 
                     dsSave = DsRecEdit;
                     var drSave = dsSave.Tables[Rec.TableName].Rows[0];
-
-                    //drSave["RecNo"] = txt_RecNo.Text;
 
                     drSave["Description"] = txt_Desc.Text.Trim();
                     drSave["DeliPoint"] = deliPoint;
@@ -3173,15 +3178,9 @@ as st where st.[rn] between @startIndex and @endIndex";
                     drSave["VendorCode"] = (ddl_Vendor.SelectedItem != null)
                         ? ddl_Vendor.SelectedItem.Value.ToString()
                         : ddl_Vendor.Value.ToString();
-
-                    // Modified on: 05/09/2017, By: Fon
-                    //drSave["CurrencyCode"] = lbl_Currency.Text;
-                    //drSave["ExRateAudit"] = Convert.ToDecimal(lbl_ExRateAu.Text);
                     drSave["CurrencyCode"] = ddl_Currency.Value.ToString();
                     drSave["ExRateAudit"] = currencyRate;
                     drSave["CurrencyRate"] = currencyRate;
-                    // End Modified.
-
                     drSave["IsCashConsign"] = Convert.ToBoolean(chk_CashConsign.Checked);
                     drSave["UpdatedDate"] = ServerDateTime;
                     drSave["UpdatedBy"] = LoginInfo.LoginName;
@@ -3235,8 +3234,8 @@ as st where st.[rn] between @startIndex and @endIndex";
                     var drSaveNew = dsSave.Tables[Rec.TableName].NewRow();
 
                     // For new
-                    string recNo = Rec.GetNewID(DateTime.Parse(de_RecDate.Text), hf_ConnStr.Value);
-                    drSaveNew["RecNo"] = recNo;
+                    string newRecNo = Rec.GetNewID(DateTime.Parse(de_RecDate.Text), hf_ConnStr.Value);
+                    drSaveNew["RecNo"] = newRecNo;
                     drSaveNew["RecDate"] = de_RecDate.Date.Date; //DateTime.Parse(de_RecDate.Date.ToShortDateString() + " " + ServerDateTime.TimeOfDay);
                     drSaveNew["Description"] = txt_Desc.Text.Trim();
                     drSaveNew["DeliPoint"] = deliPoint;
@@ -3300,7 +3299,7 @@ as st where st.[rn] between @startIndex and @endIndex";
                                     // For Detail
                                     var drRecdtNew = dsSave.Tables[RecDt.TableName].NewRow();
 
-                                    drRecdtNew["RecNo"] = recNo; // Rec.GetNewID(DateTime.Parse(de_RecDate.Text), hf_ConnStr.Value);
+                                    drRecdtNew["RecNo"] = newRecNo; // Rec.GetNewID(DateTime.Parse(de_RecDate.Text), hf_ConnStr.Value);
                                     drRecdtNew["RecDtNo"] = RecDtNo + 1;
                                     drRecdtNew["LocationCode"] = drSelectedNew["LocationCode"];
                                     drRecdtNew["ProductCode"] = (drSelectedNew["ProductCode"].ToString().Contains(":"))
@@ -3396,27 +3395,15 @@ as st where st.[rn] between @startIndex and @endIndex";
                 #endregion
 
 
-                // Update Inventory Ledger ****************************************************
-                if (dsSave.Tables.Contains(inv.TableName))
-                    dsSave.Tables.Remove(inv.TableName);
+                var recNo = _mode == "EDIT" ? txt_RecNo.Text : dsSave.Tables[Rec.TableName].Rows[0]["RecNo"].ToString();
 
+                if (!string.IsNullOrEmpty(txt_RecNo.Text))
+                {
+                    var sql = string.Format("DELETE FROM [IN].Inventory WHERE HdrNo='{0}' AND [Type]='RC'", txt_RecNo.Text);
+                    Rec.DbExecuteQuery(sql, null, hf_ConnStr.Value);
 
-                var hdrno = dsSave.Tables[Rec.TableName].Rows[0]["RecNo"].ToString();
-                inv.GetListByHdrNo(dsSave, hdrno, hf_ConnStr.Value);
-
-                //if (strAction == "Committed")
-                //{
-                //    Rec.DbExecuteQuery(string.Format("DELETE FROM [IN].Inventory WHERE [Type]='RC' AND HdrNo='{0}'", hdrno), null, hf_ConnStr.Value);
-
-                //    foreach (DataRow dr in dsSave.Tables[RecDt.TableName].Rows)
-                //    {
-                //        if (dr.RowState != DataRowState.Deleted)
-                //        {
-                //            //dr["Status"] = "Committed";
-                //            UpdateInventoryForCommit(dr);
-                //        }
-                //    }
-                //}
+                    inv.GetListByHdrNo(dsSave, recNo, hf_ConnStr.Value);
+                }
 
 
 
@@ -3439,11 +3426,11 @@ as st where st.[rn] between @startIndex and @endIndex";
 
 
                 var result = Rec.Save(dsSave, hf_ConnStr.Value);
+
                 if (result)
                 {
-                    var recNo = mode == "EDIT"
-                        ? txt_RecNo.Text
-                        : dsSave.Tables[Rec.TableName].Rows[0]["RecNo"].ToString();
+                    _transLog.Save("PC", "REC", recNo, _action, string.Empty, LoginInfo.LoginName, hf_ConnStr.Value);
+
 
                     // Update PC.RecExtCost
                     string sqlDel = string.Format("DELETE FROM PC.RecExtCost WHERE RecNo = '{0}';", recNo);
@@ -3470,29 +3457,22 @@ as st where st.[rn] between @startIndex and @endIndex";
 
                     // ------------------------------
 
+                    Rec.DbExecuteQuery("UPDATE PC.RecDt SET [Status]='Received' WHERE RecNo=@DocNo", new Blue.DAL.DbParameter[]{ new Blue.DAL.DbParameter("@DocNo", recNo)}, LoginInfo.ConnStr);
+
+
                     if (strAction == "Committed")
                     {
-                        var docNo = recNo;
-                        recFunc.InsertInventory(hf_ConnStr.Value, docNo, DateTime.Now);
+                        Rec.DbExecuteQuery("EXEC PC.RecCommit @DocNo", new Blue.DAL.DbParameter[]{ new Blue.DAL.DbParameter("@DocNo", recNo)}, LoginInfo.ConnStr);
+
+                        _transLog.Save("PC", "REC", recNo, "COMMIT", string.Empty, LoginInfo.LoginName, hf_ConnStr.Value);
                     }
 
-
-                    _transLog.Save("PC", "REC", recNo, _action, string.Empty, LoginInfo.LoginName, hf_ConnStr.Value);
-
-                    inv.UpdateAverageCostByDocument(recNo, LoginInfo.ConnStr);
 
                     // ****************************************************************************
 
                     pop_ConfirmSave.ShowOnPageLoad = false;
 
-                    var vid = Request.Params["vid"] ?? string.Empty;
-                    var buCode = Request.Params["BuCode"] ?? string.Empty;
-
-                    if (strAction == "Committed")
-                        _transLog.Save("PC", "REC", recNo, "COMMIT", string.Empty, LoginInfo.LoginName, hf_ConnStr.Value);
-
-
-                    Response.Redirect(new StringBuilder().AppendFormat("Rec.aspx?ID={0}&BuCode={1}&Vid={2}", recNo, buCode, vid).ToString());
+                    Response.Redirect("Rec.aspx?ID=" + recNo + "&BuCode=" + Request.Params["BuCode"] + "&Vid=" + Request.Params["Vid"]);
                 }
             }
         }
@@ -3503,11 +3483,6 @@ as st where st.[rn] between @startIndex and @endIndex";
 
         }
 
-        private void UpdateInventoryForCommit(DataRow drRecDt)
-        {
-            recFunc.SetConnectionString(hf_ConnStr.Value);
-            recFunc.UpdateInventoryForCommit(dsSave, drRecDt);
-        }
 
         #endregion
 
