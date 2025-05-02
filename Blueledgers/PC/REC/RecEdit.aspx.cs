@@ -2656,10 +2656,6 @@ namespace BlueLedger.PL.IN.REC
 
             Page.Validate();
 
-
-            //var OpenPeriod = period.GetLatestOpenEndDate(LoginInfo.ConnStr);
-            //var InvCommittedDate = de_RecDate.Date.Date <= OpenPeriod.Date ? OpenPeriod : DateTime.Now;
-
             var deliPoint = cmb_DeliPoint.Value.ToString().Split(':')[0];
             var currRate = Convert.ToDecimal(txt_ExRateAu.Text);
 
@@ -2669,8 +2665,9 @@ namespace BlueLedger.PL.IN.REC
             {
                 _action = "MODIFY";
 
-                #region
                 var drSave = dsSave.Tables[rec.TableName].Rows[0];
+
+                #region
 
                 //drSave["RecNo"] = txt_RecNo.Text;
                 drSave["Description"] = txt_Desc.Text.Trim();
@@ -2720,10 +2717,10 @@ namespace BlueLedger.PL.IN.REC
             {
                 _action = "CREATE";
 
-                #region
                 rec.GetStructure(dsSave, hf_ConnStr.Value);
                 var drSaveNew = dsSave.Tables[rec.TableName].NewRow();
 
+                #region
 
                 // For new
                 string newRecNo = rec.GetNewID(de_RecDate.Date.Date, hf_ConnStr.Value);
@@ -2922,7 +2919,7 @@ namespace BlueLedger.PL.IN.REC
                 rec.DbExecuteQuery(sqlDel + sqlIns, null, hf_ConnStr.Value);
                 // ------------------------------
 
-                rec.DbExecuteQuery("UPDATE PC.RecDt SET [Status]='Received' WHERE RecNo=@DocNo", new Blue.DAL.DbParameter[]{ new Blue.DAL.DbParameter("@DocNo", recNo)}, LoginInfo.ConnStr);
+                rec.DbExecuteQuery("UPDATE PC.RecDt SET [Status]='Received' WHERE RecNo=@DocNo", new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@DocNo", recNo) }, LoginInfo.ConnStr);
 
                 // ------------------------------
                 if (strAction == "Committed")
@@ -3323,59 +3320,86 @@ namespace BlueLedger.PL.IN.REC
 
         private string CheckRequiredBeforeSave()
         {
-            string errorMessage = string.Empty;
+            if (grd_RecEdit.Rows.Count == 0)
+                return "Cannot save because receiving have no any detail.";
 
+            var startPeriodDate = period.GetLatestOpenStartDate(LoginInfo.ConnStr);
 
-            if (grd_RecEdit.Rows.Count > 0)
+            if (de_RecDate.Date < startPeriodDate)
             {
-                var startPeriodDate = period.GetLatestOpenStartDate(LoginInfo.ConnStr);
+                return string.Format("Date should be on the openning period '{0}'.", startPeriodDate.ToString("dd/MM/yyyy"));
+            }
 
-                if (de_RecDate.Date < startPeriodDate)
-                {
-                    errorMessage = string.Format("Date should be on the openning period '{0}'.", startPeriodDate.ToString("dd/MM/yyyy"));
-                }
+            if (de_RecDate.Date.Date > DateTime.Today.Date)
+                return "Receiving date does not allow in advance.";
 
-                if (de_RecDate.Date.Date > DateTime.Today.Date)
-                    errorMessage = "Receiving date does not allow in advance.";
+            // Check Invoice Date
+            if (de_InvDate.Text == string.Empty)
+                return "Invoice date is required.";
 
-                // Check Invoice Date
-                if (de_InvDate.Text == string.Empty)
-                    errorMessage = "Invoice date is required.";
-
-                if (de_InvDate.Date.Date > DateTime.Today.Date)
-                    errorMessage = "Invoice date does not allow in advance.";
+            if (de_InvDate.Date.Date > DateTime.Today.Date)
+                return "Invoice date does not allow in advance.";
 
 
-                // Check duplicate Invoice No (by Vendor)
-                if (txt_InvNo.Text == string.Empty)
-                    errorMessage = "Invoice no is required.";
-                else
-                {
-                    string recNo = txt_RecNo.Text.Trim();
-                    string invoiceNo = txt_InvNo.Text.Trim();
-                    string vendorCode = lbl_VendorCode.Text.Split(':')[0].ToString().Trim();
+            // Check duplicate Invoice No (by Vendor)
+            if (txt_InvNo.Text == string.Empty)
+                return "Invoice no is required.";
+            else
+            {
+                string recNo = txt_RecNo.Text.Trim();
+                string invoiceNo = txt_InvNo.Text.Trim();
+                string vendorCode = lbl_VendorCode.Text.Split(':')[0].ToString().Trim();
 
-                    var sql = "SELECT COUNT(*) as RecordCount FROM PC.REC WHERE VendorCode=@VendorCode AND InvoiceNo=@InvoiceNo AND RecNo<>@RecNo AND DocStatus<>'Voided'";
-                    var p = new Blue.DAL.DbParameter[]{
+                var querey = "SELECT TOP(1) RecNo FROM PC.REC WHERE DocStatus<>'Voided' AND VendorCode=@VendorCode AND InvoiceNo=@InvoiceNo AND RecNo<>@RecNo";
+                var parameters = new Blue.DAL.DbParameter[]
+                    {
                         new Blue.DAL.DbParameter("@VendorCode",vendorCode),
                         new Blue.DAL.DbParameter("@InvoiceNo", invoiceNo),
                         new Blue.DAL.DbParameter("@RecNo", recNo),
                     };
 
-                    DataTable dt = rec.DbExecuteQuery(sql, p, LoginInfo.ConnStr);
+                DataTable dt = rec.DbExecuteQuery(querey, parameters, LoginInfo.ConnStr);
 
-                    if (Convert.ToInt32(dt.Rows[0]["RecordCount"]) > 0) // duplicate
-                        errorMessage = string.Format("Invoice No '{0}' already exists.", invoiceNo); ;
+                // Found a receiving no
+                if (dt.Rows.Count > 0)
+                {
+
+                    return string.Format("Invoice No '{0}' already exists on '{1}'.", invoiceNo, dt.Rows[0][0].ToString()); ;
                 }
-
             }
-            else
+
+            // Check invalid unit rate
+
+            foreach (DataRow dr in dsRecEdit.Tables[recDt.TableName].Rows)
             {
-                errorMessage = "Cannot save because receiving have no details.";
+                var productCode = dr["ProductCode"].ToString();
+                var rcvUnit = dr["RcvUnit"].ToString();
+                var unitRate = Convert.ToDecimal(dr["UnitRate"]);
+
+                if (unitRate <= 0)
+                {
+
+                    var dt = bu.DbExecuteQuery("SELECT TOP(1) Rate FROM [IN].ProdUnit WHERE ProductCode=@ProductCode AND OrderUnit=@RcvUnit",
+                        new Blue.DAL.DbParameter[]
+                    {
+                        new Blue.DAL.DbParameter("@ProductCode",productCode),
+                        new Blue.DAL.DbParameter("@RcvUnit", rcvUnit),
+                    },
+                        LoginInfo.ConnStr);
+                    if (dt.Rows.Count > 0)
+                    {
+                        dr["Rate"] = Convert.ToDecimal(dt.Rows[0][0]);
+                    }
+                    else
+                    {
+                        return string.Format("Invalid unit rate for '{0}' and unit '{1}'", productCode, rcvUnit);
+                    }
+                }
             }
 
 
-            return errorMessage;
+            return "";
+
         }
 
 
@@ -3393,61 +3417,6 @@ namespace BlueLedger.PL.IN.REC
 
 
 
-            //if (grd_RecEdit.Rows.Count > 0)
-            //{
-            //    string errorMessage = string.Empty;
-
-            //    if (de_RecDate.Date.Date > DateTime.Today.Date)
-            //        errorMessage = "Receiving date does not allow in advance.";
-
-            //    // Check Invoice Date
-            //    if (de_InvDate.Text == string.Empty)
-            //        errorMessage = "Invoice date is required.";
-
-            //    if (de_InvDate.Date.Date > DateTime.Today.Date)
-            //        errorMessage = "Invoice date does not allow in advance.";
-
-
-            //    // Check duplicate Invoice No (by Vendor)
-            //    if (txt_InvNo.Text == string.Empty)
-            //        errorMessage = "Invoice no is required.";
-            //    else
-            //    {
-            //        string recNo = txt_RecNo.Text.Trim();
-            //        string invoiceNo = txt_InvNo.Text.Trim();
-            //        string vendorCode = lbl_VendorCode.Text.Split(':')[0].ToString().Trim();
-
-            //        var sql = "SELECT COUNT(*) as RecordCount FROM PC.REC WHERE VendorCode=@VendorCode AND InvoiceNo=@InvoiceNo AND RecNo<>@RecNo AND DocStatus<>'Voided'";
-            //        var p = new Blue.DAL.DbParameter[]{
-            //            new Blue.DAL.DbParameter("@VendorCode",vendorCode),
-            //            new Blue.DAL.DbParameter("@InvoiceNo", invoiceNo),
-            //            new Blue.DAL.DbParameter("@RecNo", recNo),
-            //        };
-
-            //        DataTable dt = rec.DbExecuteQuery(sql, p, LoginInfo.ConnStr);
-
-            //        if (Convert.ToInt32(dt.Rows[0]["RecordCount"]) > 0) // duplicate
-            //            errorMessage = string.Format("Invoice No '{0}' already exists.", invoiceNo); ;
-            //    }
-
-
-            //    if (errorMessage != string.Empty)
-            //    {
-            //        lbl_WarningOth.Text = errorMessage;
-            //        pop_Warning.ShowOnPageLoad = true;
-            //        return;
-
-            //    }
-
-            //    // --------------------------------------------------------
-
-            //    pop_ConfirmSave.ShowOnPageLoad = true;
-            //}
-            //else
-            //{
-            //    lbl_WarningDelete.Text = "Cannot save because receiving have no details.";
-            //    pop_WarningDelete.ShowOnPageLoad = true;
-            //}
         }
 
         protected void btn_Commit_Click(object sender, EventArgs e)

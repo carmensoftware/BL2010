@@ -269,7 +269,7 @@ namespace BlueLedger.PL.IN.REC
             }
             else
             {
-                errorMessage = "Cannot save because receiving have no details.";
+                errorMessage = "Cannot save because receiving have no any detail.";
             }
 
 
@@ -289,74 +289,6 @@ namespace BlueLedger.PL.IN.REC
             else
                 pop_ConfirmSave.ShowOnPageLoad = true;
 
-
-            //if (grd_RecEdit.Rows.Count > 0)
-            //{
-            //    string errorMessage = string.Empty;
-
-            //    if (de_RecDate.Date.Date > DateTime.Today.Date)
-            //        errorMessage = "Receiving date does not allow in advance.";
-
-            //    // Check Invoice Date
-            //    if (de_InvDate.Text == string.Empty)
-            //        errorMessage = "Invoice date is required.";
-
-            //    if (de_InvDate.Date.Date > DateTime.Today.Date)
-            //        errorMessage = "Invoice date does not allow in advance.";
-
-
-            //    // Check duplicate Invoice No (by Vendor)
-            //    if (txt_InvNo.Text == string.Empty)
-            //        errorMessage = "Invoice no is required.";
-            //    else
-            //    {
-            //        string recNo = txt_RecNo.Text.Trim();
-            //        string invoiceNo = txt_InvNo.Text.Trim();
-            //        string vendorCode = ddl_Vendor.Visible ? ddl_Vendor.Text.Split(':')[0].ToString() : lbl_VendorCode.Text.Split(':')[0].ToString().Trim();
-
-            //        var sql = "SELECT COUNT(*) as RecordCount FROM PC.REC WHERE VendorCode=@VendorCode AND InvoiceNo=@InvoiceNo AND RecNo<>@RecNo AND DocStatus<>'Voided'";
-            //        var p = new Blue.DAL.DbParameter[]{
-            //            new Blue.DAL.DbParameter("@VendorCode",vendorCode),
-            //            new Blue.DAL.DbParameter("@InvoiceNo", invoiceNo),
-            //            new Blue.DAL.DbParameter("@RecNo", recNo),
-            //        };
-
-            //        DataTable dt = Po.DbExecuteQuery(sql, p, LoginInfo.ConnStr);
-
-            //        if (Convert.ToInt32(dt.Rows[0]["RecordCount"]) > 0) // duplicate
-            //            errorMessage = string.Format("Invoice No '{0}' already exists.", invoiceNo); ;
-            //    }
-
-
-            //    if (errorMessage != string.Empty)
-            //    {
-            //        lbl_WarningOth.Text = errorMessage;
-            //        pop_Warning.ShowOnPageLoad = true;
-            //        return;
-
-            //    }
-
-            //    // --------------------------------------------------------
-
-            //    pop_ConfirmSave.ShowOnPageLoad = true;
-            //}
-            //else
-            //{
-            //    lbl_WarningDelete.Text = "Cannot save because receiving have no details.";
-            //    pop_WarningDelete.ShowOnPageLoad = true;
-            //}
-
-
-
-            //if (grd_RecEdit.Rows.Count > 0)
-            //{
-            //    pop_ConfirmSave.ShowOnPageLoad = true;
-            //}
-            //else
-            //{
-            //    lbl_WarningDelete.Text = "Cannot save because receiving have no details.";
-            //    pop_WarningDelete.ShowOnPageLoad = true;
-            //}
         }
 
         protected void btn_Commit_Click(object sender, EventArgs e)
