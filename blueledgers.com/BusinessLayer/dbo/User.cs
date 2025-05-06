@@ -106,7 +106,7 @@ namespace Blue.BL.dbo
             2025-05-31 = hopinnHQ = ?
             2025-05-31 = twinlotus (on permise) = 16
 
-            2025-05-09 = siamese = 24+2 = 26 + 20 + 10 = 56 **2025-10-31
+            2025-05-31 = siamese = 24+2 = 26 + 20 + 10 = 56
 
 
             --------- Expired -------------
@@ -130,8 +130,8 @@ namespace Blue.BL.dbo
         
         */
 
-        private DateTime licenseExpiredDate = new DateTime(2026, 03, 31);
-        private int licenseActiveUser = 699;
+        private DateTime licenseExpiredDate = new DateTime(2025, 05, 31);
+        private int licenseActiveUser = 56;
 
         public User()
         {
