@@ -711,6 +711,8 @@ data AS(
     OR SubCategoryName LIKE @search
     OR ItemGroupCode LIKE @search
     OR ItemGroupName LIKE @search
+    OR LocationCode LIKE @search
+    OR LocationName LIKE @search
 
     OR DepCode LIKE @search
     OR DepName LIKE @search
@@ -735,8 +737,8 @@ AdjType AS(
 		AdjName
 	FROM 
 		[IN].AdjType
-	WHERE
-		IsActived=1
+	-- WHERE
+		-- IsActived=1
 	UNION ALL
 	SELECT
 		'EOPI',
@@ -803,6 +805,8 @@ data AS(
     OR ItemGroupName LIKE @search
     OR AdjCode LIKE @search
     OR AdjName LIKE @search
+    OR LocationCode LIKE @search
+    OR LocationName LIKE @search
 
     OR DrDepCode LIKE @search
     OR DrDepName LIKE @search
