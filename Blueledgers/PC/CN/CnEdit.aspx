@@ -6,6 +6,9 @@
 <%@ Register Assembly="DevExpress.Web.ASPxEditors.v10.1" Namespace="DevExpress.Web.ASPxEditors" TagPrefix="dx" %>
 <%@ Register Assembly="DevExpress.Web.ASPxGridView.v10.1" Namespace="DevExpress.Web.ASPxGridView" TagPrefix="dx" %>
 <asp:Content ID="Header" ContentPlaceHolderID="head" runat="server">
+    <style>
+        
+    </style>
     <script type="text/javascript">
         function TaxTypeChange() {
             if (ddl_TaxType.lastSuccessValue == "N") {
@@ -159,6 +162,8 @@
                         <ItemTemplate>
                             <asp:ImageButton ID="Img_Btn" runat="server" ImageUrl="~/App_Themes/Default/Images/master/in/Default/Plus.jpg" OnClientClick="expandDetailsInGrid(this);return false;" />
                         </ItemTemplate>
+                        <EditItemTemplate>
+                        </EditItemTemplate>
                     </asp:TemplateField>
                     <%-- CheckBox --%>
                     <asp:TemplateField>
@@ -171,17 +176,10 @@
                     <%-- CnType --%>
                     <asp:TemplateField HeaderText="Type">
                         <ItemTemplate>
-                            <div style="white-space: nowrap; overflow: hidden">
-                                <asp:Label ID="lbl_CnType" runat="server" SkinID="LBL_NR_1" Width="80px" />
-                            </div>
+                            <asp:Label ID="lbl_CnType" runat="server" SkinID="LBL_NR_1" Width="80px" />
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <dx:ASPxComboBox ID="ddl_CnType" runat="server" SelectedIndex="0" Width="80px" AutoPostBack="true" OnSelectedIndexChanged="ddl_CnType_SelectedIndexChanged">
-                                <Items>
-                                    <dx:ListEditItem Value="Q" Text="Quantity" />
-                                    <dx:ListEditItem Value="A" Text="Amount" />
-                                </Items>
-                            </dx:ASPxComboBox>
+                            <asp:Label ID="lbl_CnType" runat="server" SkinID="LBL_NR_1" Width="80px" />
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%-- Receiving --%>
@@ -190,49 +188,27 @@
                             <asp:Label ID="lbl_Receiving" runat="server" SkinID="LBL_NR_1" Width="165px"></asp:Label>
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <dx:ASPxComboBox ID="ddl_Receiving" runat="server" Width="120px" AutoPostBack="True" IncrementalFilteringMode="Contains" EnableCallbackMode="true" TextFormatString="{0}"
-                            OnLoad="ddl_Receiving_Load"
-                                OnSelectedIndexChanged="ddl_Receiving_SelectedIndexChanged">
-                                <Columns>
-                                    <dx:ListBoxColumn Caption="#" FieldName="RecNo" Width="120px" />
-                                    <dx:ListBoxColumn Caption="Date" FieldName="RecDate" />
-                                    <dx:ListBoxColumn Caption="Description" FieldName="Description" Width="360px" />
-                                </Columns>
-                            </dx:ASPxComboBox>
+                            <asp:Label ID="lbl_Receiving" runat="server" SkinID="LBL_NR_1" Width="165px"></asp:Label>
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%-- Location --%>
                     <asp:TemplateField HeaderText="Store/Location">
+                        <ItemStyle Wrap="true" />
                         <ItemTemplate>
-                            <div style="white-space: nowrap; overflow: hidden">
-                                <asp:Label ID="lbl_Location" runat="server" SkinID="LBL_NR_1" Width="165px" />
-                            </div>
+                            <asp:Label ID="lbl_Location" runat="server" SkinID="LBL_NR_1" Width="165px" />
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <dx:ASPxComboBox ID="ddl_Location" runat="server" AutoPostBack="True" ShowShadow="False" ValueField="LocationCode" ValueType="System.String" Width="300px"
-                                EnableCallbackMode="true" TextFormatString="{0} : {1}" IncrementalFilteringMode="Contains" OnLoad="ddl_Location_Load" OnSelectedIndexChanged="ddl_Location_SelectedIndexChanged">
-                                <Columns>
-                                    <dx:ListBoxColumn Caption="Code" FieldName="LocationCode" Width="120px" />
-                                    <dx:ListBoxColumn Caption="Name" FieldName="LocationName" Width="380px" />
-                                </Columns>
-                            </dx:ASPxComboBox>
-                            <asp:HiddenField runat="server" ID="hf_LocationCode" />
+                            <asp:Label ID="lbl_Location" runat="server" SkinID="LBL_NR_1" Width="165px" />
                         </EditItemTemplate>
                     </asp:TemplateField>
-                    <%-- Prodcut --%>
+                    <%-- Product --%>
                     <asp:TemplateField HeaderText="Product">
+                        <ItemStyle Wrap="true" />
                         <ItemTemplate>
                             <asp:Label ID="lbl_Product" runat="server" SkinID="LBL_NR_1" />
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <dx:ASPxComboBox ID="ddl_Product" runat="server" Width="300px" AutoPostBack="True" TextFormatString="{0} : {1}" ValueField="ProductCode" ValueType="System.String"
-                                IncrementalFilteringMode="Contains" OnLoad="ddl_Product_Load" OnSelectedIndexChanged="ddl_Product_SelectedIndexChanged">
-                                <Columns>
-                                    <dx:ListBoxColumn Caption="Code" FieldName="ProductCode" Width="120px" />
-                                    <dx:ListBoxColumn Caption="Name" FieldName="ProductName" Width="380px" />
-                                </Columns>
-                            </dx:ASPxComboBox>
-                            <asp:HiddenField runat="server" ID="hf_ProductCode" />
+                            <asp:Label ID="lbl_Product" runat="server" SkinID="LBL_NR_1" />
                         </EditItemTemplate>
                         <ControlStyle />
                     </asp:TemplateField>
@@ -242,7 +218,7 @@
                             <asp:Label ID="lbl_RecQty" runat="server" SkinID="LBL_NR_1"></asp:Label>
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <dx:ASPxSpinEdit ID="se_RecQty" runat="server" HorizontalAlign="Right" AutoPostBack="True" Width="60px" MinValue="0" OnValueChanged="se_RecQty_NumberChanged">
+                            <dx:ASPxSpinEdit ID="se_RecQty" runat="server" HorizontalAlign="Right" AutoPostBack="True" Width="60px" MinValue="0">
                                 <SpinButtons ShowIncrementButtons="False">
                                 </SpinButtons>
                             </dx:ASPxSpinEdit>
@@ -294,7 +270,8 @@
                             <asp:Label ID="lbl_CurrTotalAmt1" runat="server" Width="100px" SkinID="LBL_NR_1" />
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <dx:ASPxSpinEdit ID="se_CurrTotalAmt" runat="server" AutoPostBack="false" Height="17px" HorizontalAlign="Right" NullText="0.00" Number="0" Width="100px">
+                            <dx:ASPxSpinEdit ID="se_CurrTotalAmt" runat="server" AutoPostBack="false" Height="17px" HorizontalAlign="Right" NullText="0.00" Number="0" Width="100px"
+                                ReadOnly="true">
                                 <SpinButtons ShowIncrementButtons="False" />
                             </dx:ASPxSpinEdit>
                         </EditItemTemplate>
@@ -395,6 +372,97 @@
                             </tr>
                         </ItemTemplate>
                         <EditItemTemplate>
+                            <tr id="TR_Summmary" runat="server">
+                                <td colspan="11">
+                                    <table style="width: 100%;">
+                                        <tr style="vertical-align: top;">
+                                            <td>
+                                                <asp:Label ID="lbl_RecDate_Nm" runat="server" SkinID="LBL_HD_GRD" Text="Receiving Date: " />
+                                                <asp:Label ID="lbl_RecDate" runat="server" SkinID="LBL_NR_1" Text="" />
+                                            </td>
+                                            <td>
+                                                <asp:Label ID="lbl_RecTaxType_Nm" runat="server" SkinID="LBL_HD_GRD" Text="<%$ Resources:PC_CN_Cn, lbl_TaxType_Nm %>" />
+                                                <asp:Label ID="lbl_RecTaxType" runat="server" SkinID="LBL_NR_1" Text="" />
+                                            </td>
+                                            <td>
+                                                <asp:Label ID="lbl_RecTaxRate_Nm" runat="server" SkinID="LBL_HD_GRD" Text="<%$ Resources:PC_CN_Cn, lbl_TaxRate_Nm %>" />
+                                                <asp:Label ID="lbl_RecTaxRate" runat="server" SkinID="LBL_NR_1" Text="" />
+                                            </td>
+                                            <td align="right">
+                                                <table style="width: 100%;">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>
+                                                            </th>
+                                                            <th align="right">
+                                                                <span>Currency</span>
+                                                                <asp:Label runat="server" ID="lbl_CurrencyCode" />
+                                                            </th>
+                                                            <th align="right">
+                                                                <span>Base</span>
+                                                                <asp:Label runat="server" ID="lbl_BaseCode" />
+                                                            </th>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="3">
+                                                                <hr />
+                                                            </td>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <th align="right">
+                                                                Net
+                                                            </th>
+                                                            <td align="right">
+                                                                <asp:Label runat="server" ID="lbl_CurrNetAmt" Text="0.00" />
+                                                            </td>
+                                                            <td align="right">
+                                                                <asp:Label runat="server" ID="lbl_NetAmt" Text="0.00" />
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th align="right">
+                                                                Tax
+                                                            </th>
+                                                            <td align="right">
+                                                                <asp:Label runat="server" ID="lbl_CurrTaxAmt" Text="0.00" />
+                                                            </td>
+                                                            <td align="right">
+                                                                <asp:Label runat="server" ID="lbl_TaxAmt" Text="0.00" />
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="3">
+                                                                <hr />
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th align="right">
+                                                                Total
+                                                            </th>
+                                                            <td align="right">
+                                                                <asp:Label runat="server" ID="lbl_CurrTotalAmt" Text="0.00" />
+                                                            </td>
+                                                            <td align="right">
+                                                                <asp:Label runat="server" ID="lbl_TotalAmt" Text="0.00" />
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="5" align="right">
+                                                <br />
+                                                <asp:LinkButton ID="lnkb_Update" runat="server" SkinID="LNKB_NORMAL" CommandName="Save" Text="Save"></asp:LinkButton>
+                                                &nbsp; &nbsp;
+                                                <asp:LinkButton ID="lnbk_Cancel" runat="server" SkinID="LNKB_NORMAL" CausesValidation="false" CommandName="Cancel" Text="Cancel"></asp:LinkButton>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
                         </EditItemTemplate>
                     </asp:TemplateField>
                 </Columns>
@@ -411,6 +479,220 @@
                         <div class="flex flex-justify-content-center mt-20 width-100">
                             <button style="width: 100px; padding: 5px;" onclick="pop_Alert.Hide();">
                                 Ok
+                            </button>
+                        </div>
+                    </dx:PopupControlContentControl>
+                </ContentCollection>
+            </dx:ASPxPopupControl>
+            <dx:ASPxPopupControl ID="pop_AddItem" ClientInstanceName="pop_AddItem" runat="server" Width="960" Height="600" HeaderText="Add item(s)" Modal="True" ShowCloseButton="true"
+                CloseAction="CloseButton" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowPageScrollbarWhenModal="True">
+                <ContentCollection>
+                    <dx:PopupControlContentControl ID="PopupControlContentControl1" runat="server">
+                        <div class="flex mb-20 width-100" style="align-items: center;">
+                            <asp:Label ID="Label0" runat="server" SkinID="LBL_HD" Text="Receiving : " />
+                            &nbsp;&nbsp;
+                            <dx:ASPxComboBox ID="ddl_Receiving" runat="server" Width="240px" AutoPostBack="True" IncrementalFilteringMode="Contains" EnableCallbackMode="true" TextFormatString="{0}"
+                                OnLoad="ddl_Receiving_Load" OnSelectedIndexChanged="ddl_Receiving_SelectedIndexChanged">
+                                <Columns>
+                                    <dx:ListBoxColumn Caption="#" FieldName="RecNo" Width="120px" />
+                                    <dx:ListBoxColumn Caption="Date" FieldName="RecDate" />
+                                    <dx:ListBoxColumn Caption="Description" FieldName="Description" Width="360px" />
+                                </Columns>
+                            </dx:ASPxComboBox>
+                        </div>
+                        <table style="width: 100%">
+                            <tbody>
+                                <tr>
+                                    <td style="width: 100px;">
+                                        <asp:Label ID="Label1" runat="server" SkinID="LBL_HD" Text="Receiving No." />
+                                    </td>
+                                    <td>
+                                        <asp:Label runat="server" ID="lbl_RecNo" />
+                                    </td>
+                                    <td style="width: 60px;">
+                                        <asp:Label ID="Label3" runat="server" SkinID="LBL_HD" Text="Date" />
+                                    </td>
+                                    <td>
+                                        <asp:Label runat="server" ID="lbl_RecDate" />
+                                    </td>
+                                    <td style="width: 80px;">
+                                        <asp:Label ID="Label4" runat="server" SkinID="LBL_HD" Text="Invoice No." />
+                                    </td>
+                                    <td>
+                                        <asp:Label runat="server" ID="lbl_RecInvNo" />
+                                    </td>
+                                    <td style="width: 80px;">
+                                        <asp:Label ID="Label5" runat="server" SkinID="LBL_HD" Text="Invocie Date" />
+                                    </td>
+                                    <td>
+                                        <asp:Label runat="server" ID="lbl_RecInvDate" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <asp:Label ID="Label6" runat="server" SkinID="LBL_HD" Text="Description" />
+                                    </td>
+                                    <td colspan="5">
+                                        <asp:Label runat="server" ID="lbl_RecDesc" />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="mt-10" style="overflow: scroll; height: 420px;">
+                            <asp:GridView ID="gv_Receiving" runat="server" Width="100%" AutoGenerateColumns="false" EmptyDataText="No Data" GridLines="None" OnRowDataBound="gv_Receiving_RowDataBound">
+                                <HeaderStyle HorizontalAlign="Left" BackColor="#2196f3" ForeColor="White" Height="24" />
+                                <RowStyle HorizontalAlign="Left" VerticalAlign="Top" BorderStyle="None" />
+                                <Columns>
+                                    <%-- RecDtNo --%>
+                                    <asp:TemplateField HeaderText="#">
+                                        <ItemTemplate>
+                                            <asp:Label ID="lbl_RecDtNo" runat="server" SkinID="LBL_NR_1" Width="25" />
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <%-- Location --%>
+                                    <asp:TemplateField HeaderText="Store/Location">
+                                        <ItemTemplate>
+                                            <asp:Label ID="lbl_Location" runat="server" SkinID="LBL_NR_1" Width="160px" />
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <%-- Product --%>
+                                    <asp:TemplateField HeaderText="Product">
+                                        <ItemTemplate>
+                                            <asp:Label ID="lbl_Product" runat="server" SkinID="LBL_NR_1" Width="180px" />
+                                        </ItemTemplate>
+                                        <ControlStyle />
+                                    </asp:TemplateField>
+                                    <%-- UNIT --%>
+                                    <asp:TemplateField HeaderText="Unit">
+                                        <ItemTemplate>
+                                            <asp:Label ID="lbl_RcvUnit" runat="server" SkinID="LBL_NR_1" Width="40" />
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <%-- RecQty --%>
+                                    <asp:TemplateField HeaderText="Qty" ItemStyle-Wrap="False">
+                                        <HeaderStyle HorizontalAlign="Right" />
+                                        <ItemStyle HorizontalAlign="Right" />
+                                        <ItemTemplate>
+                                            <asp:Label ID="lbl_RecQty" runat="server" SkinID="LBL_NR_1" Font-Bold="true" Width="40"></asp:Label>
+                                        </ItemTemplate>
+                                        <ControlStyle />
+                                    </asp:TemplateField>
+                                    <%-- FocQty --%>
+                                    <asp:TemplateField HeaderText="FOC" ItemStyle-Wrap="False">
+                                        <HeaderStyle HorizontalAlign="Right" />
+                                        <ItemStyle HorizontalAlign="Right" />
+                                        <ItemTemplate>
+                                            <asp:Label ID="lbl_FocQty" runat="server" SkinID="LBL_NR_1" Font-Bold="true" Width="40"></asp:Label>
+                                        </ItemTemplate>
+                                        <ControlStyle />
+                                    </asp:TemplateField>
+                                    <%-- Net Amount --%>
+                                    <asp:TemplateField HeaderText="Net">
+                                        <HeaderStyle HorizontalAlign="Right" Width="10%" />
+                                        <ItemStyle HorizontalAlign="Right" Width="10%" />
+                                        <ItemTemplate>
+                                            <asp:Label ID="lbl_CurrNetAmt" runat="server" Width="100px" SkinID="LBL_NR_1" />
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <%-- Tax Amount --%>
+                                    <asp:TemplateField HeaderText="Tax">
+                                        <HeaderStyle HorizontalAlign="Right" Width="10%" />
+                                        <ItemStyle HorizontalAlign="Right" Width="10%" />
+                                        <ItemTemplate>
+                                            <asp:Label ID="lbl_CurrTaxAmt" runat="server" Width="100px" SkinID="LBL_NR_1" />
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <%-- Total Amount --%>
+                                    <asp:TemplateField HeaderText="Total">
+                                        <HeaderStyle HorizontalAlign="Right" Width="10%" />
+                                        <ItemStyle HorizontalAlign="Right" Width="10%" />
+                                        <ItemTemplate>
+                                            <asp:Label ID="lbl_CurrTotalAmt" runat="server" Width="100px" SkinID="LBL_NR_1" Font-Bold="true" />
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <%-- Expand --%>
+                                    <asp:TemplateField HeaderStyle-Width="0">
+                                        <ItemTemplate>
+                                            <tr style="vertical-align: top; background-color: #F5F5F5;">
+                                                <td>
+                                                    <asp:HiddenField runat="server" ID="hf_LocationCode" />
+                                                    <asp:HiddenField runat="server" ID="hf_ProductCode" />
+                                                    <asp:HiddenField runat="server" ID="hf_RcvUnit" />
+                                                    <asp:HiddenField runat="server" ID="hf_Rate" />
+                                                    <asp:HiddenField runat="server" ID="hf_Price" />
+                                                    <asp:HiddenField runat="server" ID="hf_TaxType" />
+                                                    <asp:HiddenField runat="server" ID="hf_TaxRate" />
+                                                    <asp:HiddenField runat="server" ID="hf_NetAmt" />
+                                                    <asp:HiddenField runat="server" ID="hf_TaxAmt" />
+                                                    <asp:HiddenField runat="server" ID="hf_TotalAmt" />
+                                                </td>
+                                                <td colspan="3">
+                                                    <dx:ASPxComboBox ID="ddl_CnType" runat="server" AutoPostBack="true" SelectedIndex="0" Width="120" OnSelectedIndexChanged="ddl_CnType_SelectedIndexChanged">
+                                                        <Items>
+                                                            <dx:ListEditItem Value="N" Text="" />
+                                                            <dx:ListEditItem Value="Q" Text="Quantity" />
+                                                            <dx:ListEditItem Value="A" Text="Amount" />
+                                                        </Items>
+                                                    </dx:ASPxComboBox>
+                                                </td>
+                                                <td>
+                                                    <dx:ASPxSpinEdit ID="se_CnQty" runat="server" AutoPostBack="false" HorizontalAlign="Right" NullText="0" Number="0.00" Width="100%" Visible="false">
+                                                        <SpinButtons ShowIncrementButtons="False" />
+                                                    </dx:ASPxSpinEdit>
+                                                </td>
+                                                <td>
+                                                    <dx:ASPxSpinEdit ID="se_CnFoc" runat="server" AutoPostBack="false" HorizontalAlign="Right" NullText="0" Number="0.00" Width="100%" Visible="false">
+                                                        <SpinButtons ShowIncrementButtons="False" />
+                                                    </dx:ASPxSpinEdit>
+                                                </td>
+                                                <td align="right">
+                                                    <dx:ASPxSpinEdit ID="se_CurrNetAmt" runat="server" AutoPostBack="true" HorizontalAlign="Right" NullText="0" Number="0.00" Width="100%" Visible="false"
+                                                        OnNumberChanged="se_CurrNetAmt_NumberChanged">
+                                                        <SpinButtons ShowIncrementButtons="False" />
+                                                    </dx:ASPxSpinEdit>
+                                                </td>
+                                                <td align="right">
+                                                    <dx:ASPxSpinEdit ID="se_CurrTaxAmt" runat="server" AutoPostBack="true" HorizontalAlign="Right" NullText="0" Number="0.00" Width="100%" Visible="false"
+                                                        OnNumberChanged="se_CurrTaxAmt_NumberChanged">
+                                                        <SpinButtons ShowIncrementButtons="False" />
+                                                    </dx:ASPxSpinEdit>
+                                                </td>
+                                                <td align="right">
+                                                    <dx:ASPxSpinEdit ID="se_CurrTotalAmt" runat="server" AutoPostBack="true" HorizontalAlign="Right" NullText="0" Number="0.00" Width="100%" ReadOnly="true"
+                                                        Visible="false">
+                                                        <SpinButtons ShowIncrementButtons="False" />
+                                                    </dx:ASPxSpinEdit>
+                                                </td>
+                                            </tr>
+                                            <tr style="vertical-align: top; background-color: #F5F5F5;">
+                                                <td>
+                                                </td>
+                                                <%--<td colspan="7">
+                                                    <div>
+                                                        <asp:Label ID="Label7" runat="server" Text="Comment" SkinID="LBL_HD" />
+                                                    </div>
+                                                    <div class="mb-10">
+                                                        <asp:TextBox runat="server" ID="txt_CnComment" Width="100%" />
+                                                    </div>
+                                                </td>--%>
+                                                <td>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="9">
+                                                    <br />
+                                                </td>
+                                            </tr>
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                </Columns>
+                            </asp:GridView>
+                        </div>
+                        <div class="flex flex-justify-content-end mt-20 width-100" style="position: absolute; bottom: 10px;">
+                            <asp:Button runat="server" ID="btn_SelectItems" Width="100" Text="Select" OnClick="btn_SelectItems_Click" />
+                            &nbsp; &nbsp; &nbsp;
+                            <button style="width: 100px; padding: 5px; margin-right: 30px !important;" onclick="pop_AddItem.Hide();">
+                                Cancel
                             </button>
                         </div>
                     </dx:PopupControlContentControl>
