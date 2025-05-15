@@ -14,7 +14,7 @@ namespace BlueLedger.PL.IN.REC
     {
         #region "Attributes"
 
-        private readonly Blue.BL.Option.Admin.Interface.AccountMapp accountMapp = new Blue.BL.Option.Admin.Interface.AccountMapp();
+        //private readonly Blue.BL.Option.Admin.Interface.AccountMapp accountMapp = new Blue.BL.Option.Admin.Interface.AccountMapp();
 
         private readonly Blue.BL.dbo.Bu bu = new Blue.BL.dbo.Bu();
         private readonly Blue.BL.APP.Config conf = new Blue.BL.APP.Config();
@@ -73,12 +73,17 @@ namespace BlueLedger.PL.IN.REC
             {
                 Session.Remove("vendor");
 
-                var btn_PrintByDate = new DevExpress.Web.ASPxMenu.MenuItem("Print by Batch...", "PrintByBatch");
+                var enablePrintByBatch = config.GetValue("PC", "REC", "PrintByBatch", LoginInfo.ConnStr);
 
-                btn_PrintByDate.ItemStyle.ForeColor = System.Drawing.Color.White;
-                btn_PrintByDate.ItemStyle.Font.Size = FontUnit.Smaller;
-                btn_PrintByDate.NavigateUrl = "~/PC/REC/RecLst.aspx?MENU=PrintByBatch";
-                ListPage2.menuItems.Insert(ListPage2.menuItems.Count - 2, btn_PrintByDate);
+                if (!string.IsNullOrEmpty(enablePrintByBatch) && (enablePrintByBatch == "1" || enablePrintByBatch.ToLower() == "true"))
+                {
+                    var btn_PrintByDate = new DevExpress.Web.ASPxMenu.MenuItem("Print by Batch...", "PrintByBatch");
+
+                    btn_PrintByDate.ItemStyle.ForeColor = System.Drawing.Color.White;
+                    btn_PrintByDate.ItemStyle.Font.Size = FontUnit.Smaller;
+                    btn_PrintByDate.NavigateUrl = "~/PC/REC/RecLst.aspx?MENU=PrintByBatch";
+                    ListPage2.menuItems.Insert(ListPage2.menuItems.Count - 2, btn_PrintByDate);
+                }
 
 
                 Page_Retrieve();
@@ -1267,7 +1272,7 @@ namespace BlueLedger.PL.IN.REC
 
                         drRecDt["PoNo"] = drSelected["PoNo"];
                         drRecDt["PoDtNo"] = drSelected["PoDt"];
-                        drRecDt["NetDrAcc"] = accountMapp.GetA3Code(LoginInfo.BuInfo.BuCode, drSelected["Location"].ToString(), drSelected["Product"].ToString().Substring(0, 4), LoginInfo.ConnStr);
+                        drRecDt["NetDrAcc"] = ""; //accountMapp.GetA3Code(LoginInfo.BuInfo.BuCode, drSelected["Location"].ToString(), drSelected["Product"].ToString().Substring(0, 4), LoginInfo.ConnStr);
                         drRecDt["TaxDrAcc"] = drSelected["TaxAccCode"];
                         drRecDt["Status"] = System.DBNull.Value;
                         drRecDt["ExportStatus"] = false;

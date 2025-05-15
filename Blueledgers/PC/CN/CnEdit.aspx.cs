@@ -15,6 +15,7 @@ namespace BlueLedger.PL.PC.CN
 {
     public partial class CnEdit : BasePage
     {
+
         private readonly int CN_QTY_INDEX = 0;
         private readonly int CN_AMT_INDEX = 1;
 
@@ -73,6 +74,8 @@ namespace BlueLedger.PL.PC.CN
             get { return ViewState["_dtRecPrd" + _ID] as DataTable; }
             set { ViewState["_dtRecPrd" + _ID] = value; }
         }
+
+        // Event(s)
 
         protected void Page_Init(object sender, EventArgs e)
         {
@@ -156,7 +159,6 @@ namespace BlueLedger.PL.PC.CN
             gv_Detail.DataBind();
 
         }
-
 
         #region --Event(s)--
 
@@ -253,12 +255,22 @@ namespace BlueLedger.PL.PC.CN
                 return;
             }
 
-            AddItem(vendorCode);
+            ddl_Receiving.SelectedIndex = -1;
+            lbl_RecNo.Text = "";
+            lbl_RecDate.Text = "";
+            lbl_RecInvNo.Text = "";
+            lbl_RecInvDate.Text = "";
+            lbl_RecDesc.Text = "";
+            gv_Receiving.DataSource = null;
+            gv_Receiving.DataBind();
+
+            pop_AddItem.ShowOnPageLoad = true;
         }
 
         protected void btn_DeleteItem_Click(object sender, EventArgs e)
         {
         }
+
 
         // gv_Deatail
 
@@ -305,6 +317,7 @@ namespace BlueLedger.PL.PC.CN
                 // Qty
                 var recQty = DataBinder.Eval(dataItem, "RecQty");
                 SetLabel(e, "lbl_RecQty", FormatQty(recQty));
+                SetSpinEdit(e, "se_RecQty", recQty, _default.DigitQty);
 
                 // Unit
                 var unitCode = DataBinder.Eval(dataItem, "UnitCode").ToString();
@@ -317,6 +330,7 @@ namespace BlueLedger.PL.PC.CN
                 var value = DataBinder.Eval(dataItem, "CurrNetAmt");
                 SetLabel(e, "lbl_CurrNetAmt1", FormatAmt(value));
                 SetLabel(e, "lbl_CurrNetAmt", FormatAmt(value));
+                SetSpinEdit(e, "se_CurrNetAmt", value, _default.DigitAmt);
 
                 value = DataBinder.Eval(dataItem, "NetAmt");
                 SetLabel(e, "lbl_NetAmt", FormatAmt(value));
@@ -326,6 +340,7 @@ namespace BlueLedger.PL.PC.CN
                 value = DataBinder.Eval(dataItem, "CurrTaxAmt");
                 SetLabel(e, "lbl_CurrTaxAmt1", FormatAmt(value));
                 SetLabel(e, "lbl_CurrTaxAmt", FormatAmt(value));
+                SetSpinEdit(e, "se_CurrTaxAmt", value, _default.DigitAmt);
 
                 value = DataBinder.Eval(dataItem, "TaxAmt");
                 SetLabel(e, "lbl_TaxAmt", FormatAmt(value));
@@ -334,6 +349,7 @@ namespace BlueLedger.PL.PC.CN
                 value = DataBinder.Eval(dataItem, "CurrTotalAmt");
                 SetLabel(e, "lbl_CurrTotalAmt1", FormatAmt(value));
                 SetLabel(e, "lbl_CurrTotalAmt", FormatAmt(value));
+                SetSpinEdit(e, "se_CurrTotalAmt", value, _default.DigitAmt);
 
                 value = DataBinder.Eval(dataItem, "TotalAmt");
                 SetLabel(e, "lbl_TotalAmt", FormatAmt(value));
@@ -364,8 +380,714 @@ namespace BlueLedger.PL.PC.CN
             }
         }
 
-        // ------------------------------------------------------------------
+        protected void gv_Detail_RowEditing(object sender, GridViewEditEventArgs e)
+        {
+            var gv = sender as GridView;
 
+            gv.EditRowStyle.BackColor = Color.FromArgb(254, 249, 231);
+            gv.EditIndex = e.NewEditIndex;
+            gv.DataSource = _dtCnDt;
+            gv.DataBind();
+
+            var row = gv.Rows[e.NewEditIndex];
+
+            var lbl_CnType = row.FindControl("lbl_CnType") as Label;
+            var se_RecQty = row.FindControl("se_RecQty") as ASPxSpinEdit;
+            var se_CurrNetAmt = row.FindControl("se_CurrNetAmt") as ASPxSpinEdit;
+            var se_CurrTaxAmt = row.FindControl("se_CurrTaxAmt") as ASPxSpinEdit;
+            var se_CurrTotalAmt = row.FindControl("se_CurrTotalAmt") as ASPxSpinEdit;
+
+
+
+            var cnType = lbl_CnType.Text.Trim();
+
+            se_RecQty.Visible = cnType.StartsWith("Q");
+
+            se_CurrNetAmt.Visible = cnType.StartsWith("A");
+            se_CurrTaxAmt.Visible = cnType.StartsWith("A");
+            se_CurrTotalAmt.Visible = cnType.StartsWith("A");
+        }
+
+        protected void gv_Detail_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e)
+        {
+            var gv = sender as GridView;
+
+            gv.DataSource = _dtCnDt;
+            gv.EditIndex = -1;
+            gv.DataBind();
+
+            //SetEditItem(false);
+        }
+
+        protected void gv_Detail_RowUpdating(object sender, GridViewUpdateEventArgs e)
+        {
+            var gv = sender as GridView;
+            var row = gv.Rows[e.RowIndex];
+
+            DataRow dr = _dtCnDt.Rows[e.RowIndex];
+
+
+
+            gv.EditIndex = -1;
+            gv.DataSource = _dtCnDt;
+            gv.DataBind();
+
+            //SetEditItem(false);
+        }
+
+        protected void gv_Detail_RowDeleting(object sender, GridViewDeleteEventArgs e)
+        {
+            var gv = sender as GridView;
+
+            //var hf_RecDtNo = gv.Rows[e.RowIndex].FindControl("hf_RecDtNo") as HiddenField;
+            //var recDtNo = Convert.ToInt32(hf_RecDtNo.Value);
+            //var item = _dtCnDt.AsEnumerable().FirstOrDefault(x => x.Field<int>("CnDtNo") == recDtNo);
+
+            //if (item != null)
+            //    item.Delete();
+
+            gv.DataSource = _dtCnDt;
+            gv.DataBind();
+        }
+
+
+        // gv_Receiving
+
+        protected void ddl_Receiving_Load(object sender, EventArgs e)
+        {
+            var ddl = sender as ASPxComboBox;
+
+            var currencyCode = ddl_Currency.Value.ToString();
+            var vendorCode = ddl_Vendor.Value.ToString();
+            var docDate = de_DocDate.Date;
+
+            var query = @"
+SELECT
+	RecNo,
+	 CONVERT(VARCHAR(10), RecDate, 103)  as RecDate,
+	[Description]
+FROM
+	PC.REC
+WHERE
+	DocStatus = 'Committed'
+    AND CurrencyCode = @CurrencyCode
+	AND VendorCode=@VendorCode
+	AND RecDate <= @DocDate
+ORDER BY
+	RecNo
+";
+            var parameters = new Blue.DAL.DbParameter[]
+            {
+                new Blue.DAL.DbParameter("@VendorCode", vendorCode),
+                new Blue.DAL.DbParameter("@CurrencyCode", currencyCode),
+                new Blue.DAL.DbParameter("@DocDate", docDate.ToString("yyyy-MM-dd"))
+            };
+            var dt = _bu.DbExecuteQuery(query, parameters, hf_ConnStr.Value);
+
+            ddl.ValueField = "RecNo";
+            ddl.DataSource = dt;
+            ddl.DataBind();
+
+        }
+
+        protected void ddl_Receiving_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var ddl = sender as ASPxComboBox;
+            var recNo = ddl.Value.ToString();
+
+            ShowReceivingDetails(recNo);
+
+
+        }
+
+        protected void gv_Receiving_RowDataBound(Object sender, GridViewRowEventArgs e)
+        {
+            if (e.Row.RowType == DataControlRowType.DataRow)
+            {
+                var dataItem = e.Row.DataItem;
+
+                // RecDtNo
+                var recDtNo = DataBinder.Eval(dataItem, "RecDtNo").ToString();
+                SetLabel(e, "lbl_RecDtNo", recDtNo);
+
+                // Location
+                var location = DataBinder.Eval(dataItem, "LocationCode").ToString();
+                SetLabel(e, "lbl_Location", string.Format("{0} : {1}", location, GetLocationName(location)));
+
+                // Product
+                var productCode = DataBinder.Eval(dataItem, "ProductCode").ToString();
+
+                SetLabel(e, "lbl_Product", string.Format("{0} : {1}", productCode, GetProductName(productCode)));
+
+                // RcvUnit
+                var unitCode = DataBinder.Eval(dataItem, "RcvUnit").ToString();
+                SetLabel(e, "lbl_RcvUnit", unitCode);
+
+                // RecQty
+                var recQty = DataBinder.Eval(dataItem, "RecQty");
+                SetLabel(e, "lbl_RecQty", FormatQty(recQty));
+
+
+                // FocQty
+                var focQty = DataBinder.Eval(dataItem, "FocQty");
+                SetLabel(e, "lbl_FocQty", FormatQty(focQty));
+
+
+                var currencyRate = se_CurrencyRate.Number;
+
+                // CurrNetAmt
+                var value = DataBinder.Eval(dataItem, "CurrNetAmt");
+                SetLabel(e, "lbl_CurrNetAmt", FormatAmt(value));
+
+                value = DataBinder.Eval(dataItem, "NetAmt");
+                SetLabel(e, "lbl_NetAmt", FormatAmt(value));
+
+                // CurrTaxAmt
+                value = DataBinder.Eval(dataItem, "CurrTaxAmt");
+                SetLabel(e, "lbl_CurrTaxAmt", FormatAmt(value));
+
+                value = DataBinder.Eval(dataItem, "TaxAmt");
+                SetLabel(e, "lbl_TaxAmt", FormatAmt(value));
+
+                // CurrTotalAmt
+                value = DataBinder.Eval(dataItem, "CurrTotalAmt");
+                SetLabel(e, "lbl_CurrTotalAmt", FormatAmt(value));
+
+                value = DataBinder.Eval(dataItem, "TotalAmt");
+                SetLabel(e, "lbl_TotalAmt", FormatAmt(value));
+
+                // CnType
+                var cnType = DataBinder.Eval(dataItem, "CnType").ToString();
+
+
+
+
+                if (e.Row.FindControl("ddl_CnType") != null)
+                {
+                    var dll = e.Row.FindControl("ddl_CnType") as ASPxComboBox;
+
+                    dll.Value = cnType;
+                }
+
+                if (cnType == "Q")
+                {
+
+                    if (e.Row.FindControl("se_CnQty") != null)
+                    {
+                        var se = e.Row.FindControl("se_CnQty") as ASPxSpinEdit;
+                        var maxValue = Convert.ToDecimal(recQty);
+
+                        se.MaxValue = maxValue;
+                        se.Value = DataBinder.Eval(dataItem, "CnQty");
+                        se.Visible = true;
+                        se.DecimalPlaces = _default.DigitQty;
+
+                    }
+
+
+                    if (e.Row.FindControl("se_cnFoc") != null)
+                    {
+                        var se = e.Row.FindControl("se_cnFoc") as ASPxSpinEdit;
+                        var maxValue = Convert.ToDecimal(focQty);
+
+                        se.MaxValue = maxValue;
+                        se.Value = DataBinder.Eval(dataItem, "CnQty");
+                        se.Visible = maxValue > 0;
+                        se.DecimalPlaces = _default.DigitQty;
+                    }
+
+                }
+
+
+
+                // Hidden Fields
+
+                if (e.Row.FindControl("hf_LocationCode") != null)
+                {
+                    (e.Row.FindControl("hf_LocationCode") as HiddenField).Value = DataBinder.Eval(dataItem, "LocationCode").ToString();
+                }
+
+                if (e.Row.FindControl("hf_ProductCode") != null)
+                {
+                    (e.Row.FindControl("hf_ProductCode") as HiddenField).Value = DataBinder.Eval(dataItem, "ProductCode").ToString();
+                }
+
+                if (e.Row.FindControl("hf_RcvUnit") != null)
+                {
+                    (e.Row.FindControl("hf_RcvUnit") as HiddenField).Value = DataBinder.Eval(dataItem, "RcvUnit").ToString();
+                }
+
+                if (e.Row.FindControl("hf_Price") != null)
+                {
+                    (e.Row.FindControl("hf_Price") as HiddenField).Value = DataBinder.Eval(dataItem, "Price").ToString();
+                }
+
+                if (e.Row.FindControl("hf_TaxType") != null)
+                {
+                    (e.Row.FindControl("hf_TaxType") as HiddenField).Value = DataBinder.Eval(dataItem, "TaxType").ToString();
+                }
+
+                if (e.Row.FindControl("hf_TaxRate") != null)
+                {
+                    (e.Row.FindControl("hf_TaxRate") as HiddenField).Value = DataBinder.Eval(dataItem, "TaxRate").ToString();
+                }
+
+                if (e.Row.FindControl("hf_NetAmt") != null)
+                {
+                    (e.Row.FindControl("hf_NetAmt") as HiddenField).Value = DataBinder.Eval(dataItem, "NetAmt").ToString();
+                }
+
+                if (e.Row.FindControl("hf_TaxAmt") != null)
+                {
+                    (e.Row.FindControl("hf_TaxAmt") as HiddenField).Value = DataBinder.Eval(dataItem, "TaxAmt").ToString();
+                }
+
+                if (e.Row.FindControl("hf_TotalAmt") != null)
+                {
+                    (e.Row.FindControl("hf_TotalAmt") as HiddenField).Value = DataBinder.Eval(dataItem, "TotalAmt").ToString();
+                }
+
+                if (e.Row.FindControl("hf_CnDtNo") != null)
+                {
+                    (e.Row.FindControl("hf_CnDtNo") as HiddenField).Value = DataBinder.Eval(dataItem, "CnDtNo").ToString();
+                }
+            }
+        }
+
+        protected void ddl_CnType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var ddl = sender as ASPxComboBox;
+            var se_CnQty = ddl.NamingContainer.FindControl("se_CnQty") as ASPxSpinEdit;
+            var se_CnFoc = ddl.NamingContainer.FindControl("se_CnFoc") as ASPxSpinEdit;
+
+            var se_CurrNetAmt = ddl.NamingContainer.FindControl("se_CurrNetAmt") as ASPxSpinEdit;
+            var se_CurrTaxAmt = ddl.NamingContainer.FindControl("se_CurrTaxAmt") as ASPxSpinEdit;
+            var se_CurrTotalAmt = ddl.NamingContainer.FindControl("se_CurrTotalAmt") as ASPxSpinEdit;
+
+            var cnType = ddl.Text.ToString();
+
+            se_CnQty.Visible = false;
+            se_CnFoc.Visible = false;
+            se_CurrNetAmt.Visible = false;
+            se_CurrTaxAmt.Visible = false;
+            se_CurrTotalAmt.Visible = false;
+
+            se_CnQty.Visible = cnType.StartsWith("Q") && se_CnQty.MaxValue > 0;
+            se_CnFoc.Visible = cnType.StartsWith("Q") && se_CnFoc.MaxValue > 0;
+
+            se_CurrNetAmt.Visible = cnType.StartsWith("A");
+            se_CurrTaxAmt.Visible = cnType.StartsWith("A");
+            se_CurrTotalAmt.Visible = cnType.StartsWith("A");
+
+            se_CurrTotalAmt.Number = se_CurrNetAmt.Number + se_CurrTaxAmt.Number;
+        }
+
+        protected void se_CurrNetAmt_NumberChanged(object sender, EventArgs e)
+        {
+            var se_CurrNetAmt = (sender as ASPxSpinEdit).NamingContainer.FindControl("se_CurrNetAmt") as ASPxSpinEdit;
+            var se_CurrTaxAmt = (sender as ASPxSpinEdit).NamingContainer.FindControl("se_CurrTaxAmt") as ASPxSpinEdit;
+            var se_CurrTotalAmt = (sender as ASPxSpinEdit).NamingContainer.FindControl("se_CurrTotalAmt") as ASPxSpinEdit;
+
+            se_CurrTotalAmt.Number = se_CurrNetAmt.Number + se_CurrTaxAmt.Number;
+        }
+
+        protected void se_CurrTaxAmt_NumberChanged(object sender, EventArgs e)
+        {
+            se_CurrNetAmt_NumberChanged(sender, e);
+        }
+
+        protected void btn_SelectItems_Click(object sender, EventArgs e)
+        {
+            // Check invalid value (qty/amt)
+            foreach (GridViewRow row in gv_Receiving.Rows)
+            {
+                var lbl_RecDtNo = row.FindControl("lbl_RecDtNo") as Label;
+                var ddl_CnType = row.FindControl("ddl_CnType") as ASPxComboBox;
+                var se_CnQty = row.FindControl("se_CnQty") as ASPxSpinEdit;
+
+                var recDtNo = lbl_RecDtNo.Text;
+                var cnType = ddl_CnType.Text.ToString();
+                var value = se_CnQty.Number;
+
+
+
+                if (cnType.StartsWith("Q"))
+                {
+                    var lbl_RecQty = row.FindControl("lbl_RecQty") as Label;
+                    var lbl_FocQty = row.FindControl("lbl_FocQty") as Label;
+                    var maxQty = Convert.ToDecimal(lbl_RecQty.Text) + Convert.ToDecimal(lbl_FocQty.Text);
+
+                    if (value > maxQty)
+                    {
+                        ShowWarning(string.Format("Quantity, maximum allowed is {0} at item #{1}.", FormatQty(maxQty), recDtNo));
+                        return;
+                    }
+
+                }
+                else if (cnType.StartsWith("A"))
+                {
+                    var lbl_CurrTotalAmt = row.FindControl("lbl_CurrTotalAmt") as Label;
+                    var maxAmt = Convert.ToDecimal(lbl_CurrTotalAmt.Text);
+
+                    if (value > maxAmt)
+                    {
+                        ShowWarning(string.Format("Amount, maximum allowed is {0} at item #{1}.", FormatAmt(maxAmt), recDtNo));
+                        return;
+                    }
+                }
+            }
+
+            foreach (GridViewRow row in gv_Receiving.Rows)
+            {
+                var hf_CnDtNo = row.FindControl("hf_CnDtNo") as HiddenField;
+                var ddl_CnType = row.FindControl("ddl_CnType") as ASPxComboBox;
+                var cnType = ddl_CnType.Value.ToString();
+
+                var lbl_RecDtNo = row.FindControl("lbl_RecDtNo") as Label;
+
+                var hf_LocationCode = row.FindControl("hf_LocationCode") as HiddenField;
+                var hf_ProductCode = row.FindControl("hf_ProductCode") as HiddenField;
+                var hf_RcvUnit = row.FindControl("hf_RcvUnit") as HiddenField;
+                var hf_Price = row.FindControl("hf_Price") as HiddenField;
+                var hf_TaxType = row.FindControl("hf_TaxType") as HiddenField;
+                var hf_TaxRate = row.FindControl("hf_TaxRate") as HiddenField;
+                var hf_NetAmt = row.FindControl("hf_NetAmt") as HiddenField;
+                var hf_TaxAmt = row.FindControl("hf_TaxAmt") as HiddenField;
+                var hf_TotalAmt = row.FindControl("hf_TotalAmt") as HiddenField;
+
+                var se_CnQty = row.FindControl("se_CnQty") as ASPxSpinEdit;
+                var se_CnFoc = row.FindControl("se_CnFoc") as ASPxSpinEdit;
+
+                var se_CurrNetAmt = row.FindControl("se_CurrNetAmt") as ASPxSpinEdit;
+                var se_CurrTaxAmt = row.FindControl("se_CurrTaxAmt") as ASPxSpinEdit;
+                var se_CurrTotalAmt = row.FindControl("se_CurrTotalAmt") as ASPxSpinEdit;
+
+                var recNo = lbl_RecNo.Text.Trim();
+                var recDtNo = lbl_RecDtNo.Text;
+
+                var price = Convert.ToDecimal(hf_Price.Value);
+                var taxType = hf_TaxType.Value;
+                var taxRate = Convert.ToDecimal( hf_TaxRate.Value);
+
+                var cnQty = se_CnQty.Number;
+                var cnFoc = se_CnQty.Number;
+
+                var currNetAmt = se_CurrNetAmt.Number;
+                var currTaxAmt = se_CurrNetAmt.Number;
+                var currTotalAmt = se_CurrNetAmt.Number;
+                var comment = "";
+
+                var currencyRate = se_CurrencyRate.Number;
+
+
+                if (cnType == "Q")
+                {
+                    var amt = RoundAmt(cnQty * price);
+
+                    if (taxType == "N")
+                    {
+                        currNetAmt = amt;
+                        currTaxAmt = 0;
+                        currTotalAmt = amt;
+                    }
+                    else if (taxType == "A")
+                    {
+
+                        currNetAmt = amt;
+                        currTaxAmt = RoundAmt(amt * taxRate / 100);
+                        currTotalAmt = currNetAmt + currTaxAmt;
+                    }
+                    else
+                    {
+                        currTaxAmt = (amt * taxRate) / (100 - taxRate);
+                        currNetAmt = amt - currTaxAmt;
+                        currTotalAmt = amt;
+                    }
+                }
+
+
+                var cnDtNo = Convert.ToInt32(hf_CnDtNo.Value);
+
+                if (cnDtNo > 0)
+                {
+                    var item = _dtCnDt.AsEnumerable().FirstOrDefault(x => x.Field<int>("CnDtNo") == cnDtNo);
+
+                    if (item != null)
+                    {
+                        if (cnType == "N")
+                            item.Delete();
+                        else
+                        {
+                            item["CnType"] = cnType;
+
+                            item["RecQty"] = cnQty;
+                            item["FocQty"] = cnFoc;
+
+                            item["CurrNetAmt"] = currNetAmt;
+                            item["CurrTaxAmt"] = currTaxAmt;
+                            item["CurrTotalAmt"] = currTotalAmt;
+                            item["NetAmt"] = RoundAmt(currNetAmt * currencyRate);
+                            item["TaxAmt"] = RoundAmt(currTaxAmt * currencyRate);
+                            item["TotalAmt"] = RoundAmt(currTotalAmt * currencyRate);
+
+                        }
+                    }
+
+                }
+                else if (cnType != "N")
+                {
+
+                    var dr = _dtCnDt.NewRow();
+
+                    dr["CnNo"] = lbl_CnNo.Text;
+                    dr["CnDtNo"] = 0;
+                    dr["CnType"] = cnType;
+                    dr["RecNo"] = recNo;
+                    dr["Location"] = hf_LocationCode.Value;
+                    dr["ProductCode"] = hf_ProductCode.Value;
+                    dr["UnitCode"] = hf_RcvUnit.Value;
+                    dr["RecQty"] = cnQty;
+                    dr["FocQty"] = cnFoc;
+                    dr["Price"] = price;
+                    dr["TaxAdj"] = 0;
+                    dr["TaxType"] = taxType;
+                    dr["TaxRate"] = taxRate;
+                    dr["CurrNetAmt"] = currNetAmt;
+                    dr["CurrTaxAmt"] = currTaxAmt;
+                    dr["CurrTotalAmt"] = currTotalAmt;
+
+
+                    var netAmt = RoundAmt(currNetAmt * currencyRate);
+                    var taxAmt = RoundAmt(currTaxAmt * currencyRate);
+                    var totalAmt = RoundAmt(currTotalAmt * currencyRate);
+
+
+                    dr["NetAmt"] = netAmt;
+                    dr["TaxAmt"] = taxAmt;
+                    dr["TotalAmt"] = totalAmt;
+                    dr["Comment"] = comment;
+
+                    // Using for RecNo, RecDtNo
+                    dr["PoNo"] = recNo;
+                    dr["PoDtNo"] = recDtNo;
+
+                    _dtCnDt.Rows.Add(dr);
+                }
+            }
+
+            gv_Detail.DataSource = _dtCnDt;
+            gv_Detail.DataBind();
+
+            pop_AddItem.ShowOnPageLoad = false;
+
+
+        }
+
+
+        #endregion
+
+        // Method(s)
+        private void ShowWarning(string text)
+        {
+            pop_Alert.HeaderText = "Warning";
+
+            lbl_Pop_Alert.Text = text;
+            pop_Alert.ShowOnPageLoad = true;
+        }
+
+        private void ShowInfo(string text)
+        {
+            pop_Alert.HeaderText = "Information";
+
+            lbl_Pop_Alert.Text = text;
+            pop_Alert.ShowOnPageLoad = true;
+        }
+
+        private void SaveAndCommit(bool isCommit)
+        {
+            if (ddl_Vendor.SelectedIndex < 0)
+            {
+                ShowWarning("Vendor is required.");
+
+                return;
+            }
+
+            if (se_CurrencyRate.Number <= 0)
+            {
+                ShowWarning("Invalid currency rate.");
+
+                return;
+            }
+
+
+        }
+
+        private void UpdateCurrencyRate(decimal value)
+        {
+        }
+
+        private decimal RoundAmt(decimal value)
+        {
+            return Math.Round(value, Convert.ToInt32(_default.DigitAmt), MidpointRounding.AwayFromZero);
+        }
+
+        private void LoadCurrencyRate(string currencyCode, DateTime date)
+        {
+            var dt = new Helpers.SQL(hf_ConnStr.Value).ExecuteQuery("SELECT CurrencyCode as [Value], CurrencyCode as [Text] FROM [Ref].Currency WHERE IsActived=1 ORDER BY CurrencyCode");
+
+            var items = dt.AsEnumerable()
+                .Select(x => new DevExpress.Web.ASPxEditors.ListEditItem
+                {
+                    Value = x.Field<string>("Value"),
+                    Text = x.Field<string>("Text"),
+                    Selected = x.Field<string>("Value") == currencyCode
+                })
+                .ToArray();
+
+
+            ddl_Currency.Items.Clear();
+            ddl_Currency.Items.AddRange(items);
+        }
+
+        private void LoadVendor()
+        {
+            var query = "SELECT VendorCode as [Value], CONCAT(VendorCode, ' : ', [Name]) as [Text] FROM AP.Vendor WHERE IsActive=1 ORDER BY VendorCode";
+            var dt = _bu.DbExecuteQuery(query, null, hf_ConnStr.Value);
+
+            ddl_Vendor.Items.Clear();
+            ddl_Vendor.Items.AddRange(dt.AsEnumerable()
+                .Select(x => new ListEditItem
+                {
+                    Value = x.Field<string>("Value"),
+                    Text = x.Field<string>("Text")
+                }).ToArray());
+        }
+
+        private void AddItem2(string vendorCode)
+        {
+            var dr = _dtCnDt.Rows.Count == 0 ? null : _dtCnDt.Rows[_dtCnDt.Rows.Count - 1];
+
+            var cnType = dr == null ? "Q" : dr["CnType"].ToString();
+            var recNo = dr == null ? "" : dr["RecNo"].ToString();
+            //var cnDtNo = dr == null ? 1 : Convert.ToInt32(dr["CnDtNo"]) + 1;
+            //var CnDtNo = 0;
+
+            var drNew = _dtCnDt.NewRow();
+
+
+            drNew["CnNo"] = _ID;
+            drNew["CnDtNo"] = 0;
+            drNew["RecNo"] = recNo;
+            drNew["RecQty"] = 0;
+            drNew["FocQty"] = 0;
+            drNew["Price"] = 0;
+            drNew["TaxType"] = "N";
+            drNew["TaxRate"] = 0;
+            drNew["CurrNetAmt"] = 0;
+            drNew["CurrTaxAmt"] = 0;
+            drNew["CurrTotalAmt"] = 0;
+            drNew["NetAmt"] = 0;
+            drNew["TaxAmt"] = 0;
+            drNew["TotalAmt"] = 0;
+
+
+            _dtCnDt.Rows.Add(drNew);
+
+            gv_Detail.DataSource = _dtCnDt;
+            gv_Detail.DataBind();
+        }
+
+        private void ShowReceivingDetails(string recNo)
+        {
+
+            var dtRec = _bu.DbExecuteQuery("SELECT * FROM PC.Rec WHERE RecNo=@RecNo", new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@RecNo", recNo) }, hf_ConnStr.Value);
+
+            if (dtRec.Rows.Count > 0)
+            {
+                var dr = dtRec.Rows[0];
+
+                lbl_RecNo.Text = dr["RecNo"].ToString();
+                lbl_RecDate.Text = FormatDate(dr["RecDate"]);
+                lbl_RecInvNo.Text = dr["InvoiceNo"].ToString();
+                lbl_RecInvDate.Text = FormatDate(dr["InvoiceDate"]);
+                lbl_RecDesc.Text = dr["Description"].ToString();
+                lbl_RecCurrency.Text = string.Format("{0} @{1}", dr["CurrencyCode"].ToString(), dr["CurrencyRate"].ToString());
+            }
+
+            var query = @"
+SELECT 
+	*, 
+    0 as CnDtNo,
+	'N' as CnType,
+	RecQty as CnQty, 
+	FocQty as CnFoc, 
+    CurrNetAmt as CnCurrNetAmt, 
+	CurrTaxAmt as CnCurrTaxAmt,
+	CurrTotalAmt as CnCurrTotalAmt
+FROM 
+	PC.RecDt 
+WHERE 
+	RecNo=@RecNo
+";
+
+            var dt = _bu.DbExecuteQuery(query, new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@RecNo", recNo) }, hf_ConnStr.Value);
+
+
+            //// Set selected item in grid rows
+
+            var items = _dtCnDt.AsEnumerable()
+                        .Where(x => x.Field<string>("RecNo") == recNo)
+                        .ToArray();
+
+            foreach (var item in items)
+            {
+                var recDtNo = item.Field<Nullable<int>>("PoDtNo");
+                var locationCode = item.Field<string>("Location");
+                var productCode = item.Field<string>("ProductCode");
+
+                var cnDtNo = item.Field<int>("CnDtNo");
+                var cnType = item.Field<string>("CnType");
+                var cnQty = item.Field<decimal>("RecQty");
+                var cnFoc = item.Field<decimal>("FocQty");
+                var cnCurrNetAmt = item.Field<decimal>("currNetAmt");
+                var cnCurrTaxAmt = item.Field<decimal>("currTaxAmt");
+                var cnCurrTotalAmt = item.Field<decimal>("currTotalAmt");
+
+
+
+                var recItem = recDtNo != null && recDtNo > 0
+                    ? dt.AsEnumerable().FirstOrDefault(x => x.Field<int>("RecDtNo") == recDtNo)
+                    : dt.AsEnumerable().FirstOrDefault(x => x.Field<string>("LocationCode") == locationCode && x.Field<string>("ProductCode") == productCode);
+
+                //var recItem = dt.AsEnumerable().FirstOrDefault(x => x.Field<string>("LocationCode") == locationCode && x.Field<string>("ProductCode") == productCode);
+
+                if (recItem != null)
+                {
+                    if (cnType == "Q")
+                    {
+                        recItem["CnDtNo"] = cnDtNo;
+                        recItem["CnType"] = "Q";
+                        recItem["CnQty"] = cnQty;
+                        recItem["CnFoc"] = cnFoc;
+                    }
+                    else
+                    {
+                        recItem["CnDtNo"] = cnDtNo;
+                        recItem["CnType"] = "A";
+                        recItem["CurrNetAmt"] = cnCurrNetAmt;
+                        recItem["CurrTaxAmt"] = cnCurrTaxAmt;
+                        recItem["CurrTotalAmt"] = cnCurrTotalAmt;
+                    }
+
+                }
+
+            }
+
+            gv_Receiving.DataSource = dt;
+            gv_Receiving.DataBind();
+
+
+        }
 
         private void SetLabel(GridViewRowEventArgs e, string itemName, string value)
         {
@@ -375,6 +1097,20 @@ namespace BlueLedger.PL.PC.CN
 
                 lbl.Text = value;
                 lbl.ToolTip = lbl.Text;
+            }
+        }
+
+        private void SetSpinEdit(GridViewRowEventArgs e, string itemName, object value, int digit = 2)
+        {
+            if (e.Row.FindControl(itemName) != null)
+            {
+                var item = e.Row.FindControl(itemName) as ASPxSpinEdit;
+
+                item.Value = Convert.ToDecimal(value);
+                item.ToolTip = item.Text;
+                item.DecimalPlaces = digit;
+
+
             }
         }
 
@@ -461,353 +1197,11 @@ WHERE
 
         }
 
-        // ------------------------------------------------------------------
-
-        protected void gv_Detail_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e)
-        {
-            var gv = sender as GridView;
-
-            //for (var i = _dtRecDt.Rows.Count - 1; i >= 0; i--)
-            //{
-            //    var dr = _dtRecDt.Rows[i];
-            //    if (dr.RowState == DataRowState.Modified || dr.RowState == DataRowState.Added)
-            //        dr.Delete();
-            //}
-
-            gv.DataSource = _dtCnDt;
-            gv.EditIndex = -1;
-            gv.DataBind();
-
-            //SetEditItem(false);
-        }
-
-        protected void gv_Detail_RowEditing(object sender, GridViewEditEventArgs e)
-        {
-            var gv = sender as GridView;
-
-            gv.EditRowStyle.BackColor = Color.FromArgb(254, 249, 231);
-            gv.EditIndex = e.NewEditIndex;
-            gv.DataSource = _dtCnDt;
-            gv.DataBind();
-
-            var row = gv.Rows[e.NewEditIndex];
-
-            var Img_Btn = row.FindControl("Img_Btn") as ImageButton;
-            var ddl_Location = row.FindControl("ddl_Location") as ASPxComboBox;
-
-            Img_Btn.Visible = false;
-
-            //SetEditItem(true);
-        }
-
-        protected void gv_Detail_RowUpdating(object sender, GridViewUpdateEventArgs e)
-        {
-            var gv = sender as GridView;
-            var row = gv.Rows[e.RowIndex];
-
-            DataRow dr = _dtCnDt.Rows[e.RowIndex];
-
-
-
-            gv.EditIndex = -1;
-            gv.DataSource = _dtCnDt;
-            gv.DataBind();
-
-            //SetEditItem(false);
-        }
-
-        protected void gv_Detail_RowDeleting(object sender, GridViewDeleteEventArgs e)
-        {
-            var gv = sender as GridView;
-
-            //var hf_RecDtNo = gv.Rows[e.RowIndex].FindControl("hf_RecDtNo") as HiddenField;
-            //var recDtNo = Convert.ToInt32(hf_RecDtNo.Value);
-            //var item = _dtCnDt.AsEnumerable().FirstOrDefault(x => x.Field<int>("CnDtNo") == recDtNo);
-
-            //if (item != null)
-            //    item.Delete();
-
-            gv.DataSource = _dtCnDt;
-            gv.DataBind();
-        }
-
-        protected void ddl_CnType_SelectedIndexChanged(object sender, EventArgs e)
-        {
-        }
-
-        protected void ddl_Receiving_Load(object sender, EventArgs e)
-        {
-            var ddl = sender as ASPxComboBox;
-            var vendorCode = ddl_Vendor.Value.ToString();
-            var docDate = de_DocDate.Date;
-
-            var query = @"
-SELECT
-	RecNo,
-	 CONVERT(VARCHAR(10), RecDate, 103)  as RecDate,
-	[Description]
-FROM
-	PC.REC
-WHERE
-	DocStatus = 'Committed'
-	AND VendorCode=@VendorCode
-	AND RecDate <= @DocDate
-ORDER BY
-	RecNo
-";
-            var parameters = new Blue.DAL.DbParameter[]
-            {
-                new Blue.DAL.DbParameter("@VendorCode", vendorCode),
-                new Blue.DAL.DbParameter("@DocDate", docDate.ToString("yyyy-MM-dd"))
-            };
-            var dt = _bu.DbExecuteQuery(query, parameters, hf_ConnStr.Value);
-
-            ddl.ValueField = "RecNo";
-            ddl.DataSource = dt;
-            ddl.DataBind();
-
-        }
-
-        protected void ddl_Receiving_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            var ddl = sender as ASPxComboBox;
-            var ddl_Location = ddl.NamingContainer.FindControl("ddl_Location") as ASPxComboBox;
-            var hf = ddl.NamingContainer.FindControl("hf_LocationCode") as HiddenField;
-
-            hf.Value = ddl_Location.Value == null ? "" : ddl_Location.Value.ToString();
-
-
-            ddl_Location_Load(ddl_Location, e);
-
-            SetDropDownListValue(ddl_Location, hf.Value);
-
-
-        }
-
         private void SetDropDownListValue(ASPxComboBox ddl, string value)
         {
             var item = ddl.Items.FindByValue(value);
 
             ddl.Value = item == null ? null : value;
-        }
-
-        protected void ddl_Location_Load(object sender, EventArgs e)
-        {
-            var ddl = sender as ASPxComboBox;
-            var ddl_Receiving = ddl.NamingContainer.FindControl("ddl_Receiving") as ASPxComboBox;
-
-            var recNo = ddl_Receiving.Value;
-
-            if (recNo != null)
-            {
-
-                var query = @"
-            SELECT
-            	DISTINCT recdt.LocationCode,
-            	l.[LocationName]
-            
-            FROM
-            	PC.RECDt
-            	LEFT JOIN [IN].StoreLocation l ON l.LocationCode=recdt.LocationCode
-            WHERE
-            	RecNo=@RecNo
-            ORDER BY
-            	recdt.LocationCode
-            ";
-                var parameters = new Blue.DAL.DbParameter[]
-                        {
-                            new Blue.DAL.DbParameter("@RecNo", recNo.ToString())
-                        };
-                var dt = _bu.DbExecuteQuery(query, parameters, hf_ConnStr.Value);
-
-                ddl.ValueField = "LocationCode";
-                ddl.DataSource = dt;
-                ddl.DataBind();
-            }
-        }
-
-
-        protected void ddl_Location_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            var ddl = sender as ASPxComboBox;
-            var ddl_Product = ddl.NamingContainer.FindControl("ddl_Product") as ASPxComboBox;
-            var hf = ddl.NamingContainer.FindControl("hf_ProductCode") as HiddenField;
-
-            hf.Value = ddl_Product.Value == null ? "" : ddl_Product.Value.ToString();
-
-            ddl_Product_Load(ddl_Product, e);
-
-            SetDropDownListValue(ddl_Product, hf.Value);
-
-        }
-
-        protected void ddl_Product_Load(object sender, EventArgs e)
-        {
-            var ddl = sender as ASPxComboBox;
-            var ddl_Receiving = ddl.NamingContainer.FindControl("ddl_Receiving") as ASPxComboBox;
-            var ddl_Location = ddl.NamingContainer.FindControl("ddl_Location") as ASPxComboBox;
-
-            var recNo = ddl_Receiving.Value;
-            var locationCode = ddl_Location.Value;
-
-            if (recNo != null && locationCode != null)
-            {
-                var query = @"
-            SELECT
-                recdt.RecDtNo,
-            	recdt.ProductCode,
-            	CONCAT(p.ProductDesc1, ' | ', p.ProductDesc2) as ProductName
-            FROM
-            	PC.RECDt
-            	LEFT JOIN [IN].Product p ON p.ProductCode=recdt.ProductCode
-            WHERE
-            	RecNo=@RecNo
-                AND LocationCode=@LocationCode
-            ORDER BY
-            	recdt.RecDtNo
-            ";
-                var parameters = new Blue.DAL.DbParameter[]
-                        {
-                            new Blue.DAL.DbParameter("@RecNo", recNo.ToString()),
-                            new Blue.DAL.DbParameter("@LocationCode", locationCode.ToString())
-                        };
-                var dt = _bu.DbExecuteQuery(query, parameters, hf_ConnStr.Value);
-
-                ddl.ValueField = "ProductCode";
-                ddl.DataSource = dt;
-                ddl.DataBind();
-            }
-        }
-
-        protected void ddl_Product_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            var ddl = sender as ASPxComboBox;
-            var ddl_Product = ddl.NamingContainer.FindControl("ddl_Product") as ASPxComboBox;
-            var hf = ddl.NamingContainer.FindControl("hf_ProductCode") as HiddenField;
-
-            hf.Value = ddl_Product.Value == null ? "" : ddl_Product.Value.ToString();
-
-            ddl_Product_Load(ddl_Product, e);
-
-            SetDropDownListValue(ddl_Product, hf.Value);
-        }
-
-        protected void se_RecQty_NumberChanged(object sender, EventArgs e)
-        {
-        }
-
-        protected void se_CurrNetAmt_NumberChanged(object sender, EventArgs e)
-        {
-        }
-
-
-        #endregion
-
-        // Method(s)
-        private void ShowWarning(string text)
-        {
-            pop_Alert.HeaderText = "Warning";
-
-            lbl_Pop_Alert.Text = text;
-            pop_Alert.ShowOnPageLoad = true;
-        }
-
-        private void ShowInfo(string text)
-        {
-            pop_Alert.HeaderText = "Information";
-
-            lbl_Pop_Alert.Text = text;
-            pop_Alert.ShowOnPageLoad = true;
-        }
-
-
-        private void SaveAndCommit(bool isCommit)
-        {
-            if (ddl_Vendor.SelectedIndex < 0)
-            {
-                ShowWarning("Vendor is required.");
-
-                return;
-            }
-
-            if (se_CurrencyRate.Number <= 0)
-            {
-                ShowWarning("Invalid currency rate.");
-
-                return;
-            }
-
-
-        }
-
-        private void UpdateCurrencyRate(decimal value)
-        {
-        }
-
-        private void LoadCurrencyRate(string currencyCode, DateTime date)
-        {
-            var dt = new Helpers.SQL(hf_ConnStr.Value).ExecuteQuery("SELECT CurrencyCode as [Value], CurrencyCode as [Text] FROM [Ref].Currency WHERE IsActived=1 ORDER BY CurrencyCode");
-
-            var items = dt.AsEnumerable()
-                .Select(x => new DevExpress.Web.ASPxEditors.ListEditItem
-                {
-                    Value = x.Field<string>("Value"),
-                    Text = x.Field<string>("Text"),
-                    Selected = x.Field<string>("Value") == currencyCode
-                })
-                .ToArray();
-
-
-            ddl_Currency.Items.Clear();
-            ddl_Currency.Items.AddRange(items);
-        }
-
-        private void LoadVendor()
-        {
-            var query = "SELECT VendorCode as [Value], CONCAT(VendorCode, ' : ', [Name]) as [Text] FROM AP.Vendor WHERE IsActive=1 ORDER BY VendorCode";
-            var dt = _bu.DbExecuteQuery(query, null, hf_ConnStr.Value);
-
-            ddl_Vendor.Items.Clear();
-            ddl_Vendor.Items.AddRange(dt.AsEnumerable()
-                .Select(x => new ListEditItem
-                {
-                    Value = x.Field<string>("Value"),
-                    Text = x.Field<string>("Text")
-                }).ToArray());
-        }
-
-        private void AddItem(string vendorCode)
-        {
-            var dr = _dtCnDt.Rows.Count == 0 ? null : _dtCnDt.Rows[_dtCnDt.Rows.Count - 1];
-
-            var cnType = dr == null ? "Q" : dr["CnType"].ToString();
-            var recNo = dr == null ? "" : dr["RecNo"].ToString();
-            //var cnDtNo = dr == null ? 1 : Convert.ToInt32(dr["CnDtNo"]) + 1;
-            //var CnDtNo = 0;
-
-            var drNew = _dtCnDt.NewRow();
-
-
-            drNew["CnNo"] = _ID;
-            drNew["CnDtNo"] = 0;
-            drNew["RecNo"] = recNo;
-            drNew["RecQty"] = 0;
-            drNew["FocQty"] = 0;
-            drNew["Price"] = 0;
-            drNew["TaxType"] = "N";
-            drNew["TaxRate"] = 0;
-            drNew["CurrNetAmt"] = 0;
-            drNew["CurrTaxAmt"] = 0;
-            drNew["CurrTotalAmt"] = 0;
-            drNew["NetAmt"] = 0;
-            drNew["TaxAmt"] = 0;
-            drNew["TotalAmt"] = 0;
-
-
-            _dtCnDt.Rows.Add(drNew);
-
-            gv_Detail.DataSource = _dtCnDt;
-            gv_Detail.DataBind();
         }
 
         // Classes
@@ -819,6 +1213,109 @@ ORDER BY
             public decimal TaxRate { get; set; }
             public string CostMethod { get; set; }
         }
+
+
+
+
+        //        protected void ddl_Location_Load(object sender, EventArgs e)
+        //        {
+        //            var ddl = sender as ASPxComboBox;
+        //            var ddl_Receiving = ddl.NamingContainer.FindControl("ddl_Receiving") as ASPxComboBox;
+
+        //            var recNo = ddl_Receiving.Value;
+
+        //            if (recNo != null)
+        //            {
+
+        //                var query = @"
+        //            SELECT
+        //            	DISTINCT recdt.LocationCode,
+        //            	l.[LocationName]
+        //            
+        //            FROM
+        //            	PC.RECDt
+        //            	LEFT JOIN [IN].StoreLocation l ON l.LocationCode=recdt.LocationCode
+        //            WHERE
+        //            	RecNo=@RecNo
+        //            ORDER BY
+        //            	recdt.LocationCode
+        //            ";
+        //                var parameters = new Blue.DAL.DbParameter[]
+        //                        {
+        //                            new Blue.DAL.DbParameter("@RecNo", recNo.ToString())
+        //                        };
+        //                var dt = _bu.DbExecuteQuery(query, parameters, hf_ConnStr.Value);
+
+        //                ddl.ValueField = "LocationCode";
+        //                ddl.DataSource = dt;
+        //                ddl.DataBind();
+        //            }
+        //        }
+
+        //        protected void ddl_Location_SelectedIndexChanged(object sender, EventArgs e)
+        //        {
+        //            var ddl = sender as ASPxComboBox;
+        //            var ddl_Product = ddl.NamingContainer.FindControl("ddl_Product") as ASPxComboBox;
+        //            var hf = ddl.NamingContainer.FindControl("hf_ProductCode") as HiddenField;
+
+        //            hf.Value = ddl_Product.Value == null ? "" : ddl_Product.Value.ToString();
+
+        //            ddl_Product_Load(ddl_Product, e);
+
+        //            SetDropDownListValue(ddl_Product, hf.Value);
+
+        //        }
+
+        //        protected void ddl_Product_Load(object sender, EventArgs e)
+        //        {
+        //            var ddl = sender as ASPxComboBox;
+        //            var ddl_Receiving = ddl.NamingContainer.FindControl("ddl_Receiving") as ASPxComboBox;
+        //            var ddl_Location = ddl.NamingContainer.FindControl("ddl_Location") as ASPxComboBox;
+
+        //            var recNo = ddl_Receiving.Value;
+        //            var locationCode = ddl_Location.Value;
+
+        //            if (recNo != null && locationCode != null)
+        //            {
+        //                var query = @"
+        //            SELECT
+        //                recdt.RecDtNo,
+        //            	recdt.ProductCode,
+        //            	CONCAT(p.ProductDesc1, ' | ', p.ProductDesc2) as ProductName
+        //            FROM
+        //            	PC.RECDt
+        //            	LEFT JOIN [IN].Product p ON p.ProductCode=recdt.ProductCode
+        //            WHERE
+        //            	RecNo=@RecNo
+        //                AND LocationCode=@LocationCode
+        //            ORDER BY
+        //            	recdt.RecDtNo
+        //            ";
+        //                var parameters = new Blue.DAL.DbParameter[]
+        //                        {
+        //                            new Blue.DAL.DbParameter("@RecNo", recNo.ToString()),
+        //                            new Blue.DAL.DbParameter("@LocationCode", locationCode.ToString())
+        //                        };
+        //                var dt = _bu.DbExecuteQuery(query, parameters, hf_ConnStr.Value);
+
+        //                ddl.ValueField = "ProductCode";
+        //                ddl.DataSource = dt;
+        //                ddl.DataBind();
+        //            }
+        //        }
+
+        //        protected void ddl_Product_SelectedIndexChanged(object sender, EventArgs e)
+        //        {
+        //            var ddl = sender as ASPxComboBox;
+        //            var ddl_Product = ddl.NamingContainer.FindControl("ddl_Product") as ASPxComboBox;
+        //            var hf = ddl.NamingContainer.FindControl("hf_ProductCode") as HiddenField;
+
+        //            hf.Value = ddl_Product.Value == null ? "" : ddl_Product.Value.ToString();
+
+        //            ddl_Product_Load(ddl_Product, e);
+
+        //            SetDropDownListValue(ddl_Product, hf.Value);
+        //        }
 
     }
 }

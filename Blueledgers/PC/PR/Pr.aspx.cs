@@ -713,15 +713,15 @@ namespace BlueLedger.PL.PC.PR
         {
             // Display/Hide Edit TabPage in Edit Form
             // if (viewHandler.GetWFStep(int.Parse(Request.Cookies["[PC].[vPrList]"].Value.ToString()), hf_ConnStr.Value) <
-                // 2)
+            // 2)
             // {
-                // pc_Prdt.TabPages[1].Enabled = false; // Hide Allocate Buyer
+            // pc_Prdt.TabPages[1].Enabled = false; // Hide Allocate Buyer
             // }
 
             // if (viewHandler.GetWFStep(int.Parse(Request.Cookies["[PC].[vPrList]"].Value.ToString()), hf_ConnStr.Value) <
-                // 3)
+            // 3)
             // {
-                // pc_Prdt.TabPages[2].Enabled = false; // Hide Allocate Vendor
+            // pc_Prdt.TabPages[2].Enabled = false; // Hide Allocate Vendor
             // }
         }
 
@@ -1135,6 +1135,30 @@ namespace BlueLedger.PL.PC.PR
 
         private void RejectItems(bool sendMail)
         {
+            var prNo = dsPR.Tables[pr.TableName].Rows[0]["PRNo"].ToString();
+            var comment = txt_RejectMessage.Text.Trim().Substring(0, 100);
+
+            // no any detail
+
+            if (grd_PRDt1.Rows.Count == 0)
+            {
+                var query = "UPDATE PC.Pr SET ApprStatus=REPLACE(ApprStatus,'_','R'), DocStatus='Rejected', AddField2=@comment, UpdatedDate=GETDATE(), UpdatedBy=@UpdatedBy WHERE PrNo=@PrNo";
+
+                bu.DbExecuteQuery(query, new Blue.DAL.DbParameter[] 
+                { 
+                    new Blue.DAL.DbParameter("@PrNo", prNo), 
+                    new Blue.DAL.DbParameter("@Comment", comment),
+                    new Blue.DAL.DbParameter("@UpdatedBy", LoginInfo.LoginName) 
+                }, hf_ConnStr.Value);
+
+                pop_ConfirmReject.ShowOnPageLoad = false;
+                pop_Reject.ShowOnPageLoad = false;
+                Response.Redirect("PrList.aspx");
+
+                return;
+            }
+
+
             var rejectItemCount = 0;
 
             var sbPrDtNo = new StringBuilder();
@@ -1171,7 +1195,7 @@ namespace BlueLedger.PL.PC.PR
                         : drReject["PRDtNo"].ToString()));
 
                     var dbParams = new Blue.DAL.DbParameter[5];
-                    dbParams[0] = new Blue.DAL.DbParameter("@PrNo", dsPR.Tables[pr.TableName].Rows[0]["PRNo"].ToString());
+                    dbParams[0] = new Blue.DAL.DbParameter("@PrNo", prNo);
                     //dbParams[1] = new Blue.DAL.DbParameter("@PrDtNo", sbPrDtNo.ToString());
                     dbParams[1] = new Blue.DAL.DbParameter("@PrDtNo", drReject["PrDtNo"].ToString());
                     dbParams[2] = new Blue.DAL.DbParameter("@Step", wfStep.ToString());

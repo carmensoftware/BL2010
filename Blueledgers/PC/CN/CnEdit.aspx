@@ -527,17 +527,24 @@
                                     <td>
                                         <asp:Label runat="server" ID="lbl_RecInvDate" />
                                     </td>
+                                    <td style="width: 80px;">
+                                        <asp:Label ID="Label7" runat="server" SkinID="LBL_HD" Text="Currency" />
+                                    </td>
+                                    <td>
+                                        <asp:Label runat="server" ID="lbl_RecCurrency" />
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td>
                                         <asp:Label ID="Label6" runat="server" SkinID="LBL_HD" Text="Description" />
                                     </td>
-                                    <td colspan="5">
+                                    <td colspan="7">
                                         <asp:Label runat="server" ID="lbl_RecDesc" />
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
+                        <hr />
                         <div class="mt-10" style="overflow: scroll; height: 420px;">
                             <asp:GridView ID="gv_Receiving" runat="server" Width="100%" AutoGenerateColumns="false" EmptyDataText="No Data" GridLines="None" OnRowDataBound="gv_Receiving_RowDataBound">
                                 <HeaderStyle HorizontalAlign="Left" BackColor="#2196f3" ForeColor="White" Height="24" />
@@ -625,11 +632,12 @@
                                                     <asp:HiddenField runat="server" ID="hf_NetAmt" />
                                                     <asp:HiddenField runat="server" ID="hf_TaxAmt" />
                                                     <asp:HiddenField runat="server" ID="hf_TotalAmt" />
+                                                    <asp:HiddenField runat="server" ID="hf_CnDtNo" />
                                                 </td>
                                                 <td colspan="3">
                                                     <dx:ASPxComboBox ID="ddl_CnType" runat="server" AutoPostBack="true" SelectedIndex="0" Width="120" OnSelectedIndexChanged="ddl_CnType_SelectedIndexChanged">
                                                         <Items>
-                                                            <dx:ListEditItem Value="N" Text="" />
+                                                            <dx:ListEditItem Value="N" Text="NO SELECT" />
                                                             <dx:ListEditItem Value="Q" Text="Quantity" />
                                                             <dx:ListEditItem Value="A" Text="Amount" />
                                                         </Items>
@@ -700,7 +708,6 @@
             </dx:ASPxPopupControl>
         </ContentTemplate>
         <Triggers>
-            <%--<asp:AsyncPostBackTrigger ControlID="btn_Create" EventName="Click" />--%>
         </Triggers>
     </asp:UpdatePanel>
     <asp:UpdateProgress ID="UpdateProgress2" runat="server" AssociatedUpdatePanelID="UpdatePanel">
