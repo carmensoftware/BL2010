@@ -43,6 +43,7 @@ namespace Blue.BL.dbo
             2026-01-31 = brownstarling = 18
 
             ------------------------------------------------------------------
+            2025-12-31 = hopinnth = 27 (9999999)
          
             2025-11-30 = skyviewresortphuket = 11
             2025-11-30 = wyndhamgardennaithon = 21
@@ -64,6 +65,7 @@ namespace Blue.BL.dbo
           
             2025-08-31 = Diamond Cottage = 15+5=20
           
+            2025-08-31 = chatriumniseko = 9
             2025-08-31 = palayanagroup = 2+20 = 22
             2025-08-31 = surestaytheiconic = 11
             2025-08-31 = thekaset = 10
@@ -102,7 +104,6 @@ namespace Blue.BL.dbo
             2025-05-31 = firaphuketbeachclub = 5+3=8
             2025-05-31 = sztowerthai = 13
             2025-05-31 = selinaserenityrawai = 8
-            2025-05-31 = hopinnth = 27
             2025-05-31 = hopinnHQ = ?
             2025-05-31 = twinlotus (on permise) = 16
 
@@ -130,8 +131,8 @@ namespace Blue.BL.dbo
         
         */
 
-        private DateTime licenseExpiredDate = new DateTime(2025, 05, 31);
-        private int licenseActiveUser = 156;
+        private DateTime licenseExpiredDate = new DateTime(2025, 08, 31);
+        private int licenseActiveUser = 999;
 
         public User()
         {
