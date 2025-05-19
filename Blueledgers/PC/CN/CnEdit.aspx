@@ -243,8 +243,8 @@
                             <asp:Label ID="lbl_CurrNetAmt1" runat="server" Width="100px" SkinID="LBL_NR_1" />
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <dx:ASPxSpinEdit ID="se_CurrNetAmt" runat="server" AutoPostBack="true" Height="17px" HorizontalAlign="Right" NullText="0.00" Number="0" MinValue="0" Width="100px"
-                                OnNumberChanged="se_CurrNetAmt_NumberChanged">
+                            <dx:ASPxSpinEdit ID="se_CnCurrNetAmt" runat="server" AutoPostBack="true" Height="17px" HorizontalAlign="Right" NullText="0.00" Number="0" MinValue="0"
+                                Width="100px" OnNumberChanged="se_CnCurrNetAmt_NumberChanged">
                                 <SpinButtons ShowIncrementButtons="False" />
                             </dx:ASPxSpinEdit>
                         </EditItemTemplate>
@@ -257,7 +257,7 @@
                             <asp:Label ID="lbl_CurrTaxAmt1" runat="server" Width="100px" SkinID="LBL_NR_1" />
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <dx:ASPxSpinEdit ID="se_CurrTaxAmt" runat="server" AutoPostBack="false" Height="17px" HorizontalAlign="Right" NullText="0.00" Number="0" Width="100px">
+                            <dx:ASPxSpinEdit ID="se_CnCurrTaxAmt" runat="server" AutoPostBack="false" Height="17px" HorizontalAlign="Right" NullText="0.00" Number="0" Width="100px">
                                 <SpinButtons ShowIncrementButtons="False" />
                             </dx:ASPxSpinEdit>
                         </EditItemTemplate>
@@ -270,7 +270,7 @@
                             <asp:Label ID="lbl_CurrTotalAmt1" runat="server" Width="100px" SkinID="LBL_NR_1" />
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <dx:ASPxSpinEdit ID="se_CurrTotalAmt" runat="server" AutoPostBack="false" Height="17px" HorizontalAlign="Right" NullText="0.00" Number="0" Width="100px"
+                            <dx:ASPxSpinEdit ID="se_CnCurrTotalAmt" runat="server" AutoPostBack="false" Height="17px" HorizontalAlign="Right" NullText="0.00" Number="0" Width="100px"
                                 ReadOnly="true">
                                 <SpinButtons ShowIncrementButtons="False" />
                             </dx:ASPxSpinEdit>
@@ -484,8 +484,8 @@
                     </dx:PopupControlContentControl>
                 </ContentCollection>
             </dx:ASPxPopupControl>
-            <dx:ASPxPopupControl ID="pop_AddItem" ClientInstanceName="pop_AddItem" runat="server" Width="960" Height="600" HeaderText="Add item(s)" Modal="True" ShowCloseButton="true"
-                CloseAction="CloseButton" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowPageScrollbarWhenModal="True">
+            <dx:ASPxPopupControl ID="pop_AddItem" ClientInstanceName="pop_AddItem" runat="server" Width="960" Height="800" HeaderText="Add item(s)" Modal="True" ShowCloseButton="true"
+                CloseAction="CloseButton" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="TopSides" ShowPageScrollbarWhenModal="True" AutoUpdatePosition="True" AllowDragging="True">
                 <ContentCollection>
                     <dx:PopupControlContentControl ID="PopupControlContentControl1" runat="server">
                         <div class="flex mb-20 width-100" style="align-items: center;">
@@ -498,6 +498,17 @@
                                     <dx:ListBoxColumn Caption="Date" FieldName="RecDate" />
                                     <dx:ListBoxColumn Caption="Description" FieldName="Description" Width="360px" />
                                 </Columns>
+                            </dx:ASPxComboBox>
+                            &nbsp;&nbsp;
+                            <dx:ASPxComboBox ID="ddl_RecPeriod" runat="server" AutoPostBack="True" OnSelectedIndexChanged="ddl_RecPeriod_SelectedIndexChanged">
+                                <Items>
+                                    <dx:ListEditItem Value="-1" Text="All" />
+                                    <dx:ListEditItem Value="0" Text="Current month" Selected="true" />
+                                    <dx:ListEditItem Value="1" Text="Last 1 months" />
+                                    <dx:ListEditItem Value="2" Text="Last 2 months" />
+                                    <dx:ListEditItem Value="3" Text="Last 3 months" />
+                                    <dx:ListEditItem Value="6" Text="Last 6 months" />
+                                </Items>
                             </dx:ASPxComboBox>
                         </div>
                         <table style="width: 100%">
@@ -545,7 +556,7 @@
                             </tbody>
                         </table>
                         <hr />
-                        <div class="mt-10" style="overflow: scroll; height: 420px;">
+                        <%--<div class="mt-10" style="overflow: hidden; height: 100%;">--%>
                             <asp:GridView ID="gv_Receiving" runat="server" Width="100%" AutoGenerateColumns="false" EmptyDataText="No Data" GridLines="None" OnRowDataBound="gv_Receiving_RowDataBound">
                                 <HeaderStyle HorizontalAlign="Left" BackColor="#2196f3" ForeColor="White" Height="24" />
                                 <RowStyle HorizontalAlign="Left" VerticalAlign="Top" BorderStyle="None" />
@@ -553,7 +564,7 @@
                                     <%-- RecDtNo --%>
                                     <asp:TemplateField HeaderText="#">
                                         <ItemTemplate>
-                                            <asp:Label ID="lbl_RecDtNo" runat="server" SkinID="LBL_NR_1" Width="25" />
+                                            <asp:Label ID="lbl_RecDtNo" runat="server" SkinID="LBL_NR_1" Font-Bold="true" Width="25" />
                                         </ItemTemplate>
                                     </asp:TemplateField>
                                     <%-- Location --%>
@@ -569,10 +580,15 @@
                                         </ItemTemplate>
                                         <ControlStyle />
                                     </asp:TemplateField>
-                                    <%-- UNIT --%>
+                                    <%-- PRICE/UNIT --%>
                                     <asp:TemplateField HeaderText="Unit">
                                         <ItemTemplate>
-                                            <asp:Label ID="lbl_RcvUnit" runat="server" SkinID="LBL_NR_1" Width="40" />
+                                            <div>
+                                                <asp:Label ID="lbl_Price" runat="server" SkinID="LBL_NR_1" Width="40" />
+                                            </div>
+                                            <div>
+                                                <asp:Label ID="lbl_RcvUnit" runat="server" SkinID="LBL_NR_1" Width="40" />
+                                            </div>
                                         </ItemTemplate>
                                     </asp:TemplateField>
                                     <%-- RecQty --%>
@@ -622,6 +638,7 @@
                                         <ItemTemplate>
                                             <tr style="vertical-align: top; background-color: #F5F5F5;">
                                                 <td>
+                                                    <asp:Image runat="server" ID="img_Check" />
                                                     <asp:HiddenField runat="server" ID="hf_LocationCode" />
                                                     <asp:HiddenField runat="server" ID="hf_ProductCode" />
                                                     <asp:HiddenField runat="server" ID="hf_RcvUnit" />
@@ -654,20 +671,20 @@
                                                     </dx:ASPxSpinEdit>
                                                 </td>
                                                 <td align="right">
-                                                    <dx:ASPxSpinEdit ID="se_CurrNetAmt" runat="server" AutoPostBack="true" HorizontalAlign="Right" NullText="0" Number="0.00" Width="100%" Visible="false"
-                                                        OnNumberChanged="se_CurrNetAmt_NumberChanged">
+                                                    <dx:ASPxSpinEdit ID="se_CnCurrNetAmt" runat="server" AutoPostBack="true" HorizontalAlign="Right" NullText="0" Number="0.00" Width="100%" Visible="false"
+                                                        OnNumberChanged="se_CnCurrNetAmt_NumberChanged">
                                                         <SpinButtons ShowIncrementButtons="False" />
                                                     </dx:ASPxSpinEdit>
                                                 </td>
                                                 <td align="right">
-                                                    <dx:ASPxSpinEdit ID="se_CurrTaxAmt" runat="server" AutoPostBack="true" HorizontalAlign="Right" NullText="0" Number="0.00" Width="100%" Visible="false"
-                                                        OnNumberChanged="se_CurrTaxAmt_NumberChanged">
+                                                    <dx:ASPxSpinEdit ID="se_CnCurrTaxAmt" runat="server" AutoPostBack="true" HorizontalAlign="Right" NullText="0" Number="0.00" Width="100%" Visible="false"
+                                                        OnNumberChanged="se_CnCurrTaxAmt_NumberChanged">
                                                         <SpinButtons ShowIncrementButtons="False" />
                                                     </dx:ASPxSpinEdit>
                                                 </td>
                                                 <td align="right">
-                                                    <dx:ASPxSpinEdit ID="se_CurrTotalAmt" runat="server" AutoPostBack="true" HorizontalAlign="Right" NullText="0" Number="0.00" Width="100%" ReadOnly="true"
-                                                        Visible="false">
+                                                    <dx:ASPxSpinEdit ID="se_CnCurrTotalAmt" runat="server" AutoPostBack="true" HorizontalAlign="Right" NullText="0" Number="0.00" Width="100%" Enabled="false"
+                                                        ReadOnly="true" Visible="false">
                                                         <SpinButtons ShowIncrementButtons="False" />
                                                     </dx:ASPxSpinEdit>
                                                 </td>
@@ -695,8 +712,9 @@
                                     </asp:TemplateField>
                                 </Columns>
                             </asp:GridView>
-                        </div>
-                        <div class="flex flex-justify-content-end mt-20 width-100" style="position: absolute; bottom: 10px;">
+                        <%--</div>--%>
+                        <%--<div class="flex flex-justify-content-end mt-20 width-100" style="position: absolute; bottom: 10px;">--%>
+                        <div class="flex flex-justify-content-end mt-20 width-100">
                             <asp:Button runat="server" ID="btn_SelectItems" Width="100" Text="Select" OnClick="btn_SelectItems_Click" />
                             &nbsp; &nbsp; &nbsp;
                             <button style="width: 100px; padding: 5px; margin-right: 30px !important;" onclick="pop_AddItem.Hide();">
