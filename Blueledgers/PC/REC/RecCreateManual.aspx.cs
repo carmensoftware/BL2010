@@ -2746,7 +2746,8 @@ as st where st.[rn] between @startIndex and @endIndex";
             rdb_ExtraCostByQty.Checked = true;
 
 
-            if (Request.QueryString["ID"] != null)
+            //if (Request.QueryString["ID"] != null)
+            if (Mode.ToUpper() == "EDIT")
             {
                 var msgError = string.Empty;
 
