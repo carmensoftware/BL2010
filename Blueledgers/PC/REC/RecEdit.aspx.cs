@@ -57,7 +57,7 @@ namespace BlueLedger.PL.IN.REC
         private DataSet dsRecOld = new DataSet();
         private DataSet dsSave = new DataSet();
         //private DataSet dsUpdatePO = new DataSet();
-        private DataSet dsImport = new DataSet();
+        //private DataSet dsImport = new DataSet();
         private Blue.BL.GnxLib gnxLib = new Blue.BL.GnxLib();
 
         //private decimal grandRecAmt;
@@ -174,10 +174,15 @@ namespace BlueLedger.PL.IN.REC
 
         private DataTable dtRecExtCost
         {
-            get { return (DataTable)Session["dtRecExtCost"]; }
-            set { Session["dtRecExtCost"] = value; }
+            get { return (DataTable)ViewState["dtRecExtCost"]; }
+            set { ViewState["dtRecExtCost"] = value; }
         }
 
+        private DataTable dtPoUpdate
+        {
+            get { return (DataTable)ViewState["dtPoUpdate"]; }
+            set { ViewState["dtPoUpdate"] = value; }
+        }
 
         #endregion
 
@@ -219,7 +224,7 @@ namespace BlueLedger.PL.IN.REC
                 dsRecEdit = (DataSet)Session["dsRecEdit"];
                 dsPOList = (DataSet)Session["dsPOList"];
                 dsSave = (DataSet)Session["dsSave"];
-                dsImport = (DataSet)Session["dsImport"];
+                //dsImport = (DataSet)Session["dsImport"];
 
                 if (ViewState["delValues"] != null)
                 {
@@ -270,7 +275,7 @@ namespace BlueLedger.PL.IN.REC
 
                 // Get Data for lookup
                 GetLookup();
-                GetImportAccCode();
+                //GetImportAccCode();
             }
             else if (MODE.ToUpper() == "EDIT")
             {
@@ -283,25 +288,14 @@ namespace BlueLedger.PL.IN.REC
                 rec.GetListByRecNo(dsRecEdit, ref MsgError, recNo, hf_ConnStr.Value);
                 recDt.GetListByRecNo(dsSave, ref MsgError, recNo, hf_ConnStr.Value);
                 recDt.GetListByRecNo(dsRecEdit, recNo, hf_ConnStr.Value);
-                //inv.GetListByHdrNo(dsSave, recNo, hf_ConnStr.Value);
-
-
-                //// Create Schema for ExtraCost
-                //DataTable dt = new DataTable();
-                //dt = rec.DbExecuteQuery(string.Format("SELECT * FROM PC.RecExtCost WHERE RecNo = '{0}'", recNo), null, hf_ConnStr.Value);
-                //dt.TableName = recExtCost;
-                //dsRecEdit.Tables.Add(dt);
-
-                //if (dt.Rows.Count > 0)
-                //    lastExtDtNo = (int)dt.Rows[dt.Rows.Count - 1]["DtNo"];
-                //else
-                //    lastExtDtNo = 0;
 
 
                 Session["dsRecDt"] = dsRecEdit.Tables[recDt.TableName];
 
                 GetLookup();
-                GetImportAccCode();
+                //GetImportAccCode();
+
+                dtPoUpdate = bu.DbExecuteQuery("SELECT DISTINCT PoNo FROM PC.RECDt WHERE RecNo=@RecNo GROUP BY PoNo, PoDtNo", new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@RecNo", recNo) }, hf_ConnStr.Value);
 
             }
             else if (MODE.ToUpper() == "FPO")
@@ -318,13 +312,13 @@ namespace BlueLedger.PL.IN.REC
                 //lastExtDtNo = 0;
 
                 GetLookup();
-                GetImportAccCode();
+                //GetImportAccCode();
             }
             else if (MODE.ToUpper() == "CANCELITEM")
             {
                 dsRecEdit = (DataSet)Session["dsPo"];
                 GetLookup();
-                GetImportAccCode();
+                //GetImportAccCode();
             }
             else
             {
@@ -357,7 +351,7 @@ namespace BlueLedger.PL.IN.REC
 
                     // Get Data for lookup
                     GetLookup();
-                    GetImportAccCode();
+                    //GetImportAccCode();
                 }
             }
 
@@ -409,7 +403,7 @@ namespace BlueLedger.PL.IN.REC
 
             Session["dsRecEdit"] = dsRecEdit;
             Session["dsSave"] = dsSave;
-            Session["dsImport"] = dsImport;
+            //Session["dsImport"] = dsImport;
             delValues.Clear();
         }
 
@@ -535,27 +529,27 @@ namespace BlueLedger.PL.IN.REC
             unit.Get(dsRecEdit, hf_ConnStr.Value);
         }
 
-        private void GetImportAccCode()
-        {
-            DataTable dt = new DataTable("AccoundCode");
-            string conStr = LoginInfo.ConnStr;
-            SqlConnection con = new SqlConnection(conStr);
-            con.Open();
-            try
-            {
-                SqlCommand cmd = new SqlCommand("SELECT * FROM [IMPORT].AccountCode", con);
-                SqlDataAdapter da = new SqlDataAdapter(cmd);
-                da.Fill(dt);
-                con.Close();
-            }
-            catch (Exception ex)
-            {
-                con.Close();
-                LogManager.Error(ex);
+        //private void GetImportAccCode()
+        //{
+        //    DataTable dt = new DataTable("AccoundCode");
+        //    string conStr = LoginInfo.ConnStr;
+        //    SqlConnection con = new SqlConnection(conStr);
+        //    con.Open();
+        //    try
+        //    {
+        //        SqlCommand cmd = new SqlCommand("SELECT * FROM [IMPORT].AccountCode ", con);
+        //        SqlDataAdapter da = new SqlDataAdapter(cmd);
+        //        da.Fill(dt);
+        //        con.Close();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        con.Close();
+        //        LogManager.Error(ex);
 
-            }
-            dsImport.Tables.Add(dt);
-        }
+        //    }
+        //    dsImport.Tables.Add(dt);
+        //}
 
         protected void grd_RecEdit_RowDataBound(object sender, GridViewRowEventArgs e)
         {
@@ -1517,47 +1511,6 @@ namespace BlueLedger.PL.IN.REC
             }
         }
 
-        //private void UIControlEditGrid_chk_TaxAdj(GridViewRowEventArgs e)
-        //{
-        //    var chkTaxAdj = e.Row.FindControl("chk_TaxAdj") as CheckBox;
-        //    if (chkTaxAdj != null)
-        //    {
-        //        chkTaxAdj.Checked =
-        //            Convert.ToBoolean(DataBinder.Eval(e.Row.DataItem, "TaxAdj") != DBNull.Value
-        //                            && Convert.ToBoolean(DataBinder.Eval(e.Row.DataItem, "TaxAdj")));
-
-        //        DropDownList ddl_TaxType = new DropDownList();
-        //        TextBox txt_TaxRate = new TextBox();
-        //        TextBox txt_TaxAmt = new TextBox();
-        //        TextBox txt_CurrTaxAmt = new TextBox();
-        //        bool taxAdjCheked = chkTaxAdj.Checked;
-
-        //        if (e.Row.FindControl("ddl_TaxType") != null)
-        //        {
-        //            ddl_TaxType = (DropDownList)e.Row.FindControl("ddl_TaxType");
-        //            txt_TaxRate = (TextBox)e.Row.FindControl("txt_TaxRate");
-        //            txt_CurrTaxAmt = (TextBox)e.Row.FindControl("txt_CurrTaxAmt");
-        //            txt_TaxAmt = (TextBox)e.Row.FindControl("txt_TaxAmt");
-
-        //            ddl_TaxType.Enabled = taxAdjCheked;
-        //            txt_TaxRate.Enabled = false;
-        //            txt_CurrTaxAmt.Enabled = false;
-        //            txt_TaxAmt.Enabled = false;
-
-        //            if (ddl_TaxType.SelectedItem.Value.ToUpper() != "N")
-        //            {
-        //                txt_TaxRate.Enabled = taxAdjCheked;
-        //                txt_CurrTaxAmt.Enabled = taxAdjCheked;
-
-        //                // Comment on: 01/02/2018, By: Fon, For: Following from P' Oat guide.
-        //                txt_TaxAmt.Enabled = taxAdjCheked;
-        //                // End Comment.
-        //            }
-        //        }
-        //        // End if find dropdownlist
-        //    }
-        //}
-
         protected void grd_RecEdit_RowDeleting(object sender, GridViewDeleteEventArgs e)
         {
             var hf_RecNo = grd_RecEdit.Rows[e.RowIndex].FindControl("hf_RecNo") as HiddenField;
@@ -1852,69 +1805,6 @@ namespace BlueLedger.PL.IN.REC
 
         #region "Calculation"
 
-        /// <summary>
-        ///     Get exchange rate
-        /// </summary>
-        /// <returns></returns>
-        //private decimal GetExchangeRate()
-        //{
-        //    decimal exchangeRate = 0;
-        //    var dtAuditExRate = exRate.Get(lbl_Currency.Text, AuditCurrencyCode, de_RecDate.Date, hf_ConnStr.Value);
-
-        //    if (dtAuditExRate != null)
-        //    {
-        //        if (dtAuditExRate.Rows.Count > 0)
-        //        {
-        //            exchangeRate = Convert.ToDecimal(dtAuditExRate.Rows[0][ExRateType].ToString());
-        //        }
-        //        else
-        //        {
-        //            exchangeRate = Convert.ToDecimal("0.00000");
-        //        }
-        //    }
-        //    else
-        //    {
-        //        exchangeRate = Convert.ToDecimal("0.00000");
-        //    }
-
-        //    return exchangeRate;
-        //}
-
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
-        //private int GetMaxRecDtNo(string recNo)
-        //{
-        //    int intChkNo;
-        //    int intBaseNo;
-        //    intBaseNo = recDt.GetMaxPoDtNo(recNo, hf_ConnStr.Value);
-
-        //    if (dsRecEdit.Tables[recDt.TableName] != null)
-        //    {
-        //        if (dsRecEdit.Tables[recDt.TableName].Rows.Count > 0)
-        //        {
-        //            var row = dsRecEdit.Tables[recDt.TableName].Rows.Count;
-
-        //            intChkNo = int.Parse(dsRecEdit.Tables[recDt.TableName].Rows[row - 1]["RecDtNo"].ToString());
-
-        //            if (intBaseNo > intChkNo)
-        //            {
-        //                intRecDtNo = intBaseNo + 1;
-        //            }
-        //            else
-        //            {
-        //                intRecDtNo = intChkNo + 1;
-        //            }
-        //        }
-        //        else if (dsRecEdit.Tables[recDt.TableName].Rows.Count == 0)
-        //        {
-        //            intRecDtNo = intBaseNo + 1;
-        //        }
-        //    }
-
-        //    return intRecDtNo;
-        //}
-
         private void CalculationForValueChanged(bool discAmtChanged = false, bool taxAmtChanged = false)
         {
             var gvRow = grd_RecEdit.Rows[grd_RecEdit.EditIndex];
@@ -2030,7 +1920,6 @@ namespace BlueLedger.PL.IN.REC
             lbl_TotalAmtDt.Text = String.Format(DefaultAmtFmt, netAmt + taxAmt);
 
         }
-
 
         protected void txt_NetAmt_TextChanged(object sender, EventArgs e)
         {
@@ -2890,8 +2779,20 @@ namespace BlueLedger.PL.IN.REC
 
             if (result)
             {
-                rec.DbExecuteQuery("EXEC PC.RecUpdatePo @DocNo", new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@DocNo", recNo) }, LoginInfo.ConnStr);
+                var recdt = dsSave.Tables[recDt.TableName];
+                var poList = recdt.AsEnumerable().Select(x => x.Field<string>("PoNo")).Distinct().ToList();
 
+                if (dtPoUpdate != null)
+                {
+                    poList.AddRange(dtPoUpdate.AsEnumerable().Select(x => x.Field<string>("PoNo")).ToArray());
+                }
+
+                foreach (var poNo in poList.Distinct().ToArray())
+                {
+                    rec.DbExecuteQuery("EXEC PC.PoUpdateRcvQty @PoNo", new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@PoNo", poNo) }, LoginInfo.ConnStr);
+                }
+
+                //rec.DbExecuteQuery("EXEC PC.RecUpdatePo @DocNo", new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@DocNo", recNo) }, LoginInfo.ConnStr);
 
                 _transLog.Save("PC", "REC", recNo, _action, string.Empty, LoginInfo.LoginName, hf_ConnStr.Value);
 
@@ -3368,34 +3269,36 @@ namespace BlueLedger.PL.IN.REC
                 }
             }
 
-            // Check invalid unit rate
+            //foreach (DataRow dr in dsRecEdit.Tables[recDt.TableName].Rows)
+            //{
+            //    if (dr.RowState != DataRowState.Deleted)
+            //    {
 
-            foreach (DataRow dr in dsRecEdit.Tables[recDt.TableName].Rows)
-            {
-                var productCode = dr["ProductCode"].ToString();
-                var rcvUnit = dr["RcvUnit"].ToString();
-                var unitRate = Convert.ToDecimal(dr["UnitRate"]);
+            //        var productCode = dr["ProductCode"].ToString();
+            //        var rcvUnit = dr["RcvUnit"].ToString();
+            //        var unitRate = Convert.ToDecimal(dr["Rate"]);
 
-                if (unitRate <= 0)
-                {
+            //        if (unitRate <= 0)
+            //        {
 
-                    var dt = bu.DbExecuteQuery("SELECT TOP(1) Rate FROM [IN].ProdUnit WHERE ProductCode=@ProductCode AND OrderUnit=@RcvUnit",
-                        new Blue.DAL.DbParameter[]
-                    {
-                        new Blue.DAL.DbParameter("@ProductCode",productCode),
-                        new Blue.DAL.DbParameter("@RcvUnit", rcvUnit),
-                    },
-                        LoginInfo.ConnStr);
-                    if (dt.Rows.Count > 0)
-                    {
-                        dr["Rate"] = Convert.ToDecimal(dt.Rows[0][0]);
-                    }
-                    else
-                    {
-                        return string.Format("Invalid unit rate for '{0}' and unit '{1}'", productCode, rcvUnit);
-                    }
-                }
-            }
+            //            var dt = bu.DbExecuteQuery("SELECT TOP(1) Rate FROM [IN].ProdUnit WHERE ProductCode=@ProductCode AND OrderUnit=@RcvUnit",
+            //                new Blue.DAL.DbParameter[]
+            //        {
+            //            new Blue.DAL.DbParameter("@ProductCode",productCode),
+            //            new Blue.DAL.DbParameter("@RcvUnit", rcvUnit),
+            //        },
+            //                LoginInfo.ConnStr);
+            //            if (dt.Rows.Count > 0)
+            //            {
+            //                dr["Rate"] = Convert.ToDecimal(dt.Rows[0][0]);
+            //            }
+            //            else
+            //            {
+            //                return string.Format("Invalid unit rate for '{0}' and unit '{1}'", productCode, rcvUnit);
+            //            }
+            //        }
+            //    }
+            //}
 
 
             return "";
