@@ -506,36 +506,36 @@ WHERE
             var month = Convert.ToInt32(ddl_RecPeriod.Value);
 
             var dt = GetReceivingList(vendorCode, currencyCode, month);
-            
+
             ddl.ValueField = "RecNo";
             ddl.DataSource = dt;
             ddl.DataBind();
 
-            
+
             //            var docDate = de_DocDate.Date;
 
-//            var query = @"
-//SELECT
-//	RecNo,
-//	 CONVERT(VARCHAR(10), RecDate, 103)  as RecDate,
-//	[Description]
-//FROM
-//	PC.REC
-//WHERE
-//	DocStatus = 'Committed'
-//    AND CurrencyCode = @CurrencyCode
-//	AND VendorCode=@VendorCode
-//	AND RecDate <= @DocDate
-//ORDER BY
-//	RecNo
-//";
-//            var parameters = new Blue.DAL.DbParameter[]
-//            {
-//                new Blue.DAL.DbParameter("@VendorCode", vendorCode),
-//                new Blue.DAL.DbParameter("@CurrencyCode", currencyCode),
-//                new Blue.DAL.DbParameter("@DocDate", docDate.ToString("yyyy-MM-dd"))
-//            };
-//            var dt = _bu.DbExecuteQuery(query, parameters, hf_ConnStr.Value);
+            //            var query = @"
+            //SELECT
+            //	RecNo,
+            //	 CONVERT(VARCHAR(10), RecDate, 103)  as RecDate,
+            //	[Description]
+            //FROM
+            //	PC.REC
+            //WHERE
+            //	DocStatus = 'Committed'
+            //    AND CurrencyCode = @CurrencyCode
+            //	AND VendorCode=@VendorCode
+            //	AND RecDate <= @DocDate
+            //ORDER BY
+            //	RecNo
+            //";
+            //            var parameters = new Blue.DAL.DbParameter[]
+            //            {
+            //                new Blue.DAL.DbParameter("@VendorCode", vendorCode),
+            //                new Blue.DAL.DbParameter("@CurrencyCode", currencyCode),
+            //                new Blue.DAL.DbParameter("@DocDate", docDate.ToString("yyyy-MM-dd"))
+            //            };
+            //            var dt = _bu.DbExecuteQuery(query, parameters, hf_ConnStr.Value);
 
 
             //ddl.ValueField = "RecNo";
@@ -586,19 +586,24 @@ WHERE
 
                 // Product
                 var productCode = DataBinder.Eval(dataItem, "ProductCode").ToString();
+                var productDesc1 = DataBinder.Eval(dataItem, "ProductDesc1").ToString();
+                var productDesc2 = DataBinder.Eval(dataItem, "ProductDesc2").ToString();
 
-                BindGridRow_Label(e, "lbl_Product", string.Format("{0} : {1}", productCode, GetProductName(productCode)));
+                //BindGridRow_Label(e, "lbl_Product", string.Format("{0} : {1}", productCode, GetProductName(productCode)));
+                BindGridRow_Label(e, "lbl_Product", string.Format("{0} : {1} | {2}", productCode, productDesc1, productDesc2));
 
                 // Price
                 var price = DataBinder.Eval(dataItem, "Price").ToString();
                 BindGridRow_Label(e, "lbl_Price", FormatAmt(price));
 
+
                 // RcvUnit
-                var unitCode = DataBinder.Eval(dataItem, "RcvUnit").ToString();
-                BindGridRow_Label(e, "lbl_RcvUnit", unitCode);
+                var rcvUnit = DataBinder.Eval(dataItem, "RcvUnit").ToString();
+                BindGridRow_Label(e, "lbl_RcvUnit", rcvUnit);
+                BindGridRow_Label(e, "lbl_RcvUnitFoc", rcvUnit);
 
                 // RecQty
-                var recQty = DataBinder.Eval(dataItem, "RecQty");
+                var recQty = Convert.ToDecimal(DataBinder.Eval(dataItem, "RecQty"));
                 BindGridRow_Label(e, "lbl_RecQty", FormatQty(recQty));
 
 
@@ -630,6 +635,7 @@ WHERE
                 value = DataBinder.Eval(dataItem, "TotalAmt");
                 BindGridRow_Label(e, "lbl_TotalAmt", FormatAmt(value));
 
+                // Credit Note
                 // CnType
                 var cnType = DataBinder.Eval(dataItem, "CnType").ToString();
 
@@ -648,11 +654,37 @@ WHERE
 
                 if (e.Row.FindControl("ddl_CnType") != null)
                 {
-                    var dll = e.Row.FindControl("ddl_CnType") as ASPxComboBox;
+                    var ddl = e.Row.FindControl("ddl_CnType") as ASPxComboBox;
 
-                    dll.Value = cnType;
+                    ddl.Value = cnType;
                 }
 
+                var inventoryUnit = DataBinder.Eval(dataItem, "InventoryUnit").ToString();
+                var qty = Convert.ToDecimal(DataBinder.Eval(dataItem, "Rate")) * recQty;
+
+                BindGridRow_Label(e, "lbl_InventoryQty", string.Format("{0} {1}", FormatQty(qty), inventoryUnit));
+
+                if (e.Row.FindControl("ddl_CnUnit") != null)
+                {
+                    var ddl = e.Row.FindControl("ddl_CnUnit") as ASPxComboBox;
+
+
+                    ddl.Items.Add(new ListEditItem
+                    {
+                        Value = rcvUnit,
+                        Text = rcvUnit
+                    });
+
+                    ddl.Items.Add(new ListEditItem
+                    {
+                        Value = inventoryUnit,
+                        Text = inventoryUnit,
+                    });
+
+
+                    ddl.Value = rcvUnit;
+                    ddl.Visible = cnType == "Q";
+                }
 
                 if (e.Row.FindControl("se_CnQty") != null)
                 {
@@ -727,9 +759,19 @@ WHERE
                     (e.Row.FindControl("hf_ProductCode") as HiddenField).Value = DataBinder.Eval(dataItem, "ProductCode").ToString();
                 }
 
+                //if (e.Row.FindControl("hf_UnitCode") != null)
+                //{
+                //    (e.Row.FindControl("hf_UnitCode") as HiddenField).Value = DataBinder.Eval(dataItem, "UnitCode").ToString();
+                //}
+
                 if (e.Row.FindControl("hf_RcvUnit") != null)
                 {
                     (e.Row.FindControl("hf_RcvUnit") as HiddenField).Value = DataBinder.Eval(dataItem, "RcvUnit").ToString();
+                }
+
+                if (e.Row.FindControl("hf_Rate") != null)
+                {
+                    (e.Row.FindControl("hf_Rate") as HiddenField).Value = DataBinder.Eval(dataItem, "Rate").ToString();
                 }
 
                 if (e.Row.FindControl("hf_Price") != null)
@@ -772,6 +814,7 @@ WHERE
         protected void ddl_CnType_SelectedIndexChanged(object sender, EventArgs e)
         {
             var ddl = sender as ASPxComboBox;
+            var ddl_CnUnit = ddl.NamingContainer.FindControl("ddl_CnUnit") as ASPxComboBox;
             var se_CnQty = ddl.NamingContainer.FindControl("se_CnQty") as ASPxSpinEdit;
             var se_CnFoc = ddl.NamingContainer.FindControl("se_CnFoc") as ASPxSpinEdit;
 
@@ -781,12 +824,14 @@ WHERE
 
             var cnType = ddl.Value.ToString();
 
+            ddl_CnUnit.Visible = false;
             se_CnQty.Visible = false;
             se_CnFoc.Visible = false;
             se_CnCurrNetAmt.Visible = false;
             se_CnCurrTaxAmt.Visible = false;
             se_CnCurrTotalAmt.Visible = false;
 
+            ddl_CnUnit.Visible = cnType.StartsWith("Q");
             se_CnQty.Visible = cnType.StartsWith("Q") && se_CnQty.MaxValue > 0;
             se_CnFoc.Visible = cnType.StartsWith("Q") && se_CnFoc.MaxValue > 0;
 
@@ -1051,17 +1096,23 @@ WHERE
 
             var query = @"
 SELECT 
+    recdt.*,
+	p.ProductDesc1,
+	p.ProductDesc2,
+	p.InventoryUnit,
+
     0 as CnDtNo,
     'N' as CnType,
 	CAST(0 as decimal(18,3)) as CnQty, 
 	CAST(0 as decimal(18,3)) as CnFoc, 
     CAST(0 as decimal(18,4)) as CnCurrNetAmt, 
 	CAST(0 as decimal(18,4)) as CnCurrTaxAmt,
-	CAST(0 as decimal(18,4)) as CnCurrTotalAmt,
+	CAST(0 as decimal(18,4)) as CnCurrTotalAmt
 
-recdt.*
 FROM 
-	PC.RecDt 
+	PC.RecDt
+	LEFT JOIN [IN].[Product] p ON p.ProductCode=recdt.ProductCode
+    
 WHERE 
 	RecNo=@RecNo
 ";
