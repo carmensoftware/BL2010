@@ -2,9 +2,12 @@
 using System.Data.SqlClient;
 using FastReport;
 using BlueLedger.PL.BaseClass;
+using System.Drawing;
 
 public partial class RPT_PrintForm : BasePage
 {
+    private readonly Blue.BL.APP.Config _config = new Blue.BL.APP.Config();
+
     FastReport.Report report = new FastReport.Report();
     string id = string.Empty;
 
@@ -50,7 +53,7 @@ public partial class RPT_PrintForm : BasePage
 
 
         report.StartReport += new EventHandler(report_StartReport);
-        
+
         //var items = id.Split(',');
 
         //foreach (var item in items)
@@ -59,7 +62,7 @@ public partial class RPT_PrintForm : BasePage
         //    report.SetParameterValue("ID", item);
         //    report.Prepare(true);
         //}
-        if(id.IndexOf(',') > 0)
+        if (id.IndexOf(',') > 0)
         {
             var items = id.Split(',');
 
@@ -108,6 +111,29 @@ public partial class RPT_PrintForm : BasePage
 
         for (var i = 0; i < rpt.Dictionary.Connections.Count; i++)
             rpt.Dictionary.Connections[0].ConnectionString = LoginInfo.ConnStr;
+
+
+        // Change font
+
+        var fontName = _config.GetValue("RPT", "Report", "FontName", LoginInfo.ConnStr);
+
+        if (!string.IsNullOrEmpty(fontName))
+        {
+            var fontScale = _config.GetValue("RPT", "Report", "FontScale", LoginInfo.ConnStr);
+            var scale = string.IsNullOrEmpty(fontScale) ? 0 : Convert.ToDouble(fontScale);
+
+            foreach (FastReport.Base item in rpt.AllObjects)
+            {
+                if (item.GetType() == typeof(FastReport.TextObject))
+                {
+                    var text = item as FastReport.TextObject;
+
+                    var fontSize = (float) (text.Font.Size + scale);
+
+                    text.Font = new Font(fontName, fontSize);
+                }
+            }
+        }
 
     }
 

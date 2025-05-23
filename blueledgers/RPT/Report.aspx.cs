@@ -2,20 +2,16 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.IO;
+using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Web;
-using System.Web.UI;
+using System.Threading;
 using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
-using System.Xml;
 using BlueLedger.PL.BaseClass;
 using DevExpress.Web.ASPxEditors;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Threading;
-using System.Globalization;
 
 public partial class Report : System.Web.UI.Page
 {
@@ -98,10 +94,54 @@ public partial class Report : System.Web.UI.Page
     {
         for (var i = 0; i < WebReport1.Report.Dictionary.Connections.Count; i++)
             WebReport1.Report.Dictionary.Connections[0].ConnectionString = LoginInfo.ConnStr;
+
+        // Change font
+
+        var fontName = GetConfigValue("RPT", "Report", "FontName");
+
+
+
+        if (!string.IsNullOrEmpty(fontName))
+        {
+            var fontScale = GetConfigValue("RPT", "Report", "FontScale");
+            var scale = string.IsNullOrEmpty(fontScale) ? 0 : Convert.ToDouble(fontScale);
+
+            foreach (FastReport.Base item in WebReport1.Report.AllObjects)
+            {
+                if (item.GetType() == typeof(FastReport.TextObject))
+                {
+                    var text = item as FastReport.TextObject;
+
+                    var fontSize = (float)(text.Font.Size + scale);
+
+                    text.Font = new System.Drawing.Font(fontName, fontSize);
+                }
+            }
+        }
+
     }
 
 
     // Method(s)
+
+    private string GetConfigValue(string module, string subModule, string key)
+    {
+        var query = "SELECT [Value] FROM APP.Config WHERE Module=@Module AND SubModule=@SubModule AND [Key]=@Key";
+        var dt = ExecuteQuery(LoginInfo.ConnStr, query, new SqlParameter[] 
+        {
+            new SqlParameter("Module", module) ,
+            new SqlParameter("SubModule", subModule) ,
+            new SqlParameter("Key", key) 
+        });
+
+        if (dt != null & dt.Rows.Count > 0)
+        {
+            return dt.Rows[0][0].ToString();
+        }
+        else
+            return "";
+    }
+
     private string EncodeBase64(string value)
     {
         var valueBytes = Encoding.UTF8.GetBytes(value);
