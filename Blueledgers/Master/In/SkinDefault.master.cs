@@ -42,14 +42,6 @@ namespace BlueLedger.PL.Master.In
             var rootPath = ResolveUrl("~");
             var sb = new System.Text.StringBuilder();
 
-            // css
-
-            //sb.Append(string.Format(" <link rel='stylesheet' type='text/css' href='{0}App_Themes/Default/theme.css' />", rootPath));
-            //sb.Append(string.Format(" <link rel='stylesheet' type='text/css' href='{0}App_Themes/Default/layout.css' />", rootPath));
-            //sb.Append(string.Format(" <link rel='stylesheet' type='text/css' href='{0}App_Themes/Default/bl-flex.css' />", rootPath));
-            //sb.Append(string.Format(" <link rel='stylesheet' type='text/css' href='{0}Scripts/jquery-ui-1.8.21.custom.css' />", rootPath));
-
-
             // javascripts
             sb.Append(string.Format(" <script type='text/javascript' src='{0}Scripts/jquery-1.9.1.js'></script>", rootPath));
             sb.Append(string.Format(" <script type='text/javascript' src='{0}Scripts/jquery-ui-1.8.21.custom.min.js'></script>", rootPath));
@@ -98,6 +90,13 @@ namespace BlueLedger.PL.Master.In
         }
 
 
+        protected void Help_Click(object sender, System.Web.UI.ImageClickEventArgs e)
+        {
+            var url = "http://help.carmen.blue";
+
+
+            ScriptManager.RegisterStartupScript(Page, typeof(Page), "OpenWindow", string.Format("window.open('{0}');", url), true);
+        }
         protected void ChangeBu_Click(object sender, System.Web.UI.ImageClickEventArgs e)
         {
             Session["BackUrl"] = HttpContext.Current.Request.Url.AbsoluteUri;
@@ -118,7 +117,6 @@ namespace BlueLedger.PL.Master.In
 
         protected void LogOut_Click(object sender, System.Web.UI.ImageClickEventArgs e)
         {
-            //Session.RemoveAll();
             Session.Abandon();
             Response.Redirect("~/Login.aspx");
         }

@@ -29,6 +29,12 @@
         </div>
         <div class="master-option">
             <div class="inline-block text-center">
+                <asp:ImageButton ID="imgb_Help" runat="server"  ImageUrl="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAABHNCSVQICAgIfAhkiAAAAAFzUkdCAK7OHOkAAAAEZ0FNQQAAsY8L/GEFAAAACXBIWXMAARCQAAEQkAGJrNK4AAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAYdpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0n77u/JyBpZD0nVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkJz8+DQo8eDp4bXBtZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIj48cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPjxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSJ1dWlkOmZhZjViZGQ1LWJhM2QtMTFkYS1hZDMxLWQzM2Q3NTE4MmYxYiIgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iPjx0aWZmOk9yaWVudGF0aW9uPjE8L3RpZmY6T3JpZW50YXRpb24+PC9yZGY6RGVzY3JpcHRpb24+PC9yZGY6UkRGPjwveDp4bXBtZXRhPg0KPD94cGFja2V0IGVuZD0ndyc/PiyUmAsAAAI+SURBVDhPlVQxaxRBFP6+N7NYRC8B0RDBRk5EC8+7TQrBMmBnd6UJBDSFf8cqiJqU6fwBWilEkt3zUgmudkYhigaLIDvznkV2j71LSPCrZua975v35mMecQo6nc6Mc+4iAMQYfw6Hw9+TOTU4eQCAaZqukFw2szskLwCAmf0hOVTV9TzPnwPQMVJz0+122865De/9XVWF6lguRAQighDCVozx4WAwKOrYSGh+fv4agLfOubkQAgDAe48QAsys9N4nZgZVhfceMcZvAO7t7Ox8AQABgH6/78xssykiIijL8pmZ3TezxbIsV1T1e1URnHNzZrbZ7/fdSKgoiqUkSdJaxDkHVf2Q5/kjAKsk1waDwQszWyaPmgghIEmStCiKpZGQiDxuvke1vtzr9Z6QXCR5o91un3POZTFGq8VUFSRXAUDSNJ02s05TyMxA8kqSJE+99y0ze18Uxd8QwqJzjmbWvPB2mqbTrJz6VAcnISIKIDWzAOANyUvNS0kixnhdxlgTqNx5SfIHgHciMibShIjIvqoe1n03UZEWQgivRaQVYxyLk4SqHorIvmRZdgBgV+R4cVW7gWQ8qZKKs5tl2YHgiLA2KSQiUNWPeZ73siy7ZWZfT8oRkTXU9rdarY2yLDPv/Sipcm6m2+3e7PV6PZLnm4Z471GWZTY1NbWBs75I9QaRpCNZt3riF3G10N7e3q/Z2dlXABaSJLlaE0lKbYRzrhbZijE+yPP8c80/btUZY4Tk+vb29uljZBL/M9j+AS2CRnJegFWIAAAAAElFTkSuQmCC" OnClick="Help_Click" />
+                <br />
+                <asp:Label ID="Label1" runat="server" Text="Help" />
+                &nbsp;&nbsp;
+            </div>
+            <div class="inline-block text-center">
                 <asp:ImageButton ID="imgb_ChangeBu" runat="server" ImageUrl="~/App_Themes/Default/Images/Master/In/menu_header_03.png" OnClick="ChangeBu_Click" />
                 <br />
                 <asp:Label ID="Label_ChangeBu" runat="server" Text="Business Unit" />
