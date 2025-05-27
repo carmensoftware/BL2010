@@ -12,16 +12,23 @@ namespace Blue.BL.dbo
         private readonly Blue.BL.ADMIN.UserStore userStore = new Blue.BL.ADMIN.UserStore();
 
         /* 
+            2026-05-31 = ramadadmabangkok = 19
+
+
+            2026-04-30 = indochinephuket = 27
+
             2026-03-31 = wyndhamjomtienpattaya = 20 + 2 = 22
             2026-03-31 = silavadeepoolsparesort = 28
             2026-03-31 = DeevanaPhuket = 65=> 69
 
+            2026-03-31 = manor = 4
           
             2026-02-28 = cafedelmarphuket =46
             2026-02-28 = gcmt = 1
             2026-02-28 = dewaphuketresort = 14
             2026-02-28 = belairebangkok = 11
 
+            2026-02-28 = mybeachphuket = 10+? = 13
           
             2026-01-31 = bayvillaskohphangan = 1+5+1 = 7
             2026-01-31 = hotellotussukhumvit = 15+2 = 17 + 2 = 19
@@ -43,7 +50,6 @@ namespace Blue.BL.dbo
             2026-01-31 = brownstarling = 18
 
             ------------------------------------------------------------------
-            2025-12-31 = hopinnth = 27 (9999999)
          
             2025-11-30 = skyviewresortphuket = 11
             2025-11-30 = wyndhamgardennaithon = 21
@@ -56,6 +62,8 @@ namespace Blue.BL.dbo
             2024-10-30 = BlumonkeyKrabi = 6
             2025-10-31 = waltonsuitessukhumvitbangkok = 5
             2025-10-31 = blumonkeybangtaophuket = 6
+             
+            2025-10-30 = sztowerthai = 13
              
              
             2025-09-30 = rasahospitality = 73 + 17 = 90
@@ -74,6 +82,8 @@ namespace Blue.BL.dbo
             2025-08-31 = themarinphuket = 19
             2025-08-31 = celessamui = 25
 
+            2025-08-31 = bestwesternratchada = 10        
+
             2025-07-31 = Nexen = 20
             2025-07-31 = Zeavola = 28
             2025-07-31 = bestwesternclicksathorn11 = 10
@@ -87,27 +97,28 @@ namespace Blue.BL.dbo
             2025-06-30 = granddiamondsuites = 6+4 = 10
             2025-06-30 = maraleina = 23+1 = 24
             2025-06-30 = BaanSamuiResort = 8
-            2025-06-30 = manor = 4
             2025-06-30 = paresaresort = 23
 
             2025-06-30 = kappasensesubud = 17
+            2025-06-30 = sorahotels = 9
+            2025-06-30 = firaphuketbeachclub = 5+3=8
+            2025-06-30 = selinaserenityrawai = 8
+            2025-06-30 = hopinnth = 27 
+            2025-06-30 = twinlotus (on permise) = 16
+            2025-06-30 = siamese = 24+2 = 26 + 20 + 10 = 56
+            2025-06-30 = maduzi = 20
+            2025-06-30 = chi = 2
 
-            2025-05-31 = ramadadmabangkok = 19
-            2025-05-31 = mybeachphuket = 10
+
+            2025-06-30 = HOPINN (OnPermise) = 27 
+
+            ---------------------------------------------------------------
+
+
+
             2025-05-31 = HotelSensai (Chiang Mai) = 3+8 = 11 ปรับเป็น 10 ตาม license (27052024_blueledgers.xlsx)
-            2025-05-31 = chi = 2
-            2025-05-31 = sorahotels = 9
-            2025-05-31 = maduzi = 20
 
-            2025-05-31 = bestwesternratchada = 10        
-            2025-05-31 = indochinephuket = 27
-            2025-05-31 = firaphuketbeachclub = 5+3=8
-            2025-05-31 = sztowerthai = 13
-            2025-05-31 = selinaserenityrawai = 8
-            2025-05-31 = hopinnHQ = ?
-            2025-05-31 = twinlotus (on permise) = 16
 
-            2025-05-31 = siamese = 24+2 = 26 + 20 + 10 = 56
 
 
             --------- Expired -------------
@@ -131,8 +142,8 @@ namespace Blue.BL.dbo
         
         */
 
-        private DateTime licenseExpiredDate = new DateTime(2025, 08, 31);
-        private int licenseActiveUser = 999;
+        private DateTime licenseExpiredDate = new DateTime(2026, 05, 31);
+        private int licenseActiveUser = 19;
 
         public User()
         {
