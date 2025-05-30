@@ -323,7 +323,12 @@ namespace BlueLedger.PL.PC.CN
                 // Qty
                 var recQty = DataBinder.Eval(dataItem, "RecQty");
                 BindGridRow_Label(e, "lbl_RecQty", FormatQty(recQty));
-                BindGridRow_SpinEdit(e, "se_RecQty", recQty, _default.DigitQty);
+                BindGridRow_SpinEdit(e, "se_CnQty", recQty, _default.DigitQty);
+
+                // Foc
+                var focQty = DataBinder.Eval(dataItem, "FocQty");
+                BindGridRow_Label(e, "lbl_FocQty", FormatQty(focQty));
+                BindGridRow_SpinEdit(e, "se_CnFoc", focQty, _default.DigitQty);
 
                 // Unit
                 var unitCode = DataBinder.Eval(dataItem, "UnitCode").ToString();
@@ -398,7 +403,10 @@ namespace BlueLedger.PL.PC.CN
             var row = gv.Rows[e.NewEditIndex];
 
             var lbl_CnType = row.FindControl("lbl_CnType") as Label;
-            var se_RecQty = row.FindControl("se_RecQty") as ASPxSpinEdit;
+
+            var se_CnQty = row.FindControl("se_CnQty") as ASPxSpinEdit;
+            var se_CnFoc = row.FindControl("se_CnFoc") as ASPxSpinEdit;
+
             var se_CnCurrNetAmt = row.FindControl("se_CnCurrNetAmt") as ASPxSpinEdit;
             var se_CnCurrTaxAmt = row.FindControl("se_CnCurrTaxAmt") as ASPxSpinEdit;
             var se_CnCurrTotalAmt = row.FindControl("se_CnCurrTotalAmt") as ASPxSpinEdit;
@@ -407,7 +415,8 @@ namespace BlueLedger.PL.PC.CN
 
             var cnType = lbl_CnType.Text.Trim();
 
-            se_RecQty.Visible = cnType.StartsWith("Q");
+            se_CnQty.Visible = cnType.StartsWith("Q");
+            se_CnFoc.Visible = cnType.StartsWith("Q");
 
             se_CnCurrNetAmt.Visible = cnType.StartsWith("A");
             se_CnCurrTaxAmt.Visible = cnType.StartsWith("A");
@@ -431,6 +440,51 @@ namespace BlueLedger.PL.PC.CN
             var row = gv.Rows[e.RowIndex];
 
             DataRow dr = _dtCnDt.Rows[e.RowIndex];
+
+            var recNo = dr["RecNo"].ToString();
+            var recDtNo = dr["PoDtNo"].ToString(); // For recDtNo
+
+            var cnQty = 0m;
+            var cnFoc = 0m;
+            var currNetAmt = 0m;
+            var currTaxAmt = 0m;
+            var currTotalAmt = 0m;
+
+
+            var lbl_CnType = row.FindControl("lbl_CnType") as Label;
+            var cnType = lbl_CnType.Text.Trim().StartsWith("Q") ? "Q" : "A";
+
+            if (cnType == "Q")
+            {
+                var se_CnQty = row.FindControl("se_CnQty") as ASPxSpinEdit;
+                var se_CnFoc = row.FindControl("se_CnFoc") as ASPxSpinEdit;
+
+                cnQty = se_CnQty.Number;
+                cnFoc = se_CnFoc.Number;
+            }
+
+
+
+            var se_CnCurrNetAmt = row.FindControl("se_CnCurrNetAmt") as ASPxSpinEdit;
+            var se_CnCurrTaxAmt = row.FindControl("se_CnCurrTaxAmt") as ASPxSpinEdit;
+            var se_CnCurrTotalAmt = row.FindControl("se_CnCurrTotalAmt") as ASPxSpinEdit;
+
+            currNetAmt = se_CnCurrNetAmt.Number;
+            currTaxAmt = se_CnCurrTaxAmt.Number;
+            currTotalAmt = se_CnCurrTotalAmt.Number;
+
+
+
+
+
+            dr["RecQty"] = cnQty;
+            dr["FocQty"] = cnFoc;
+
+            dr["CurrNetAmt"] = currNetAmt;
+            dr["CurrTaxAmt"] = currTaxAmt;
+            dr["CurrTotalAmt"] = currTotalAmt;
+
+            //dr["Comment"] = "";
 
 
 

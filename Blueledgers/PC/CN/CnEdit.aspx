@@ -218,7 +218,7 @@
                             <asp:Label ID="lbl_RecQty" runat="server" SkinID="LBL_NR_1"></asp:Label>
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <dx:ASPxSpinEdit ID="se_RecQty" runat="server" HorizontalAlign="Right" AutoPostBack="True" Width="60px" MinValue="0">
+                            <dx:ASPxSpinEdit ID="se_CnQty" runat="server" HorizontalAlign="Right" AutoPostBack="True" Width="60px" MinValue="0">
                                 <SpinButtons ShowIncrementButtons="False">
                                 </SpinButtons>
                             </dx:ASPxSpinEdit>
@@ -228,10 +228,23 @@
                     <%-- UNIT --%>
                     <asp:TemplateField HeaderText="Unit">
                         <ItemTemplate>
-                            <asp:Label ID="lbl_Unit" runat="server" SkinID="LBL_NR_1"></asp:Label>
+                            <asp:Label ID="lbl_Unit" runat="server" SkinID="LBL_NR_1" Width="60"></asp:Label>
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <asp:Label ID="lbl_Unit" runat="server" SkinID="LBL_NR_1"></asp:Label>
+                            <asp:Label ID="lbl_Unit" runat="server" SkinID="LBL_NR_1" Width="60"></asp:Label>
+                        </EditItemTemplate>
+                        <ControlStyle />
+                    </asp:TemplateField>
+                    <%-- Foc --%>
+                    <asp:TemplateField HeaderText="Foc" ItemStyle-Wrap="False">
+                        <ItemTemplate>
+                            <asp:Label ID="lbl_FocQty" runat="server" SkinID="LBL_NR_1"></asp:Label>
+                        </ItemTemplate>
+                        <EditItemTemplate>
+                            <dx:ASPxSpinEdit ID="se_CnFoc" runat="server" HorizontalAlign="Right" AutoPostBack="True" Width="60px" MinValue="0">
+                                <SpinButtons ShowIncrementButtons="False">
+                                </SpinButtons>
+                            </dx:ASPxSpinEdit>
                         </EditItemTemplate>
                         <ControlStyle />
                     </asp:TemplateField>
@@ -257,7 +270,8 @@
                             <asp:Label ID="lbl_CurrTaxAmt1" runat="server" Width="100px" SkinID="LBL_NR_1" />
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <dx:ASPxSpinEdit ID="se_CnCurrTaxAmt" runat="server" AutoPostBack="false" Height="17px" HorizontalAlign="Right" NullText="0.00" Number="0" Width="100px">
+                            <dx:ASPxSpinEdit ID="se_CnCurrTaxAmt" runat="server" AutoPostBack="true" Height="17px" HorizontalAlign="Right" NullText="0.00" Number="0" Width="100px"
+                                OnNumberChanged="se_CnCurrTaxAmt_NumberChanged">
                                 <SpinButtons ShowIncrementButtons="False" />
                             </dx:ASPxSpinEdit>
                         </EditItemTemplate>
@@ -280,7 +294,7 @@
                     <asp:TemplateField HeaderStyle-Width="0">
                         <ItemTemplate>
                             <tr id="TR_Summmary" runat="server" style="display: none">
-                                <td colspan="11">
+                                <td colspan="12">
                                     <table style="width: 100%;">
                                         <tr style="vertical-align: top;">
                                             <td>
@@ -373,7 +387,7 @@
                         </ItemTemplate>
                         <EditItemTemplate>
                             <tr id="TR_Summmary" runat="server">
-                                <td colspan="11">
+                                <td colspan="12">
                                     <table style="width: 100%;">
                                         <tr style="vertical-align: top;">
                                             <td>
@@ -455,7 +469,7 @@
                                         <tr>
                                             <td colspan="5" align="right">
                                                 <br />
-                                                <asp:LinkButton ID="lnkb_Update" runat="server" SkinID="LNKB_NORMAL" CommandName="Save" Text="Save"></asp:LinkButton>
+                                                <asp:LinkButton ID="lnkb_Update" runat="server" SkinID="LNKB_NORMAL" CommandName="Update" Text="Save"></asp:LinkButton>
                                                 &nbsp; &nbsp;
                                                 <asp:LinkButton ID="lnbk_Cancel" runat="server" SkinID="LNKB_NORMAL" CausesValidation="false" CommandName="Cancel" Text="Cancel"></asp:LinkButton>
                                             </td>
