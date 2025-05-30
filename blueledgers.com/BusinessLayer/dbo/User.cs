@@ -57,6 +57,7 @@ namespace Blue.BL.dbo
             2025-11-30 = korabeachresort = 10 + 22 = 32
 
             2025-11-30 = tinbaron = 18
+            2025-11-30 = siamese = 24+2 = 26 + 20 + 10 = 56
              
 
             2024-10-30 = BlumonkeyKrabi = 6
@@ -105,7 +106,6 @@ namespace Blue.BL.dbo
             2025-06-30 = selinaserenityrawai = 8
             2025-06-30 = hopinnth = 27 
             2025-06-30 = twinlotus (on permise) = 16
-            2025-06-30 = siamese = 24+2 = 26 + 20 + 10 = 56
             2025-06-30 = maduzi = 20
             2025-06-30 = chi = 2
 
@@ -142,8 +142,8 @@ namespace Blue.BL.dbo
         
         */
 
-        private DateTime licenseExpiredDate = new DateTime(2026, 05, 31);
-        private int licenseActiveUser = 190;
+        private DateTime licenseExpiredDate = new DateTime(2025, 11, 30);
+        private int licenseActiveUser = 56;
 
         public User()
         {
