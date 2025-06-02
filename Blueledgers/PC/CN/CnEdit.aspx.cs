@@ -28,6 +28,8 @@ namespace BlueLedger.PL.PC.CN
         private readonly Blue.BL.APP.Config _config = new Blue.BL.APP.Config();
         private readonly Blue.BL.ADMIN.TransLog _transLog = new Blue.BL.ADMIN.TransLog();
 
+        private readonly Blue.BL.PC.CN.Cn _cn = new Blue.BL.PC.CN.Cn();
+
         #endregion
 
         #region --URL Parameters--
@@ -1123,6 +1125,129 @@ WHERE
 
                 return;
             }
+
+
+            var isNew = string.IsNullOrEmpty(_ID);
+
+            // Header
+            var cnDate = de_CnDate.Date;
+            var cnNo = string.IsNullOrEmpty(_ID) ? _cn.GetNewID(cnDate, hf_ConnStr.Value) : _ID;
+            var docNo = txt_DocNo.Text.Trim();
+            var docDate = de_DocDate.Date;
+            var vendorCode = ddl_Vendor.Value.ToString();
+            var currencyCode = ddl_Currency.Value.ToString();
+            var currencyRate = se_CurrencyRate.Number;
+            var description = txt_Desc.Text.Trim();
+
+            if (isNew)
+            {
+
+                // Header
+                #region -- header --
+                var query = "INSERT INTO PC.Cn (CnNo, CnDate, DocNo, DocDate, VendorCode, CurrencyCode, ExRateAudit, DocStatus, ExportStatus, CreatedDate, CreatedBy, UpdatedDate, UpdatedBy) ";
+
+                query += " VALUES(@CnNo, @CnDate, @DocNo, @DocDate, @VendorCode, @CurrencyCode, @ExRateAudit, 'Saved', 0, GETDATE(), @CreatedBy, GETDATE(), @UpdatedBy) ";
+                
+                var paramHeder = new List<Blue.DAL.DbParameter>();
+
+                paramHeder.Add(new Blue.DAL.DbParameter("@CnNo", cnNo));
+                paramHeder.Add(new Blue.DAL.DbParameter("@CnDate", cnDate.ToString("yyyy-MM-dd")));
+                paramHeder.Add(new Blue.DAL.DbParameter("@DocNo", docNo));
+                paramHeder.Add(new Blue.DAL.DbParameter("@DocDate", docDate.ToString("yyyy-MM-dd")));
+                paramHeder.Add(new Blue.DAL.DbParameter("@VendorCode", vendorCode));
+                paramHeder.Add(new Blue.DAL.DbParameter("@CurrencyCode", currencyCode));
+                paramHeder.Add(new Blue.DAL.DbParameter("@ExRateAudit", currencyRate.ToString()));
+                paramHeder.Add(new Blue.DAL.DbParameter("@CreatedBy", LoginInfo.LoginName));
+                paramHeder.Add(new Blue.DAL.DbParameter("@UpdatedBy", LoginInfo.LoginName));
+
+                _bu.DbExecuteQuery(query, paramHeder.ToArray(), hf_ConnStr.Value);
+
+                #endregion
+                // Detail
+                var cnDtNo = 1;
+                foreach (DataRow dr in _dtCnDt.Rows)
+                {
+                    #region --details--
+                    query = "INSERT INTO PC.Cn (CnNo, CnDtNo, CnType, RecNo, Location, ProductCode, UnitCode, RecQty, FocQty, Price, TaxType, TaxRate, TaxAdj, CurrNetAmt, CurrTaxAmt, CurrTotalAmt, NetAmt, TaxAmt, TotalAmt, Comment, PoNo, PoDtNo) ";
+                    // PoNo and PoDtNo refer to Receiving No and Detail No
+                    query += " VALUES(@CnNo, @CnDtNo, @CnType, @RecNo, @Location, @ProductCode, @UnitCode, @RecQty, @FocQty, @Price, @TaxType, @TaxRate, 0, @CurrNetAmt, @CurrTaxAmt, @CurrTotalAmt, @NetAmt, @TaxAmt, @TotalAmt, @Comment, @PoNo, @PoDtNo) ";
+
+                    var cnType = dr["CnType"].ToString();
+                    var recNo = dr["RecNo"].ToString();
+                    var location = dr["Location"].ToString();
+                    var productCode = dr["ProductCode"].ToString();
+                    var unitCode = dr["UnitCode"].ToString();
+                    var recQty = dr["RecQty"].ToString();
+                    var focQty = dr["FocQty"].ToString();
+                    var price = dr["Price"].ToString();
+                    var taxType = dr["TaxType"].ToString();
+                    var taxRate = dr["TaxRate"].ToString();
+                    var currNetAmt = dr["CurrNetAmt"].ToString();
+                    var currTaxAmt = dr["CurrTaxAmt"].ToString();
+                    var currTotalAmt = dr["CurrTotalAmt"].ToString();
+                    var netAmt = dr["NetAmt"].ToString();
+                    var taxAmt = dr["TaxAmt"].ToString();
+                    var totalAmt = dr["TotalAmt"].ToString();
+                    var comment = dr["Comment"].ToString();
+                    var poNo = dr["RecNo"].ToString();
+                    var poDtNo = dr["PoDtNo"].ToString();
+
+
+
+                    var paramDetail = new List<Blue.DAL.DbParameter>();
+
+                    paramDetail.Add(new Blue.DAL.DbParameter("@CnNo", cnNo));
+                    paramDetail.Add(new Blue.DAL.DbParameter("@CnDtNo", cnDtNo++.ToString()));
+                    paramDetail.Add(new Blue.DAL.DbParameter("@CnType", ));
+                    paramDetail.Add(new Blue.DAL.DbParameter("@DocDate", docDate.ToString("yyyy-MM-dd")));
+                    paramDetail.Add(new Blue.DAL.DbParameter("@VendorCode", vendorCode));
+                    paramDetail.Add(new Blue.DAL.DbParameter("@CurrencyCode", currencyCode));
+                    paramDetail.Add(new Blue.DAL.DbParameter("@ExRateAudit", currencyRate.ToString()));
+                    paramDetail.Add(new Blue.DAL.DbParameter("@CreatedBy", LoginInfo.LoginName));
+                    paramDetail.Add(new Blue.DAL.DbParameter("@UpdatedBy", LoginInfo.LoginName));
+
+
+
+                    _bu.DbExecuteQuery(query, paramDetail.ToArray(), hf_ConnStr.Value);
+                    #endregion
+                }
+
+
+
+            }
+            else
+            {
+                #region -- header--
+                var query = @"
+UPDATE 
+    PC.Cn 
+SET
+    CnDate=@CnDate, 
+    DocNo=@DocNo, 
+    DocDate=@DocDate, 
+    VendorCode=@VendorCode, 
+    CurrencyCode=@CurrencyCode, 
+    ExRateAudit=@ExRateAudit, 
+    UpdatedDate=GETDATE(), 
+    UpdatedBy=@UpdatedBy 
+WHERE
+    CnNo=@CnNo";
+
+                var parameters = new List<Blue.DAL.DbParameter>();
+
+                parameters.Add(new Blue.DAL.DbParameter("@CnNo", cnNo));
+                parameters.Add(new Blue.DAL.DbParameter("@CnDate", cnDate.ToString("yyyy-MM-dd")));
+                parameters.Add(new Blue.DAL.DbParameter("@DocNo", docNo));
+                parameters.Add(new Blue.DAL.DbParameter("@DocDate", docDate.ToString("yyyy-MM-dd")));
+                parameters.Add(new Blue.DAL.DbParameter("@VendorCode", vendorCode));
+                parameters.Add(new Blue.DAL.DbParameter("@CurrencyCode", currencyCode));
+                parameters.Add(new Blue.DAL.DbParameter("@ExRateAudit", currencyRate.ToString()));
+                parameters.Add(new Blue.DAL.DbParameter("@UpdatedBy", LoginInfo.LoginName));
+
+                _bu.DbExecuteQuery(query, parameters.ToArray(), hf_ConnStr.Value);
+                #endregion
+            }
+
 
 
         }

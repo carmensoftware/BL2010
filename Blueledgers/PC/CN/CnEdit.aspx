@@ -95,13 +95,13 @@
                         <dx:ASPxDateEdit ID="de_CnDate" runat="server" DisplayFormatString="dd/MM/yyyy" EditFormatString="dd/MM/yyyy" ShowShadow="False" />
                     </td>
                     <td width="5%">
-                        <asp:Label ID="lbl_DocNo_Nm" runat="server" Text="Reference No." SkinID="LBL_HD"></asp:Label>
+                        <asp:Label ID="lbl_DocNo_Nm" runat="server" Text="Doc No." SkinID="LBL_HD"></asp:Label>
                     </td>
                     <td width="15%">
                         <asp:TextBox ID="txt_DocNo" runat="server" Width="90%" Enabled="true" SkinID="TXT_V1"></asp:TextBox>
                     </td>
                     <td width="5%">
-                        <asp:Label ID="lbl_DocDate_Nm" runat="server" Text="Reference Date" SkinID="LBL_HD"></asp:Label>
+                        <asp:Label ID="lbl_DocDate_Nm" runat="server" Text="Doc Date" SkinID="LBL_HD"></asp:Label>
                     </td>
                     <td width="16%">
                         <dx:ASPxDateEdit ID="de_DocDate" runat="server" DisplayFormatString="dd/MM/yyyy" EditFormatString="dd/MM/yyyy" ShowShadow="False" />
