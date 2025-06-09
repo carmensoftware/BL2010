@@ -64,12 +64,17 @@ namespace BlueLedger.PL.PC.PO
                 //ListPage.PrintItems.Items.Add(new DevExpress.Web.ASPxMenu.MenuItem("Print by Date", "PrintByDate"));
                 //ListPage.PrintItems.Items.FindByName("PrintByDate").NavigateUrl = "~/PC/PO/PoList.aspx?MENU=PrintByDate";
 
-                var btn_PrintByDate = new DevExpress.Web.ASPxMenu.MenuItem("Print by Date ...", "PrintByDate");
+                var enablePrintByBatch = config.GetValue("PC", "PO", "PrintByBatch", LoginInfo.ConnStr);
 
-                btn_PrintByDate.ItemStyle.ForeColor = System.Drawing.Color.White;
-                btn_PrintByDate.ItemStyle.Font.Size = FontUnit.Smaller;
-                btn_PrintByDate.NavigateUrl = "~/PC/PO/PoList.aspx?MENU=PrintByDate";
-                ListPage.menuItems.Insert(ListPage.menuItems.Count - 2, btn_PrintByDate);
+                if (!string.IsNullOrEmpty(enablePrintByBatch) && (enablePrintByBatch == "1" || enablePrintByBatch.ToLower() == "true"))
+                {
+                    var btn_PrintByDate = new DevExpress.Web.ASPxMenu.MenuItem("Print by Date ...", "PrintByDate");
+
+                    btn_PrintByDate.ItemStyle.ForeColor = System.Drawing.Color.White;
+                    btn_PrintByDate.ItemStyle.Font.Size = FontUnit.Smaller;
+                    btn_PrintByDate.NavigateUrl = "~/PC/PO/PoList.aspx?MENU=PrintByDate";
+                    ListPage.menuItems.Insert(ListPage.menuItems.Count - 2, btn_PrintByDate);
+                }
 
                 ListPage.DataBind();
             }
