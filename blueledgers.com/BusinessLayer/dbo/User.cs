@@ -90,7 +90,7 @@ namespace Blue.BL.dbo
             2025-07-31 = bestwesternclicksathorn11 = 10
             2025-07-31 = bwsanctuary = 10
             2025-07-31 = MysKhaoyai = 12
-            2025-07-31 = silqandsq = 9
+            2025-07-31 = silqandsq = 9+5=14
           
             2025-06-30 = andalanta = 7+1=8
             2025-06-30 = floralcourthotel = 5+6 = 11
@@ -142,8 +142,9 @@ namespace Blue.BL.dbo
         
         */
 
-        private DateTime licenseExpiredDate = new DateTime(2025, 11, 30);
-        private int licenseActiveUser = 56;
+        private DateTime licenseExpiredDate = new DateTime(2025, 7, 31);
+        private int licenseActiveUser = 140;
+        
 
         public User()
         {
