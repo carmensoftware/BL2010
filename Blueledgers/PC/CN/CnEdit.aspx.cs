@@ -275,10 +275,59 @@ namespace BlueLedger.PL.PC.CN
             pop_AddItem.ShowOnPageLoad = true;
         }
 
-        protected void btn_DeleteItem_Click(object sender, EventArgs e)
+        protected void btn_DeleteItems_Click(object sender, EventArgs e)
         {
+            var items = new List<string>();
+
+            foreach (GridViewRow row in gv_Detail.Rows)
+            {
+                var chk_Item = row.FindControl("chk_Item") as CheckBox;
+                var hf_CnDtNo = row.FindControl("hf_CnDtNo") as HiddenField;
+
+                if (chk_Item.Checked)
+                {
+                    items.Add(hf_CnDtNo.Value);
+                }
+            }
+
+            if (items.Count == 0)
+            {
+                ShowWarning("Please select any item.");
+
+                return;
+            }
+
+            hf_DeletedItems.Value = string.Join(",", items);
+
+            lbl_DeletedItems.Text = "Do you want to delete the selected items?";
+
+            pop_ConfirmDelete.ShowOnPageLoad = true;
+
         }
 
+        protected void btn_ConfirmDeleteItems_Click(object sender, EventArgs e)
+        {
+            var deleledItems = hf_DeletedItems.Value;
+            var items = deleledItems.Split(',').AsEnumerable().Select(x => x.Trim()).ToArray();
+
+            foreach (DataRow dr in _dtCnDt.Rows)
+            {
+                var cnDtNo = dr["CnDtNo"].ToString();
+
+                if (items.Contains(cnDtNo))
+                {
+                    dr.Delete();
+                }
+            }
+
+            _dtCnDt.AcceptChanges();
+
+
+            gv_Detail.DataSource = _dtCnDt;
+            gv_Detail.DataBind();
+
+            pop_ConfirmDelete.ShowOnPageLoad = false;
+        }
 
         // gv_Deatail
 
@@ -287,6 +336,14 @@ namespace BlueLedger.PL.PC.CN
             if (e.Row.RowType == DataControlRowType.DataRow)
             {
                 var dataItem = e.Row.DataItem;
+
+                // CnDtNo
+                if (e.Row.FindControl("hf_CnDtNo") != null)
+                {
+                    var hf = e.Row.FindControl("hf_CnDtNo") as HiddenField;
+
+                    hf.Value = DataBinder.Eval(dataItem, "CnDtNo").ToString();
+                }
 
                 // CnType
                 var cnType = DataBinder.Eval(dataItem, "CnType").ToString();
@@ -501,12 +558,21 @@ namespace BlueLedger.PL.PC.CN
         {
             var gv = sender as GridView;
 
+            var hf_CnDtNo = gv.Rows[e.RowIndex].FindControl("hf_CnDtNo") as HiddenField;
+            var cnDtNo = Convert.ToInt32(hf_CnDtNo.Value);
+
+            //ShowInfo(hf_CnDtNo.Value);
+
             //var hf_RecDtNo = gv.Rows[e.RowIndex].FindControl("hf_RecDtNo") as HiddenField;
             //var recDtNo = Convert.ToInt32(hf_RecDtNo.Value);
-            //var item = _dtCnDt.AsEnumerable().FirstOrDefault(x => x.Field<int>("CnDtNo") == recDtNo);
+            var item = _dtCnDt.AsEnumerable().FirstOrDefault(x => x.Field<int>("CnDtNo") == cnDtNo);
 
-            //if (item != null)
-            //    item.Delete();
+            if (item != null)
+            {
+                item.Delete();
+                _dtCnDt.AcceptChanges();
+
+            }
 
             gv.DataSource = _dtCnDt;
             gv.DataBind();
@@ -551,14 +617,12 @@ WHERE
             return dt;
         }
 
-
-
         protected void ddl_Receiving_Load(object sender, EventArgs e)
         {
             var ddl = sender as ASPxComboBox;
 
             var currencyCode = ddl_Currency.Value.ToString();
-            var vendorCode = ddl_Vendor.Value.ToString();
+            var vendorCode = ddl_Vendor.Value == null ? "" : ddl_Vendor.Value.ToString();
             var month = Convert.ToInt32(ddl_RecPeriod.Value);
 
             var dt = GetReceivingList(vendorCode, currencyCode, month);
@@ -933,7 +997,6 @@ WHERE
                 var cnType = ddl_CnType.Value.ToString();
 
 
-
                 if (cnType.StartsWith("Q"))
                 {
 
@@ -958,6 +1021,8 @@ WHERE
                     }
                 }
             }
+
+            var maxCnDtNo = _dtCnDt.Rows.Count == 0 ? 0 : _dtCnDt.AsEnumerable().Max(x => x.Field<int>("CnDtNo"));
 
             foreach (GridViewRow row in gv_Receiving.Rows)
             {
@@ -1058,11 +1123,12 @@ WHERE
                 }
                 else if (cnType != "N")
                 {
+                    maxCnDtNo++;
 
                     var dr = _dtCnDt.NewRow();
 
                     dr["CnNo"] = lbl_CnNo.Text;
-                    dr["CnDtNo"] = 0;
+                    dr["CnDtNo"] = maxCnDtNo;
                     dr["CnType"] = cnType;
                     dr["RecNo"] = recNo;
                     dr["Location"] = hf_LocationCode.Value;
@@ -1126,10 +1192,17 @@ WHERE
                 return;
             }
 
-
             var isNew = string.IsNullOrEmpty(_ID);
 
+            var queries = new StringBuilder();
+            var parameters = new List<Blue.DAL.DbParameter>();
+
+            queries.AppendLine("BEGIN TRANSACTION");
+            queries.AppendLine("BEGIN TRY");
+
             // Header
+            #region -- header --
+
             var cnDate = de_CnDate.Date;
             var cnNo = string.IsNullOrEmpty(_ID) ? _cn.GetNewID(cnDate, hf_ConnStr.Value) : _ID;
             var docNo = txt_DocNo.Text.Trim();
@@ -1139,114 +1212,148 @@ WHERE
             var currencyRate = se_CurrencyRate.Number;
             var description = txt_Desc.Text.Trim();
 
+            parameters.Add(new Blue.DAL.DbParameter("@CnNo", cnNo));
+            parameters.Add(new Blue.DAL.DbParameter("@CnDate", cnDate.ToString("yyyy-MM-dd")));
+            parameters.Add(new Blue.DAL.DbParameter("@DocNo", docNo));
+            parameters.Add(new Blue.DAL.DbParameter("@DocDate", docDate.ToString("yyyy-MM-dd")));
+            parameters.Add(new Blue.DAL.DbParameter("@VendorCode", vendorCode));
+            parameters.Add(new Blue.DAL.DbParameter("@CurrencyCode", currencyCode));
+            parameters.Add(new Blue.DAL.DbParameter("@ExRateAudit", currencyRate.ToString()));
+            parameters.Add(new Blue.DAL.DbParameter("@UpdatedBy", LoginInfo.LoginName));
+
             if (isNew)
             {
-
-                // Header
-                #region -- header --
-                var query = "INSERT INTO PC.Cn (CnNo, CnDate, DocNo, DocDate, VendorCode, CurrencyCode, ExRateAudit, DocStatus, ExportStatus, CreatedDate, CreatedBy, UpdatedDate, UpdatedBy) ";
-
-                query += " VALUES(@CnNo, @CnDate, @DocNo, @DocDate, @VendorCode, @CurrencyCode, @ExRateAudit, 'Saved', 0, GETDATE(), @CreatedBy, GETDATE(), @UpdatedBy) ";
-                
-                var paramHeder = new List<Blue.DAL.DbParameter>();
-
-                paramHeder.Add(new Blue.DAL.DbParameter("@CnNo", cnNo));
-                paramHeder.Add(new Blue.DAL.DbParameter("@CnDate", cnDate.ToString("yyyy-MM-dd")));
-                paramHeder.Add(new Blue.DAL.DbParameter("@DocNo", docNo));
-                paramHeder.Add(new Blue.DAL.DbParameter("@DocDate", docDate.ToString("yyyy-MM-dd")));
-                paramHeder.Add(new Blue.DAL.DbParameter("@VendorCode", vendorCode));
-                paramHeder.Add(new Blue.DAL.DbParameter("@CurrencyCode", currencyCode));
-                paramHeder.Add(new Blue.DAL.DbParameter("@ExRateAudit", currencyRate.ToString()));
-                paramHeder.Add(new Blue.DAL.DbParameter("@CreatedBy", LoginInfo.LoginName));
-                paramHeder.Add(new Blue.DAL.DbParameter("@UpdatedBy", LoginInfo.LoginName));
-
-                _bu.DbExecuteQuery(query, paramHeder.ToArray(), hf_ConnStr.Value);
-
-                #endregion
-                // Detail
-                var cnDtNo = 1;
-                foreach (DataRow dr in _dtCnDt.Rows)
-                {
-                    #region --details--
-                    query = "INSERT INTO PC.Cn (CnNo, CnDtNo, CnType, RecNo, Location, ProductCode, UnitCode, RecQty, FocQty, Price, TaxType, TaxRate, TaxAdj, CurrNetAmt, CurrTaxAmt, CurrTotalAmt, NetAmt, TaxAmt, TotalAmt, Comment, PoNo, PoDtNo) ";
-                    // PoNo and PoDtNo refer to Receiving No and Detail No
-                    query += " VALUES(@CnNo, @CnDtNo, @CnType, @RecNo, @Location, @ProductCode, @UnitCode, @RecQty, @FocQty, @Price, @TaxType, @TaxRate, 0, @CurrNetAmt, @CurrTaxAmt, @CurrTotalAmt, @NetAmt, @TaxAmt, @TotalAmt, @Comment, @PoNo, @PoDtNo) ";
-
-                    var cnType = dr["CnType"].ToString();
-                    var recNo = dr["RecNo"].ToString();
-                    var location = dr["Location"].ToString();
-                    var productCode = dr["ProductCode"].ToString();
-                    var unitCode = dr["UnitCode"].ToString();
-                    var recQty = dr["RecQty"].ToString();
-                    var focQty = dr["FocQty"].ToString();
-                    var price = dr["Price"].ToString();
-                    var taxType = dr["TaxType"].ToString();
-                    var taxRate = dr["TaxRate"].ToString();
-                    var currNetAmt = dr["CurrNetAmt"].ToString();
-                    var currTaxAmt = dr["CurrTaxAmt"].ToString();
-                    var currTotalAmt = dr["CurrTotalAmt"].ToString();
-                    var netAmt = dr["NetAmt"].ToString();
-                    var taxAmt = dr["TaxAmt"].ToString();
-                    var totalAmt = dr["TotalAmt"].ToString();
-                    var comment = dr["Comment"].ToString();
-                    var poNo = dr["RecNo"].ToString();
-                    var poDtNo = dr["PoDtNo"].ToString();
-
-
-
-                    var paramDetail = new List<Blue.DAL.DbParameter>();
-
-                    paramDetail.Add(new Blue.DAL.DbParameter("@CnNo", cnNo));
-                    paramDetail.Add(new Blue.DAL.DbParameter("@CnDtNo", cnDtNo++.ToString()));
-                    paramDetail.Add(new Blue.DAL.DbParameter("@CnType", ));
-                    paramDetail.Add(new Blue.DAL.DbParameter("@DocDate", docDate.ToString("yyyy-MM-dd")));
-                    paramDetail.Add(new Blue.DAL.DbParameter("@VendorCode", vendorCode));
-                    paramDetail.Add(new Blue.DAL.DbParameter("@CurrencyCode", currencyCode));
-                    paramDetail.Add(new Blue.DAL.DbParameter("@ExRateAudit", currencyRate.ToString()));
-                    paramDetail.Add(new Blue.DAL.DbParameter("@CreatedBy", LoginInfo.LoginName));
-                    paramDetail.Add(new Blue.DAL.DbParameter("@UpdatedBy", LoginInfo.LoginName));
-
-
-
-                    _bu.DbExecuteQuery(query, paramDetail.ToArray(), hf_ConnStr.Value);
-                    #endregion
-                }
-
-
-
+                queries.AppendLine("INSERT INTO PC.Cn (CnNo, CnDate, DocNo, DocDate, VendorCode, CurrencyCode, ExRateAudit, DocStatus, ExportStatus, CreatedDate, CreatedBy, UpdatedDate, UpdatedBy)");
+                queries.AppendLine("VALUES(@CnNo, @CnDate, @DocNo, @DocDate, @VendorCode, @CurrencyCode, @ExRateAudit, 'Saved', 0, GETDATE(), @UpdatedBy, GETDATE(), @UpdatedBy)");
             }
             else
             {
-                #region -- header--
-                var query = @"
-UPDATE 
-    PC.Cn 
-SET
-    CnDate=@CnDate, 
-    DocNo=@DocNo, 
-    DocDate=@DocDate, 
-    VendorCode=@VendorCode, 
-    CurrencyCode=@CurrencyCode, 
-    ExRateAudit=@ExRateAudit, 
-    UpdatedDate=GETDATE(), 
-    UpdatedBy=@UpdatedBy 
-WHERE
-    CnNo=@CnNo";
-
-                var parameters = new List<Blue.DAL.DbParameter>();
-
-                parameters.Add(new Blue.DAL.DbParameter("@CnNo", cnNo));
-                parameters.Add(new Blue.DAL.DbParameter("@CnDate", cnDate.ToString("yyyy-MM-dd")));
-                parameters.Add(new Blue.DAL.DbParameter("@DocNo", docNo));
-                parameters.Add(new Blue.DAL.DbParameter("@DocDate", docDate.ToString("yyyy-MM-dd")));
-                parameters.Add(new Blue.DAL.DbParameter("@VendorCode", vendorCode));
-                parameters.Add(new Blue.DAL.DbParameter("@CurrencyCode", currencyCode));
-                parameters.Add(new Blue.DAL.DbParameter("@ExRateAudit", currencyRate.ToString()));
-                parameters.Add(new Blue.DAL.DbParameter("@UpdatedBy", LoginInfo.LoginName));
-
-                _bu.DbExecuteQuery(query, parameters.ToArray(), hf_ConnStr.Value);
-                #endregion
+                queries.AppendLine("UPDATE PC.Cn");
+                queries.AppendLine("SET");
+                queries.AppendLine("  CnDate=@CnDate,");
+                queries.AppendLine("  DocNo=@DocNo,");
+                queries.AppendLine("  DocDate=@DocDate,");
+                queries.AppendLine("  VendorCode=@VendorCode,");
+                queries.AppendLine("  CurrencyCode=@CurrencyCode,");
+                queries.AppendLine("  ExRateAudit=@ExRateAudit,");
+                queries.AppendLine("  UpdatedDate=GETDATE(),");
+                queries.AppendLine("  UpdatedBy=@UpdatedBy");
+                queries.AppendLine("WHERE CnNo=@CnNo");
             }
+
+            _bu.DbExecuteQuery(queries.ToString(), parameters.ToArray(), hf_ConnStr.Value);
+
+            #endregion
+
+
+            // Detail
+
+
+            var cnDtNo = 1;
+            #region --details--
+
+            queries.AppendLine("  DELETE FROM PC.CnDt WHERE CnNo=@CnNo");
+
+            foreach (DataRow dr in _dtCnDt.Rows)
+            {
+                var cnType = dr["CnType"].ToString();
+                var recNo = dr["RecNo"].ToString();
+                var location = dr["Location"].ToString();
+                var productCode = dr["ProductCode"].ToString();
+                var unitCode = dr["UnitCode"].ToString();
+                var recQty = dr["RecQty"].ToString();
+                var focQty = dr["FocQty"].ToString();
+                var price = dr["Price"].ToString();
+                var taxType = dr["TaxType"].ToString();
+                var taxRate = dr["TaxRate"].ToString();
+                var currNetAmt = dr["CurrNetAmt"].ToString();
+                var currTaxAmt = dr["CurrTaxAmt"].ToString();
+                var currTotalAmt = dr["CurrTotalAmt"].ToString();
+                var netAmt = dr["NetAmt"].ToString();
+                var taxAmt = dr["TaxAmt"].ToString();
+                var totalAmt = dr["TotalAmt"].ToString();
+                var comment = dr["Comment"].ToString();
+                var poNo = dr["RecNo"].ToString();
+                var poDtNo = string.IsNullOrEmpty(dr["PoDtNo"].ToString()) ? "NULL" : dr["PoDtNo"].ToString();
+
+                queries.Append("INSERT INTO PC.CnDt (CnNo, CnDtNo, CnType, RecNo, Location, ProductCode, UnitCode, RecQty, FocQty, Price, TaxType, TaxRate, TaxAdj, CurrNetAmt, CurrTaxAmt, CurrTotalAmt, NetAmt, TaxAmt, TotalAmt, Comment, PoNo, PoDtNo)");
+                //queries.AppendFormat(" VALUES(@CnNo, {0}, '{1}', '{2}', '{3}', '{4}', '{18}', {5}, {6}, {7}, '{8}', {9}, 0, {10}, {11}, {12}, {13}, {14}, {15}, '', '{16}', {17})",
+                queries.AppendFormat(" VALUES(@CnNo, {0}, '{1}', '{2}', '{3}', '{4}', @UnitCode{0}, {5}, {6}, {7}, '{8}', {9}, 0, {10}, {11}, {12}, {13}, {14}, {15}, @Comment{0}, '{16}', {17})",
+                    cnDtNo,
+                    cnType,
+                    recNo,
+                    location,
+                    productCode,
+                    recQty,
+                    focQty,
+                    price,
+                    taxType,
+                    taxRate,
+                    currNetAmt,
+                    currTaxAmt,
+                    currTotalAmt,
+                    netAmt,
+                    taxAmt,
+                    totalAmt,
+                    poNo,
+                    poDtNo
+                    );
+                queries.AppendLine(";");
+
+                parameters.Add(new Blue.DAL.DbParameter("@UnitCode" + cnDtNo.ToString(), unitCode));
+                parameters.Add(new Blue.DAL.DbParameter("@Comment" + cnDtNo.ToString(), comment));
+
+                cnDtNo++;
+            }
+
+            queries.AppendLine("  COMMIT");
+            queries.AppendLine("  SELECT ''");
+            queries.AppendLine("END TRY");
+            queries.AppendLine("BEGIN CATCH");
+            queries.AppendLine("  ROLLBACK");
+            queries.AppendLine("  SELECT ERROR_MESSAGE()");
+            queries.AppendLine("END CATCH");
+
+            #endregion
+
+            var dt = _bu.DbExecuteQuery(queries.ToString(), parameters.ToArray(), hf_ConnStr.Value);
+
+
+            var error = dt != null ? dt.Rows[0][0].ToString() : queries.ToString();
+
+            if (!string.IsNullOrEmpty(error))
+            {
+                ShowWarning(error);
+            }
+            else
+            {
+                _bu.DbExecuteQuery("DELETE FROM [IN].Inventory WHERE HdrNo=@CnNo AND [Type] ='CR'", new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@CnNo", cnNo) }, hf_ConnStr.Value);
+
+                if (isCommit)
+                {
+                    _bu.DbExecuteQuery("EXEC [PC].CnCommit @DocNo", new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@DocNo", cnNo) }, hf_ConnStr.Value);
+
+
+
+                    _transLog.Save("PC", "CN", cnNo, "CREATE", string.Empty, LoginInfo.LoginName, hf_ConnStr.Value);
+                    _transLog.Save("PC", "CN", cnNo, "COMMIT", string.Empty, LoginInfo.LoginName, hf_ConnStr.Value);
+
+                    ShowInfo("Committed.");
+
+                    Response.Redirect("Cn.aspx?ID=" + cnNo + "&BuCode=" + _BuCode);
+                }
+                else
+                {
+                    ShowInfo("Saved.");
+
+                    var action = isNew ? "CREATE" : "MODIFY";
+                    _transLog.Save("PC", "CN", cnNo, action, string.Empty, LoginInfo.LoginName, hf_ConnStr.Value);
+                    Response.Redirect("Cn.aspx?ID=" + cnNo + "&BuCode=" + _BuCode);
+                }
+
+            }
+
+
 
 
 

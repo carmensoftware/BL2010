@@ -145,7 +145,7 @@
             </table>
             <!-- Detail Bar -->
             <div class="flex flex-justify-content-end mb-10" style="background-color: #f5f5f5; padding: 10px;">
-                <asp:Button ID="btn_DeleteItem" runat="server" Text="Delete" OnClick="btn_DeleteItem_Click" Visible="false" />
+                <asp:Button ID="btn_DeleteItems" runat="server" Text="Delete" OnClick="btn_DeleteItems_Click" />
                 &nbsp; &nbsp;
                 <asp:Button ID="btn_AddItem" runat="server" Text="Add" OnClick="btn_AddItem_Click" />
             </div>
@@ -171,6 +171,7 @@
                         <ItemStyle VerticalAlign="Top" Width="17px" />
                         <ItemTemplate>
                             <asp:CheckBox ID="chk_Item" runat="server" SkinID="CHK_V1" />
+                            <asp:HiddenField runat="server" ID="hf_CnDtNo" />
                         </ItemTemplate>
                     </asp:TemplateField>
                     <%-- CnType --%>
@@ -743,6 +744,25 @@
                             <asp:Button runat="server" ID="btn_SelectItems" Width="100" Text="Select" OnClick="btn_SelectItems_Click" />
                             &nbsp; &nbsp; &nbsp;
                             <button style="width: 100px; padding: 5px; margin-right: 30px !important;" onclick="pop_AddItem.Hide();">
+                                Cancel
+                            </button>
+                        </div>
+                    </dx:PopupControlContentControl>
+                </ContentCollection>
+            </dx:ASPxPopupControl>
+            <dx:ASPxPopupControl ID="pop_ConfirmDelete" ClientInstanceName="pop_ConfirmDelete" runat="server" Width="360" HeaderText="Confirm" Modal="True" ShowCloseButton="true"
+                CloseAction="CloseButton" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowPageScrollbarWhenModal="True">
+                <HeaderStyle BackColor="#ffffcc" />
+                <ContentCollection>
+                    <dx:PopupControlContentControl ID="PopupControlContentControl2" runat="server">
+                        <asp:HiddenField runat="server" ID="hf_DeletedItems" />
+                        <div class="flex flex-justify-content-center mt-20 mb-20 width-100">
+                            <asp:Label ID="lbl_DeletedItems" runat="server" SkinID="LBL_NR"></asp:Label>
+                        </div>
+                        <div class="flex flex-justify-content-center mt-20 width-100">
+                            <asp:Button runat="server" ID="btn_ConfirmDeleteItems" Text="Confirm" OnClick="btn_ConfirmDeleteItems_Click" />
+                            &nbsp;&nbsp;&nbsp;
+                            <button style="width: 100px; padding: 5px;" onclick="pop_ConfirmDelete.Hide();">
                                 Cancel
                             </button>
                         </div>
