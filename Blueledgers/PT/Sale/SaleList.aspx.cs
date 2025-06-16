@@ -15,6 +15,7 @@ using BlueLedger.PL.BaseClass;
 using DevExpress.Web.ASPxEditors;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Text.RegularExpressions;
 
 namespace BlueLedger.PL.PT.Sale
 {
@@ -24,6 +25,7 @@ namespace BlueLedger.PL.PT.Sale
         private readonly Blue.BL.dbo.Bu bu = new Blue.BL.dbo.Bu();
         private readonly Blue.BL.ADMIN.RolePermission rolePermiss = new Blue.BL.ADMIN.RolePermission();
         private readonly Blue.BL.IN.StockOut stockOut = new Blue.BL.IN.StockOut();
+        private readonly Blue.BL.APP.Config _config = new Blue.BL.APP.Config();
 
         private readonly string[] ImportFields = { "SaleDate", "OutletCode", "DepartmentCode", "ItemCode", "Qty", "Price", "Total" };
         public string iconEdit = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAcQAAAHEBHD+AdwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAEESURBVDiNldO/LuxRFMXxz5KJRqFSKCU6IUIp0XoGkXgBDUFHoldQ6XQ6iUqlcm8iOh5AoUGp9C83dysQMn4zmVnJKU72/q61T7KPqtLPwRL+4BAjqSpJJjHrWw9VdaZNSVaxginMYznYwRguf/TeVdVpAzyHexTWcQFXPYy9imO0Pu97uMbmAAbaR+2QvFhV/36Uzqtqt284yR5U1Zpu6b3AHQ2SrPQCNxokCTYwhFY32FdDm2bw18eynCS5wf8muNMTFvCECUzjuQlOspVktGmCJ7zgDFtV9dyUjHEM/zKoqv0OQKO67kGvBo9JRvqBkgz6+D+3LWzjKMlwHx5vOKiq13cd46KPLEvGfQAAAABJRU5ErkJggg==";
@@ -175,10 +177,10 @@ namespace BlueLedger.PL.PT.Sale
                 case "ITEM":
                     ShowItem();
                     break;
-                case "IMPORT":
+                case "IMPORTFILE":
                     dtImport = null;
-                    BindImportData();
-                    pop_Import.ShowOnPageLoad = true;
+                    //BindImportData();
+                    pop_ImportFile.ShowOnPageLoad = true;
                     break;
                 //case "STOCKOUT":
                 //    pop_StockOut.ShowOnPageLoad = true;
@@ -1728,217 +1730,360 @@ VALUES (@RefId, @Type, 'Saved', @Description, NULL, @CreateBy, @CreateDate, @Upd
 
         }
 
-        // Import
-
-        protected void btn_Import_Click(object sender, EventArgs e)
-        {
-            lblErrorMessage.InnerText = string.Empty;
-
-            string result = ImportData();
-
-            if (result == string.Empty)
-            {
-                dtImport = null;
-                BindImportData();
-                lbl_FileName.InnerText = "Import done";
-            }
-            else
-                lblErrorMessage.InnerText = result;
-
-
-        }
-
-        protected void grd_Import_PageIndexChanging(object sender, GridViewPageEventArgs e)
-        {
-            grd_Import.PageIndex = e.NewPageIndex;
-
-            grd_Import.DataSource = dtImport;
-            grd_Import.DataBind();
-
-        }
-
-        protected void grd_Import_RowDataBound(object sender, GridViewRowEventArgs e)
-        {
-            if (e.Row.RowType == DataControlRowType.DataRow)
-            {
-
-                //e.Row.Cells[0].ForeColor = Color.Blue;
-
-                for (int i = 0; i < e.Row.Cells.Count; i++)
-                {
-                    if (i < ImportFields.Length)
-                        e.Row.Cells[i].ForeColor = Color.Blue;
-                    else
-                        e.Row.Cells[i].ForeColor = Color.Silver;
-                }
-            }
-
-            if (e.Row.RowType == DataControlRowType.Footer)
-            {
-            }
-        }
-
-        protected void btn_Upload_Click(object sender, EventArgs e)
-        {
-            dtImport = null;
-            BindImportData();
-
-            if (FileUploadControl.HasFile)
-            {
-                string fileName = Path.GetFileName(FileUploadControl.PostedFile.FileName);
-                string fileExt = Path.GetExtension(FileUploadControl.PostedFile.FileName);
-
-                if (fileExt == ".xls" || fileExt == ".xlsx" || fileExt == ".csv")
-                {
-                    string folderPath = "~/Tmp/";
-                    string newName = Guid.NewGuid().ToString();
-                    string filePath = Server.MapPath(folderPath + newName + fileExt);
-
-                    FileUploadControl.SaveAs(filePath);
-                    lbl_FileName.InnerText = fileName;
-
-                    FillGridFromFile(filePath, fileExt, "NO");
-
-                    if (File.Exists(filePath))
-                    {
-                        File.Delete(filePath);
-                    }
-
-                }
-                else
-                {
-                    lblErrorMessage.Visible = true;
-                    lblErrorMessage.InnerText = "Please upload valid file.";
-                }
-
-            }
-            else
-            {
-                lblErrorMessage.Visible = true;
-                lblErrorMessage.InnerText = "No file found.";
-            }
-        }
-
-        private DataTable CreateImportDataTable()
-        {
-            var dt = new DataTable();
-
-            dt.Columns.Add("SaleDate", typeof(DateTime));
-            dt.Columns.Add("OutletCode", typeof(string));
-            dt.Columns.Add("DepartmentCode", typeof(string));
-            dt.Columns.Add("ItemCode", typeof(string));
-            dt.Columns.Add("Qty", typeof(decimal));
-            dt.Columns.Add("Price", typeof(decimal));
-            dt.Columns.Add("Total", typeof(decimal));
-
-            return dt;
-        }
-
-        private DataTable CsvToDatatable(string filename)
-        {
-            var dt = CreateImportDataTable();
-
-            string[] lines = File.ReadAllLines(filename);
-
-
-            for (int i = 1; i < lines.Length; i++)
-            {
-                var line = lines[i].Split(',');
-                DataRow dr = dt.NewRow();
-
-                for (int column = 0; column < dt.Columns.Count; column++)
-                {
-
-                    dr[column] = line[column];
-
-                }
-                dt.Rows.Add(dr);
-            }
-
-            return dt;
-        }
-
-
-        protected void btn_PreviewFile_Click(object sender, EventArgs e)
-        {
-            if (FileUpload.HasFile)
-            {
-                var uploadFile = FileUpload.PostedFile.FileName;
-                var fileName = Path.GetFileName(uploadFile);
-                var fileExt = Path.GetExtension(uploadFile).ToLower();
-
-
-                switch (fileExt)
-                {
-                    case ".xls":
-                    case ".xlsx":
-                    case ".csv":
-
-                        break;
-                    default:
-                        ShowAlert(string.Format("{0} is not supported.", uploadFile));
-                        return;
-                }
-
-                var tempPath = Path.GetTempPath();
-                var tempFilename = string.Format("{0}{1}{2}", tempPath, Guid.NewGuid(), fileExt);
-
-                FileUpload.SaveAs(tempFilename);
-
-                var dt = new DataTable();
-
-                if (fileExt == ".csv")
-                {
-                    dt = CsvToDatatable(tempFilename);
-                }
-
-                gv_PreviewFile.DataSource = dt;
-                gv_PreviewFile.DataBind();
-
-
-
-                //if (fileExt == ".xls" || fileExt == ".xlsx" || fileExt == ".csv")
-                //{
-
-                //string folderPath = "~/Tmp/";
-                //string newName = Guid.NewGuid().ToString();
-                //string filePath = Server.MapPath(folderPath + newName + fileExt);
-
-
-                //FileUploadControl.SaveAs(filePath);
-                //lbl_FileName.InnerText = fileName;
-
-
-                //FillGridFromFile(filePath, fileExt, "NO");
-
-                //if (File.Exists(filePath))
-                //{
-                //    File.Delete(filePath);
-                //}
-
-                //}
-                //else
-                //{
-                //    lblErrorMessage.Visible = true;
-                //    lblErrorMessage.InnerText = "Please upload valid file.";
-                //}
-
-            }
-            else
-            {
-                ShowAlert("Please select a file.");
-            }
-        }
-
         // Import from API
         protected void ddl_Import_SelectedIndexChanged(object sender, EventArgs e)
         {
             var ddl = sender as DropDownList;
 
-            panel_File.Visible = ddl.SelectedIndex == 0;
-            panel_API.Visible = ddl.SelectedIndex == 1;
+            //panel_File.Visible = ddl.SelectedIndex == 0;
+            //panel_API.Visible = ddl.SelectedIndex == 1;
 
         }
+
+
+        // Import from File
+
+
+        protected void btn_ImportFile_Click(object sender, EventArgs e)
+        {
+            if (!FileUpload.HasFile)
+            {
+                ShowAlert("Please select a file.");
+            }
+            else
+            {
+                var uploadFilename = Path.GetFileName(FileUpload.PostedFile.FileName);
+                var uploadFileExt = Path.GetExtension(FileUpload.PostedFile.FileName).ToLower();
+
+
+                //var dir = Path.Combine(tmp, id + fileExt);
+
+                switch (uploadFileExt)
+                {
+                    //case ".xls":
+                    case ".xlsx":
+                    case ".csv":
+                        break;
+                    default:
+                        ShowAlert(string.Format("{0} is not supported.", uploadFilename));
+                        return;
+                }
+
+                var tmpPath = Path.GetTempPath();
+                var id = Guid.NewGuid().ToString();
+
+                var filename = Path.Combine(tmpPath, id + uploadFileExt);
+
+                FileUpload.SaveAs(filename);
+
+                var configString = _config.GetValue("PT", "Sale", "ImportFile", LoginInfo.ConnStr);
+
+                var configs = new Dictionary<string, string>();
+
+                if (!string.IsNullOrEmpty(configString))
+                {
+
+                    var json = JObject.Parse(configString);
+
+                    var sale = json["Sale"];
+                    //var delimiter = sale["Delimiter"] == null ? "," : sale["Delimtier"].Value<string>();
+                    var delimiter = ",";
+                    var startLine = sale["StartLine"] == null ? "2" : sale["StartLine"].Value<int>().ToString();
+
+                    configs.Add("StartLine", startLine);
+                    configs.Add("Delimiter", delimiter);
+
+                    var columns = sale["Columns"];
+
+                    configs.Add("OutletCode", columns["OutletCode"].Value<string>());
+                    configs.Add("OutletName", columns["OutletName"].Value<string>());
+                    configs.Add("ItemCode", columns["ItemCode"].Value<string>());
+                    configs.Add("ItemName", columns["ItemName"].Value<string>());
+                    configs.Add("Price", columns["Price"].Value<string>());
+                    configs.Add("Qty", columns["Qty"].Value<string>());
+                    configs.Add("Total", columns["Total"].Value<string>());
+
+                    //text_Test1.Text = startLine.ToString();
+                }
+                else
+                {
+                    ShowAlert("Invalid or missing configuration.");
+
+                    return;
+                }
+
+
+                var dt = CsvToDatatable(filename, configs);
+
+
+                gv_ImportFile.DataSource = dt;
+                gv_ImportFile.DataBind();
+
+                text_Test1.Text = dt.Rows.Count.ToString();
+
+
+            }
+
+        }
+
+        private DataTable CsvToDatatable(string filename, Dictionary<string, string> configs)
+        {
+            var startLine = configs["StartLine"];
+            var delimiter = configs["Delimiter"];
+
+            var dt = new DataTable();
+
+            // Id
+            dt.Columns.Add(new DataColumn
+            {
+                DataType = typeof(Int32),
+                ColumnName = "Id",
+                Unique = true
+            });
+
+            // OutletCode
+            dt.Columns.Add(new DataColumn
+            {
+                DataType = typeof(string),
+                ColumnName = "OutletCode"
+            });
+
+            // OutletName
+            dt.Columns.Add(new DataColumn
+            {
+                DataType = typeof(string),
+                ColumnName = "OutletName"
+            });
+
+            // ItemCode
+            dt.Columns.Add(new DataColumn
+            {
+                DataType = typeof(string),
+                ColumnName = "ItemCode"
+            });
+
+            // ItemName
+            dt.Columns.Add(new DataColumn
+            {
+                DataType = typeof(string),
+                ColumnName = "ItemName"
+            });
+
+            // Price
+            dt.Columns.Add(new DataColumn
+            {
+                DataType = typeof(decimal),
+                ColumnName = "Price"
+            });
+
+            // Qty
+            dt.Columns.Add(new DataColumn
+            {
+                DataType = typeof(decimal),
+                ColumnName = "Qty"
+            });
+
+            // Total
+            dt.Columns.Add(new DataColumn
+            {
+                DataType = typeof(decimal),
+                ColumnName = "Total"
+            });
+
+            dt.PrimaryKey = new DataColumn[1] { dt.Columns["Id"] };
+
+
+            try
+            {
+
+                var col_OutletCode = string.IsNullOrEmpty(configs["OutletCode"]) ? -1 : Convert.ToInt32(configs["OutletCode"])-1;
+                var col_OutletName = string.IsNullOrEmpty(configs["OutletName"]) ? -1 : Convert.ToInt32(configs["OutletName"])-1;
+                var col_ItemCode = string.IsNullOrEmpty(configs["ItemCode"]) ? -1 : Convert.ToInt32(configs["ItemCode"])-1; 
+                var col_ItemName = string.IsNullOrEmpty(configs["ItemName"]) ? -1 : Convert.ToInt32(configs["ItemName"])-1;
+                var col_Price = string.IsNullOrEmpty(configs["Price"]) ? -1 : Convert.ToInt32(configs["Price"])-1;
+                var col_Qty = string.IsNullOrEmpty(configs["Qty"]) ? -1 : Convert.ToInt32(configs["Qty"])-1;
+                var col_Total = string.IsNullOrEmpty(configs["Total"]) ? -1 : Convert.ToInt32(configs["Total"])-1;
+
+
+                string[] lines = File.ReadAllLines(filename);
+
+                var startIndex = Convert.ToInt32(startLine) - 1;
+
+                for (var i = startIndex; i < lines.Length; i++)
+                {
+                    var line = lines[i];
+                    var cols = Regex.Split(line, ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)")
+                        .Select(x=> x.Trim())
+                        .ToArray();
+
+                    var dr = dt.NewRow();
+                    
+                    dr["Id"] = i;
+
+                    dr["OutletCode"] = col_OutletCode > -1 && cols.Length > col_OutletCode ? TrimDoubleQuoted(cols[col_OutletCode]) : "";
+                    dr["OutletName"] = col_OutletName > -1 && cols.Length > col_OutletName ? TrimDoubleQuoted(cols[col_OutletName]) : "";
+                    dr["ItemCode"] = col_ItemCode > -1 && cols.Length > col_ItemCode ? TrimDoubleQuoted(cols[col_ItemCode]) : "";
+                    dr["ItemName"] = col_ItemName > -1 && cols.Length > col_ItemName ? TrimDoubleQuoted(cols[col_ItemName]) : "";
+                    dr["Price"] = col_Price > -1 && cols.Length > col_Price ? TrimDoubleQuoted(cols[col_Price]) : "0";
+                    dr["Qty"] = col_Qty > -1 && cols.Length > col_Qty ? TrimDoubleQuoted(cols[col_Qty]) : "0";
+                    dr["Total"] = col_Total > -1 && cols.Length > col_Total ? TrimDoubleQuoted(cols[col_Total]) : "0";
+
+                    dt.Rows.Add(dr);
+                }
+
+
+
+            }
+            catch(Exception ex)
+            {
+                ShowAlert(ex.Message);
+            }
+            return dt;
+        }
+
+        private string TrimDoubleQuoted(string text)
+        {
+            var value = text.Trim();
+
+            if (text.Length > 0 && text[0] == '"')
+                return text.TrimStart('"').TrimEnd('"');
+            else
+                return text;
+
+        }
+
+
+        //protected void btn_Import_Click(object sender, EventArgs e)
+        //{
+        //    lblErrorMessage.InnerText = string.Empty;
+
+        //    string result = ImportData();
+
+        //    if (result == string.Empty)
+        //    {
+        //        dtImport = null;
+        //        BindImportData();
+        //        lbl_FileName.InnerText = "Import done";
+        //    }
+        //    else
+        //        lblErrorMessage.InnerText = result;
+
+
+        //}
+
+        //protected void grd_Import_PageIndexChanging(object sender, GridViewPageEventArgs e)
+        //{
+        //    grd_Import.PageIndex = e.NewPageIndex;
+
+        //    grd_Import.DataSource = dtImport;
+        //    grd_Import.DataBind();
+
+        //}
+
+        //protected void grd_Import_RowDataBound(object sender, GridViewRowEventArgs e)
+        //{
+        //    if (e.Row.RowType == DataControlRowType.DataRow)
+        //    {
+
+        //        //e.Row.Cells[0].ForeColor = Color.Blue;
+
+        //        for (int i = 0; i < e.Row.Cells.Count; i++)
+        //        {
+        //            if (i < ImportFields.Length)
+        //                e.Row.Cells[i].ForeColor = Color.Blue;
+        //            else
+        //                e.Row.Cells[i].ForeColor = Color.Silver;
+        //        }
+        //    }
+
+        //    if (e.Row.RowType == DataControlRowType.Footer)
+        //    {
+        //    }
+        //}
+
+        //protected void btn_Upload_Click(object sender, EventArgs e)
+        //{
+        //    dtImport = null;
+        //    BindImportData();
+
+        //    if (FileUploadControl.HasFile)
+        //    {
+        //        string fileName = Path.GetFileName(FileUploadControl.PostedFile.FileName);
+        //        string fileExt = Path.GetExtension(FileUploadControl.PostedFile.FileName);
+
+        //        if (fileExt == ".xls" || fileExt == ".xlsx" || fileExt == ".csv")
+        //        {
+        //            string folderPath = "~/Tmp/";
+        //            string newName = Guid.NewGuid().ToString();
+        //            string filePath = Server.MapPath(folderPath + newName + fileExt);
+
+        //            FileUploadControl.SaveAs(filePath);
+        //            lbl_FileName.InnerText = fileName;
+
+        //            FillGridFromFile(filePath, fileExt, "NO");
+
+        //            if (File.Exists(filePath))
+        //            {
+        //                File.Delete(filePath);
+        //            }
+
+        //        }
+        //        else
+        //        {
+        //            lblErrorMessage.Visible = true;
+        //            lblErrorMessage.InnerText = "Please upload valid file.";
+        //        }
+
+        //    }
+        //    else
+        //    {
+        //        lblErrorMessage.Visible = true;
+        //        lblErrorMessage.InnerText = "No file found.";
+        //    }
+        //}
+
+        //private DataTable CreateImportDataTable()
+        //{
+        //    var dt = new DataTable();
+
+        //    dt.Columns.Add("SaleDate", typeof(DateTime));
+        //    dt.Columns.Add("OutletCode", typeof(string));
+        //    dt.Columns.Add("DepartmentCode", typeof(string));
+        //    dt.Columns.Add("ItemCode", typeof(string));
+        //    dt.Columns.Add("Qty", typeof(decimal));
+        //    dt.Columns.Add("Price", typeof(decimal));
+        //    dt.Columns.Add("Total", typeof(decimal));
+
+        //    return dt;
+        //}
+
+        //private DataTable CsvToDatatable(string filename)
+        //{
+        //    var dt = CreateImportDataTable();
+
+        //    string[] lines = File.ReadAllLines(filename);
+
+
+        //    for (int i = 1; i < lines.Length; i++)
+        //    {
+        //        var line = lines[i].Split(',');
+        //        DataRow dr = dt.NewRow();
+
+        //        for (int column = 0; column < dt.Columns.Count; column++)
+        //        {
+
+        //            dr[column] = line[column];
+
+        //        }
+        //        dt.Rows.Add(dr);
+        //    }
+
+        //    return dt;
+        //}
+
+
+
+
 
         // Private method(s)
         private DataTable QueryPosData(DateTime dateFrom, DateTime dateTo)
@@ -1974,97 +2119,97 @@ ORDER BY
 
         }
 
-        private void BindImportData()
-        {
-            ///Bind Sheet Data to GridView
-            grd_Import.DataSource = dtImport;
-            grd_Import.DataBind();
+        //private void BindImportData()
+        //{
+        //    ///Bind Sheet Data to GridView
+        //    grd_Import.DataSource = dtImport;
+        //    grd_Import.DataBind();
 
-            bool haveData = dtImport.Rows.Count > 0;
-            btn_Import.Visible = haveData;
+        //    bool haveData = dtImport.Rows.Count > 0;
+        //    btn_Import.Visible = haveData;
 
-            lblErrorMessage.InnerText = string.Empty;
-            lbl_FileName.InnerText = string.Empty;
-
-
-
-        }
-
-        public DataTable ConvertCSVToDataTable(string filePath)
-        {
-            char delimiter = ',';
-            DataTable tbl = new DataTable();
-            int numberOfColumns;
-            string[] lines = System.IO.File.ReadAllLines(filePath);
-
-            if (lines.ToString().Trim() != string.Empty)
-            {
-                numberOfColumns = lines[0].Split(delimiter).Length;
-
-
-                for (int col = 0; col < numberOfColumns; col++)
-                    tbl.Columns.Add(new DataColumn("F" + (col + 1).ToString()));
+        //    lblErrorMessage.InnerText = string.Empty;
+        //    lbl_FileName.InnerText = string.Empty;
 
 
 
-                foreach (string line in lines)
-                {
-                    var cols = line.Split(delimiter);
+        //}
 
-                    DataRow dr = tbl.NewRow();
-                    for (int cIndex = 0; cIndex < numberOfColumns; cIndex++)
-                    {
-                        dr[cIndex] = cols[cIndex];
-                    }
+        //public DataTable ConvertCSVToDataTable(string filePath)
+        //{
+        //    char delimiter = ',';
+        //    DataTable tbl = new DataTable();
+        //    int numberOfColumns;
+        //    string[] lines = System.IO.File.ReadAllLines(filePath);
 
-                    tbl.Rows.Add(dr);
-                }
-            }
-
-            return tbl;
-        }
+        //    if (lines.ToString().Trim() != string.Empty)
+        //    {
+        //        numberOfColumns = lines[0].Split(delimiter).Length;
 
 
-        private void FillGridFromFile(string filePath, string ext, string isHader)
-        {
-            if (ext == ".xls" || ext == ".xlsx")
-            {
-                string providerConfig = "Provider=Microsoft.ACE.OLEDB.12.0; Data Source={0};Extended Properties='Excel 8.0;HDR={1}'";
-                string connectionString = String.Format(providerConfig, filePath, isHader);
-                OleDbConnection conn = new OleDbConnection(connectionString);
-                OleDbCommand cmd = new OleDbCommand();
-                OleDbDataAdapter dataAdapter = new OleDbDataAdapter();
-                cmd.Connection = conn;
-                //Fetch 1st Sheet Name
-                conn.Open();
-                DataTable dtSchema;
-                dtSchema = conn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
-                string ExcelSheetName = dtSchema.Rows[0]["TABLE_NAME"].ToString();
-                conn.Close();
-
-                //Read all data of fetched Sheet to a Data Table
-                conn.Open();
-                cmd.CommandText = "SELECT * From [" + ExcelSheetName + "]";
-                dataAdapter.SelectCommand = cmd;
-                dataAdapter.Fill(dtImport);
-                conn.Close();
-            }
-            else  // ext==".csv"
-            {
-                dtImport = ConvertCSVToDataTable(filePath);
-            }
+        //        for (int col = 0; col < numberOfColumns; col++)
+        //            tbl.Columns.Add(new DataColumn("F" + (col + 1).ToString()));
 
 
-            for (int i = 0; i < dtImport.Columns.Count; i++)
-            {
-                if (i < ImportFields.Length)
-                    dtImport.Columns[i].ColumnName = ImportFields[i].ToString();
-            }
+
+        //        foreach (string line in lines)
+        //        {
+        //            var cols = line.Split(delimiter);
+
+        //            DataRow dr = tbl.NewRow();
+        //            for (int cIndex = 0; cIndex < numberOfColumns; cIndex++)
+        //            {
+        //                dr[cIndex] = cols[cIndex];
+        //            }
+
+        //            tbl.Rows.Add(dr);
+        //        }
+        //    }
+
+        //    return tbl;
+        //}
 
 
-            BindImportData();
+        //private void FillGridFromFile(string filePath, string ext, string isHader)
+        //{
+        //    if (ext == ".xls" || ext == ".xlsx")
+        //    {
+        //        string providerConfig = "Provider=Microsoft.ACE.OLEDB.12.0; Data Source={0};Extended Properties='Excel 8.0;HDR={1}'";
+        //        string connectionString = String.Format(providerConfig, filePath, isHader);
+        //        OleDbConnection conn = new OleDbConnection(connectionString);
+        //        OleDbCommand cmd = new OleDbCommand();
+        //        OleDbDataAdapter dataAdapter = new OleDbDataAdapter();
+        //        cmd.Connection = conn;
+        //        //Fetch 1st Sheet Name
+        //        conn.Open();
+        //        DataTable dtSchema;
+        //        dtSchema = conn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
+        //        string ExcelSheetName = dtSchema.Rows[0]["TABLE_NAME"].ToString();
+        //        conn.Close();
 
-        }
+        //        //Read all data of fetched Sheet to a Data Table
+        //        conn.Open();
+        //        cmd.CommandText = "SELECT * From [" + ExcelSheetName + "]";
+        //        dataAdapter.SelectCommand = cmd;
+        //        dataAdapter.Fill(dtImport);
+        //        conn.Close();
+        //    }
+        //    else  // ext==".csv"
+        //    {
+        //        dtImport = ConvertCSVToDataTable(filePath);
+        //    }
+
+
+        //    for (int i = 0; i < dtImport.Columns.Count; i++)
+        //    {
+        //        if (i < ImportFields.Length)
+        //            dtImport.Columns[i].ColumnName = ImportFields[i].ToString();
+        //    }
+
+
+        //    BindImportData();
+
+        //}
 
         private string ImportData()
         {
@@ -2337,7 +2482,7 @@ ORDER BY
 
                             if (jsonSale != null)
                             {
-                                var items  = JsonConvert.DeserializeObject<List<SaleItem>>(jsonSale.ToString());
+                                var items = JsonConvert.DeserializeObject<List<SaleItem>>(jsonSale.ToString());
 
                                 // update some field that use in various verions
                                 // Outlet = OutletCode
@@ -2764,7 +2909,7 @@ WHERE
 
             public decimal Quantity { get; set; }
             public decimal Qty { get; set; }
-            
+
             public decimal UnitPrice { get; set; }
             public decimal Total { get; set; }
         }
@@ -2793,6 +2938,18 @@ WHERE
             public string LocationCode { get; set; }
             public string LocationName { get; set; }
         }
+
+        #region --Import File--
+
+        [Serializable]
+        public class FileSettingItem
+        {
+            public string Code { get; set; }
+            public string Name1 { get; set; }
+            public string Name2 { get; set; }
+        }
+        #endregion
+
     }
 
 }

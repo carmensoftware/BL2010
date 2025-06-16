@@ -152,7 +152,7 @@
                     <dx:MenuItem Name="Item" Text="Item/PLU">
                         <ItemStyle BackColor="DarkGray" ForeColor="White" />
                     </dx:MenuItem>
-                    <dx:MenuItem Name="Import" Text="Import" Visible="false" />
+                    <dx:MenuItem Name="ImportFile" Text="Import from file..." Visible="true" />
                 </Items>
             </dx:ASPxMenu>
         </div>
@@ -256,6 +256,11 @@
                     </td>
                 </tr>
             </table>
+            <br />
+            <hr />
+            <asp:GridView runat="server" ID="gv_ImportFile" AutoGenerateColumns="true" ShowHeader="true" Width="100%">
+            </asp:GridView>
+            <hr />
         </ContentTemplate>
         <Triggers>
             <asp:PostBackTrigger ControlID="btn_POS" />
@@ -894,49 +899,11 @@
             </dx:PopupControlContentControl>
         </ContentCollection>
     </dx:ASPxPopupControl>
-    <dx:ASPxPopupControl ID="pop_Import" runat="server" ClientInstanceName="pop_Import" Width="480" Height="340" Modal="True" CloseAction="CloseButton" HeaderText="Import Data"
-        PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter" ShowPageScrollbarWhenModal="true">
+    <dx:ASPxPopupControl ID="pop_ImportFile" runat="server" ClientInstanceName="pop_ImportFile" Width="480" Height="340" Modal="True" CloseAction="CloseButton"
+        HeaderText="Import Data" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter" ShowPageScrollbarWhenModal="true">
         <ContentCollection>
             <dx:PopupControlContentControl ID="PopupControlContentControl10" runat="server">
                 <asp:Panel ID="panel1" runat="server" CssClass="card p-3 mb-3" Font-Size="Small">
-                    <b>From file</b>
-                    <table class="w-100">
-                        <tr>
-                            <td colspan="2">
-                                <asp:FileUpload ID="FileUpload1" runat="server" Width="100%" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <small>Support file *.csv | *.xls | *.xlsx"</small>
-                            </td>
-                            <td align="right">
-                                <asp:Button ID="Button1" runat="server" Width="60" Text="Import" OnClick="btn_PreviewFile_Click" />
-                            </td>
-                        </tr>
-                    </table>
-                    <hr />
-                    <div>
-                    <asp:Button runat="server" ID="btn_Import_Setting" Text="Setting" OnClick="btn_Import_Setting_Click" />
-                    </div>
-                </asp:Panel>
-            </dx:PopupControlContentControl>
-        </ContentCollection>
-    </dx:ASPxPopupControl>
-    <dx:ASPxPopupControl ID="pop_Import1" runat="server" ClientInstanceName="pop_Import" Width="480" Height="620" Modal="True" CloseAction="CloseButton" HeaderText="Import Data"
-        PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter" ShowPageScrollbarWhenModal="true">
-        <ContentCollection>
-            <dx:PopupControlContentControl ID="PopupControlContentControl_Import" runat="server">
-                <div class="mb">
-                    <asp:Label ID="lbl_ImportType_Nm" runat="server" Font-Size="Small" Font-Bold="true" Text="Import Type" />
-                </div>
-                <div class="mb-3">
-                    <asp:DropDownList ID="ddl_ImportType" runat="server" Width="100%" Font-Size="Small" AutoPostBack="true" OnSelectedIndexChanged="ddl_Import_SelectedIndexChanged">
-                        <asp:ListItem Value="File">File</asp:ListItem>
-                        <asp:ListItem Value="API">API</asp:ListItem>
-                    </asp:DropDownList>
-                </div>
-                <asp:Panel ID="panel_File" runat="server" CssClass="card p-3 mb-3" Font-Size="Small">
                     <b>From file</b>
                     <table class="w-100">
                         <tr>
@@ -946,62 +913,19 @@
                         </tr>
                         <tr>
                             <td>
-                                <small>Support file *.csv | *.xls | *.xlsx"</small>
+                                <small>Support file *.csv | *.xlsx"</small>
                             </td>
                             <td align="right">
-                                <asp:Button ID="btn_PreviewFile" runat="server" Width="60" Text="Import" OnClick="btn_PreviewFile_Click" />
+                                <asp:Button ID="btn_ImportFile" runat="server" Width="60" Text="Import" OnClick="btn_ImportFile_Click" />
                             </td>
                         </tr>
                     </table>
                     <hr />
+                    <asp:TextBox runat="server" ID="text_Test1" TextMode="MultiLine" Rows="10" />
+                    <div>
+                        <asp:Button runat="server" ID="btn_Import_Setting" Text="Setting" OnClick="btn_Import_Setting_Click" />
+                    </div>
                 </asp:Panel>
-                <asp:Panel ID="panel_API" runat="server" CssClass="card p-3 mb-3" Font-Size="Small">
-                    <b>From API</b>
-                </asp:Panel>
-                <br />
-                <div style="height: 320px; overflow: scroll;">
-                    <asp:GridView ID="gv_PreviewFile" runat="server" Width="100%">
-                    </asp:GridView>
-                </div>
-            </dx:PopupControlContentControl>
-        </ContentCollection>
-    </dx:ASPxPopupControl>
-    <dx:ASPxPopupControl ID="pop_Import2" ClientInstanceName="pop_Import2" runat="server" Width="800" Modal="True" CloseAction="CloseButton" HeaderText="Import from file"
-        PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter" ShowPageScrollbarWhenModal="true">
-        <ContentCollection>
-            <dx:PopupControlContentControl ID="PopupControlContentControl1" runat="server">
-                <asp:UpdatePanel ID="UpdatePanel2" runat="server">
-                    <ContentTemplate>
-                        <div style="width: 100%;">
-                            <div style="float: left;">
-                                <asp:FileUpload ID="FileUploadControl" runat="server" Width="400px" /><span>| *.csv, *.xls, *xlsx </span>
-                            </div>
-                            <div style="float: right;">
-                                <asp:Button ID="btn_Upload" runat="server" Text="Upload" OnClick="btn_Upload_Click" />
-                            </div>
-                            <div style="clear: both;">
-                            </div>
-                        </div>
-                        <hr />
-                        <asp:GridView ID="grd_Import" runat="server" AllowPaging="true" PageSize="25" OnPageIndexChanging="grd_Import_PageIndexChanging" OnRowDataBound="grd_Import_RowDataBound">
-                        </asp:GridView>
-                        <br />
-                        <div style="width: 100%;">
-                            <div style="display: inline-block;">
-                                <asp:Button ID="btn_Import" runat="server" Text="Import" Width="100px" OnClick="btn_Import_Click" OnClientClick="return confirm('Are you sure you want to import?');" />
-                            </div>
-                            <div style="display: inline-block;">
-                                <label id="lbl_FileName" runat="server" />
-                            </div>
-                        </div>
-                        <div style="display: block; width: 100%;">
-                            <label id="lblErrorMessage" runat="server" style="color: red;" />
-                        </div>
-                    </ContentTemplate>
-                    <Triggers>
-                        <asp:PostBackTrigger ControlID="btn_Upload" />
-                    </Triggers>
-                </asp:UpdatePanel>
             </dx:PopupControlContentControl>
         </ContentCollection>
     </dx:ASPxPopupControl>
