@@ -470,8 +470,10 @@ namespace BlueLedger.PL.PC.PO
 
         protected void ddl_CurrCode_Init(object sender, EventArgs e)
         {
-            string defaultCurrency = config.GetValue("APP", "BU", "DefaultCurrency", LoginInfo.ConnStr);
-            ddl_CurrCode.DataSource = currency.GetLastCurrencyRate(LoginInfo.ConnStr);
+            var defaultCurrency = config.GetValue("APP", "BU", "DefaultCurrency", LoginInfo.ConnStr);
+
+            //ddl_CurrCode.DataSource = currency.GetLastCurrencyRate(LoginInfo.ConnStr);
+            ddl_CurrCode.DataSource = _prDt.DbExecuteQuery("SELECT DISTINCT CurrencyCode FROM PC.PrDt ORDER BY CurrencyCode", null, LoginInfo.ConnStr);
             ddl_CurrCode.DataTextField = "CurrencyCode";
             ddl_CurrCode.DataValueField = "CurrencyCode";
             ddl_CurrCode.DataBind();
