@@ -665,6 +665,7 @@
                                     </td>
                                 </tr>
                             </table>
+                            <asp:HiddenField runat="server" ID="hf_IsCommit" />
                         </dx:PopupControlContentControl>
                     </ContentCollection>
                 </dx:ASPxPopupControl>

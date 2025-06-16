@@ -852,18 +852,19 @@ ORDER BY
             #region --Header--
             var refId = _ID;
 
-            var header_query = @"UPDATE [IN].StockIn SET [Type]=@Type, [Description]=@Description, CommitDate = @CommitDate, UpdateDate = @UpdateDate, UpdateBy = @UpdateBy WHERE RefId=@RefId";
+            var header_query = @"UPDATE [IN].StockIn SET [Type]=@Type, [Description]=@Description, CommitDate = NULL, UpdateDate = @UpdateDate, UpdateBy = @UpdateBy WHERE RefId=@RefId";
 
             if (string.IsNullOrEmpty(_ID)) // Create 
             {
                 refId = stkIn.GetNewID(de_DocDate.Date, hf_ConnStr.Value);
-                header_query = @"INSERT INTO [IN].StockIn (RefId, [Type], [Status], [Description], CommitDate, CreateBy, CreateDate, UpdateBy, UpdateDate) VALUES (@RefId, @Type, 'Saved', @Description, @CommitDate, @UpdateBy, @UpdateDate, @UpdateBy, @UpdateDate)";
+                header_query = @"INSERT INTO [IN].StockIn (RefId, [Type], [Status], [Description], CommitDate, CreateBy, CreateDate, UpdateBy, UpdateDate) 
+                                 VALUES (@RefId, @Type, 'Saved', @Description, NULL, @UpdateBy, @DocDate, @UpdateBy, @UpdateDate)";
             }
 
             parameters.Add(new SqlParameter("@RefId", refId));
             parameters.Add(new SqlParameter("@Type", ddl_Type.Value.ToString()));
             parameters.Add(new SqlParameter("@Description", txt_Desc.Text.Trim()));
-            parameters.Add(new SqlParameter("@CommitDate", de_DocDate.Date));
+            parameters.Add(new SqlParameter("@DocDate", de_DocDate.Date));
 
             parameters.Add(new SqlParameter("@UpdateBy", LoginInfo.LoginName));
             parameters.Add(new SqlParameter("@UpdateDate", DateTime.Now));
@@ -892,14 +893,8 @@ ORDER BY
                 var unitCost = dr["UnitCost"].ToString();
                 var comment = dr["Comment"];
 
-                //item_queries.AppendFormat("(@Id, @StoreId{0}, @SKU{0}, @Unit{0}, @Qty{0}, @UnitCost{0}, @Comment{0}),", i);
                 item_queries.AppendFormat("(@Id, N'{1}', N'{2}', N'{3}', {4}, {5}, @Comment{0}),", i, storeId, sku, unit, qty, unitCost);
 
-                //parameters.Add(new SqlParameter("@StoreId" + i.ToString(), storeId));
-                //parameters.Add(new SqlParameter("@SKU" + i.ToString(), sku));
-                //parameters.Add(new SqlParameter("@Unit" + i.ToString(), unit));
-                //parameters.Add(new SqlParameter("@Qty" + i.ToString(), qty));
-                //parameters.Add(new SqlParameter("@UnitCost" + i.ToString(), unitCost));
                 parameters.Add(new SqlParameter("@Comment" + i.ToString(), comment));
 
             }
@@ -929,49 +924,32 @@ ORDER BY
             var vid = Request.Params["VID"];
             var _action = string.IsNullOrEmpty(_ID) ? "CREATE" : "MODIFY";
 
+
             if (isCommit)
             {
+
+                var dtCommittedDate = bu.DbExecuteQuery(string.Format("SELECT [IN].GetCommittedDate('{0}', NULL)", de_DocDate.Date.ToString("yyyy-MM-dd")), null, hf_ConnStr.Value);
+
+                var committedDate = DateTime.Now;
+
+                if (dtCommittedDate != null && dtCommittedDate.Rows.Count > 0)
+                {
+                    committedDate = Convert.ToDateTime(dtCommittedDate.Rows[0][0]);
+                }
+
                 queries.Clear();
                 queries.AppendLine("BEGIN TRAN");
                 queries.AppendLine("DELETE FROM [IN].Inventory WHERE [Type]='SI' AND HdrNo=@HdrNo");
                 queries.AppendLine("INSERT INTO [IN].Inventory (HdrNo, DtNo, InvNo, ProductCode, Location, [IN], [OUT], Amount, PriceOnLots, [Type], CommittedDate)");
-                queries.AppendLine("SELECT Id, RefId, 1, SKU, StoreId, Qty, 0, UnitCost, ROUND(Qty*UnitCost, APP.DigitAmt()) as PriceOnLots, 'SI', GETDATE()  FROM [IN].StockInDt WHERE Id=@HdrNo");
+                queries.AppendLine("SELECT Id, RefId, 1, SKU, StoreId, Qty, 0, UnitCost, ROUND(Qty*UnitCost, APP.DigitAmt()) as PriceOnLots, 'SI', @CommittedDate  FROM [IN].StockInDt WHERE Id=@HdrNo");
 
                 parameters.Clear();
 
-
-                //item_queries.Clear();
-
-                //var dt = sql.ExecuteQuery("SELECT * FROM [IN].StockInDt WHERE Id=@Id", new SqlParameter[] { new SqlParameter("@Id", refId) });
-
-                //for (int i = 0; i < dt.Rows.Count; i++)
-                //{
-                //    var dr = dt.Rows[i];
-                //    var dtNo = dr["RefId"].ToString();
-                //    var location = dr["StoreId"].ToString();
-                //    var productCode = dr["SKU"].ToString();
-
-                //    var qty = Convert.ToDecimal(dr["Qty"]);
-                //    var amount = Convert.ToDecimal(dr["UnitCost"]);
-                //    var priceOnLots = RoundAmt(qty * amount);
-
-                //    item_queries.AppendFormat("(@HdrNo, @DtNo{0}, 1, @ProductCode{0}, @Location{0}, @IN{0}, 0, @Amount{0}, @PriceOnLots{0}, 'SI', @CommittedDate),", i);
-
-                //    parameters.Add(new SqlParameter("@DtNo" + i.ToString(), dtNo));
-                //    parameters.Add(new SqlParameter("@ProductCode" + i.ToString(), productCode));
-                //    parameters.Add(new SqlParameter("@Location" + i.ToString(), location));
-                //    parameters.Add(new SqlParameter("@IN" + i.ToString(), qty));
-                //    parameters.Add(new SqlParameter("@Amount" + i.ToString(), amount));
-                //    parameters.Add(new SqlParameter("@PriceOnLots" + i.ToString(), priceOnLots));
-                //}
-
-                //queries.AppendLine(item_queries.ToString().Trim().TrimEnd(','));
-
-                queries.AppendLine("UPDATE [IN].StockIn SET [Status]='Committed', UpdateDate=@CommittedDate, UpdateBy=@UpdateBy WHERE RefId=@HdrNo");
+                queries.AppendLine("UPDATE [IN].StockIn SET [Status]='Committed', CommitDate=@CommittedDate, UpdateDate=GETDATE(), UpdateBy=@UpdateBy WHERE RefId=@HdrNo");
                 queries.AppendLine("EXEC [IN].UpdateAverageCost @HdrNo");
 
                 parameters.Add(new SqlParameter("@HdrNo", refId));
-                parameters.Add(new SqlParameter("@CommittedDate", DateTime.Now));
+                parameters.Add(new SqlParameter("@CommittedDate", committedDate));
                 parameters.Add(new SqlParameter("@UpdateBy", LoginInfo.LoginName));
 
                 queries.AppendLine("COMMIT TRAN");
@@ -1001,7 +979,15 @@ ORDER BY
 
         private void ErrorLog(string text, string comment = "")
         {
-            var dir = Server.MapPath("~\\");
+            var tmp = System.IO.Path.GetTempPath();
+            //var dir = Server.MapPath("~\\");
+            var dir = System.IO.Path.Combine(tmp, Request.Url.Host, "Blueledgers", LoginInfo.BuFmtInfo.BuCode);
+
+            if (!System.IO.Directory.Exists(dir))
+            {
+                System.IO.Directory.CreateDirectory(dir);
+            }
+
             var file = System.IO.Path.Combine(dir, "errors.txt");
 
             //System.IO.File.WriteAllText(file, "101");

@@ -7,6 +7,8 @@ using BlueLedger.PL.BaseClass;
 using DevExpress.Web.ASPxEditors;
 using DevExpress.Web.ASPxTabControl;
 using Blue.DAL;
+using System.Collections.Generic;
+using System.Data.SqlClient;
 
 namespace BlueLedger.PL.IN.STK
 {
@@ -164,10 +166,6 @@ namespace BlueLedger.PL.IN.STK
                 if (dsAdj.Tables[adjType.TableName].Rows.Count > 0)
                 {
                     var dtAdj = dsAdj.Tables[adjType.TableName].Select("AdjId = " + drStkOut["Type"]);
-                    if (dtAdj.Count() > 0)
-                    {
-                        //adjText = dtAdj[0]["AdjCode"] + " : " + dtAdj[0]["AdjName"];
-                    }
                 }
 
                 ddl_Type.Value = Convert.ToInt32(drStkOut["Type"]);
@@ -208,14 +206,14 @@ namespace BlueLedger.PL.IN.STK
             Create();
         }
 
-        private decimal GetOnHand(string productCode, string locationCode, string date)
+        private decimal GetOnHand(string productCode, string locationCode, DateTime date)
         {
             if (dsStockOut.Tables[prDt.TableName] != null)
             {
                 dsStockOut.Tables[prDt.TableName].Clear();
             }
 
-            var get = prDt.GetStockSummary(dsStockOut, productCode, locationCode, DateTime.Today.ToString("yyyy-MM-dd"), LoginInfo.ConnStr);
+            var get = prDt.GetStockSummary(dsStockOut, productCode, locationCode, date.ToString("yyyy-MM-dd"), LoginInfo.ConnStr);
 
             if (get)
             {
@@ -236,7 +234,7 @@ namespace BlueLedger.PL.IN.STK
             var ddl_Store = grd_StkOutEdit1.Rows[grd_StkOutEdit1.EditIndex].FindControl("ddl_Store") as ASPxComboBox;
             var ddl_Product = grd_StkOutEdit1.Rows[grd_StkOutEdit1.EditIndex].FindControl("ddl_Product") as ASPxComboBox;
 
-            var onHand = GetOnHand(hf_ProductCode.Value, ddl_Store.Value.ToString(), txt_Date.Text);
+            var onHand = GetOnHand(hf_ProductCode.Value, ddl_Store.Value.ToString(), Convert.ToDateTime(txt_Date.Text));
 
             foreach (GridViewRow grv_Row in grd_StkOutEdit1.Rows)
             {
@@ -288,34 +286,33 @@ namespace BlueLedger.PL.IN.STK
         protected void txt_Date_TextChanged(object sender, EventArgs e)
         {
             // Period
-            for (var i = 0; i < grd_StkOutEdit1.Rows.Count; i++)
-            {
-                var lbl_Store = grd_StkOutEdit1.Rows[i].FindControl("lbl_StoreName") as Label;
-                var lbl_Product = grd_StkOutEdit1.Rows[i].FindControl("lbl_Item_Desc") as Label;
-                var lbl_Qty = grd_StkOutEdit1.Rows[i].FindControl("lbl_Qty") as Label;
+            //for (var i = 0; i < grd_StkOutEdit1.Rows.Count; i++)
+            //{
+            //    var lbl_Store = grd_StkOutEdit1.Rows[i].FindControl("lbl_StoreName") as Label;
+            //    var lbl_Product = grd_StkOutEdit1.Rows[i].FindControl("lbl_Item_Desc") as Label;
+            //    var lbl_Qty = grd_StkOutEdit1.Rows[i].FindControl("lbl_Qty") as Label;
 
-                //if (!period.GetIsValidDate(DateTime.Parse(txt_Date.Text), lbl_Store.Text, LoginInfo.ConnStr))
-                //{
-                //    lbl_WarningPeriod.Text = "Store " + lbl_Store.Text.Split(':')[1].Trim() + " is not period.";
-                //    pop_WarningPeriod.ShowOnPageLoad = true;
-                //    return;
-                //}
+            //    //if (!period.GetIsValidDate(DateTime.Parse(txt_Date.Text), lbl_Store.Text, LoginInfo.ConnStr))
+            //    //{
+            //    //    lbl_WarningPeriod.Text = "Store " + lbl_Store.Text.Split(':')[1].Trim() + " is not period.";
+            //    //    pop_WarningPeriod.ShowOnPageLoad = true;
+            //    //    return;
+            //    //}
 
-                var onHand = GetOnHand(lbl_Product.Text.Split(':')[0].Trim(), lbl_Store.Text.Split(':')[0].Trim(),
-                    txt_Date.Text);
-                var qty = decimal.Parse(lbl_Qty.Text);
+            //    var onHand = GetOnHand(lbl_Product.Text.Split(':')[0].Trim(), lbl_Store.Text.Split(':')[0].Trim(), txt_Date.Text);
+            //    var qty = decimal.Parse(lbl_Qty.Text);
 
-                if (onHand - qty < 0)
-                {
-                    lbl_Warning.Text = "Commit quantity of product " +
-                                       lbl_Product.Text.Split(':')[0].Trim() + " : " +
-                                       prod.GetName(lbl_Product.Text.Split(':')[0].Trim(), LoginInfo.ConnStr) + ", " +
-                                       prod.GetName2(lbl_Product.Text.Split(':')[0].Trim(), LoginInfo.ConnStr) +
-                                       " must be less than on hand.";
-                    pop_Warning.ShowOnPageLoad = true;
-                    return;
-                }
-            }
+            //    if (onHand - qty < 0)
+            //    {
+            //        lbl_Warning.Text = "Commit quantity of product " +
+            //                           lbl_Product.Text.Split(':')[0].Trim() + " : " +
+            //                           prod.GetName(lbl_Product.Text.Split(':')[0].Trim(), LoginInfo.ConnStr) + ", " +
+            //                           prod.GetName2(lbl_Product.Text.Split(':')[0].Trim(), LoginInfo.ConnStr) +
+            //                           " must be less than on hand.";
+            //        pop_Warning.ShowOnPageLoad = true;
+            //        return;
+            //    }
+            //}
         }
 
         protected void btn_WarningPeriod_Click(object sender, EventArgs e)
@@ -343,63 +340,11 @@ namespace BlueLedger.PL.IN.STK
 
         protected void btn_ConfrimSave_Click(object sender, EventArgs e)
         {
-            Save();
+            //Save();
+            var value = hf_IsCommit.Value.ToString();
+            var isCommit = value == "1";
 
-            #region
-            //if (Request.Params["MODE"].ToUpper() == "NEW")
-            //{
-            //    DataRow drInserting         = dsStoreReqEdit.Tables[storeReq.TableName].NewRow();
-            //    drInserting["RequestCode"]  = null;
-            //    drInserting["LocationCode"] = ddl_Store.Value;
-            //    drInserting["Description"]  = txt_Desc.Text == string.Empty ? null : txt_Desc.Text;
-            //    drInserting["DeliveryDate"] = de_DeliveryDate.Date;
-            //    drInserting["Status"]       = true;
-            //    drInserting["WFStep"]       = DBNull.Value;
-            //    drInserting["ApprStatus"]   = DBNull.Value;
-            //    drInserting["DocStatus"]    = "In Process";
-            //    drInserting["CreateBy"]     = LoginInfo.LoginName;
-            //    drInserting["CreateDate"]   = ServerDateTime.Date;
-            //    drInserting["UpdateBy"]     = LoginInfo.LoginName;
-            //    drInserting["UpdateDate"]   = ServerDateTime.Date;
-
-            //    dsStoreReqEdit.Tables[storeReq.TableName].Rows.Add(drInserting);
-            //}
-            //else
-            //{
-            //    DataRow drSave          = dsStoreReqEdit.Tables[storeReq.TableName].Rows[0];
-            //    drSave["RequestCode"]   = null;
-            //    drSave["LocationCode"]  = ddl_Store.Value;
-            //    drSave["Description"]   = txt_Desc.Text == string.Empty ? null : txt_Desc.Text;
-            //    drSave["DeliveryDate"]  = de_DeliveryDate.Date;
-            //    drSave["Status"]        = true; ;
-            //    drSave["WFStep"]        = DBNull.Value;
-            //    drSave["ApprStatus"]    = DBNull.Value;
-            //    drSave["DocStatus"]     = "In Process";
-            //    drSave["UpdateBy"]      = LoginInfo.LoginName;
-            //    drSave["UpdateDate"]    = ServerDateTime.Date;
-            //}
-
-            //bool save = storeReq.Save(dsStoreReqEdit, LoginInfo.ConnStr);
-
-            //if (save)
-            //{
-            //    if (Request.Params["MODE"].ToUpper() == "NEW" || Request.Params["MODE"].ToUpper() == "SR")
-            //    {
-            //        foreach (DataRow drStoreReqDt in dsStoreReqEdit.Tables[storeReqDt.TableName].Rows)
-            //        {
-            //            drStoreReqDt["DocumentId"] = storeReq.GetLastID(LoginInfo.ConnStr);
-            //        }
-            //    }
-
-            //    bool saveStoreReqDt = storeReqDt.Save(dsStoreReqEdit, LoginInfo.ConnStr);
-
-            //    if (saveStoreReqDt)
-            //    {
-            //        pop_ConfrimSave.ShowOnPageLoad = false;
-            //        Response.Redirect("StoreReqDt.aspx?ID=" + dsStoreReqEdit.Tables[storeReqDt.TableName].Rows[0]["DocumentId"].ToString());
-            //    }
-            //}
-            #endregion
+            SaveAndCommit(isCommit);
         }
 
         protected void btn_ComfirmDelete_Click(object sender, EventArgs e)
@@ -674,6 +619,9 @@ namespace BlueLedger.PL.IN.STK
                         lbl_Warning.Text = "Please clicks <b>Create</b> button to add item.";
                         pop_Warning.ShowOnPageLoad = true;
                     }
+
+                    hf_IsCommit.Value = "0";
+                    lbl_SureSave_Nm.Text = "Do you want to save?";
                     pop_ConfrimSave.ShowOnPageLoad = true;
 
                     break;
@@ -693,7 +641,13 @@ namespace BlueLedger.PL.IN.STK
                         return;
                     }
 
-                    Commit();
+                    //Commit();
+
+                    hf_IsCommit.Value = "1";
+                    lbl_SureSave_Nm.Text = "Do you want to save and commit?";
+                    pop_ConfrimSave.ShowOnPageLoad = true;
+
+
                     break;
 
                 case "BACK":
@@ -765,7 +719,7 @@ namespace BlueLedger.PL.IN.STK
         {
             throw new NotImplementedException();
         }
-
+        /*
         private void Save()
         {
             // Added on: 22/09/2017, By: Fon, About: hdrNo
@@ -845,46 +799,21 @@ namespace BlueLedger.PL.IN.STK
                 _transLog.Save("IN", "STKOUT", hdrNo, _action, string.Empty, LoginInfo.LoginName, LoginInfo.ConnStr);
 
                 // Save Success then Redirect to Dt page
-                Response.Redirect("StkOutDt.aspx?BuCode=" + Request.Params["BuCode"] +
-                                  "&ID=" + dsStockOut.Tables[stockOut.TableName].Rows[0]["RefId"]
-                                  + "&VID=" + Request.Params["VID"]);
+                Response.Redirect("StkOutDt.aspx?BuCode=" + Request.Params["BuCode"] + "&ID=" + dsStockOut.Tables[stockOut.TableName].Rows[0]["RefId"] + "&VID=" + Request.Params["VID"]);
             }
 
             pop_ConfrimSave.ShowOnPageLoad = false;
             //pop_ConfrimSave.ShowOnPageLoad = true;
         }
 
-        private void Back()
-        {
-            if (MODE.ToUpper() == "EDIT")
-            {
-                Response.Redirect("StkOutDt.aspx?BuCode=" + Request.Params["BuCode"] +
-                                  "&ID=" + Request.Params["ID"] +
-                                  "&VID=" + Request.Params["VID"]);
-            }
-            else
-            {
-                Response.Redirect("StkOutLst.aspx");
-            }
-        }
-
         private void Commit()
         {
-            //dsStockOut = (DataSet)Session["dsStockOut"];
             dsStockOut = (DataSet)ViewState["dsStockOut"];
 
             var drStkOut = dsStockOut.Tables[stockOut.TableName].Rows[0];
             drStkOut["Status"] = "Committed";
-            drStkOut["CommitDate"] =
-                DateTime.Parse(txt_Date.Text)
-                    .AddHours(ServerDateTime.Hour)
-                    .AddMinutes(ServerDateTime.Minute)
-                    .AddSeconds(ServerDateTime.Second);
-            drStkOut["UpdateDate"] =
-                DateTime.Parse(txt_Date.Text)
-                    .AddHours(ServerDateTime.Hour)
-                    .AddMinutes(ServerDateTime.Minute)
-                    .AddSeconds(ServerDateTime.Second);
+            drStkOut["CommitDate"] = ServerDateTime;
+            drStkOut["UpdateDate"] = ServerDateTime;
             drStkOut["UpdateBy"] = LoginInfo.LoginName;
 
             foreach (DataRow dr in dsStockOut.Tables[stockOutDt.TableName].Rows)
@@ -897,24 +826,13 @@ namespace BlueLedger.PL.IN.STK
                     string loc = dr["StoreId"].ToString();
 
                     var onHand = GetOnHand(sku, loc, txt_Date.Text);
-
-                    // Fix problem of out of stock when duplicate product and location in same Stockout document
-
                     var qty = decimal.Parse(dr["Qty"].ToString());
-
-
-                    //DataView view = new DataView(dt);
-                    //view.RowFilter = string.Format("SKU='{0}' AND StoreId='{1}'", sku, loc);
 
                     qty = decimal.Parse(dt.Compute("SUM(Qty)", string.Format("SKU='{0}' AND StoreId='{1}'", sku, loc)).ToString());
 
                     if (onHand - qty < 0)
                     {
-                        lbl_Warning.Text = "Commit quantity of product " +
-                                           dr["SKU"] + " : " +
-                                           prod.GetName(dr["SKU"].ToString(), LoginInfo.ConnStr) + ", " +
-                                           prod.GetName2(dr["SKU"].ToString(), LoginInfo.ConnStr) +
-                                           " must be less than on hand.";
+                        lbl_Warning.Text = "Commit quantity of product " + dr["SKU"] + " : " + prod.GetName(dr["SKU"].ToString(), LoginInfo.ConnStr) + ", " + prod.GetName2(dr["SKU"].ToString(), LoginInfo.ConnStr) + " must be less than on hand.";
                         pop_Warning.ShowOnPageLoad = true;
                         return;
                     }
@@ -930,15 +848,6 @@ namespace BlueLedger.PL.IN.STK
 
                 //// FIFO 
                 var Fifo = new Blue.BL.IN.Inventory.Fifo();
-
-                //// fifo dataset for insert
-                ////var dsFifo = new DataSet();     Fifo.GetStructure(dsFifo, LoginInfo.ConnStr);
-                //var dsFifoList = new DataSet(); Fifo.GetStructure(dsFifoList, LoginInfo.ConnStr);
-                //var dsFifoCN = new DataSet();   Fifo.GetStructure(dsFifoCN, LoginInfo.ConnStr);
-
-                ////create temporary fifo table fo calculate
-                //Fifo.GetList(dsFifoList,LoginInfo.ConnStr);
-                //Fifo.GetListCN(dsFifoCN,LoginInfo.ConnStr);
 
                 // initial value
                 var HdrNo = string.Empty;
@@ -968,68 +877,205 @@ namespace BlueLedger.PL.IN.STK
                     //// End Added.
                     _transLog.Save("IN", "STKOUT", HdrNo, "COMMIT", string.Empty, LoginInfo.LoginName, LoginInfo.ConnStr);
 
-                    Response.Redirect("StkOutDt.aspx?BuCode=" + Request.Params["BuCode"] +
-                                      "&ID=" + dsStockOut.Tables[stockOut.TableName].Rows[0]["RefId"]
-                                      + "&VID=" + Request.Params["VID"]);
+                    Response.Redirect("StkOutDt.aspx?BuCode=" + Request.Params["BuCode"] + "&ID=" + dsStockOut.Tables[stockOut.TableName].Rows[0]["RefId"] + "&VID=" + Request.Params["VID"]);
                 }
             }
         }
+        */
+        private void SaveAndCommit(bool isCommit)
+        {
+            pop_ConfrimSave.ShowOnPageLoad = false;
 
-        //private void CreateAccountMap(DataSet dsStockOut, string connStr)
-        //{
+            var startPeriodDate = period.GetLatestOpenStartDate(LoginInfo.ConnStr);
+            var docDate = Convert.ToDateTime(txt_Date.Text);
 
-        //    foreach (DataRow item in dsStockOut.Tables[inv.TableName].Rows)
-        //    {
-        //        var p = prod.GetProductCategory(item["ProductCode"].ToString(), connStr);
+            // Validate required 
+            if (docDate < startPeriodDate)
+            {
+                lbl_Warning.Text = "The date should be during the open period.";
+                pop_Warning.ShowOnPageLoad = true;
 
-        //        var adjCode = string.Empty;
-        //        var dsAdj = new DataSet();
-        //        var b = adjType.GetList(dsAdj, "STOCK OUT", connStr);
-        //        if (dsAdj.Tables[adjType.TableName].Rows.Count > 0)
-        //        {
-        //            var dtAdj =
-        //                dsAdj.Tables[adjType.TableName].Select("AdjId = " +
-        //                                                       dsStockOut.Tables[stockOut.TableName].Rows[0]["Type"]
-        //                                                           .ToString());
-        //            if (dtAdj.Count() > 0)
-        //            {
-        //                adjCode = dtAdj[0]["AdjCode"].ToString();
-        //            }
-        //        }
+                return;
+            }
 
-        //        var s = "BusinessUnitCode = '" + Request.Params["BuCode"].ToString() + "'";
-        //        s += " and StoreCode = '" + item["Location"] + "'";
-        //        s += " and ItemGroupCode = '" + p + "'";
-        //        s += " and A1 = '" + adjCode + "'";
-        //        s += " and PostType = '" + Blue.BL.Option.Admin.Interface.PostType.GL + "' ";
 
-        //        var ds = new DataSet();
-        //        accMapp.GetStructure(ds, connStr);
 
-        //        var dt = accMapp.GetList(connStr);
-        //        var drs = dt.Select(s).ToList();
+            string docNo = string.Empty;
+            string _action = string.Empty;
 
-        //        if (drs.Count <= 0)
-        //        {
-        //            var dr = ds.Tables[accMapp.TableName].NewRow();
-        //            dr["ID"] = Guid.NewGuid(); // accMapp.GetNewID(connStr);
-        //            dr["BusinessUnitCode"] = Request.Params["BuCode"].ToString();
-        //            dr["StoreCode"] = item["Location"];
-        //            dr["ItemGroupCode"] = p;
-        //            dr["A1"] = adjCode;
-        //            dr["PostType"] = "GL";
+            if (Request.Params["MODE"].ToUpper() == "NEW")
+            {
+                #region --new--
 
-        //            ds.Tables[accMapp.TableName].Rows.Add(dr);
+                var drStkOut = dsStockOut.Tables[stockOut.TableName].NewRow();
 
-        //            var save = accMapp.Save(ds, connStr);
+                if (MODE.ToUpper() == "NEW" || MODE.ToUpper() == "SDR")
+                {
+                    _action = "CREATE";
 
-        //            if (save)
-        //            {
-        //                //Response.Write("SUCCESS");
-        //            }
-        //        }
-        //    }
-        //}
+                    docNo = stockOut.GetNewID(DateTime.Parse(txt_Date.Text), LoginInfo.ConnStr);
+                    drStkOut["RefId"] = docNo;
+
+                    foreach (DataRow drStkOutDt in dsStockOut.Tables[stockOutDt.TableName].Rows)
+                    {
+                        if (drStkOutDt.RowState == DataRowState.Deleted)
+                            continue;
+
+                        drStkOutDt["RefId"] = docNo;
+                    }
+                }
+
+                drStkOut["Type"] = ddl_Type.Value.ToString();
+                drStkOut["Status"] = "Saved";
+                drStkOut["Description"] = txt_Desc.Text.Trim();
+                drStkOut["CreateDate"] = docDate;
+                drStkOut["CreateBy"] = LoginInfo.LoginName;
+                drStkOut["UpdateDate"] = ServerDateTime;
+                drStkOut["UpdateBy"] = LoginInfo.LoginName;
+
+                dsStockOut.Tables[stockOut.TableName].Rows.Add(drStkOut);
+                #endregion
+            }
+            else
+            {
+                #region --edit--
+                var drStkOut = dsStockOut.Tables[stockOut.TableName].Rows[0];
+
+                if (MODE.ToUpper() == "EDIT")
+                {
+                    _action = "MODIFY";
+                    foreach (DataRow drStkOutDt in dsStockOut.Tables[stockOutDt.TableName].Rows)
+                    {
+                        if (drStkOutDt.RowState == DataRowState.Deleted)
+                        {
+                            continue;
+                        }
+
+                        drStkOutDt["RefId"] = drStkOut["RefId"].ToString();
+                    }
+                }
+
+                drStkOut["Type"] = ddl_Type.Value.ToString();
+                drStkOut["Description"] = txt_Desc.Text.Trim();
+                drStkOut["Status"] = "Saved";
+                drStkOut["UpdateDate"] = ServerDateTime;
+                drStkOut["UpdateBy"] = LoginInfo.LoginName;
+
+                docNo = drStkOut["RefId"].ToString();
+                #endregion
+            }
+
+            var save = stockOut.Save(dsStockOut, LoginInfo.ConnStr);
+
+            if (save)
+            {
+                _transLog.Save("IN", "STKOUT", docNo, _action, string.Empty, LoginInfo.LoginName, LoginInfo.ConnStr);
+
+                if (isCommit)
+                {
+
+                    var query = @"
+DECLARE @DocNo nvarchar(20)='{0}'
+DECLARE @DocDate DATE = (SELECT CreateDate FROM [IN].StockOut WHERE RefId=@DocNo)
+DECLARE @CommittedDate DATETIME = [IN].GetCommittedDate( @DocDate, GETDATE())
+
+;WITH
+pl AS(
+	SELECT
+		StoreId,
+		SKU,
+		SUM(Qty) as Qty
+	FROM
+		[IN].StockOutDt
+	WHERE
+		RefId=@DocNo
+	GROUP BY
+		StoreId,
+		SKU
+),
+onhand AS(
+	SELECT
+		i.[Location],
+		i.ProductCode,
+		pl.Qty,
+		SUM([IN]-[OUT]) as Onhand
+	FROM
+		[IN].Inventory i
+		JOIN pl ON pl.StoreId=i.Location AND pl.SKU=i.ProductCode
+	WHERE
+		HdrNo <> @DocNo
+		AND CAST(CommittedDate AS DATE) <= @CommittedDate
+	GROUP BY
+		i.[Location],
+		i.ProductCode,
+		pl.Qty
+)
+SELECT
+	*,
+	@CommittedDate as CommittedDate
+FROM
+	onhand
+WHERE
+	Qty > Onhand
+";
+                    var dtOnhand = stockOut.DbExecuteQuery(string.Format(query, docNo), null, LoginInfo.ConnStr);
+
+                    if (dtOnhand != null && dtOnhand.Rows.Count > 0)
+                    {
+                        var products = dtOnhand.AsEnumerable()
+                            .Select(x => string.Format("- {0} : {1}, remain = {2}", x.Field<string>("Location"), x.Field<string>("ProductCode"),x.Field<decimal>("Onhand")))
+                            .ToArray();
+
+                        var committedDate = Convert.ToDateTime(dtOnhand.Rows[0]["CommittedDate"]);
+
+
+                        lbl_Warning.Text = string.Format("These products are not enough onhand on {0}<br/> {1}", committedDate.ToString("dd/MM/yyyy") , string.Join("<br />", products));
+                        pop_Warning.ShowOnPageLoad = true;
+
+                        return;
+                    }
+
+                    // Commit SO ([IN].In
+                    var sql = new Helpers.SQL(LoginInfo.ConnStr);
+                    try
+                    {
+                        sql.ExecuteQuery("EXEC [IN].[SoCommit] @DocNo", new SqlParameter[] { new SqlParameter("@DocNo", docNo) });
+                        _transLog.Save("IN", "STKOUT", docNo, "COMMIT", string.Empty, LoginInfo.LoginName, LoginInfo.ConnStr);
+
+                    }
+                    catch (Exception ex)
+                    {
+                        lbl_Warning.Text = ex.Message;
+                        pop_Warning.ShowOnPageLoad = true;
+
+                        return;
+                    }
+
+                    //stockOut.DbExecuteQuery("EXEC [IN].[SoCommit] @DocNo, NULL", new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@DocNo", docNo) }, LoginInfo.ConnStr);
+                }
+
+                Response.Redirect("StkOutDt.aspx?BuCode=" + Request.Params["BuCode"] + "&ID=" + docNo + "&VID=" + Request.Params["VID"]);
+            }
+
+            //pop_Save.ShowOnPageLoad = true;
+        }
+
+
+
+
+        private void Back()
+        {
+            if (MODE.ToUpper() == "EDIT")
+            {
+                Response.Redirect("StkOutDt.aspx?BuCode=" + Request.Params["BuCode"] +
+                                  "&ID=" + Request.Params["ID"] +
+                                  "&VID=" + Request.Params["VID"]);
+            }
+            else
+            {
+                Response.Redirect("StkOutLst.aspx");
+            }
+        }
 
         protected void btn_Warning_Click(object sender, EventArgs e)
         {
@@ -1564,5 +1610,14 @@ namespace BlueLedger.PL.IN.STK
             pop_EditQty.ShowOnPageLoad = false;
         }
         #endregion
+
+
+        public class Product_Location_Onhand
+        {
+            public string LocationCode { get; set; }
+            public string ProudctCode { get; set; }
+            public decimal Qty { get; set; }
+            public decimal Onhand { get; set; }
+        }
     }
 }
