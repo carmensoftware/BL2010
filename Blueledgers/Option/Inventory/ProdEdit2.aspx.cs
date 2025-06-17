@@ -1455,7 +1455,7 @@ FROM
 	JOIN [In].StoreRequisitionDetail d
 		ON h.RefId = d.DocumentId
 WHERE
-	h.[DocStatus] NOT IN ('Committed', 'Voided')
+	h.[DocStatus] NOT IN ('Committed','Complete', 'Completed', 'Voided')
 	AND d.ProductCode = @ProductCode
 
 
