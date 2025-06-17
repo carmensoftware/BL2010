@@ -181,6 +181,7 @@ namespace BlueLedger.PL.PT.Sale
                     dtImport = null;
                     //BindImportData();
                     pop_ImportFile.ShowOnPageLoad = true;
+                    de_ImportFile_SaleDate.Date = DateTime.Today;
                     break;
                 //case "STOCKOUT":
                 //    pop_StockOut.ShowOnPageLoad = true;
@@ -1564,28 +1565,52 @@ VALUES (@RefId, @Type, 'Saved', @Description, NULL, @CreateBy, @CreateDate, @Upd
             pop_POS.ShowOnPageLoad = true;
         }
 
-        protected void btn_POS_Click(object sender, EventArgs e)
+        protected void btn_POS_Data_Click(object sender, EventArgs e)
         {
+            var isAPI = true;
+
             var today = DateTime.Today;
 
-            // period
-            var dtPeriod = bu.DbExecuteQuery(";WITH y as(SELECT DISTINCT YEAR(DocDate) as DocYear FROM [INTF].[Data]) SELECT YEAR(GETDATE()) DocYear UNION SELECT DocYear FROM y ORDER BY DocYear", null, LoginInfo.ConnStr);
-            ddl_Year.DataSource = dtPeriod;
-            ddl_Year.DataValueField = "DocYear";
-            ddl_Year.DataTextField = "DocYear";
-            ddl_Year.DataBind();
+            var config = _config.GetValue("PT", "Sale", "POS", LoginInfo.ConnStr);
 
-            ddl_Year.SelectedValue = today.Year.ToString();
-            ddl_Month.SelectedValue = today.Month.ToString();
+            if (!string.IsNullOrEmpty(config))
+            {
+                var configs = GetConfigs(config);
 
-            var dateFrom = new DateTime(today.Year, today.Month, 1);
-            var dateTo = dateFrom.AddMonths(1).AddDays(-1);
+                var method = "API";
 
-            gv_POS.DataSource = QueryPosData(dateFrom, dateTo);
-            gv_POS.DataBind();
+                configs.TryGetValue("Method", out method);
+
+                isAPI = method == "API";
+            }
 
 
-            pop_POS.ShowOnPageLoad = true;
+            if (isAPI)
+            {
+                // period
+                var dtPeriod = bu.DbExecuteQuery(";WITH y as(SELECT DISTINCT YEAR(DocDate) as DocYear FROM [INTF].[Data]) SELECT YEAR(GETDATE()) DocYear UNION SELECT DocYear FROM y ORDER BY DocYear", null, LoginInfo.ConnStr);
+                ddl_Year.DataSource = dtPeriod;
+                ddl_Year.DataValueField = "DocYear";
+                ddl_Year.DataTextField = "DocYear";
+                ddl_Year.DataBind();
+
+                ddl_Year.SelectedValue = today.Year.ToString();
+                ddl_Month.SelectedValue = today.Month.ToString();
+
+                var dateFrom = new DateTime(today.Year, today.Month, 1);
+                var dateTo = dateFrom.AddMonths(1).AddDays(-1);
+
+                gv_POS.DataSource = QueryPosData(dateFrom, dateTo);
+                gv_POS.DataBind();
+
+
+                pop_POS.ShowOnPageLoad = true;
+            }
+            else
+            {
+                pop_ImportFile.ShowOnPageLoad = true;
+                de_ImportFile_SaleDate.Date = today;
+            }
         }
 
         protected void gv_POS_RowDataBound(object sender, GridViewRowEventArgs e)
@@ -1743,166 +1768,238 @@ VALUES (@RefId, @Type, 'Saved', @Description, NULL, @CreateBy, @CreateDate, @Upd
 
         // Import from File
 
-
-        protected void btn_ImportFile_Click(object sender, EventArgs e)
+        protected void btn_ImportFile_Sale_Click(object sender, EventArgs e)
         {
-            if (!FileUpload.HasFile)
+            if (!FileUpload_Sale.HasFile)
             {
                 ShowAlert("Please select a file.");
+
+                return;
+            }
+
+            var uploadFilename = Path.GetFileName(FileUpload_Sale.PostedFile.FileName);
+            var uploadFileExt = Path.GetExtension(FileUpload_Sale.PostedFile.FileName).ToLower();
+
+            switch (uploadFileExt)
+            {
+                //case ".xls":
+                case ".xlsx":
+                case ".csv":
+                    break;
+                default:
+                    ShowAlert(string.Format("{0} is not supported.", uploadFilename));
+
+                    return;
+            }
+
+            var tmpPath = Path.GetTempPath();
+            var id = Guid.NewGuid().ToString();
+
+            var filename = Path.Combine(tmpPath, id + uploadFileExt);
+
+            FileUpload_Sale.SaveAs(filename);
+
+            var textConfig = _config.GetValue("PT", "Sale", "POS", LoginInfo.ConnStr);
+
+            var configs = new Dictionary<string, string>();
+
+            if (!string.IsNullOrEmpty(textConfig))
+            {
+
+                configs = GetConfigs(textConfig);
             }
             else
             {
-                var uploadFilename = Path.GetFileName(FileUpload.PostedFile.FileName);
-                var uploadFileExt = Path.GetExtension(FileUpload.PostedFile.FileName).ToLower();
+                ShowAlert("Invalid or missing configuration.");
+
+                return;
+            }
+
+            //var source = configs["Source"] == null ? "" : configs["Source"];
+            var source = "";
+
+            configs.TryGetValue("Source", out source);
+
+            var saleItems = GetSaleItemFile(filename, configs);
+
+            foreach (var item in saleItems.Where(x => x.Date == null).ToArray())
+            {
+                item.Date = de_ImportFile_SaleDate.Date;
+            }
 
 
-                //var dir = Path.Combine(tmp, id + fileExt);
+            var dates = saleItems
+                .Select(x => x.Date)
+                .Distinct()
+                .ToArray();
 
-                switch (uploadFileExt)
+
+            foreach (var date in dates)
+            {
+                DateTime docDate = date ?? de_ImportFile_SaleDate.Date;
+
+                var items = saleItems.Where(x => x.Date == date).ToArray();
+
+                var data = string.Format(@"{{""Outlet"":[],""Item"":[],""Sale"":{0}}}",
+                    JsonConvert.SerializeObject(items));
+
+                var query = "SELECT TOP(1) ID FROM [INTF].[Data] WHERE Provider='POS' AND [Type]='Sale' AND ISNULL(Source,'')=@Source AND DocDate=@DocDate";
+                var dt = bu.DbExecuteQuery(query,
+                    new DbParameter[] { new Blue.DAL.DbParameter("@Source", source), new Blue.DAL.DbParameter("@DocDate", docDate.ToString("yyyy-MM-dd")) },
+                    LoginInfo.ConnStr);
+
+                var posId = dt != null && dt.Rows.Count > 0 ? dt.Rows[0][0].ToString() : "";
+
+                var parameters = new List<Blue.DAL.DbParameter>();
+
+                if (string.IsNullOrEmpty(posId)) // new
                 {
-                    //case ".xls":
-                    case ".xlsx":
-                    case ".csv":
-                        break;
-                    default:
-                        ShowAlert(string.Format("{0} is not supported.", uploadFilename));
-                        return;
+                    query = "INSERT INTO [INTF].[Data] (DocDate, Provider, [Type], Source, [Data], UpdatedDate, UpdatedBy)";
+                    query += " VALUES(@DocDate, 'POS', 'Sale', @Source, @Data, GETDATE(), @UpdatedBy)";
+
+                    parameters.Add(new DbParameter("@DocDate", docDate.ToString("yyyy-MM-dd")));
+                    parameters.Add(new DbParameter("@Source", source));
+                }
+                else // edit
+                {
+                    query = "UPDATE [INTF].[Data] SET  Data=@Data, UpdatedBy=@UpdatedBy, UpdatedDate=GETDATE() WHERE ID=@Id";
+                    parameters.Add(new DbParameter("@Id", posId));
                 }
 
-                var tmpPath = Path.GetTempPath();
-                var id = Guid.NewGuid().ToString();
+                parameters.Add(new DbParameter("@Data", data));
+                parameters.Add(new DbParameter("@UpdatedBy", LoginInfo.LoginName));
 
-                var filename = Path.Combine(tmpPath, id + uploadFileExt);
+                bu.DbExecuteQuery(query, parameters.ToArray(), LoginInfo.ConnStr);
 
-                FileUpload.SaveAs(filename);
 
-                var configString = _config.GetValue("PT", "Sale", "ImportFile", LoginInfo.ConnStr);
+                var postSale = PostInterfaceData(docDate);
 
-                var configs = new Dictionary<string, string>();
+                var message = "";
 
-                if (!string.IsNullOrEmpty(configString))
+                if (postSale.Count() > 0)
                 {
-
-                    var json = JObject.Parse(configString);
-
-                    var sale = json["Sale"];
-                    //var delimiter = sale["Delimiter"] == null ? "," : sale["Delimtier"].Value<string>();
-                    var delimiter = ",";
-                    var startLine = sale["StartLine"] == null ? "2" : sale["StartLine"].Value<int>().ToString();
-
-                    configs.Add("StartLine", startLine);
-                    configs.Add("Delimiter", delimiter);
-
-                    var columns = sale["Columns"];
-
-                    configs.Add("OutletCode", columns["OutletCode"].Value<string>());
-                    configs.Add("OutletName", columns["OutletName"].Value<string>());
-                    configs.Add("ItemCode", columns["ItemCode"].Value<string>());
-                    configs.Add("ItemName", columns["ItemName"].Value<string>());
-                    configs.Add("Price", columns["Price"].Value<string>());
-                    configs.Add("Qty", columns["Qty"].Value<string>());
-                    configs.Add("Total", columns["Total"].Value<string>());
-
-                    //text_Test1.Text = startLine.ToString();
+                    //message = string.Format("POS on {0} is posted to sale.", date.ToString("dd/MM/yyyy"));
+                    var postDates = dates.Select(x => x).ToArray();
+                    message = string.Format("Data is posted to sale on these dates '{0}'", string.Join(", ", postDates));
                 }
                 else
                 {
-                    ShowAlert("Invalid or missing configuration.");
+                    message = "No data";
+                }
+                lbl_Alert.Text = message;
+                pop_Alert.ShowOnPageLoad = true;
 
-                    return;
+
+                // Update Outlet
+                var dtOutlet = bu.DbExecuteQuery("SELECT DISTINCT OutletCode FROM PT.Outlet WHERE ISNULL(ItemCode,'') = '' AND OutletCode <> ''", null, LoginInfo.ConnStr);
+                var oldOutletCodes = dtOutlet.AsEnumerable().Select(x => x.Field<string>("OutletCode").Trim()).ToArray();
+                var newOutletCodes = saleItems.Select(x => x.OutletCode).Distinct().ToArray();
+
+                var updateOutletCodes = newOutletCodes.Except(oldOutletCodes);
+
+                foreach (var code in updateOutletCodes)
+                {
+                    var item = saleItems.FirstOrDefault(x => x.OutletCode == code);
+                    query = "INSERT INTO [PT].[Outlet] (OutletCode, OutletName) VALUES(@code, @name)";
+
+                    var outletName = string.IsNullOrEmpty(item.OutletName) ? item.OutletCode : item.OutletName;
+
+                    bu.DbExecuteQuery(query, new DbParameter[] { new Blue.DAL.DbParameter("@code", item.OutletCode), new Blue.DAL.DbParameter("@name", outletName) }, LoginInfo.ConnStr);
+
                 }
 
+                // Update Item
+                var dtItem = bu.DbExecuteQuery("SELECT DISTINCT ItemCode FROM PT.Item WHERE ISNULL(ItemCode,'') <> ''", null, LoginInfo.ConnStr);
+                var oldItemCodes = dtItem.AsEnumerable().Select(x => x.Field<string>("ItemCode").Trim()).ToArray();
+                var newItemCodes = saleItems.Select(x => x.ItemCode).Distinct().ToArray();
 
-                var dt = CsvToDatatable(filename, configs);
+                var updateItemCodes = newItemCodes.Except(oldItemCodes);
 
+                foreach (var code in updateItemCodes)
+                {
+                    var item = saleItems.FirstOrDefault(x => x.ItemCode == code);
+                    query = "INSERT INTO [PT].[Item] (ItemCode, ItemName) VALUES(@code, @name)";
 
-                gv_ImportFile.DataSource = dt;
-                gv_ImportFile.DataBind();
+                    var itemName = string.IsNullOrEmpty(item.ItemName) ? item.ItemCode : item.ItemName;
 
-                text_Test1.Text = dt.Rows.Count.ToString();
-
+                    bu.DbExecuteQuery(query, new DbParameter[] { new Blue.DAL.DbParameter("@code", item.ItemCode), new Blue.DAL.DbParameter("@name", itemName) }, LoginInfo.ConnStr);
+                }
 
             }
 
+            var itemCount = saleItems.Count();
+
+
+            ShowAlert(string.Format("{0} item(s) are posted.", itemCount));
+
+            pop_ImportFile.ShowOnPageLoad = false;
+
+            Response.Redirect(string.Format("SaleList.aspx?date={0}", de_ImportFile_SaleDate.Date.ToString("yyyy-MM-dd")));
         }
 
-        private DataTable CsvToDatatable(string filename, Dictionary<string, string> configs)
+        protected void btn_ImportFile_Outlet_Click(object sender, EventArgs e)
+        {
+        }
+
+        protected void btn_ImportFile_Item_Click(object sender, EventArgs e)
+        {
+        }
+
+        // Method(s)
+        private Dictionary<string, string> GetConfigs(string textConfig)
+        {
+            var configs = new Dictionary<string, string>();
+
+            var json = JObject.Parse(textConfig);
+
+            var source = json["Source"] == null ? "" : json["Source"].Value<string>();
+            var method = json["Method"] == null ? "API" : json["Method"].Value<string>().ToUpper();
+
+            configs.Add("Source", source);
+            configs.Add("Method", method);
+
+            var sale = json["Sale"];
+
+            if (sale != null)
+            {
+                var delimiter = sale["Delimiter"] == null ? "," : sale["Delimiter"].Value<string>();
+                var startLine = sale["StartLine"] == null ? "2" : sale["StartLine"].Value<int>().ToString();
+
+                configs.Add("StartLine", startLine);
+                configs.Add("Delimiter", delimiter);
+
+                var columns = sale["Columns"];
+
+                configs.Add("Date", columns["Date"].Value<string>());
+                configs.Add("OutletCode", columns["OutletCode"].Value<string>());
+                configs.Add("OutletName", columns["OutletName"].Value<string>());
+                configs.Add("ItemCode", columns["ItemCode"].Value<string>());
+                configs.Add("ItemName", columns["ItemName"].Value<string>());
+                configs.Add("Price", columns["Price"].Value<string>());
+                configs.Add("Qty", columns["Qty"].Value<string>());
+                configs.Add("Total", columns["Total"].Value<string>());
+            }
+
+            return configs;
+        }
+
+        private IEnumerable<SaleItemFile> GetSaleItemFile(string filename, Dictionary<string, string> configs)
         {
             var startLine = configs["StartLine"];
             var delimiter = configs["Delimiter"];
 
-            var dt = new DataTable();
-
-            // Id
-            dt.Columns.Add(new DataColumn
-            {
-                DataType = typeof(Int32),
-                ColumnName = "Id",
-                Unique = true
-            });
-
-            // OutletCode
-            dt.Columns.Add(new DataColumn
-            {
-                DataType = typeof(string),
-                ColumnName = "OutletCode"
-            });
-
-            // OutletName
-            dt.Columns.Add(new DataColumn
-            {
-                DataType = typeof(string),
-                ColumnName = "OutletName"
-            });
-
-            // ItemCode
-            dt.Columns.Add(new DataColumn
-            {
-                DataType = typeof(string),
-                ColumnName = "ItemCode"
-            });
-
-            // ItemName
-            dt.Columns.Add(new DataColumn
-            {
-                DataType = typeof(string),
-                ColumnName = "ItemName"
-            });
-
-            // Price
-            dt.Columns.Add(new DataColumn
-            {
-                DataType = typeof(decimal),
-                ColumnName = "Price"
-            });
-
-            // Qty
-            dt.Columns.Add(new DataColumn
-            {
-                DataType = typeof(decimal),
-                ColumnName = "Qty"
-            });
-
-            // Total
-            dt.Columns.Add(new DataColumn
-            {
-                DataType = typeof(decimal),
-                ColumnName = "Total"
-            });
-
-            dt.PrimaryKey = new DataColumn[1] { dt.Columns["Id"] };
-
+            var items = new List<SaleItemFile>();
 
             try
             {
-
-                var col_OutletCode = string.IsNullOrEmpty(configs["OutletCode"]) ? -1 : Convert.ToInt32(configs["OutletCode"])-1;
-                var col_OutletName = string.IsNullOrEmpty(configs["OutletName"]) ? -1 : Convert.ToInt32(configs["OutletName"])-1;
-                var col_ItemCode = string.IsNullOrEmpty(configs["ItemCode"]) ? -1 : Convert.ToInt32(configs["ItemCode"])-1; 
-                var col_ItemName = string.IsNullOrEmpty(configs["ItemName"]) ? -1 : Convert.ToInt32(configs["ItemName"])-1;
-                var col_Price = string.IsNullOrEmpty(configs["Price"]) ? -1 : Convert.ToInt32(configs["Price"])-1;
-                var col_Qty = string.IsNullOrEmpty(configs["Qty"]) ? -1 : Convert.ToInt32(configs["Qty"])-1;
-                var col_Total = string.IsNullOrEmpty(configs["Total"]) ? -1 : Convert.ToInt32(configs["Total"])-1;
+                var col_Date = string.IsNullOrEmpty(configs["Date"]) ? -1 : Convert.ToInt32(configs["Date"]) - 1;
+                var col_OutletCode = string.IsNullOrEmpty(configs["OutletCode"]) ? -1 : Convert.ToInt32(configs["OutletCode"]) - 1;
+                var col_OutletName = string.IsNullOrEmpty(configs["OutletName"]) ? -1 : Convert.ToInt32(configs["OutletName"]) - 1;
+                var col_ItemCode = string.IsNullOrEmpty(configs["ItemCode"]) ? -1 : Convert.ToInt32(configs["ItemCode"]) - 1;
+                var col_ItemName = string.IsNullOrEmpty(configs["ItemName"]) ? -1 : Convert.ToInt32(configs["ItemName"]) - 1;
+                var col_Price = string.IsNullOrEmpty(configs["Price"]) ? -1 : Convert.ToInt32(configs["Price"]) - 1;
+                var col_Qty = string.IsNullOrEmpty(configs["Qty"]) ? -1 : Convert.ToInt32(configs["Qty"]) - 1;
+                var col_Total = string.IsNullOrEmpty(configs["Total"]) ? -1 : Convert.ToInt32(configs["Total"]) - 1;
 
 
                 string[] lines = File.ReadAllLines(filename);
@@ -1913,177 +2010,39 @@ VALUES (@RefId, @Type, 'Saved', @Description, NULL, @CreateBy, @CreateDate, @Upd
                 {
                     var line = lines[i];
                     var cols = Regex.Split(line, ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)")
-                        .Select(x=> x.Trim())
+                        .Select(x => x.Trim())
                         .ToArray();
 
-                    var dr = dt.NewRow();
-                    
-                    dr["Id"] = i;
+                    var item = new SaleItemFile();
 
-                    dr["OutletCode"] = col_OutletCode > -1 && cols.Length > col_OutletCode ? TrimDoubleQuoted(cols[col_OutletCode]) : "";
-                    dr["OutletName"] = col_OutletName > -1 && cols.Length > col_OutletName ? TrimDoubleQuoted(cols[col_OutletName]) : "";
-                    dr["ItemCode"] = col_ItemCode > -1 && cols.Length > col_ItemCode ? TrimDoubleQuoted(cols[col_ItemCode]) : "";
-                    dr["ItemName"] = col_ItemName > -1 && cols.Length > col_ItemName ? TrimDoubleQuoted(cols[col_ItemName]) : "";
-                    dr["Price"] = col_Price > -1 && cols.Length > col_Price ? TrimDoubleQuoted(cols[col_Price]) : "0";
-                    dr["Qty"] = col_Qty > -1 && cols.Length > col_Qty ? TrimDoubleQuoted(cols[col_Qty]) : "0";
-                    dr["Total"] = col_Total > -1 && cols.Length > col_Total ? TrimDoubleQuoted(cols[col_Total]) : "0";
+                    item.Id = i;
+                    item.OutletCode = col_OutletCode > -1 && cols.Length > col_OutletCode ? TrimDoubleQuoted(cols[col_OutletCode]) : "";
+                    item.OutletName = col_OutletName > -1 && cols.Length > col_OutletName ? TrimDoubleQuoted(cols[col_OutletName]) : "";
+                    item.ItemCode = col_ItemCode > -1 && cols.Length > col_ItemCode ? TrimDoubleQuoted(cols[col_ItemCode]) : "";
+                    item.ItemName = col_ItemName > -1 && cols.Length > col_ItemName ? TrimDoubleQuoted(cols[col_ItemName]) : "";
+                    item.UnitPrice = col_Price > -1 && cols.Length > col_Price ? Convert.ToDecimal(TrimDoubleQuoted(cols[col_Price])) : 0m;
+                    item.Qty = col_Qty > -1 && cols.Length > col_Qty ? Convert.ToDecimal(TrimDoubleQuoted(cols[col_Qty])) : 0m;
+                    item.Total = col_Total > -1 && cols.Length > col_Total ? Convert.ToDecimal(TrimDoubleQuoted(cols[col_Total])) : 0m;
 
-                    dt.Rows.Add(dr);
+
+
+                    item.OutletCode = string.IsNullOrEmpty(item.OutletCode) ? HashCode(item.OutletName) : item.OutletCode;
+                    item.ItemCode = string.IsNullOrEmpty(item.ItemCode) ? HashCode(item.ItemName) : item.ItemCode;
+
+                    //item.OutletName = string.IsNullOrEmpty(item.OutletName) ? item.OutletCode : item.OutletName;
+                    //item.ItemName = string.IsNullOrEmpty(item.ItemName) ? item.ItemCode : item.ItemName;
+
+
+                    items.Add(item);
                 }
-
-
-
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 ShowAlert(ex.Message);
             }
-            return dt;
+
+            return items;
         }
-
-        private string TrimDoubleQuoted(string text)
-        {
-            var value = text.Trim();
-
-            if (text.Length > 0 && text[0] == '"')
-                return text.TrimStart('"').TrimEnd('"');
-            else
-                return text;
-
-        }
-
-
-        //protected void btn_Import_Click(object sender, EventArgs e)
-        //{
-        //    lblErrorMessage.InnerText = string.Empty;
-
-        //    string result = ImportData();
-
-        //    if (result == string.Empty)
-        //    {
-        //        dtImport = null;
-        //        BindImportData();
-        //        lbl_FileName.InnerText = "Import done";
-        //    }
-        //    else
-        //        lblErrorMessage.InnerText = result;
-
-
-        //}
-
-        //protected void grd_Import_PageIndexChanging(object sender, GridViewPageEventArgs e)
-        //{
-        //    grd_Import.PageIndex = e.NewPageIndex;
-
-        //    grd_Import.DataSource = dtImport;
-        //    grd_Import.DataBind();
-
-        //}
-
-        //protected void grd_Import_RowDataBound(object sender, GridViewRowEventArgs e)
-        //{
-        //    if (e.Row.RowType == DataControlRowType.DataRow)
-        //    {
-
-        //        //e.Row.Cells[0].ForeColor = Color.Blue;
-
-        //        for (int i = 0; i < e.Row.Cells.Count; i++)
-        //        {
-        //            if (i < ImportFields.Length)
-        //                e.Row.Cells[i].ForeColor = Color.Blue;
-        //            else
-        //                e.Row.Cells[i].ForeColor = Color.Silver;
-        //        }
-        //    }
-
-        //    if (e.Row.RowType == DataControlRowType.Footer)
-        //    {
-        //    }
-        //}
-
-        //protected void btn_Upload_Click(object sender, EventArgs e)
-        //{
-        //    dtImport = null;
-        //    BindImportData();
-
-        //    if (FileUploadControl.HasFile)
-        //    {
-        //        string fileName = Path.GetFileName(FileUploadControl.PostedFile.FileName);
-        //        string fileExt = Path.GetExtension(FileUploadControl.PostedFile.FileName);
-
-        //        if (fileExt == ".xls" || fileExt == ".xlsx" || fileExt == ".csv")
-        //        {
-        //            string folderPath = "~/Tmp/";
-        //            string newName = Guid.NewGuid().ToString();
-        //            string filePath = Server.MapPath(folderPath + newName + fileExt);
-
-        //            FileUploadControl.SaveAs(filePath);
-        //            lbl_FileName.InnerText = fileName;
-
-        //            FillGridFromFile(filePath, fileExt, "NO");
-
-        //            if (File.Exists(filePath))
-        //            {
-        //                File.Delete(filePath);
-        //            }
-
-        //        }
-        //        else
-        //        {
-        //            lblErrorMessage.Visible = true;
-        //            lblErrorMessage.InnerText = "Please upload valid file.";
-        //        }
-
-        //    }
-        //    else
-        //    {
-        //        lblErrorMessage.Visible = true;
-        //        lblErrorMessage.InnerText = "No file found.";
-        //    }
-        //}
-
-        //private DataTable CreateImportDataTable()
-        //{
-        //    var dt = new DataTable();
-
-        //    dt.Columns.Add("SaleDate", typeof(DateTime));
-        //    dt.Columns.Add("OutletCode", typeof(string));
-        //    dt.Columns.Add("DepartmentCode", typeof(string));
-        //    dt.Columns.Add("ItemCode", typeof(string));
-        //    dt.Columns.Add("Qty", typeof(decimal));
-        //    dt.Columns.Add("Price", typeof(decimal));
-        //    dt.Columns.Add("Total", typeof(decimal));
-
-        //    return dt;
-        //}
-
-        //private DataTable CsvToDatatable(string filename)
-        //{
-        //    var dt = CreateImportDataTable();
-
-        //    string[] lines = File.ReadAllLines(filename);
-
-
-        //    for (int i = 1; i < lines.Length; i++)
-        //    {
-        //        var line = lines[i].Split(',');
-        //        DataRow dr = dt.NewRow();
-
-        //        for (int column = 0; column < dt.Columns.Count; column++)
-        //        {
-
-        //            dr[column] = line[column];
-
-        //        }
-        //        dt.Rows.Add(dr);
-        //    }
-
-        //    return dt;
-        //}
-
-
-
-
 
         // Private method(s)
         private DataTable QueryPosData(DateTime dateFrom, DateTime dateTo)
@@ -2119,97 +2078,6 @@ ORDER BY
 
         }
 
-        //private void BindImportData()
-        //{
-        //    ///Bind Sheet Data to GridView
-        //    grd_Import.DataSource = dtImport;
-        //    grd_Import.DataBind();
-
-        //    bool haveData = dtImport.Rows.Count > 0;
-        //    btn_Import.Visible = haveData;
-
-        //    lblErrorMessage.InnerText = string.Empty;
-        //    lbl_FileName.InnerText = string.Empty;
-
-
-
-        //}
-
-        //public DataTable ConvertCSVToDataTable(string filePath)
-        //{
-        //    char delimiter = ',';
-        //    DataTable tbl = new DataTable();
-        //    int numberOfColumns;
-        //    string[] lines = System.IO.File.ReadAllLines(filePath);
-
-        //    if (lines.ToString().Trim() != string.Empty)
-        //    {
-        //        numberOfColumns = lines[0].Split(delimiter).Length;
-
-
-        //        for (int col = 0; col < numberOfColumns; col++)
-        //            tbl.Columns.Add(new DataColumn("F" + (col + 1).ToString()));
-
-
-
-        //        foreach (string line in lines)
-        //        {
-        //            var cols = line.Split(delimiter);
-
-        //            DataRow dr = tbl.NewRow();
-        //            for (int cIndex = 0; cIndex < numberOfColumns; cIndex++)
-        //            {
-        //                dr[cIndex] = cols[cIndex];
-        //            }
-
-        //            tbl.Rows.Add(dr);
-        //        }
-        //    }
-
-        //    return tbl;
-        //}
-
-
-        //private void FillGridFromFile(string filePath, string ext, string isHader)
-        //{
-        //    if (ext == ".xls" || ext == ".xlsx")
-        //    {
-        //        string providerConfig = "Provider=Microsoft.ACE.OLEDB.12.0; Data Source={0};Extended Properties='Excel 8.0;HDR={1}'";
-        //        string connectionString = String.Format(providerConfig, filePath, isHader);
-        //        OleDbConnection conn = new OleDbConnection(connectionString);
-        //        OleDbCommand cmd = new OleDbCommand();
-        //        OleDbDataAdapter dataAdapter = new OleDbDataAdapter();
-        //        cmd.Connection = conn;
-        //        //Fetch 1st Sheet Name
-        //        conn.Open();
-        //        DataTable dtSchema;
-        //        dtSchema = conn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
-        //        string ExcelSheetName = dtSchema.Rows[0]["TABLE_NAME"].ToString();
-        //        conn.Close();
-
-        //        //Read all data of fetched Sheet to a Data Table
-        //        conn.Open();
-        //        cmd.CommandText = "SELECT * From [" + ExcelSheetName + "]";
-        //        dataAdapter.SelectCommand = cmd;
-        //        dataAdapter.Fill(dtImport);
-        //        conn.Close();
-        //    }
-        //    else  // ext==".csv"
-        //    {
-        //        dtImport = ConvertCSVToDataTable(filePath);
-        //    }
-
-
-        //    for (int i = 0; i < dtImport.Columns.Count; i++)
-        //    {
-        //        if (i < ImportFields.Length)
-        //            dtImport.Columns[i].ColumnName = ImportFields[i].ToString();
-        //    }
-
-
-        //    BindImportData();
-
-        //}
 
         private string ImportData()
         {
@@ -2293,6 +2161,11 @@ ORDER BY
 
         }
 
+
+        private string HashCode(string value)
+        {
+            return value.GetHashCode().ToString().Replace('-', 'X');
+        }
 
         #endregion
 
@@ -2382,6 +2255,17 @@ ORDER BY
 
 
         // Private Method(s)
+
+        private string TrimDoubleQuoted(string text)
+        {
+            var value = text.Trim();
+
+            if (text.Length > 0 && text[0] == '"')
+                return text.TrimStart('"').TrimEnd('"');
+            else
+                return text;
+
+        }
 
         private void ShowAlert(string text, string headerText = null)
         {
@@ -2574,7 +2458,6 @@ ORDER BY
 
             return result;
         }
-
 
         private IEnumerable<PT_Sale> PostInterfaceData1(string id)
         {
@@ -2845,6 +2728,9 @@ WHERE
         }
 
 
+
+        #region -- Classes --
+
         // Internal Classes
         public class PT_Sale
         {
@@ -2863,7 +2749,6 @@ WHERE
             public decimal Total { get; set; }
             public bool isvoid { get; set; }
         }
-
 
         internal class PosData
         {
@@ -2901,17 +2786,40 @@ WHERE
         [Serializable]
         internal class SaleItem
         {
-            public string Outlet { get; set; }
+            // Old
             public string OutletCode { get; set; }
-
             public string PLU { get; set; }
-            public string ItemCode { get; set; }
-
             public decimal Quantity { get; set; }
+
+            // New
+            public string Outlet { get; set; }
+            public string ItemCode { get; set; }
             public decimal Qty { get; set; }
 
             public decimal UnitPrice { get; set; }
             public decimal Total { get; set; }
+        }
+
+        [Serializable]
+        internal class SaleItemFile : SaleItem
+        {
+            public SaleItemFile()
+            {
+                Id = 0;
+                Date = null;
+                PLU = "";
+                OutletCode = "";
+                OutletName = "";
+                Outlet = "";
+                ItemCode = "";
+                ItemName = "";
+
+            }
+
+            public int Id { get; set; }
+            public Nullable<DateTime> Date { get; set; }
+            public string OutletName { get; set; }
+            public string ItemName { get; set; }
         }
 
         [Serializable]
@@ -2937,16 +2845,6 @@ WHERE
             public string DocNo { get; set; }
             public string LocationCode { get; set; }
             public string LocationName { get; set; }
-        }
-
-        #region --Import File--
-
-        [Serializable]
-        public class FileSettingItem
-        {
-            public string Code { get; set; }
-            public string Name1 { get; set; }
-            public string Name2 { get; set; }
         }
         #endregion
 

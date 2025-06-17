@@ -152,7 +152,7 @@
                     <dx:MenuItem Name="Item" Text="Item/PLU">
                         <ItemStyle BackColor="DarkGray" ForeColor="White" />
                     </dx:MenuItem>
-                    <dx:MenuItem Name="ImportFile" Text="Import from file..." Visible="true" />
+                    <dx:MenuItem Name="ImportFile" Text="Import from file..." Visible="false" />
                 </Items>
             </dx:ASPxMenu>
         </div>
@@ -170,7 +170,7 @@
                             </dx:ASPxCalendar>
                         </div>
                         <div>
-                            <asp:Button ID="btn_POS" runat="server" Text="POS Data" OnClick="btn_POS_Click" />
+                            <asp:Button ID="btn_POS_Data" runat="server" Text="POS Data" OnClick="btn_POS_Data_Click" />
                         </div>
                     </td>
                     <!-- Data View -->
@@ -256,14 +256,15 @@
                     </td>
                 </tr>
             </table>
-            <br />
+            <%--<br />
             <hr />
             <asp:GridView runat="server" ID="gv_ImportFile" AutoGenerateColumns="true" ShowHeader="true" Width="100%">
             </asp:GridView>
-            <hr />
+            <asp:TextBox runat="server" ID="txt_Test" TextMode="MultiLine" Rows="10" Width="100%" />
+            <hr />--%>
         </ContentTemplate>
         <Triggers>
-            <asp:PostBackTrigger ControlID="btn_POS" />
+            <asp:PostBackTrigger ControlID="btn_POS_Data" />
             <asp:PostBackTrigger ControlID="btn_Consumption" />
             <asp:PostBackTrigger ControlID="btn_View_StockOut" />
             <asp:PostBackTrigger ControlID="gv_Sale" />
@@ -900,35 +901,43 @@
         </ContentCollection>
     </dx:ASPxPopupControl>
     <dx:ASPxPopupControl ID="pop_ImportFile" runat="server" ClientInstanceName="pop_ImportFile" Width="480" Height="340" Modal="True" CloseAction="CloseButton"
-        HeaderText="Import Data" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter" ShowPageScrollbarWhenModal="true">
+        HeaderText="Import from file ..." PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter" ShowPageScrollbarWhenModal="true">
         <ContentCollection>
             <dx:PopupControlContentControl ID="PopupControlContentControl10" runat="server">
-                <asp:Panel ID="panel1" runat="server" CssClass="card p-3 mb-3" Font-Size="Small">
-                    <b>From file</b>
-                    <table class="w-100">
-                        <tr>
-                            <td colspan="2">
-                                <asp:FileUpload ID="FileUpload" runat="server" Width="100%" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <small>Support file *.csv | *.xlsx"</small>
-                            </td>
-                            <td align="right">
-                                <asp:Button ID="btn_ImportFile" runat="server" Width="60" Text="Import" OnClick="btn_ImportFile_Click" />
-                            </td>
-                        </tr>
-                    </table>
-                    <hr />
-                    <asp:TextBox runat="server" ID="text_Test1" TextMode="MultiLine" Rows="10" />
-                    <div>
-                        <asp:Button runat="server" ID="btn_Import_Setting" Text="Setting" OnClick="btn_Import_Setting_Click" />
+                <div class="card p-3 mb-3">
+                    <b class="mb-3">Daily Sales</b>
+                    <div class="mb">
+                        <asp:Label runat="server" Text="Sale date <small>***date will be taken if no date in any transactions.</small>" />
                     </div>
-                </asp:Panel>
+                    <div class="mb-3">
+                        <dx:ASPxDateEdit runat="server" ID="de_ImportFile_SaleDate" Width="120" />
+                    </div>
+                    <div class="mb-3">
+                        <asp:FileUpload ID="FileUpload_Sale" runat="server" Width="100%" />
+                    </div>
+                    <asp:Button runat="server" ID="btn_ImportFile_Sale" Text="Import" OnClick="btn_ImportFile_Sale_Click" />
+                </div>
+                <div class="card p-3 mb-3">
+                    <b class="mb-3">Outlet</b>
+                    <div class="mb-3">
+                        <asp:FileUpload ID="FileUpload_Outlet" runat="server" Width="100%" />
+                    </div>
+                    <asp:Button runat="server" ID="btn_ImportFile_Outlet" Text="Import" OnClick="btn_ImportFile_Outlet_Click" />
+                </div>
+                <div class="card p-3 mb-3">
+                    <b class="mb-3">Item</b>
+                    <div class="mb-3">
+                        <asp:FileUpload ID="FileUpload_Item" runat="server" Width="100%" />
+                    </div>
+                    <asp:Button runat="server" ID="btn_ImportFile_Item" Text="Import" OnClick="btn_ImportFile_Item_Click" />
+                </div>
+                <div>
+                    <asp:Button runat="server" ID="btn_Import_Setting" Text="Setting" OnClick="btn_Import_Setting_Click" Visible="false" />
+                </div>
             </dx:PopupControlContentControl>
         </ContentCollection>
     </dx:ASPxPopupControl>
+    
     <dx:ASPxPopupControl ID="pop_Consumption" ClientInstanceName="pop_Consumptioon" runat="server" Width="960" HeaderText="Product Consumption" ShowHeader="true"
         CloseAction="CloseButton" Modal="True" AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="Above" PopupHorizontalAlign="WindowCenter"
         ShowPageScrollbarWhenModal="True">
