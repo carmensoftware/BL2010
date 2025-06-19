@@ -935,6 +935,15 @@ namespace BlueLedger.PL.PC.PO
             }
         }
 
+        private void UpdatePoStatusPrint(IEnumerable<string> items)
+        {
+            var poList = string.Join("','", items);
+
+            var query = string.Format("UPDATE PC.PO SET DocStatus='Printed' WHERE DocStatus='Approved' AND PoNo IN ('{0}')", poList);
+
+            _po.DbExecuteQuery(query, null, LoginInfo.ConnStr);
+        }
+
         #endregion
 
         #region --MENU--
@@ -1552,14 +1561,17 @@ namespace BlueLedger.PL.PC.PO
             {
                 // Get all pr detail which are ready ot generate po
                 string cmdPrDt = string.Format(
-                    @"SELECT PrDt.* 
-                      FROM PC.PrDt 
-                      LEFT JOIN PC.Pr ON Pr.PRNo = PrDt.PRNo 
-                      WHERE PrDt.PRNo IN ({0})
+                    @"SELECT 
+                        PrDt.* 
+                      FROM 
+                        PC.PrDt 
+                      -- LEFT JOIN PC.Pr ON Pr.PRNo = PrDt.PRNo 
+                      WHERE 
+                        PrDt.PRNo IN ({0})
+                        AND CurrencyCode = '{1}'
                         AND (CHARINDEX('R', PrDt.ApprStatus) = 0)
                         AND (CHARINDEX('_', PrDt.ApprStatus) = 0)
-                        AND CurrencyCode = '{1}'
-                      ORDER BY PrDt.VendorCode, PrDt.ReqDate,PrDt.BuCode, PrDt.LocationCode, PrDt.DeliPoint, PrDt.ProductCode"
+                      ORDER BY PrDt.VendorCode, PrDt.ReqDate, PrDt.BuCode, PrDt.LocationCode, PrDt.DeliPoint, PrDt.ProductCode"
                     , prList, currCode);
 
                 dtPrDt = _dbHandler.DbExecuteQuery(cmdPrDt, null, connStr);
@@ -1724,45 +1736,91 @@ namespace BlueLedger.PL.PC.PO
                         #endregion
 
                         string cmdInsPoDt = string.Format(
-                                            @"  DECLARE @DigitAmt INT = APP.DigitAmt()
+@"  DECLARE @DigitAmt INT = APP.DigitAmt()
 
-                                                INSERT INTO [PC].[PoDt] (
-                                                      [PoNo], [PoDt], [BuCode], [Location], [Product]
-                                                    , [Descen], [Descll], [DeliveryPoint], [OrdQty], [Unit]
-                                                    , [FOCQty], [RcvQty], [CancelQty], [Price], [Discount]
-                                                    , [DiscountAmt] 
-                                                    , [TaxType], [TaxRate], [IsAdj]
-                                                    , [NetAmt]
-                                                    , [TaxAmt]
-                                                    , [TotalAmt]
-                                                    , [CurrNetAmt], [CurrDiscAmt], [CurrTaxAmt], [CurrTotalAmt] 
-                                                    , [Buyer]
-                                                    , [Comment]
-                                                )
-                                                SELECT  prdt.PoNo, prdt.PoDtNo, prdt.BuCode, prdt.LocationCode, prdt.ProductCode 
-                                                        , prdt.Descen, prdt.Descll, prdt.DeliPoint, SUM(prdt.ApprQty) AS OrdQty, prdt.OrderUnit 
-                                                        , SUM(prdt.FOCQty) AS FOCQty, 0 AS RcvQty, 0 AS CancelQty, prdt.Price, prdt.DiscPercent
-                                                        , SUM(ROUND( prdt.DiscAmt * Ref.GetLastCurrencyRate( prdt.ReqDate, prdt.CurrencyCode), @DigitAmt) ) AS DiscAmt
-                                                        , prdt.TaxType, prdt.TaxRate, 'false' AS IsAdj
-                                                        , SUM(ROUND( prdt.CurrNetAmt * Ref.GetLastCurrencyRate( prdt.ReqDate, prdt.CurrencyCode), @DigitAmt)) AS NetAmt
-                                                        , SUM(ROUND( prdt.CurrTaxAmt * Ref.GetLastCurrencyRate( prdt.ReqDate, prdt.CurrencyCode), @DigitAmt)) AS TaxAmt
-                                                        , SUM(ROUND( prdt.CurrTotalAmt * Ref.GetLastCurrencyRate( prdt.ReqDate, prdt.CurrencyCode), @DigitAmt)) AS TotalAmt
-                                                        , SUM(prdt.CurrNetAmt) AS CurrNetAmt, SUM(prdt.CurrDiscAmt) AS CurrDiscAmt, SUM(prdt.CurrTaxAmt) AS CurrTaxAmt, SUM(prdt.CurrTotalAmt) AS CurrTotalAmt
-                                                        , NULL AS Buyer
-                                                        , prdt.Comment
-                                                        -- , CAST(STUFF((  SELECT CASE WHEN t.Comment IS NOT NULL AND RTRIM(LTRIM(t.Comment)) <> '' THEN '; ' + t.Comment ELSE '' END 
-                                                        --                FROM PC.PrDt t WHERE t.VendorCode = prdt.VendorCode AND t.ReqDate = prdt.ReqDate AND t.BuCode = prdt.BuCode 
-                                                        --                AND t.LocationCode = prdt.LocationCode AND t.DeliPoint = prdt.DeliPoint AND t.ProductCode = prdt.ProductCode 
-                                                        --                AND t.OrderUnit = prdt.OrderUnit AND t.Price = prdt.Price AND t.DiscPercent = prdt.DiscPercent 
-                                                        --                AND t.TaxType = prdt.TaxType AND t.TaxRate = prdt.TaxRate FOR XML PATH ('')), 1, 2, '') AS NVARCHAR(300)) AS Comment 
-                                                    
-                                                FROM [PC].PrDt 
-                                                WHERE prdt.PRNo IN ({0}) 
-                                                    AND (CHARINDEX('R', prdt.ApprStatus) = 0 )
-                                                    AND (CHARINDEX('_', prdt.ApprStatus) = 0 ) 
-                                                    AND [CurrencyCode] = @CurrCode                       
-                                                GROUP BY    prdt.VendorCode, prdt.PoNo, prdt.PoDtNo, prdt.BuCode, prdt.LocationCode, prdt.ProductCode, prdt.Descen, 
-                                                            prdt.Descll, prdt.ReqDate, prdt.DeliPoint, prdt.OrderUnit, prdt.Price, prdt.DiscPercent, prdt.TaxType, prdt.TaxRate, prdt.Comment ", prList);
+INSERT INTO [PC].[PoDt] (
+    [PoNo], 
+    [PoDt], 
+    [BuCode], 
+    [Location], 
+    [Product], 
+    [Descen], 
+    [Descll], 
+    [DeliveryPoint], 
+    [OrdQty], 
+    [Unit], 
+    [FOCQty], 
+    [RcvQty], 
+    [CancelQty], 
+    [Price], 
+    [Discount], 
+    [DiscountAmt], 
+    [TaxType], 
+    [TaxRate], 
+    [IsAdj], 
+    [NetAmt], 
+    [TaxAmt], 
+    [TotalAmt], 
+    [CurrNetAmt], 
+    [CurrDiscAmt], 
+    [CurrTaxAmt], 
+    [CurrTotalAmt], 
+    [Buyer], 
+    [Comment]
+)
+SELECT  
+	prdt.PoNo, 
+	prdt.PoDtNo, 
+	prdt.BuCode, 
+	prdt.LocationCode, 
+	prdt.ProductCode, 
+	'' as Descen, 
+	'' as Descll, 
+	prdt.DeliPoint, 
+	SUM(prdt.ApprQty) AS OrdQty, 
+	prdt.OrderUnit, 
+	SUM(prdt.FOCQty) AS FOCQty,
+	0 AS RcvQty, 
+	0 AS CancelQty, 
+	prdt.Price, 
+	prdt.DiscPercent, 
+	SUM(ROUND( prdt.DiscAmt * Ref.GetLastCurrencyRate( prdt.ReqDate, prdt.CurrencyCode), @DigitAmt) ) AS DiscAmt, 
+	prdt.TaxType, 
+	prdt.TaxRate, 
+	'false' AS IsAdj, 
+	SUM(ROUND( prdt.CurrNetAmt * Ref.GetLastCurrencyRate( prdt.ReqDate, prdt.CurrencyCode), @DigitAmt)) AS NetAmt, 
+	SUM(ROUND( prdt.CurrTaxAmt * Ref.GetLastCurrencyRate( prdt.ReqDate, prdt.CurrencyCode), @DigitAmt)) AS TaxAmt, 
+	SUM(ROUND( prdt.CurrTotalAmt * Ref.GetLastCurrencyRate( prdt.ReqDate, prdt.CurrencyCode), @DigitAmt)) AS TotalAmt, 
+	SUM(prdt.CurrNetAmt) AS CurrNetAmt, 
+	SUM(prdt.CurrDiscAmt) AS CurrDiscAmt, 
+	SUM(prdt.CurrTaxAmt) AS CurrTaxAmt, 
+	SUM(prdt.CurrTotalAmt) AS CurrTotalAmt, 
+	NULL AS Buyer, 
+	prdt.Comment
+FROM 
+	[PC].PrDt 
+WHERE 
+	prdt.PRNo IN ({0}) 
+    AND (CHARINDEX('R', prdt.ApprStatus) = 0 )
+    AND (CHARINDEX('_', prdt.ApprStatus) = 0 ) 
+    AND [CurrencyCode] = @CurrCode                       
+GROUP BY    
+	prdt.VendorCode, 
+	prdt.PoNo, 
+	prdt.PoDtNo, 
+	prdt.BuCode, 
+	prdt.LocationCode, 
+	prdt.ProductCode, 
+	-- prdt.Descen, 
+    -- prdt.Descll, 
+	prdt.ReqDate, 
+	prdt.DeliPoint, 
+	prdt.OrderUnit, 
+	prdt.Price, 
+	prdt.DiscPercent, 
+	prdt.TaxType, 
+	prdt.TaxRate, 
+	prdt.Comment", prList);
 
 
                         var dbParamsInsPoDt = new Blue.DAL.DbParameter[1];
@@ -1777,26 +1835,38 @@ namespace BlueLedger.PL.PC.PO
                         {
                             // Modified on: 15/08/2017, By: Fon
 
-                            var cmdSelPoHdr = string.Format(
-                                @"  SELECT h.[PoNo], h.[PoDate], h.[Description], h.[Vendor], h.[Currency], h.[Buyer], h.[ExchageRate]
-                                            , h.[CreditTerm], h.[DocStatus], h.[ApprStatus], h.[IsVoid], h.[CreatedDate], h.[CreatedBy]
-                                            , h.[UpdatedDate], h.[UpdatedBy]
-                                            , SUM(d.NetAmt) AS NetAmt, SUM(d.TaxAmt) AS TaxAmt, SUM(d.TotalAmt) AS TotalAmt 
-                                            , h.CurrencyCode, h.CurrencyRate
-                                            , SUM(d.CurrNetAmt) AS CurrNetAmt, SUM(d.CurrTaxAmt) AS CurrTaxAmt, SUM(d.CurrTotalAmt) AS  CurrTotalAmt
-                                            , a.Address6 as VendorEmail
+                            var cmdSelPoHdr = string.Format(@"
+SELECT 
+    h.[PoNo], 
+    h.[PoDate], 
+    h.[Description], 
+    h.[Vendor], 
+    h.[Currency], 
+    h.[Buyer], 
+    h.[ExchageRate], 
+    h.[CreditTerm], 
+    h.[DocStatus], 
+    h.[ApprStatus], 
+    h.[IsVoid], 
+    h.[CreatedDate], 
+    h.[CreatedBy], 
+    h.[UpdatedDate], h.[UpdatedBy]
+            , SUM(d.NetAmt) AS NetAmt, SUM(d.TaxAmt) AS TaxAmt, SUM(d.TotalAmt) AS TotalAmt 
+            , h.CurrencyCode, h.CurrencyRate
+            , SUM(d.CurrNetAmt) AS CurrNetAmt, SUM(d.CurrTaxAmt) AS CurrTaxAmt, SUM(d.CurrTotalAmt) AS  CurrTotalAmt
+            , a.Address6 as VendorEmail
             
-                                    FROM PC.Po h 
-                                    LEFT JOIN PC.PoDt d ON (d.PoNo = h.PoNo)
-                                    LEFT JOIN AP.Vendor v ON v.VendorCode = h.Vendor
-                                    LEFT JOIN [Profile].[Address] a ON a.ProfileCode = v.ProfileCode
+    FROM PC.Po h 
+    LEFT JOIN PC.PoDt d ON (d.PoNo = h.PoNo)
+    LEFT JOIN AP.Vendor v ON v.VendorCode = h.Vendor
+    LEFT JOIN [Profile].[Address] a ON a.ProfileCode = v.ProfileCode
 
-                                    WHERE h.PoNo IN (SELECT DISTINCT(PoNo) FROM PC.PrDt WHERE PRNo IN ({0})) 
-                                      AND h.CurrencyCode = '{1}'
-                                    GROUP BY h.[PoNo], h.[PoDate], h.[Description], h.[Vendor], h.[Currency], h.[Buyer], h.[ExchageRate], h.[CreditTerm]
-                                            , h.[DocStatus], h.[ApprStatus], h.[IsVoid], h.[CreatedDate], h.[CreatedBy], h.[UpdatedDate], h.[UpdatedBy]
-                                            , h.[CurrencyCode], h.[CurrencyRate]
-                                            , a.Address6"
+    WHERE h.PoNo IN (SELECT DISTINCT(PoNo) FROM PC.PrDt WHERE PRNo IN ({0})) 
+        AND h.CurrencyCode = '{1}'
+    GROUP BY h.[PoNo], h.[PoDate], h.[Description], h.[Vendor], h.[Currency], h.[Buyer], h.[ExchageRate], h.[CreditTerm]
+            , h.[DocStatus], h.[ApprStatus], h.[IsVoid], h.[CreatedDate], h.[CreatedBy], h.[UpdatedDate], h.[UpdatedBy]
+            , h.[CurrencyCode], h.[CurrencyRate]
+            , a.Address6"
                                 , prList, currCode);
                             // End Modified.
 
@@ -1806,9 +1876,6 @@ namespace BlueLedger.PL.PC.PO
                             {
                                 _transLog.Save("PC", "PO", dr["PoNo"].ToString(), "CREATE", string.Empty, LoginInfo.LoginName, LoginInfo.ConnStr);
                             }
-
-
-
                             return dt;
                         }
                         else
