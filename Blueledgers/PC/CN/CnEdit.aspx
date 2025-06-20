@@ -7,7 +7,36 @@
 <%@ Register Assembly="DevExpress.Web.ASPxGridView.v10.1" Namespace="DevExpress.Web.ASPxGridView" TagPrefix="dx" %>
 <asp:Content ID="Header" ContentPlaceHolderID="head" runat="server">
     <style>
+        .flex
+        {
+            display: flex !important;
+            height: fit-content;
+        }
         
+        .flex-wrap
+        {
+            flex-wrap: wrap;
+        }
+        .flex-column
+        {
+            flex-direction: column;
+        }
+        .flex-flow-end
+        {
+            justify-content: flex-end;
+        }
+        .flex-flow-start
+        {
+            justify-content: flex-start;
+        }
+        .flex-flow-center
+        {
+            justify-content: center;
+        }
+        .flex-flow-between
+        {
+            justify-content: space-between;
+        }
     </style>
     <script type="text/javascript">
         function TaxTypeChange() {
@@ -520,8 +549,8 @@
                                 <Items>
                                     <dx:ListEditItem Value="-1" Text="All" />
                                     <dx:ListEditItem Value="0" Text="Current month" Selected="true" />
-                                    <dx:ListEditItem Value="1" Text="Last 1 months" />
-                                    <dx:ListEditItem Value="2" Text="Last 2 months" />
+                                    <%--<dx:ListEditItem Value="1" Text="Last 1 months" />--%>
+                                    <%--<dx:ListEditItem Value="2" Text="Last 2 months" />--%>
                                     <dx:ListEditItem Value="3" Text="Last 3 months" />
                                     <dx:ListEditItem Value="6" Text="Last 6 months" />
                                 </Items>
@@ -676,6 +705,9 @@
                                                         <dx:ListEditItem Value="A" Text="Amount" />
                                                     </Items>
                                                 </dx:ASPxComboBox>
+                                                <div>
+                                                    <asp:Label runat="server" ID="lbl_CnRemark" Font-Size="Smaller" ForeColor="Red" />
+                                                </div>
                                             </td>
                                             <td>
                                                 <span>Inventory unit = </span>

@@ -587,7 +587,7 @@ namespace BlueLedger.PL.PC.CN
 
             var query = @"
 SELECT
-	RecNo,
+	rec.RecNo,
 	 CONVERT(VARCHAR(10), RecDate, 103)  as RecDate,
 	[Description]
 FROM
@@ -595,8 +595,8 @@ FROM
 WHERE
 	DocStatus = 'Committed'
     AND CurrencyCode = @CurrencyCode
-	AND VendorCode=@VendorCode
-";
+	AND VendorCode=@VendorCode";
+
             if (month < 0)
                 query += string.Format(" AND RecDate <= '{0}'", toDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
             else
@@ -631,36 +631,17 @@ WHERE
             ddl.DataSource = dt;
             ddl.DataBind();
 
+            //var items = dt.AsEnumerable()
+            //    .Select(x => new ListEditItem
+            //    {
+            //        Text = string.Format("{0} |",x.Field<string>("RecNo")),
+            //        Value = x.Field<string>("RecNo"),
+            //    })
+            //    .ToArray();
 
-            //            var docDate = de_DocDate.Date;
+            //ddl.Items.Clear();
+            //ddl.Items.AddRange(items);
 
-            //            var query = @"
-            //SELECT
-            //	RecNo,
-            //	 CONVERT(VARCHAR(10), RecDate, 103)  as RecDate,
-            //	[Description]
-            //FROM
-            //	PC.REC
-            //WHERE
-            //	DocStatus = 'Committed'
-            //    AND CurrencyCode = @CurrencyCode
-            //	AND VendorCode=@VendorCode
-            //	AND RecDate <= @DocDate
-            //ORDER BY
-            //	RecNo
-            //";
-            //            var parameters = new Blue.DAL.DbParameter[]
-            //            {
-            //                new Blue.DAL.DbParameter("@VendorCode", vendorCode),
-            //                new Blue.DAL.DbParameter("@CurrencyCode", currencyCode),
-            //                new Blue.DAL.DbParameter("@DocDate", docDate.ToString("yyyy-MM-dd"))
-            //            };
-            //            var dt = _bu.DbExecuteQuery(query, parameters, hf_ConnStr.Value);
-
-
-            //ddl.ValueField = "RecNo";
-            //ddl.DataSource = dt;
-            //ddl.DataBind();
 
         }
 
@@ -670,6 +651,7 @@ WHERE
             var recNo = ddl.Value.ToString();
 
             var dtRecDt = GetReceivingDetails(recNo);
+
             gv_Receiving.DataSource = dtRecDt;
             gv_Receiving.DataBind();
 
@@ -771,12 +753,26 @@ WHERE
                     }
                 }
 
+                var cnNo = DataBinder.Eval(dataItem, "CnNo").ToString();
+
+                if (!string.IsNullOrEmpty(cnNo))
+                {
+                    var cnDesc = DataBinder.Eval(dataItem, "CnDesc").ToString();
+                    var cnDate = Convert.ToDateTime(DataBinder.Eval(dataItem, "CnDate"));
+
+                    var lbl = e.Row.FindControl("lbl_CnRemark") as Label;
+
+                    lbl.Text = string.Format("Already created at '{0}' on {1}", cnNo, cnDate.ToString("dd/MM/yyyy"));
+                }
+
 
                 if (e.Row.FindControl("ddl_CnType") != null)
                 {
                     var ddl = e.Row.FindControl("ddl_CnType") as ASPxComboBox;
 
                     ddl.Value = cnType;
+
+                    ddl.Enabled = string.IsNullOrEmpty(cnNo);
                 }
 
                 var inventoryUnit = DataBinder.Eval(dataItem, "InventoryUnit").ToString();
@@ -1366,6 +1362,26 @@ WHERE
         private DataTable GetReceivingDetails(string recNo)
         {
 
+            var dtCn = _bu.DbExecuteQuery(
+                "SELECT TOP(1) cn.CnNo, cn.CnDate, cn.[Description] FROM PC.Cn JOIN PC.CnDt ON cn.CnNo=cndt.CnNo WHERE cn.DocStatus <> 'Voided' AND RecNo=@RecNo ORDER BY CnDate DESC",
+                new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@RecNo", recNo) },
+                hf_ConnStr.Value);
+
+            //var cnNo = ? dtCn.Rows[0][0].ToString() : "";
+            var cnNo = "";
+            var cnDate = "";
+            var cnDesc = "";
+            
+
+            if (dtCn != null && dtCn.Rows.Count > 0)
+            {
+                cnNo = dtCn.Rows[0]["CnNo"].ToString();
+                cnDate = Convert.ToDateTime(dtCn.Rows[0]["CnDate"]).ToString("yyyy-MM-dd");
+                cnDesc = dtCn.Rows[0]["Description"].ToString();
+            }
+
+
+
             var dtRec = _bu.DbExecuteQuery("SELECT * FROM PC.Rec WHERE RecNo=@RecNo", new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@RecNo", recNo) }, hf_ConnStr.Value);
 
             if (dtRec.Rows.Count > 0)
@@ -1393,8 +1409,11 @@ SELECT
 	CAST(0 as decimal(18,3)) as CnFoc, 
     CAST(0 as decimal(18,4)) as CnCurrNetAmt, 
 	CAST(0 as decimal(18,4)) as CnCurrTaxAmt,
-	CAST(0 as decimal(18,4)) as CnCurrTotalAmt
+	CAST(0 as decimal(18,4)) as CnCurrTotalAmt,
 
+    @CnNo as CnNo,
+    CAST(@CnDate as DATE) as CnDate,
+    @CnDesc  as CnDesc
 FROM 
 	PC.RecDt
 	LEFT JOIN [IN].[Product] p ON p.ProductCode=recdt.ProductCode
@@ -1403,7 +1422,16 @@ WHERE
 	RecNo=@RecNo
 ";
 
-            var dtRecDt = _bu.DbExecuteQuery(query, new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@RecNo", recNo) }, hf_ConnStr.Value);
+            var dtRecDt = _bu.DbExecuteQuery(
+                query,
+                new Blue.DAL.DbParameter[] 
+                { 
+                    new Blue.DAL.DbParameter("@RecNo", recNo),
+                    new Blue.DAL.DbParameter("@CnNo", cnNo),
+                    new Blue.DAL.DbParameter("@CnDate", cnDate), 
+                    new Blue.DAL.DbParameter("@CnDesc", cnDesc) 
+                },
+                hf_ConnStr.Value);
 
 
             //// Set selected item in grid rows
