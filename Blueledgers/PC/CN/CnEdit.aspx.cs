@@ -80,6 +80,7 @@ namespace BlueLedger.PL.PC.CN
             set { ViewState["_dtRecPrd" + _ID] = value; }
         }
 
+        
         // Event(s)
 
         protected void Page_Init(object sender, EventArgs e)
@@ -272,6 +273,7 @@ namespace BlueLedger.PL.PC.CN
             gv_Receiving.DataSource = null;
             gv_Receiving.DataBind();
 
+            lbl_AlreadyCreatedReceiving.Text = "";
             pop_AddItem.ShowOnPageLoad = true;
         }
 
@@ -649,12 +651,52 @@ WHERE
         {
             var ddl = sender as ASPxComboBox;
             var recNo = ddl.Value.ToString();
+            var cnNo = _ID;
 
+
+            var message = "";
+            var found = _dtCnDt.AsEnumerable().Select(x => x.Field<string>("RecNo") == recNo).Count() > 0;
+
+            if (!found) // not used in this cn
+            {
+                var query = @"
+SELECT
+    TOP(1)
+	cn.CnNo, 
+	cn.CnDate
+FROM 
+	PC.Cn 
+	JOIN PC.CnDt ON cn.CnNo=cndt.CnNo 
+WHERE 
+	cn.DocStatus <> 'Voided' 
+    AND cn.CnNo <> @CnNo
+	AND RecNo = @RecNo 
+";
+
+                var dt = _bu.DbExecuteQuery(
+                        query,
+                        new Blue.DAL.DbParameter[] 
+                        { 
+                            new Blue.DAL.DbParameter("@CnNo", cnNo),
+                            new Blue.DAL.DbParameter("@RecNo", recNo)
+                        },
+                        hf_ConnStr.Value);
+
+                if (dt.Rows.Count >0) 
+                {
+                    var dr = dt.Rows[0];
+                    var link = string.Format("Cn.aspx?BuCode={0}&ID={1}", LoginInfo.BuInfo.BuCode, dr["CnNo"].ToString());
+                    message = string.Format("This receiving has already used in <a href='{0}' target='_blank'>{1}</a> @{2}", link, dr["CnNo"], FormatDate(dr["CnDate"]));
+                }
+            }
+
+            lbl_AlreadyCreatedReceiving.Text = message;
+
+            // Get receiving details
             var dtRecDt = GetReceivingDetails(recNo);
 
             gv_Receiving.DataSource = dtRecDt;
             gv_Receiving.DataBind();
-
         }
 
         protected void ddl_RecPeriod_SelectedIndexChanged(object sender, EventArgs e)
@@ -753,17 +795,18 @@ WHERE
                     }
                 }
 
-                var cnNo = DataBinder.Eval(dataItem, "CnNo").ToString();
 
-                if (!string.IsNullOrEmpty(cnNo))
-                {
-                    var cnDesc = DataBinder.Eval(dataItem, "CnDesc").ToString();
-                    var cnDate = Convert.ToDateTime(DataBinder.Eval(dataItem, "CnDate"));
+                //var cnNo = DataBinder.Eval(dataItem, "CnNo").ToString();
 
-                    var lbl = e.Row.FindControl("lbl_CnRemark") as Label;
+                //if (!string.IsNullOrEmpty(cnNo))
+                //{
+                //    var cnDesc = DataBinder.Eval(dataItem, "CnDesc").ToString();
+                //    var cnDate = Convert.ToDateTime(DataBinder.Eval(dataItem, "CnDate"));
 
-                    lbl.Text = string.Format("Already created at '{0}' on {1}", cnNo, cnDate.ToString("dd/MM/yyyy"));
-                }
+                //    var lbl = e.Row.FindControl("lbl_CnRemark") as Label;
+
+                //    lbl.Text = string.Format("Already created at '{0}' on {1}", cnNo, cnDate.ToString("dd/MM/yyyy"));
+                //}
 
 
                 if (e.Row.FindControl("ddl_CnType") != null)
@@ -772,7 +815,8 @@ WHERE
 
                     ddl.Value = cnType;
 
-                    ddl.Enabled = string.IsNullOrEmpty(cnNo);
+                    ddl.Enabled = string.IsNullOrEmpty(lbl_AlreadyCreatedReceiving.Text.Trim());
+                    //ddl.Enabled = string.IsNullOrEmpty(cnNo);
                 }
 
                 var inventoryUnit = DataBinder.Eval(dataItem, "InventoryUnit").ToString();
@@ -1327,6 +1371,85 @@ WHERE
 
                 if (isCommit)
                 {
+                    // Check Onhand
+                    var query = @"
+DECLARE @DocDate DATE = (SELECT CnDate FROM PC.Cn WHERE CnNo=@CnNo)
+DECLARE @CommittedDate DATE = [IN].GetCommittedDate(@DocDate, NULL)
+
+;WITH
+cnrec AS(
+	SELECT 
+		cndt.Location as LocationCode,
+		cndt.ProductCode,
+		cndt.RecQty as CnQty,
+		CASE 
+			WHEN cndt.UnitCode=recdt.RcvUnit THEN recdt.Rate
+			ELSE 1
+		END as UnitRate
+	FROM 
+		PC.CnDt
+		JOIN PC.RECDt
+			ON recdt.RecNo=cndt.RecNo 
+			AND recdt.ProductCode=cndt.ProductCode 
+			AND recdt.RecDtNo=CASE WHEN ISNULL(cndt.PoDtNo,0)=0 THEN recdt.RecDtNo ELSE cndt.PoDtNo END
+	WHERE
+		CnType = 'Q'
+		AND CnNo = @CnNo
+),
+cn AS(
+
+	SELECT
+		LocationCode,
+		ProductCode,
+		SUM(ROUND(CnQty * UnitRate, App.DigitAmt())) as Qty
+	FROM 
+		cnrec
+	GROUP BY
+		LocationCode,
+		ProductCode
+),
+onhand AS(
+	SELECT
+		cn.LocationCode,
+		cn.ProductCode,
+		cn.Qty,
+		SUM(ISNULL([IN],0)-ISNULL([OUT],0)) as Onhand
+	FROM
+		cn
+		LEFT JOIN [IN].Inventory i ON cn.LocationCode=i.[Location] AND cn.ProductCode=i.[ProductCode]
+	WHERE
+		CAST(i.CommittedDate as DATE) <= @CommittedDate
+	GROUP BY
+		cn.LocationCode,
+		cn.ProductCode,
+		cn.Qty
+)
+SELECT
+	*
+FROM
+	onhand
+WHERE
+	Qty > onhand";
+                    var dtOnhand = _bu.DbExecuteQuery(
+                        query,
+                        new Blue.DAL.DbParameter[]
+                        {
+                            new Blue.DAL.DbParameter("@CnNo", cnNo),
+                        },
+                        hf_ConnStr.Value);
+
+                    if (dtOnhand.Rows.Count > 0)
+                    {
+                        var productCode = dtOnhand.Rows[0]["ProductCode"].ToString();
+                        var locationCode = dtOnhand.Rows[0]["LocationCode"].ToString();
+
+                        error = string.Format("Not enough quantity in Location='{0}' : Product='{1}'.", locationCode, productCode);
+                        ShowWarning(error);
+
+                        return;
+                    }
+
+
                     _bu.DbExecuteQuery("EXEC [PC].CnCommit @DocNo", new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@DocNo", cnNo) }, hf_ConnStr.Value);
 
 
@@ -1362,23 +1485,23 @@ WHERE
         private DataTable GetReceivingDetails(string recNo)
         {
 
-            var dtCn = _bu.DbExecuteQuery(
-                "SELECT TOP(1) cn.CnNo, cn.CnDate, cn.[Description] FROM PC.Cn JOIN PC.CnDt ON cn.CnNo=cndt.CnNo WHERE cn.DocStatus <> 'Voided' AND RecNo=@RecNo ORDER BY CnDate DESC",
-                new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@RecNo", recNo) },
-                hf_ConnStr.Value);
+            //var dtCn = _bu.DbExecuteQuery(
+            //    "SELECT TOP(1) cn.CnNo, cn.CnDate, cn.[Description] FROM PC.Cn JOIN PC.CnDt ON cn.CnNo=cndt.CnNo WHERE cn.DocStatus <> 'Voided' AND RecNo=@RecNo ORDER BY CnDate DESC",
+            //    new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@RecNo", recNo) },
+            //    hf_ConnStr.Value);
 
-            //var cnNo = ? dtCn.Rows[0][0].ToString() : "";
-            var cnNo = "";
-            var cnDate = "";
-            var cnDesc = "";
-            
+            ////var cnNo = ? dtCn.Rows[0][0].ToString() : "";
+            //var cnNo = "";
+            //var cnDate = "";
+            //var cnDesc = "";
 
-            if (dtCn != null && dtCn.Rows.Count > 0)
-            {
-                cnNo = dtCn.Rows[0]["CnNo"].ToString();
-                cnDate = Convert.ToDateTime(dtCn.Rows[0]["CnDate"]).ToString("yyyy-MM-dd");
-                cnDesc = dtCn.Rows[0]["Description"].ToString();
-            }
+
+            //if (dtCn != null && dtCn.Rows.Count > 0)
+            //{
+            //    cnNo = dtCn.Rows[0]["CnNo"].ToString();
+            //    cnDate = Convert.ToDateTime(dtCn.Rows[0]["CnDate"]).ToString("yyyy-MM-dd");
+            //    cnDesc = dtCn.Rows[0]["Description"].ToString();
+            //}
 
 
 
@@ -1409,11 +1532,7 @@ SELECT
 	CAST(0 as decimal(18,3)) as CnFoc, 
     CAST(0 as decimal(18,4)) as CnCurrNetAmt, 
 	CAST(0 as decimal(18,4)) as CnCurrTaxAmt,
-	CAST(0 as decimal(18,4)) as CnCurrTotalAmt,
-
-    @CnNo as CnNo,
-    CAST(@CnDate as DATE) as CnDate,
-    @CnDesc  as CnDesc
+	CAST(0 as decimal(18,4)) as CnCurrTotalAmt
 FROM 
 	PC.RecDt
 	LEFT JOIN [IN].[Product] p ON p.ProductCode=recdt.ProductCode
@@ -1426,10 +1545,7 @@ WHERE
                 query,
                 new Blue.DAL.DbParameter[] 
                 { 
-                    new Blue.DAL.DbParameter("@RecNo", recNo),
-                    new Blue.DAL.DbParameter("@CnNo", cnNo),
-                    new Blue.DAL.DbParameter("@CnDate", cnDate), 
-                    new Blue.DAL.DbParameter("@CnDesc", cnDesc) 
+                    new Blue.DAL.DbParameter("@RecNo", recNo)
                 },
                 hf_ConnStr.Value);
 

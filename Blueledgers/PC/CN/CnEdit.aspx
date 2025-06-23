@@ -512,13 +512,13 @@
                 </Columns>
             </asp:GridView>
             <!-- Popup -->
-            <dx:ASPxPopupControl ID="pop_Alert" ClientInstanceName="pop_Alert" runat="server" Width="360" HeaderText="<%$ Resources:PC_REC_RecEdit, Warning %>" Modal="True"
+            <dx:ASPxPopupControl ID="pop_Alert" ClientInstanceName="pop_Alert" runat="server" Width="420" HeaderText="<%$ Resources:PC_REC_RecEdit, Warning %>" Modal="True"
                 ShowCloseButton="true" CloseAction="CloseButton" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowPageScrollbarWhenModal="True">
                 <HeaderStyle BackColor="#ffffcc" />
                 <ContentCollection>
                     <dx:PopupControlContentControl ID="PopupControlContentControl_Alert" runat="server">
                         <div class="flex flex-justify-content-center mt-20 mb-20 width-100">
-                            <asp:Label ID="lbl_Pop_Alert" runat="server" SkinID="LBL_NR"></asp:Label>
+                            <asp:Label ID="lbl_Pop_Alert" runat="server" SkinID="LBL_NR" Width="100%"></asp:Label>
                         </div>
                         <div class="flex flex-justify-content-center mt-20 width-100">
                             <button style="width: 100px; padding: 5px;" onclick="pop_Alert.Hide();">
@@ -555,6 +555,10 @@
                                     <dx:ListEditItem Value="6" Text="Last 6 months" />
                                 </Items>
                             </dx:ASPxComboBox>
+                        </div>
+                        <div>
+                            <asp:Label runat="server" ID="lbl_AlreadyCreatedReceiving" Font-Size="Medium" Font-Bold="true" ForeColor="Red" />
+                            <hr />
                         </div>
                         <table style="width: 100%">
                             <tbody>
@@ -705,9 +709,6 @@
                                                         <dx:ListEditItem Value="A" Text="Amount" />
                                                     </Items>
                                                 </dx:ASPxComboBox>
-                                                <div>
-                                                    <asp:Label runat="server" ID="lbl_CnRemark" Font-Size="Smaller" ForeColor="Red" />
-                                                </div>
                                             </td>
                                             <td>
                                                 <span>Inventory unit = </span>
