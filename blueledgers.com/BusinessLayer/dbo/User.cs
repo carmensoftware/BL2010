@@ -81,9 +81,13 @@ namespace Blue.BL.dbo
             2025-09-30 = TheSarojin = 3
             2025-09-30 = kckohchang = 17
             2025-09-30 = theyamaphuket = 12
+            2025-09-30 = sunshine-residences = 10
+          
+          
+          
+          
           
             2025-08-31 = Diamond Cottage = 15+5=20
-          
             2025-08-31 = chatriumniseko = 9
             2025-08-31 = palayanagroup = 2+20 = 22
             2025-08-31 = surestaytheiconic = 11
@@ -156,7 +160,7 @@ namespace Blue.BL.dbo
         
         */
 
-        private DateTime licenseExpiredDate = new DateTime(2026, 6, 30);
+        private DateTime licenseExpiredDate = new DateTime(2025, 9, 30);
         private int licenseActiveUser = 110;
         
 
