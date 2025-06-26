@@ -171,7 +171,7 @@ namespace BlueLedger.PL.Option.Inventory
                 var isRecipe = Convert.ToBoolean(drProduct["IsRecipe"]);
                 var saleItem = Convert.ToBoolean(drProduct["SaleItem"]);
 
-                var receive = GetLastReceive(productCode);
+                //var receive = GetLastReceive(productCode);
                 var prodcat = GetProductCategory(drProduct["ProductCate"].ToString());
 
                 menu_CmdBar.Items.FindByName("SetActive").Text = string.Format("Set to {0}", isActive ? STATUS_INACTIVE : STATUS_ACTIVE);
@@ -184,8 +184,9 @@ namespace BlueLedger.PL.Option.Inventory
                 //lbl_Status.CssClass = isActive ? "badge" : "badge-inactive";
                 SetActiveStatus(isActive);
 
-                lbl_LastCost.Text = receive == null ? FormatAmt(0) : FormatAmt(receive.Cost);
-                lbl_LastCost.ToolTip = receive == null ? "" : string.Format("Document No: {0}\nType: {1}", receive.DocNo, receive.DocType);
+                lbl_LastCost.Text = FormatAmt(GetLastCost(productCode));
+                //lbl_LastCost.Text = receive == null ? FormatAmt(0) : FormatAmt(receive.Cost);
+                //lbl_LastCost.ToolTip = receive == null ? "" : string.Format("Document No: {0}\nType: {1}", receive.DocNo, receive.DocType);
 
                 if (prodcat != null)
                 {
@@ -1230,46 +1231,55 @@ namespace BlueLedger.PL.Option.Inventory
             return product.DbExecuteQuery(sql, null, _connStr);
         }
 
-        private LastReceive GetLastReceive(string productCode)
+        private decimal GetLastCost(string productCode)
         {
 
-            var sql = string.Format(@"SELECT 
-	                                    TOP(1) 
-	                                    i.HdrNo as DocNo, 
-	                                    i.[Type] as DocType , 
-	                                    i.Location as LocationCode, 
-	                                    l.LocationName,
-	                                    i.Amount as Cost, 
-	                                    i.CommittedDate  
-                                    FROM 
-	                                    [IN].Inventory i
-	                                    LEFT JOIN [IN].StoreLocation l
-		                                    ON l.LocationCode=i.Location
-                                    WHERE 
-	                                    [Type] IN ('RC','SI') 
-	                                    AND ProductCode='{0}' 
-                                    ORDER BY CommittedDate DESC", productCode);
+            var sql = string.Format(@"SELECT [IN].GetLastCost('{0}', NULL)", productCode);
             var dt = product.DbExecuteQuery(sql, null, _connStr);
 
-            if (dt != null && dt.Rows.Count > 0)
-            {
-                var dr = dt.Rows[0];
-
-                var docType = dr["DocType"].ToString();
-
-                return new LastReceive
-                {
-                    DocNo = dr["DocNo"].ToString(),
-                    DocType = docType == "RC" ? "Receiving" : "Stock In",
-                    LocationCode = dr["LocationCode"].ToString(),
-                    LocationName = dr["LocationName"].ToString(),
-                    Cost = Convert.ToDecimal(dr["Cost"]),
-                    CommittedDate = Convert.ToDateTime(dr["CommittedDate"])
-                };
-            }
-            else
-                return null;
+            return dt == null || dt.Rows.Count == 0 ? 0m : Convert.ToDecimal(dt.Rows[0][0]);
         }
+
+//        private LastReceive GetLastReceive(string productCode)
+//        {
+
+//            var sql = string.Format(@"SELECT 
+//	                                    TOP(1) 
+//	                                    i.HdrNo as DocNo, 
+//	                                    i.[Type] as DocType , 
+//	                                    i.Location as LocationCode, 
+//	                                    l.LocationName,
+//	                                    i.Amount as Cost, 
+//	                                    i.CommittedDate  
+//                                    FROM 
+//	                                    [IN].Inventory i
+//	                                    LEFT JOIN [IN].StoreLocation l
+//		                                    ON l.LocationCode=i.Location
+//                                    WHERE 
+//	                                    [Type] IN ('RC','SI') 
+//	                                    AND ProductCode='{0}' 
+//                                    ORDER BY CommittedDate DESC", productCode);
+//            var dt = product.DbExecuteQuery(sql, null, _connStr);
+
+//            if (dt != null && dt.Rows.Count > 0)
+//            {
+//                var dr = dt.Rows[0];
+
+//                var docType = dr["DocType"].ToString();
+
+//                return new LastReceive
+//                {
+//                    DocNo = dr["DocNo"].ToString(),
+//                    DocType = docType == "RC" ? "Receiving" : "Stock In",
+//                    LocationCode = dr["LocationCode"].ToString(),
+//                    LocationName = dr["LocationName"].ToString(),
+//                    Cost = Convert.ToDecimal(dr["Cost"]),
+//                    CommittedDate = Convert.ToDateTime(dr["CommittedDate"])
+//                };
+//            }
+//            else
+//                return null;
+//        }
 
         private ProductCategory GetProductCategory(string itemgroupCode)
         {
