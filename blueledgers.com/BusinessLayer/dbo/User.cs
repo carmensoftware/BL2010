@@ -98,6 +98,7 @@ namespace Blue.BL.dbo
             2025-08-31 = themarinphuket = 19
             2025-08-31 = celessamui = 25
 
+            ---------------------------------------------------------------
 
             2025-07-31 = Nexen = 20
             2025-07-31 = Zeavola = 28
@@ -110,40 +111,27 @@ namespace Blue.BL.dbo
             2025-07-31 = BaanSamuiResort = 8
             2025-07-31 = firaphuketbeachclub = 5+3=8
             2025-07-31 = granddiamondsuites = 6+4 = 10
-            2025-07-31 = HOPINN (OnPermise) = 27 
             2025-07-31 = kappasensesubud = 17
             2025-07-31 = legacysuites = 15 + 7 = 22
             2025-07-31 = maduzi = 20
             2025-07-31 = maraleina = 23+1 = 24
             2025-07-31 = selinaserenityrawai = 8
           
-          
-          
+            2025-07-31 = paresaresort = 23
+            2025-07-31 = hopinnth = 27 
           
           
             2025-07-31 = twinlotus (on permise) = 16
+            2025-07-31 = HOPINN (OnPermise) = 27 
           
           
           
           
-            2025-06-30 = paresaresort = 23
-
-            2025-06-30 = hopinnth = 27 
-
-
-
-            ---------------------------------------------------------------
-
-
-
-
-
-
+          
 
             --------- Expired -------------
 
             2025-02-28 = blumonkeybangsaen = 5
-         
           
             2025-01-31 = OKM = 50
             2025-01-31 = MHRH = 3
@@ -161,8 +149,8 @@ namespace Blue.BL.dbo
         
         */
 
-        private DateTime licenseExpiredDate = new DateTime(2025, 9, 30);
-        private int licenseActiveUser = 600;
+        private DateTime licenseExpiredDate = new DateTime(2025, 7, 31);
+        private int licenseActiveUser = 27;
         
 
         public User()
