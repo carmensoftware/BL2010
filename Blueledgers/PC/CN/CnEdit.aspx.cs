@@ -1731,6 +1731,7 @@ WHERE
                 item.DecimalPlaces = digit;
                 item.MaxValue = maxValue;
 
+                item.Enabled = maxValue > 0;
             }
         }
 
