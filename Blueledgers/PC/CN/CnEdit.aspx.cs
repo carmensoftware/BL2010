@@ -355,6 +355,7 @@ namespace BlueLedger.PL.PC.CN
                 // Receiving
                 var recNo = DataBinder.Eval(dataItem, "RecNo").ToString();
 
+
                 BindGridRow_Label(e, "lbl_Receiving", recNo);
 
                 // Location
@@ -381,15 +382,30 @@ namespace BlueLedger.PL.PC.CN
                     hf.Value = productCode;
                 }
 
+                //var query = recDtNo==0 
+                //    ? string.Format("SELECT TOP(1) RecQty, FocQty, CurrNetAmt, CurrTaxAmt FROM PC.RecDt WHERE RecNo='{0}' AND ProductCode='{1}'", recNo, productCode)
+                //    : string.Format("SELECT TOP(1) RecQty, CurrNetAmt, CurrTaxAmt FROM PC.RecDt WHERE RecNo='{0}' AND RecDtNo={1}", recNo, recDtNo);
+                //var dtRec = _bu.DbExecuteQuery(query, null, LoginInfo.ConnStr);
+                
+                var recDtNo = string.IsNullOrEmpty(DataBinder.Eval(dataItem, "PoDtNo").ToString()) ? 0 : Convert.ToInt32(DataBinder.Eval(dataItem, "PoDtNo"));
+                var drRec = GetRecDt(recNo, recDtNo, productCode);
+
+
+                var originRecQty = drRec == null ? 0m : Convert.ToDecimal(drRec["RecQty"]);
+                var originFocQty = drRec == null ? 0m : Convert.ToDecimal(drRec["FocQty"]) ;
+                var originCurrNetAmt =drRec == null ? 0m : Convert.ToDecimal(drRec["CurrNetAmt"]) ;
+                var originCurrTaxAmt = drRec == null ? 0m : Convert.ToDecimal(drRec["CurrTaxAmt"]);
+
+
                 // Qty
                 var recQty = DataBinder.Eval(dataItem, "RecQty");
                 BindGridRow_Label(e, "lbl_RecQty", FormatQty(recQty));
-                BindGridRow_SpinEdit(e, "se_CnQty", recQty, _default.DigitQty);
+                BindGridRow_SpinEdit(e, "se_CnQty", recQty, originRecQty,  _default.DigitQty);
 
                 // Foc
                 var focQty = DataBinder.Eval(dataItem, "FocQty");
                 BindGridRow_Label(e, "lbl_FocQty", FormatQty(focQty));
-                BindGridRow_SpinEdit(e, "se_CnFoc", focQty, _default.DigitQty);
+                BindGridRow_SpinEdit(e, "se_CnFoc", focQty, originFocQty, _default.DigitQty);
 
                 // Unit
                 var unitCode = DataBinder.Eval(dataItem, "UnitCode").ToString();
@@ -402,7 +418,9 @@ namespace BlueLedger.PL.PC.CN
                 var value = DataBinder.Eval(dataItem, "CurrNetAmt");
                 BindGridRow_Label(e, "lbl_CurrNetAmt1", FormatAmt(value));
                 BindGridRow_Label(e, "lbl_CurrNetAmt", FormatAmt(value));
-                BindGridRow_SpinEdit(e, "se_CnCurrNetAmt", value, _default.DigitAmt);
+                BindGridRow_SpinEdit(e, "se_CnCurrNetAmt", value, originCurrNetAmt, _default.DigitAmt);
+
+                
 
                 value = DataBinder.Eval(dataItem, "NetAmt");
                 BindGridRow_Label(e, "lbl_NetAmt", FormatAmt(value));
@@ -412,7 +430,7 @@ namespace BlueLedger.PL.PC.CN
                 value = DataBinder.Eval(dataItem, "CurrTaxAmt");
                 BindGridRow_Label(e, "lbl_CurrTaxAmt1", FormatAmt(value));
                 BindGridRow_Label(e, "lbl_CurrTaxAmt", FormatAmt(value));
-                BindGridRow_SpinEdit(e, "se_CnCurrTaxAmt", value, _default.DigitAmt);
+                BindGridRow_SpinEdit(e, "se_CnCurrTaxAmt", value,  originCurrTaxAmt, _default.DigitAmt);
 
                 value = DataBinder.Eval(dataItem, "TaxAmt");
                 BindGridRow_Label(e, "lbl_TaxAmt", FormatAmt(value));
@@ -429,9 +447,6 @@ namespace BlueLedger.PL.PC.CN
 
 
                 // Extend Information
-                var recDtNo = string.IsNullOrEmpty(DataBinder.Eval(dataItem, "PoDtNo").ToString()) ? 0 : Convert.ToInt32(DataBinder.Eval(dataItem, "PoDtNo"));
-
-                var drRec = GetRecDt(recNo, recDtNo, productCode);
 
                 var taxType = drRec["TaxType"].ToString();
                 var taxTypeName = "None";
@@ -878,10 +893,12 @@ WHERE
                 {
                     var se = e.Row.FindControl("se_CnCurrNetAmt") as ASPxSpinEdit;
 
+
                     se.Value = DataBinder.Eval(dataItem, "CnCurrNetAmt");
                     se.DecimalPlaces = _default.DigitAmt;
                     se.Visible = cnType == "A";
 
+                    se.MaxValue = Convert.ToDecimal(DataBinder.Eval(dataItem, "CurrNetAmt"));
                 }
 
                 if (e.Row.FindControl("se_CnCurrTaxAmt") != null)
@@ -1059,6 +1076,15 @@ WHERE
                         ShowWarning(string.Format("Net amount is required at item #{0}.", recDtNo));
                         return;
                     }
+
+                    //var hf_NetAmt = row.FindControl("hf_NetAmt") as HiddenField;
+
+
+                    //if (se_CnCurrNetAmt.Number > )
+                    //{
+                    //    ShowWarning(string.Format("Net amount is required at item #{0}.", recDtNo));
+                    //    return;
+                    //}
                 }
             }
 
@@ -1694,6 +1720,20 @@ WHERE
 
             }
         }
+        private void BindGridRow_SpinEdit(GridViewRowEventArgs e, string itemName, object value, decimal maxValue, int digit = 2)
+        {
+            if (e.Row.FindControl(itemName) != null)
+            {
+                var item = e.Row.FindControl(itemName) as ASPxSpinEdit;
+
+                item.Value = Convert.ToDecimal(value);
+                item.ToolTip = item.Text;
+                item.DecimalPlaces = digit;
+                item.MaxValue = maxValue;
+
+            }
+        }
+
 
         // Lookup
         private IEnumerable<ListEditItem> GetSelect_CurrencyRate(string currencyCode, DateTime date)
