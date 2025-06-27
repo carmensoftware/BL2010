@@ -23,12 +23,6 @@ namespace BlueLedger.PL.Option.Inventory
                 }
 
                 ListPage.DataBind();
-
-
-
-				Page.Title = "!IsPostBack";
-				
-				//ListPage.AllowCreate = false;
             }
 			else
 			{

@@ -57,16 +57,18 @@ namespace BlueLedger.PL.Option.Inventory
 
                 var itemGroupCode = drProduct["ProductCate"].ToString();
                 var isActive = Convert.ToBoolean(drProduct["IsActive"]);
-
-                //var receive = GetLastReceive(productCode, _connStr);
-                //var lastCost = receive != null ? receive.Cost : 0m;
-                var lastCost = GetLastCost(productCode);
+                var lastCost = string.IsNullOrEmpty(drProduct["LastCost"].ToString()) ? 0m: Convert.ToDecimal(drProduct["LastCost"]);
 
                 hf_ProductCode.Value = productCode;
                 lbl_ProductCode.Text = productCode;
                 lbl_Status.Text = isActive ? STATUS_ACTIVE : STATUS_INACTIVE;
                 lbl_Status.CssClass = isActive ? "badge" : "badge-inactive";
-                lbl_LastCost.Text = FormatAmt(lastCost, DefaultAmtDigit);
+
+                var recNo = drProduct["AddField1"].ToString();
+                var recDate = drProduct["AddField2"].ToString();
+
+                lbl_LastCost.Text = FormatAmt(lastCost);
+                lbl_LastCost.ToolTip = string.IsNullOrEmpty(recDate) ? "" : string.Format("{0} @{1}", recNo, Convert.ToDateTime(recDate).ToString("dd/MM/yyyy"));
 
                 var prodcat = GetProductCategory(itemGroupCode, _connStr);
 
@@ -536,14 +538,14 @@ SELECT TOP(1) 'Closing Balance' FROM [IN].Eop JOIN [IN].EopDt ON eop.EopId=eopdt
                 throw new Exception(ex.Message);
             }
         }
-        private decimal GetLastCost(string productCode)
-        {
+        //private decimal GetLastCost(string productCode)
+        //{
 
-            var sql = string.Format(@"SELECT [IN].GetLastCost('{0}', NULL)", productCode);
-            var dt = bu.DbExecuteQuery(sql, null, _connStr);
+        //    var sql = string.Format(@"SELECT [IN].GetLastCost('{0}', NULL)", productCode);
+        //    var dt = bu.DbExecuteQuery(sql, null, _connStr);
 
-            return dt == null || dt.Rows.Count == 0 ? 0m : Convert.ToDecimal(dt.Rows[0][0]);
-        }
+        //    return dt == null || dt.Rows.Count == 0 ? 0m : Convert.ToDecimal(dt.Rows[0][0]);
+        //}
 
 //        public static LastCost GetLastReceive(string productCode, string _connStr)
 //        {

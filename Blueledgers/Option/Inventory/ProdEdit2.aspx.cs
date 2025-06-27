@@ -170,6 +170,8 @@ namespace BlueLedger.PL.Option.Inventory
                 var stdCost = string.IsNullOrEmpty(drProduct["StandardCost"].ToString()) ? 0m : Convert.ToDecimal(drProduct["StandardCost"]);
                 var isRecipe = Convert.ToBoolean(drProduct["IsRecipe"]);
                 var saleItem = Convert.ToBoolean(drProduct["SaleItem"]);
+                var lastCost = string.IsNullOrEmpty(drProduct["LastCost"].ToString()) ? 0m : Convert.ToDecimal(drProduct["LastCost"]);
+
 
                 //var receive = GetLastReceive(productCode);
                 var prodcat = GetProductCategory(drProduct["ProductCate"].ToString());
@@ -184,9 +186,11 @@ namespace BlueLedger.PL.Option.Inventory
                 //lbl_Status.CssClass = isActive ? "badge" : "badge-inactive";
                 SetActiveStatus(isActive);
 
-                lbl_LastCost.Text = FormatAmt(GetLastCost(productCode));
-                //lbl_LastCost.Text = receive == null ? FormatAmt(0) : FormatAmt(receive.Cost);
-                //lbl_LastCost.ToolTip = receive == null ? "" : string.Format("Document No: {0}\nType: {1}", receive.DocNo, receive.DocType);
+                var recNo = drProduct["AddField1"].ToString();
+                var recDate = drProduct["AddField2"].ToString();
+
+                lbl_LastCost.Text = FormatAmt(lastCost);
+                lbl_LastCost.ToolTip = string.IsNullOrEmpty(recDate) ? "" : string.Format("{0} @{1}", recNo, Convert.ToDateTime(recDate).ToString("dd/MM/yyyy"));
 
                 if (prodcat != null)
                 {
@@ -1231,14 +1235,14 @@ namespace BlueLedger.PL.Option.Inventory
             return product.DbExecuteQuery(sql, null, _connStr);
         }
 
-        private decimal GetLastCost(string productCode)
-        {
+        //private decimal GetLastCost(string productCode)
+        //{
 
-            var sql = string.Format(@"SELECT [IN].GetLastCost('{0}', NULL)", productCode);
-            var dt = product.DbExecuteQuery(sql, null, _connStr);
+        //    var sql = string.Format(@"SELECT [IN].GetLastCost('{0}', NULL)", productCode);
+        //    var dt = product.DbExecuteQuery(sql, null, _connStr);
 
-            return dt == null || dt.Rows.Count == 0 ? 0m : Convert.ToDecimal(dt.Rows[0][0]);
-        }
+        //    return dt == null || dt.Rows.Count == 0 ? 0m : Convert.ToDecimal(dt.Rows[0][0]);
+        //}
 
 //        private LastReceive GetLastReceive(string productCode)
 //        {
