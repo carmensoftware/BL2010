@@ -427,8 +427,8 @@ namespace BlueLedger.PL.IN
                             //using (SqlConnection connection = new SqlConnection(LoginInfo.ConnStr))
                             //{
                             string sql = "EXEC [Tool].[Vendor_InsertOrUpdate] ";
-                            sql += string.Format("@VendorCode='{0}',", vnCode);
-                            sql += string.Format("@CategoryCode='{0}',", vnCateCode);
+                            sql += string.Format("@VendorCode=N'{0}',", vnCode);
+                            sql += string.Format("@CategoryCode=N'{0}',", vnCateCode);
                             sql += string.Format("@VendorName=N'{0}',", vnName);
                             sql += string.Format("@Address=N'{0}',", address);
                             sql += string.Format("@Tel=N'{0}',", vnTel);
