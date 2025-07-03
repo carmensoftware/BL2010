@@ -2,11 +2,11 @@
 
 <%@ MasterType VirtualPath="~/master/In/SkinDefault.master" %>
 <%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxMenu" TagPrefix="dx" %>
-<%@ Register Assembly="DevExpress.Web.ASPxEditors.v10.1" Namespace="DevExpress.Web.ASPxEditors" TagPrefix="dx" %>
 <%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxPopupControl" TagPrefix="dx" %>
+<%@ Register Assembly="DevExpress.Web.ASPxEditors.v10.1" Namespace="DevExpress.Web.ASPxEditors" TagPrefix="dx" %>
+<asp:Content ID="Content1" runat="server" ContentPlaceHolderID="head">
+</asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="cph_Main" runat="Server">
-    <%--    <asp:UpdatePanel ID="UpdatePanel1" UpdateMode="Conditional" runat="server">
-        <ContentTemplate>--%>
     <div class="CMD_BAR">
         <div class="CMD_BAR_LEFT">
             <asp:Image ID="img_TitleIcon" runat="server" ImageUrl="~/App_Themes/Default/Images/master/icon/gear.png" Width="15px" Height="15px" />
@@ -208,162 +208,175 @@
                                 <asp:Button ID="btn_EditSMTP" runat="server" Text="Edit" OnClick="btn_EditSMTP_Click" />
                             </div>
                         </div>
-                        <p>
-                            <table>
-                                <tr>
-                                    <td width="120">
-                                        <asp:Label ID="lbl_ServerName" runat="server" Text="SMTP Server:" />
-                                    </td>
-                                    <td>
-                                        <asp:TextBox ID="txt_ServerName" runat="server" Width="300" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <asp:Label ID="lbl_Port" runat="server" Text="Port:" />
-                                    </td>
-                                    <td>
-                                        <table>
-                                            <tr>
-                                                <td>
-                                                    <dx:ASPxSpinEdit ID="txt_Port" runat="server" Width="80" NumberType="Integer" SpinButtons-ShowIncrementButtons="true" Number="587" />
-                                                </td>
-                                                <td>
-                                                    <asp:Label ID="lbl_PortDefault" runat="server" Text="Default: 587" />
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <asp:Label ID="lbl_SSL" runat="server" Text="SSL" />
-                                    </td>
-                                    <td>
-                                        <dx:ASPxCheckBox ID="check_SSL" runat="server" AutoPostBack="false" OnCheckedChanged="check_SSL_CheckedChanged" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <asp:Label ID="lbl_Authen" runat="server" Text="Authentication" />
-                                    </td>
-                                    <td>
-                                        <dx:ASPxCheckBox ID="check_Authen" runat="server" AutoPostBack="false" OnCheckedChanged="check_Authen_CheckedChanged" Checked="true" />
-                                    </td>
-                                </tr>
-                            </table>
-                            <br />
-                            <table>
-                                <tr>
-                                    <td colspan="2">
-                                        <b>Notification</b>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td width="120">
-                                        <asp:Label ID="lbl_SenderName" runat="server" Text="Sender Name:" />
-                                    </td>
-                                    <td>
-                                        <asp:TextBox ID="txt_Name" runat="server" Width="300" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <asp:Label ID="lbl_Username" runat="server" Text="User Name:" />
-                                    </td>
-                                    <td>
-                                        <asp:TextBox ID="txt_Username" runat="server" Width="300" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <asp:Label ID="lbl_Password" runat="server" Text="Password" />
-                                    </td>
-                                    <td>
-                                        <asp:TextBox ID="txt_Password" runat="server" TextMode="Password" Width="300" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <asp:Button ID="btn_TestSendMail" runat="server" Text="Test sending mail to" OnClick="btn_TestSendMail_Click" />
-                                    </td>
-                                    <td>
-                                        <asp:TextBox ID="txt_TestReceiver" runat="server" Width="300" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                    </td>
-                                    <td>
-                                        <asp:Label ID="lbl_TestReceiver" runat="server" ForeColor="Blue" Width="300" />
-                                    </td>
-                                </tr>
-                            </table>
-                            <br />
-                            <table>
-                                <tr>
-                                    <td colspan="2">
-                                        <b>Purchase Order</b>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td width="120">
-                                        <asp:Label ID="Label9" runat="server" Text="Sender Name:" />
-                                    </td>
-                                    <td>
-                                        <asp:TextBox ID="txt_PoSenderName" runat="server" Width="300" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <asp:Label ID="Label10" runat="server" Text="User Name:" />
-                                    </td>
-                                    <td>
-                                        <asp:TextBox ID="txt_PoUsername" runat="server" Width="300" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <asp:Label ID="Label11" runat="server" Text="Password" />
-                                    </td>
-                                    <td>
-                                        <asp:TextBox ID="txt_PoPassword" runat="server" TextMode="Password" Width="300" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <asp:Label ID="Label1" runat="server" Text="Subject" />
-                                    </td>
-                                    <td>
-                                        <asp:TextBox ID="txt_PoSubject" runat="server" Width="300" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <asp:Label ID="Label2" runat="server" Text="Message" />
-                                    </td>
-                                    <td>
-                                        <asp:TextBox ID="txt_PoMessageBody" runat="server" Width="300" TextMode="MultiLine" Rows="5" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <asp:Label ID="Label14" runat="server" Text="Cc:" />
-                                    </td>
-                                    <td>
-                                        <asp:TextBox ID="txt_PoCc" runat="server" Width="300" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <asp:Label ID="Label17" runat="server" Text="Cc:" />
-                                    </td>
-                                    <td>
-                                        <asp:CheckBox ID="chk_PoCcHod" runat="server" Text="Head of Department" />
-                                    </td>
-                                </tr>
-                            </table>
-                        </p>
+                        <table>
+                            <tr>
+                                <td width="120">
+                                    <asp:Label ID="lbl_ServerName" runat="server" Text="SMTP Server:" />
+                                </td>
+                                <td>
+                                    <asp:TextBox ID="txt_ServerName" runat="server" Width="300" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <asp:Label ID="lbl_Port" runat="server" Text="Port:" />
+                                </td>
+                                <td>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <dx:ASPxSpinEdit ID="txt_Port" runat="server" Width="80" NumberType="Integer" SpinButtons-ShowIncrementButtons="true" Number="587" />
+                                            </td>
+                                            <td>
+                                                <asp:Label ID="lbl_PortDefault" runat="server" Text="Default: 587" />
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <asp:Label ID="lbl_SSL" runat="server" Text="SSL" />
+                                </td>
+                                <td>
+                                    <dx:ASPxCheckBox ID="check_SSL" runat="server" AutoPostBack="false" OnCheckedChanged="check_SSL_CheckedChanged" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <asp:Label ID="lbl_Authen" runat="server" Text="Authentication" />
+                                </td>
+                                <td>
+                                    <dx:ASPxCheckBox ID="check_Authen" runat="server" AutoPostBack="false" OnCheckedChanged="check_Authen_CheckedChanged" Checked="true" />
+                                </td>
+                            </tr>
+                        </table>
+                        <br />
+                        <table>
+                            <tr>
+                                <td colspan="2">
+                                    <b>Notification</b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="120">
+                                    <asp:Label ID="lbl_SenderName" runat="server" Text="Sender Name:" />
+                                </td>
+                                <td>
+                                    <asp:TextBox ID="txt_Name" runat="server" Width="300" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <asp:Label ID="lbl_Username" runat="server" Text="User Name:" />
+                                </td>
+                                <td>
+                                    <asp:TextBox ID="txt_Username" runat="server" Width="300" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <asp:Label ID="lbl_Password" runat="server" Text="Password" />
+                                </td>
+                                <td>
+                                    <asp:TextBox ID="txt_Password" runat="server" TextMode="Password" Width="300" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <asp:Button ID="btn_TestSendMail" runat="server" Text="Test sending PR/SR" OnClick="btn_TestSendMail_Click" />
+                                </td>
+                                <td>
+                                    <asp:TextBox ID="txt_TestReceiver" runat="server" Width="300" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                </td>
+                                <td>
+                                    <asp:Label ID="lbl_TestReceiver" runat="server" ForeColor="Blue" Width="300" />
+                                </td>
+                            </tr>
+                        </table>
+                        <br />
+                        <table>
+                            <tr>
+                                <td colspan="2">
+                                    <b>Purchase Order</b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="120">
+                                    <asp:Label ID="Label9" runat="server" Text="Sender Name:" />
+                                </td>
+                                <td>
+                                    <asp:TextBox ID="txt_PoSenderName" runat="server" Width="300" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <asp:Label ID="Label10" runat="server" Text="User Name:" />
+                                </td>
+                                <td>
+                                    <asp:TextBox ID="txt_PoUsername" runat="server" Width="300" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <asp:Label ID="Label11" runat="server" Text="Password" />
+                                </td>
+                                <td>
+                                    <asp:TextBox ID="txt_PoPassword" runat="server" TextMode="Password" Width="300" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <asp:Label ID="Label1" runat="server" Text="Subject" />
+                                </td>
+                                <td>
+                                    <asp:TextBox ID="txt_PoSubject" runat="server" Width="300" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <asp:Label ID="Label2" runat="server" Text="Message" />
+                                </td>
+                                <td>
+                                    <asp:TextBox ID="txt_PoMessageBody" runat="server" Width="300" TextMode="MultiLine" Rows="5" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <asp:Label ID="Label14" runat="server" Text="Cc:" />
+                                </td>
+                                <td>
+                                    <asp:TextBox ID="txt_PoCc" runat="server" Width="300" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <asp:Label ID="Label17" runat="server" Text="Cc:" />
+                                </td>
+                                <td>
+                                    <asp:CheckBox ID="chk_PoCcHod" runat="server" Text="Head of Department" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <asp:Button ID="btn_TestMailPo" runat="server" Text="Test sending PO" OnClick="btn_TestMailPo_Click" />
+                                </td>
+                                <td>
+                                    <asp:TextBox ID="txt_TestMailPo" runat="server" Width="300" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                </td>
+                                <td>
+                                    <asp:Label ID="Label26" runat="server" ForeColor="Blue" Width="300" />
+                                </td>
+                            </tr>
+                        </table>
                         <br />
                         <div style="text-align: right; margin-right: 40px;">
                             <asp:Button ID="btn_SaveSMTP" runat="server" Text="Save" OnClick="btn_SaveSMTP_Click" />
@@ -673,7 +686,7 @@
                                         <asp:Label ID="Label25" runat="server" Text="Enable edit the commit document" />
                                     </td>
                                     <td>
-                                        <dx:ASPxCheckBox ID="chk_EnableEditCommit" runat="server"  />
+                                        <dx:ASPxCheckBox ID="chk_EnableEditCommit" runat="server" />
                                     </td>
                                 </tr>
                             </table>
@@ -688,14 +701,4 @@
             </dx:PopupControlContentControl>
         </ContentCollection>
     </dx:ASPxPopupControl>
-    <%--</ContentTemplate>
-        <Triggers>
-            <asp:PostBackTrigger ControlID="btn_CompanyProfile" />
-            <asp:PostBackTrigger ControlID="btn_MailServer" />
-            <asp:PostBackTrigger ControlID="btn_InterfaceAccount" />
-            <asp:PostBackTrigger ControlID="btn_Password" />
-            <asp:PostBackTrigger ControlID="btn_WebServer" />
-            <asp:PostBackTrigger ControlID="FileUpload1" />
-        </Triggers>
-    </asp:UpdatePanel>--%>
 </asp:Content>
