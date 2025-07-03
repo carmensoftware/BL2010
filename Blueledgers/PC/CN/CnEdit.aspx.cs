@@ -80,7 +80,7 @@ namespace BlueLedger.PL.PC.CN
             set { ViewState["_dtRecPrd" + _ID] = value; }
         }
 
-        
+
         // Event(s)
 
         protected void Page_Init(object sender, EventArgs e)
@@ -382,34 +382,39 @@ namespace BlueLedger.PL.PC.CN
                     hf.Value = productCode;
                 }
 
-                //var query = recDtNo==0 
-                //    ? string.Format("SELECT TOP(1) RecQty, FocQty, CurrNetAmt, CurrTaxAmt FROM PC.RecDt WHERE RecNo='{0}' AND ProductCode='{1}'", recNo, productCode)
-                //    : string.Format("SELECT TOP(1) RecQty, CurrNetAmt, CurrTaxAmt FROM PC.RecDt WHERE RecNo='{0}' AND RecDtNo={1}", recNo, recDtNo);
-                //var dtRec = _bu.DbExecuteQuery(query, null, LoginInfo.ConnStr);
-                
+                // Unit
+                var unitCode = DataBinder.Eval(dataItem, "UnitCode").ToString();
+                BindGridRow_Label(e, "lbl_Unit", unitCode);
+
                 var recDtNo = string.IsNullOrEmpty(DataBinder.Eval(dataItem, "PoDtNo").ToString()) ? 0 : Convert.ToInt32(DataBinder.Eval(dataItem, "PoDtNo"));
                 var drRec = GetRecDt(recNo, recDtNo, productCode);
 
+   
+
 
                 var originRecQty = drRec == null ? 0m : Convert.ToDecimal(drRec["RecQty"]);
-                var originFocQty = drRec == null ? 0m : Convert.ToDecimal(drRec["FocQty"]) ;
-                var originCurrNetAmt =drRec == null ? 0m : Convert.ToDecimal(drRec["CurrNetAmt"]) ;
+                var originFocQty = drRec == null ? 0m : Convert.ToDecimal(drRec["FocQty"]);
+                var originCurrNetAmt = drRec == null ? 0m : Convert.ToDecimal(drRec["CurrNetAmt"]);
                 var originCurrTaxAmt = drRec == null ? 0m : Convert.ToDecimal(drRec["CurrTaxAmt"]);
 
+                var rcvUnit = drRec == null ? "" : drRec["RcvUnit"].ToString();
 
+                if (rcvUnit != unitCode)
+                {
+
+                    var rate = drRec == null ? 0m : Convert.ToDecimal(drRec["Rate"]);
+                    originRecQty = RoundQty(originRecQty * rate);
+                }
                 // Qty
                 var recQty = DataBinder.Eval(dataItem, "RecQty");
                 BindGridRow_Label(e, "lbl_RecQty", FormatQty(recQty));
-                BindGridRow_SpinEdit(e, "se_CnQty", recQty, originRecQty,  _default.DigitQty);
+                BindGridRow_SpinEdit(e, "se_CnQty", recQty, originRecQty, _default.DigitQty);
 
                 // Foc
                 var focQty = DataBinder.Eval(dataItem, "FocQty");
                 BindGridRow_Label(e, "lbl_FocQty", FormatQty(focQty));
                 BindGridRow_SpinEdit(e, "se_CnFoc", focQty, originFocQty, _default.DigitQty);
 
-                // Unit
-                var unitCode = DataBinder.Eval(dataItem, "UnitCode").ToString();
-                BindGridRow_Label(e, "lbl_Unit", unitCode);
 
 
                 var currencyRate = se_CurrencyRate.Number;
@@ -420,7 +425,7 @@ namespace BlueLedger.PL.PC.CN
                 BindGridRow_Label(e, "lbl_CurrNetAmt", FormatAmt(value));
                 BindGridRow_SpinEdit(e, "se_CnCurrNetAmt", value, originCurrNetAmt, _default.DigitAmt);
 
-                
+
 
                 value = DataBinder.Eval(dataItem, "NetAmt");
                 BindGridRow_Label(e, "lbl_NetAmt", FormatAmt(value));
@@ -430,7 +435,7 @@ namespace BlueLedger.PL.PC.CN
                 value = DataBinder.Eval(dataItem, "CurrTaxAmt");
                 BindGridRow_Label(e, "lbl_CurrTaxAmt1", FormatAmt(value));
                 BindGridRow_Label(e, "lbl_CurrTaxAmt", FormatAmt(value));
-                BindGridRow_SpinEdit(e, "se_CnCurrTaxAmt", value,  originCurrTaxAmt, _default.DigitAmt);
+                BindGridRow_SpinEdit(e, "se_CnCurrTaxAmt", value, originCurrTaxAmt, _default.DigitAmt);
 
                 value = DataBinder.Eval(dataItem, "TaxAmt");
                 BindGridRow_Label(e, "lbl_TaxAmt", FormatAmt(value));
@@ -479,6 +484,8 @@ namespace BlueLedger.PL.PC.CN
             var row = gv.Rows[e.NewEditIndex];
 
             var lbl_CnType = row.FindControl("lbl_CnType") as Label;
+            var lbl_Unit = row.FindControl("lbl_Unit") as Label;
+
 
             var se_CnQty = row.FindControl("se_CnQty") as ASPxSpinEdit;
             var se_CnFoc = row.FindControl("se_CnFoc") as ASPxSpinEdit;
@@ -489,7 +496,13 @@ namespace BlueLedger.PL.PC.CN
 
 
 
-            var cnType = lbl_CnType.Text.Trim();
+            var cnType = lbl_CnType.Text.Trim().ToUpper();
+
+            //if (cnType == "Q")
+            //{
+            //    var dtRec = _bu.DbExecuteQuery("")
+            //}
+
 
             se_CnQty.Visible = cnType.StartsWith("Q");
             se_CnFoc.Visible = cnType.StartsWith("Q");
@@ -697,7 +710,7 @@ WHERE
                         },
                         hf_ConnStr.Value);
 
-                if (dt.Rows.Count >0) 
+                if (dt.Rows.Count > 0)
                 {
                     var dr = dt.Rows[0];
                     var link = string.Format("Cn.aspx?BuCode={0}&ID={1}", LoginInfo.BuInfo.BuCode, dr["CnNo"].ToString());
@@ -740,8 +753,10 @@ WHERE
                 BindGridRow_Label(e, "lbl_RecDtNo", recDtNo);
 
                 // Location
-                var location = DataBinder.Eval(dataItem, "LocationCode").ToString();
-                BindGridRow_Label(e, "lbl_Location", string.Format("{0} : {1}", location, GetLocationName(location)));
+                var locationCode = DataBinder.Eval(dataItem, "LocationCode").ToString();
+                var locationName = DataBinder.Eval(dataItem, "LocationName").ToString();
+                BindGridRow_Label(e, "lbl_Location", string.Format("{0} : {1}", locationCode, locationName));
+                //BindGridRow_Label(e, "lbl_Location", string.Format("{0} : {1}", location, GetLocationName(location)));
 
                 // Product
                 var productCode = DataBinder.Eval(dataItem, "ProductCode").ToString();
@@ -811,19 +826,6 @@ WHERE
                 }
 
 
-                //var cnNo = DataBinder.Eval(dataItem, "CnNo").ToString();
-
-                //if (!string.IsNullOrEmpty(cnNo))
-                //{
-                //    var cnDesc = DataBinder.Eval(dataItem, "CnDesc").ToString();
-                //    var cnDate = Convert.ToDateTime(DataBinder.Eval(dataItem, "CnDate"));
-
-                //    var lbl = e.Row.FindControl("lbl_CnRemark") as Label;
-
-                //    lbl.Text = string.Format("Already created at '{0}' on {1}", cnNo, cnDate.ToString("dd/MM/yyyy"));
-                //}
-
-
                 if (e.Row.FindControl("ddl_CnType") != null)
                 {
                     var ddl = e.Row.FindControl("ddl_CnType") as ASPxComboBox;
@@ -835,14 +837,17 @@ WHERE
                 }
 
                 var inventoryUnit = DataBinder.Eval(dataItem, "InventoryUnit").ToString();
-                var qty = Convert.ToDecimal(DataBinder.Eval(dataItem, "Rate")) * recQty;
+                var rate = Convert.ToDecimal(DataBinder.Eval(dataItem, "Rate"));
+                var inventoryQty = Convert.ToDecimal(DataBinder.Eval(dataItem, "Rate")) * recQty;
+                var cnUnit =  DataBinder.Eval(dataItem, "CnUnit").ToString();
 
-                BindGridRow_Label(e, "lbl_InventoryQty", string.Format("{0} {1}", FormatQty(qty), inventoryUnit));
+
+                //BindGridRow_Label(e, "lbl_InventoryQty", string.Format("{0} {1}", FormatQty(qty), inventoryUnit));
+                BindGridRow_Label(e, "lbl_InventoryQty", string.Format("<b>Unit rate</b>: {0} | <b>{1}</b> {2}", FormatQty(rate), FormatQty(inventoryQty), inventoryUnit));
 
                 if (e.Row.FindControl("ddl_CnUnit") != null)
                 {
                     var ddl = e.Row.FindControl("ddl_CnUnit") as ASPxComboBox;
-
 
                     ddl.Items.Add(new ListEditItem
                     {
@@ -857,14 +862,15 @@ WHERE
                     });
 
 
-                    ddl.Value = rcvUnit;
+                    ddl.Value = cnUnit;
                     ddl.Visible = cnType == "Q";
+
                 }
 
                 if (e.Row.FindControl("se_CnQty") != null)
                 {
                     var se = e.Row.FindControl("se_CnQty") as ASPxSpinEdit;
-                    var maxValue = Convert.ToDecimal(recQty);
+                    var maxValue = rcvUnit == cnUnit ? Convert.ToDecimal(recQty) : inventoryQty;
 
                     se.DecimalPlaces = _default.DigitQty;
                     se.MaxValue = maxValue;
@@ -1027,6 +1033,42 @@ WHERE
             }
         }
 
+        protected void ddl_CnUnit_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var ddl = sender as ASPxComboBox;
+            var hf_RcvUnit = ddl.NamingContainer.FindControl("hf_RcvUnit") as HiddenField;
+            var hf_Rate = ddl.NamingContainer.FindControl("hf_Rate") as HiddenField;
+            var lbl_RecQty = ddl.NamingContainer.FindControl("lbl_RecQty") as Label;
+            var se_CnQty = ddl.NamingContainer.FindControl("se_CnQty") as ASPxSpinEdit;
+
+            var cnUnit = ddl.SelectedItem.Value.ToString();
+            var rcvUnit = hf_RcvUnit.Value.ToString();
+            var recQty = Convert.ToDecimal(lbl_RecQty.Text);
+            var rate = Convert.ToDecimal(hf_Rate.Value);
+
+            var cnQty = se_CnQty.Number;
+
+            if (cnUnit == rcvUnit)
+            {
+                se_CnQty.MaxValue = recQty;
+
+                if (cnQty > recQty)
+                    se_CnQty.Number = recQty;
+
+            }
+            else
+            {
+                var baseQty = RoundQty(recQty * rate);
+                se_CnQty.MaxValue = baseQty;
+
+                if (cnQty > baseQty)
+                    se_CnQty.Number = baseQty;
+
+            }
+
+        }
+
+
         protected void se_CnCurrNetAmt_NumberChanged(object sender, EventArgs e)
         {
             var se_CnCurrNetAmt = (sender as ASPxSpinEdit).NamingContainer.FindControl("se_CnCurrNetAmt") as ASPxSpinEdit;
@@ -1056,9 +1098,7 @@ WHERE
 
                 if (cnType.StartsWith("Q"))
                 {
-
                     var se_CnQty = row.FindControl("se_CnQty") as ASPxSpinEdit;
-                    //var se_CnFoc = row.FindControl("se_CnFoc") as ASPxSpinEdit;
 
                     if (se_CnQty.Number == 0m)
                     {
@@ -1077,14 +1117,6 @@ WHERE
                         return;
                     }
 
-                    //var hf_NetAmt = row.FindControl("hf_NetAmt") as HiddenField;
-
-
-                    //if (se_CnCurrNetAmt.Number > )
-                    //{
-                    //    ShowWarning(string.Format("Net amount is required at item #{0}.", recDtNo));
-                    //    return;
-                    //}
                 }
             }
 
@@ -1094,13 +1126,13 @@ WHERE
             {
                 var hf_CnDtNo = row.FindControl("hf_CnDtNo") as HiddenField;
                 var ddl_CnType = row.FindControl("ddl_CnType") as ASPxComboBox;
-                var cnType = ddl_CnType.Value.ToString();
 
                 var lbl_RecDtNo = row.FindControl("lbl_RecDtNo") as Label;
 
                 var hf_LocationCode = row.FindControl("hf_LocationCode") as HiddenField;
                 var hf_ProductCode = row.FindControl("hf_ProductCode") as HiddenField;
                 var hf_RcvUnit = row.FindControl("hf_RcvUnit") as HiddenField;
+                var hf_Rate = row.FindControl("hf_Rate") as HiddenField;
                 var hf_Price = row.FindControl("hf_Price") as HiddenField;
                 var hf_TaxType = row.FindControl("hf_TaxType") as HiddenField;
                 var hf_TaxRate = row.FindControl("hf_TaxRate") as HiddenField;
@@ -1108,6 +1140,7 @@ WHERE
                 var hf_TaxAmt = row.FindControl("hf_TaxAmt") as HiddenField;
                 var hf_TotalAmt = row.FindControl("hf_TotalAmt") as HiddenField;
 
+                var ddl_CnUnit = row.FindControl("ddl_CnUnit") as ASPxComboBox;
                 var se_CnQty = row.FindControl("se_CnQty") as ASPxSpinEdit;
                 var se_CnFoc = row.FindControl("se_CnFoc") as ASPxSpinEdit;
 
@@ -1115,13 +1148,16 @@ WHERE
                 var se_CnCurrTaxAmt = row.FindControl("se_CnCurrTaxAmt") as ASPxSpinEdit;
                 var se_CnCurrTotalAmt = row.FindControl("se_CnCurrTotalAmt") as ASPxSpinEdit;
 
+                var cnType = ddl_CnType.Value.ToString();
                 var recNo = lbl_RecNo.Text.Trim();
                 var recDtNo = lbl_RecDtNo.Text;
 
                 var price = Convert.ToDecimal(hf_Price.Value);
                 var taxType = hf_TaxType.Value;
                 var taxRate = Convert.ToDecimal(hf_TaxRate.Value);
-
+                var rcvUnit = hf_RcvUnit.Value.ToString();
+                var cnUnit = ddl_CnUnit.SelectedItem.Value.ToString();
+                var rate = Convert.ToDecimal(hf_Rate.Value);
                 var cnQty = se_CnQty.Number;
                 var cnFoc = se_CnFoc.Number;
 
@@ -1135,6 +1171,9 @@ WHERE
 
                 if (cnType == "Q")
                 {
+                    if (cnUnit != rcvUnit)
+                        price = Math.Round( price / rate, 3, MidpointRounding.AwayFromZero);
+
                     var amt = RoundAmt(cnQty * price);
 
                     if (taxType == "N")
@@ -1175,7 +1214,7 @@ WHERE
 
                             cnDt["RecQty"] = cnQty;
                             cnDt["FocQty"] = cnFoc;
-
+                            cnDt["UnitCode"] = cnType == "Q" ? ddl_CnUnit.SelectedItem.Value.ToString() : hf_RcvUnit.Value;
                             cnDt["CurrNetAmt"] = currNetAmt;
                             cnDt["CurrTaxAmt"] = currTaxAmt;
                             cnDt["CurrTotalAmt"] = currTotalAmt;
@@ -1199,7 +1238,7 @@ WHERE
                     dr["RecNo"] = recNo;
                     dr["Location"] = hf_LocationCode.Value;
                     dr["ProductCode"] = hf_ProductCode.Value;
-                    dr["UnitCode"] = hf_RcvUnit.Value;
+                    dr["UnitCode"] = cnType == "Q" ? ddl_CnUnit.SelectedItem.Value.ToString() : hf_RcvUnit.Value;
                     dr["RecQty"] = cnQty;
                     dr["FocQty"] = cnFoc;
                     dr["Price"] = price;
@@ -1511,26 +1550,6 @@ WHERE
         private DataTable GetReceivingDetails(string recNo)
         {
 
-            //var dtCn = _bu.DbExecuteQuery(
-            //    "SELECT TOP(1) cn.CnNo, cn.CnDate, cn.[Description] FROM PC.Cn JOIN PC.CnDt ON cn.CnNo=cndt.CnNo WHERE cn.DocStatus <> 'Voided' AND RecNo=@RecNo ORDER BY CnDate DESC",
-            //    new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@RecNo", recNo) },
-            //    hf_ConnStr.Value);
-
-            ////var cnNo = ? dtCn.Rows[0][0].ToString() : "";
-            //var cnNo = "";
-            //var cnDate = "";
-            //var cnDesc = "";
-
-
-            //if (dtCn != null && dtCn.Rows.Count > 0)
-            //{
-            //    cnNo = dtCn.Rows[0]["CnNo"].ToString();
-            //    cnDate = Convert.ToDateTime(dtCn.Rows[0]["CnDate"]).ToString("yyyy-MM-dd");
-            //    cnDesc = dtCn.Rows[0]["Description"].ToString();
-            //}
-
-
-
             var dtRec = _bu.DbExecuteQuery("SELECT * FROM PC.Rec WHERE RecNo=@RecNo", new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@RecNo", recNo) }, hf_ConnStr.Value);
 
             if (dtRec.Rows.Count > 0)
@@ -1548,12 +1567,15 @@ WHERE
             var query = @"
 SELECT 
     recdt.*,
+    l.LocationName,
 	p.ProductDesc1,
 	p.ProductDesc2,
 	p.InventoryUnit,
 
+
     0 as CnDtNo,
     'N' as CnType,
+    RcvUnit as CnUnit,
 	CAST(0 as decimal(18,3)) as CnQty, 
 	CAST(0 as decimal(18,3)) as CnFoc, 
     CAST(0 as decimal(18,4)) as CnCurrNetAmt, 
@@ -1562,6 +1584,7 @@ SELECT
 FROM 
 	PC.RecDt
 	LEFT JOIN [IN].[Product] p ON p.ProductCode=recdt.ProductCode
+    LEFT JOIN [IN].StoreLocation l ON l.LocationCode=recdt.LocationCode
     
 WHERE 
 	RecNo=@RecNo
@@ -1590,6 +1613,7 @@ WHERE
 
                 var cnDtNo = cndt.Field<int>("CnDtNo");
                 var cnType = cndt.Field<string>("CnType");
+                var cnUnit = cndt.Field<string>("UnitCode");
                 var cnQty = cndt.Field<decimal>("RecQty");
                 var cnFoc = cndt.Field<decimal>("FocQty");
                 var cnCurrNetAmt = cndt.Field<decimal>("CurrNetAmt");
@@ -1610,6 +1634,7 @@ WHERE
                     {
                         recItem["CnDtNo"] = cnDtNo;
                         recItem["CnType"] = "Q";
+                        recItem["CnUnit"] = cnUnit;
                         recItem["CnQty"] = cnQty;
                         recItem["CnFoc"] = cnFoc;
                     }
@@ -1656,6 +1681,7 @@ SELECT TOP(1)
 FROM 
 	PC.Rec 
 	JOIN PC.RecDt ON rec.RecNo=recdt.RecNo
+    
 WHERE 
 	rec.RecNo=@RecNo 
 	AND recdt.RecDtNo = CASE WHEN @RecDtNo=0 THEN recdt.RecDtNo ELSE @RecDtNo END

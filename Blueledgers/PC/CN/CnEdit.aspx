@@ -711,18 +711,19 @@
                                                 </dx:ASPxComboBox>
                                             </td>
                                             <td>
-                                                <span>Inventory unit = </span>
+                                                <%--<span>Inventory unit = </span>--%>
                                                 <asp:Label runat="server" ID="lbl_InventoryQty" SkinID="LBL_NR_1" />
                                             </td>
                                             <td>
                                             </td>
                                             <td>
                                                 <div class="flex">
+                                                    <dx:ASPxComboBox ID="ddl_CnUnit" runat="server" Width="120" AutoPostBack="true" OnSelectedIndexChanged="ddl_CnUnit_SelectedIndexChanged" />
                                                     <dx:ASPxSpinEdit ID="se_CnQty" runat="server" AutoPostBack="false" HorizontalAlign="Right" NullText="0" Number="0.00" Width="100%" Visible="false">
                                                         <SpinButtons ShowIncrementButtons="False" />
                                                     </dx:ASPxSpinEdit>
-                                                    <dx:ASPxComboBox ID="ddl_CnUnit" runat="server" Width="60" />
                                                 </div>
+                                                <%--<asp:Label ID="lbl_CnUnit" runat="server" Font-Size="Smaller" ForeColor="Gray" />--%>
                                             </td>
                                             <td>
                                                 <dx:ASPxSpinEdit ID="se_CnFoc" runat="server" AutoPostBack="false" HorizontalAlign="Right" NullText="0" Number="0.00" Width="100%" Visible="false">
@@ -751,14 +752,6 @@
                                         <tr style="vertical-align: top; background-color: #F5F5F5;">
                                             <td>
                                             </td>
-                                            <%--<td colspan="7">
-                                                    <div>
-                                                        <asp:Label ID="Label7" runat="server" Text="Comment" SkinID="LBL_HD" />
-                                                    </div>
-                                                    <div class="mb-10">
-                                                        <asp:TextBox runat="server" ID="txt_CnComment" Width="100%" />
-                                                    </div>
-                                                </td>--%>
                                             <td>
                                             </td>
                                         </tr>
