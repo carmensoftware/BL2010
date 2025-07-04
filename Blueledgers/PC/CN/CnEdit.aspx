@@ -629,7 +629,7 @@
                                     </ItemTemplate>
                                     <ControlStyle />
                                 </asp:TemplateField>
-                                <%-- PRICE --%>
+                                <%-- Price --%>
                                 <asp:TemplateField HeaderText="Price">
                                     <ItemTemplate>
                                         <asp:Label ID="lbl_Price" runat="server" SkinID="LBL_NR_1" Width="40" />
@@ -686,12 +686,12 @@
                                 <asp:TemplateField HeaderStyle-Width="0">
                                     <ItemTemplate>
                                         <tr style="vertical-align: top; background-color: #F5F5F5;">
+                                        <!-- Image and Hidden Fields -->
                                             <td>
                                                 <asp:Image runat="server" ID="img_Check" />
                                                 <asp:HiddenField runat="server" ID="hf_LocationCode" />
                                                 <asp:HiddenField runat="server" ID="hf_ProductCode" />
-                                                <asp:HiddenField runat="server" ID="hf_RcvUnit" />
-                                                <%--<asp:HiddenField runat="server" ID="hf_UnitCode" />--%>
+                                                <asp:HiddenField runat="server" ID="hf_RcvUnit" />                                                
                                                 <asp:HiddenField runat="server" ID="hf_Rate" />
                                                 <asp:HiddenField runat="server" ID="hf_Price" />
                                                 <asp:HiddenField runat="server" ID="hf_TaxType" />
@@ -701,6 +701,7 @@
                                                 <asp:HiddenField runat="server" ID="hf_TotalAmt" />
                                                 <asp:HiddenField runat="server" ID="hf_CnDtNo" />
                                             </td>
+                                            <!-- CnType -->
                                             <td>
                                                 <dx:ASPxComboBox ID="ddl_CnType" runat="server" AutoPostBack="true" SelectedIndex="0" Width="120" OnSelectedIndexChanged="ddl_CnType_SelectedIndexChanged">
                                                     <Items>
@@ -710,38 +711,45 @@
                                                     </Items>
                                                 </dx:ASPxComboBox>
                                             </td>
+                                            <!-- Inventory Unit /Qty -->
                                             <td>
-                                                <%--<span>Inventory unit = </span>--%>
                                                 <asp:Label runat="server" ID="lbl_InventoryQty" SkinID="LBL_NR_1" />
                                             </td>
                                             <td>
+                                            <!-- CN Unit / CN Qty -->
                                             </td>
                                             <td>
                                                 <div class="flex">
                                                     <dx:ASPxComboBox ID="ddl_CnUnit" runat="server" Width="120" AutoPostBack="true" OnSelectedIndexChanged="ddl_CnUnit_SelectedIndexChanged" />
-                                                    <dx:ASPxSpinEdit ID="se_CnQty" runat="server" AutoPostBack="false" HorizontalAlign="Right" NullText="0" Number="0.00" Width="100%" Visible="false">
+                                                    <dx:ASPxSpinEdit ID="se_CnQty" runat="server" AutoPostBack="true" HorizontalAlign="Right" NullText="0" Number="0.00" Width="100%" Visible="false" OnNumberChanged="se_CnQty_NumberChanged">
                                                         <SpinButtons ShowIncrementButtons="False" />
                                                     </dx:ASPxSpinEdit>
-                                                </div>
-                                                <%--<asp:Label ID="lbl_CnUnit" runat="server" Font-Size="Smaller" ForeColor="Gray" />--%>
+                                                </div>                                               
                                             </td>
+                                            <!-- CN Foc -->
                                             <td>
                                                 <dx:ASPxSpinEdit ID="se_CnFoc" runat="server" AutoPostBack="false" HorizontalAlign="Right" NullText="0" Number="0.00" Width="100%" Visible="false">
                                                     <SpinButtons ShowIncrementButtons="False" />
                                                 </dx:ASPxSpinEdit>
                                             </td>
+                                            <!-- CurrNetAmt -->
                                             <td align="right">
                                                 <dx:ASPxSpinEdit ID="se_CnCurrNetAmt" runat="server" AutoPostBack="true" HorizontalAlign="Right" NullText="0" Number="0.00" Width="100%" Visible="false"
                                                     OnNumberChanged="se_CnCurrNetAmt_NumberChanged">
                                                     <SpinButtons ShowIncrementButtons="False" />
                                                 </dx:ASPxSpinEdit>
+                                                <div>
+                                                <asp:CheckBox runat="server" ID="chk_TaxAdj" Text="Adjust Net/Tax" AutoPostBack="true" Visible="false" OnCheckedChanged="chk_TaxAdj_CheckedChanged" />
+                                                </div>
                                             </td>
+                                            <!-- CurrTaxAmt -->
                                             <td align="right">
                                                 <dx:ASPxSpinEdit ID="se_CnCurrTaxAmt" runat="server" AutoPostBack="true" HorizontalAlign="Right" NullText="0" Number="0.00" Width="100%" Visible="false"
                                                     OnNumberChanged="se_CnCurrTaxAmt_NumberChanged">
                                                     <SpinButtons ShowIncrementButtons="False" />
                                                 </dx:ASPxSpinEdit>
                                             </td>
+                                            <!-- CurrTotalAmt -->
                                             <td align="right">
                                                 <dx:ASPxSpinEdit ID="se_CnCurrTotalAmt" runat="server" AutoPostBack="true" HorizontalAlign="Right" NullText="0" Number="0.00" Width="100%" Enabled="false"
                                                     ReadOnly="true" Visible="false">
@@ -764,8 +772,6 @@
                                 </asp:TemplateField>
                             </Columns>
                         </asp:GridView>
-                        <%--</div>--%>
-                        <%--<div class="flex flex-justify-content-end mt-20 width-100" style="position: absolute; bottom: 10px;">--%>
                         <div class="flex flex-justify-content-end mt-20 width-100">
                             <asp:Button runat="server" ID="btn_SelectItems" Width="100" Text="Select" OnClick="btn_SelectItems_Click" />
                             &nbsp; &nbsp; &nbsp;

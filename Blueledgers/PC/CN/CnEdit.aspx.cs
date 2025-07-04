@@ -389,7 +389,7 @@ namespace BlueLedger.PL.PC.CN
                 var recDtNo = string.IsNullOrEmpty(DataBinder.Eval(dataItem, "PoDtNo").ToString()) ? 0 : Convert.ToInt32(DataBinder.Eval(dataItem, "PoDtNo"));
                 var drRec = GetRecDt(recNo, recDtNo, productCode);
 
-   
+
 
 
                 var originRecQty = drRec == null ? 0m : Convert.ToDecimal(drRec["RecQty"]);
@@ -750,39 +750,43 @@ WHERE
 
                 // RecDtNo
                 var recDtNo = DataBinder.Eval(dataItem, "RecDtNo").ToString();
+
                 BindGridRow_Label(e, "lbl_RecDtNo", recDtNo);
 
                 // Location
                 var locationCode = DataBinder.Eval(dataItem, "LocationCode").ToString();
                 var locationName = DataBinder.Eval(dataItem, "LocationName").ToString();
+
                 BindGridRow_Label(e, "lbl_Location", string.Format("{0} : {1}", locationCode, locationName));
-                //BindGridRow_Label(e, "lbl_Location", string.Format("{0} : {1}", location, GetLocationName(location)));
 
                 // Product
                 var productCode = DataBinder.Eval(dataItem, "ProductCode").ToString();
                 var productDesc1 = DataBinder.Eval(dataItem, "ProductDesc1").ToString();
                 var productDesc2 = DataBinder.Eval(dataItem, "ProductDesc2").ToString();
 
-                //BindGridRow_Label(e, "lbl_Product", string.Format("{0} : {1}", productCode, GetProductName(productCode)));
                 BindGridRow_Label(e, "lbl_Product", string.Format("{0} : {1} | {2}", productCode, productDesc1, productDesc2));
 
                 // Price
                 var price = DataBinder.Eval(dataItem, "Price").ToString();
+
                 BindGridRow_Label(e, "lbl_Price", FormatAmt(price));
 
 
                 // RcvUnit
                 var rcvUnit = DataBinder.Eval(dataItem, "RcvUnit").ToString();
+
                 BindGridRow_Label(e, "lbl_RcvUnit", rcvUnit);
                 BindGridRow_Label(e, "lbl_RcvUnitFoc", rcvUnit);
 
                 // RecQty
                 var recQty = Convert.ToDecimal(DataBinder.Eval(dataItem, "RecQty"));
+
                 BindGridRow_Label(e, "lbl_RecQty", FormatQty(recQty));
 
 
                 // FocQty
                 var focQty = DataBinder.Eval(dataItem, "FocQty");
+
                 BindGridRow_Label(e, "lbl_FocQty", FormatQty(focQty));
 
 
@@ -790,6 +794,7 @@ WHERE
 
                 // CurrNetAmt
                 var value = DataBinder.Eval(dataItem, "CurrNetAmt");
+
                 BindGridRow_Label(e, "lbl_CurrNetAmt", FormatAmt(value));
 
                 value = DataBinder.Eval(dataItem, "NetAmt");
@@ -833,38 +838,27 @@ WHERE
                     ddl.Value = cnType;
 
                     ddl.Enabled = string.IsNullOrEmpty(lbl_AlreadyCreatedReceiving.Text.Trim());
-                    //ddl.Enabled = string.IsNullOrEmpty(cnNo);
                 }
 
                 var inventoryUnit = DataBinder.Eval(dataItem, "InventoryUnit").ToString();
-                var rate = Convert.ToDecimal(DataBinder.Eval(dataItem, "Rate"));
                 var inventoryQty = Convert.ToDecimal(DataBinder.Eval(dataItem, "Rate")) * recQty;
-                var cnUnit =  DataBinder.Eval(dataItem, "CnUnit").ToString();
+                var rate = Convert.ToDecimal(DataBinder.Eval(dataItem, "Rate"));
+                var cnUnit = DataBinder.Eval(dataItem, "CnUnit").ToString();
 
-
-                //BindGridRow_Label(e, "lbl_InventoryQty", string.Format("{0} {1}", FormatQty(qty), inventoryUnit));
                 BindGridRow_Label(e, "lbl_InventoryQty", string.Format("<b>Unit rate</b>: {0} | <b>{1}</b> {2}", FormatQty(rate), FormatQty(inventoryQty), inventoryUnit));
 
                 if (e.Row.FindControl("ddl_CnUnit") != null)
                 {
                     var ddl = e.Row.FindControl("ddl_CnUnit") as ASPxComboBox;
 
-                    ddl.Items.Add(new ListEditItem
+                    ddl.Items.AddRange(new ListEditItem[]
                     {
-                        Value = rcvUnit,
-                        Text = rcvUnit
+                        new ListEditItem { Value = rcvUnit, Text = rcvUnit},
+                        new ListEditItem { Value = inventoryUnit, Text = inventoryUnit}
                     });
-
-                    ddl.Items.Add(new ListEditItem
-                    {
-                        Value = inventoryUnit,
-                        Text = inventoryUnit,
-                    });
-
 
                     ddl.Value = cnUnit;
                     ddl.Visible = cnType == "Q";
-
                 }
 
                 if (e.Row.FindControl("se_CnQty") != null)
@@ -893,7 +887,16 @@ WHERE
                     se.Visible = cnType == "Q" && maxValue > 0;
                 }
 
+                var taxAdj = DataBinder.Eval(dataItem, "TaxAdj").ToString() == "1";
 
+                if (e.Row.FindControl("chk_TaxAdj") != null)
+                {
+                    var chk = e.Row.FindControl("chk_TaxAdj") as CheckBox;
+
+                    chk.Checked = taxAdj;
+                    chk.Visible = cnType == "Q";
+
+                }
 
                 if (e.Row.FindControl("se_CnCurrNetAmt") != null)
                 {
@@ -902,7 +905,8 @@ WHERE
 
                     se.Value = DataBinder.Eval(dataItem, "CnCurrNetAmt");
                     se.DecimalPlaces = _default.DigitAmt;
-                    se.Visible = cnType == "A";
+                    se.Visible = cnType != "N";
+                    se.ReadOnly = taxAdj == false;
 
                     se.MaxValue = Convert.ToDecimal(DataBinder.Eval(dataItem, "CurrNetAmt"));
                 }
@@ -913,7 +917,8 @@ WHERE
 
                     se.Value = DataBinder.Eval(dataItem, "CnCurrTaxAmt");
                     se.DecimalPlaces = _default.DigitAmt;
-                    se.Visible = cnType == "A";
+                    se.Visible = cnType != "N";
+                    se.ReadOnly = taxAdj == false;
 
                 }
 
@@ -923,14 +928,12 @@ WHERE
 
                     se.Value = DataBinder.Eval(dataItem, "CnCurrTotalAmt");
                     se.DecimalPlaces = _default.DigitAmt;
-                    se.Visible = cnType == "A";
+                    se.Visible = cnType != "N";
 
                 }
 
-
-
                 // Hidden Fields
-
+                #region --Hidden Fields--
 
                 if (e.Row.FindControl("hf_LocationCode") != null)
                 {
@@ -941,11 +944,6 @@ WHERE
                 {
                     (e.Row.FindControl("hf_ProductCode") as HiddenField).Value = DataBinder.Eval(dataItem, "ProductCode").ToString();
                 }
-
-                //if (e.Row.FindControl("hf_UnitCode") != null)
-                //{
-                //    (e.Row.FindControl("hf_UnitCode") as HiddenField).Value = DataBinder.Eval(dataItem, "UnitCode").ToString();
-                //}
 
                 if (e.Row.FindControl("hf_RcvUnit") != null)
                 {
@@ -991,19 +989,24 @@ WHERE
                 {
                     (e.Row.FindControl("hf_CnDtNo") as HiddenField).Value = DataBinder.Eval(dataItem, "CnDtNo").ToString();
                 }
+                #endregion
             }
         }
 
         protected void ddl_CnType_SelectedIndexChanged(object sender, EventArgs e)
         {
             var ddl = sender as ASPxComboBox;
+
+            // Controls
             var ddl_CnUnit = ddl.NamingContainer.FindControl("ddl_CnUnit") as ASPxComboBox;
             var se_CnQty = ddl.NamingContainer.FindControl("se_CnQty") as ASPxSpinEdit;
             var se_CnFoc = ddl.NamingContainer.FindControl("se_CnFoc") as ASPxSpinEdit;
+            var chk_TaxAdj = ddl.NamingContainer.FindControl("chk_TaxAdj") as CheckBox;
 
             var se_CnCurrNetAmt = ddl.NamingContainer.FindControl("se_CnCurrNetAmt") as ASPxSpinEdit;
             var se_CnCurrTaxAmt = ddl.NamingContainer.FindControl("se_CnCurrTaxAmt") as ASPxSpinEdit;
             var se_CnCurrTotalAmt = ddl.NamingContainer.FindControl("se_CnCurrTotalAmt") as ASPxSpinEdit;
+
 
             var cnType = ddl.Value.ToString();
 
@@ -1014,13 +1017,18 @@ WHERE
             se_CnCurrTaxAmt.Visible = false;
             se_CnCurrTotalAmt.Visible = false;
 
-            ddl_CnUnit.Visible = cnType.StartsWith("Q");
+            se_CnCurrNetAmt.ReadOnly = cnType.StartsWith("Q");
+            se_CnCurrTaxAmt.ReadOnly = cnType.StartsWith("Q");
+            se_CnCurrTotalAmt.ReadOnly = true;
+
+            ddl_CnUnit.Visible = cnType.StartsWith("Q") && se_CnQty.MaxValue > 0;
             se_CnQty.Visible = cnType.StartsWith("Q") && se_CnQty.MaxValue > 0;
             se_CnFoc.Visible = cnType.StartsWith("Q") && se_CnFoc.MaxValue > 0;
+            chk_TaxAdj.Visible = cnType.StartsWith("Q") && se_CnQty.MaxValue > 0;
 
-            se_CnCurrNetAmt.Visible = cnType.StartsWith("A");
-            se_CnCurrTaxAmt.Visible = cnType.StartsWith("A");
-            se_CnCurrTotalAmt.Visible = cnType.StartsWith("A");
+            se_CnCurrNetAmt.Visible = cnType.StartsWith("A") || cnType.StartsWith("Q");
+            se_CnCurrTaxAmt.Visible = cnType.StartsWith("A") || cnType.StartsWith("Q");
+            se_CnCurrTotalAmt.Visible = cnType.StartsWith("A") || cnType.StartsWith("Q");
 
             se_CnCurrTotalAmt.Number = se_CnCurrNetAmt.Number + se_CnCurrTaxAmt.Number;
 
@@ -1036,10 +1044,14 @@ WHERE
         protected void ddl_CnUnit_SelectedIndexChanged(object sender, EventArgs e)
         {
             var ddl = sender as ASPxComboBox;
-            var hf_RcvUnit = ddl.NamingContainer.FindControl("hf_RcvUnit") as HiddenField;
+
             var hf_Rate = ddl.NamingContainer.FindControl("hf_Rate") as HiddenField;
+            var hf_RcvUnit = ddl.NamingContainer.FindControl("hf_RcvUnit") as HiddenField;
             var lbl_RecQty = ddl.NamingContainer.FindControl("lbl_RecQty") as Label;
             var se_CnQty = ddl.NamingContainer.FindControl("se_CnQty") as ASPxSpinEdit;
+
+
+
 
             var cnUnit = ddl.SelectedItem.Value.ToString();
             var rcvUnit = hf_RcvUnit.Value.ToString();
@@ -1054,7 +1066,6 @@ WHERE
 
                 if (cnQty > recQty)
                     se_CnQty.Number = recQty;
-
             }
             else
             {
@@ -1063,11 +1074,85 @@ WHERE
 
                 if (cnQty > baseQty)
                     se_CnQty.Number = baseQty;
-
             }
 
         }
 
+        protected void se_CnQty_NumberChanged(object sender, EventArgs e)
+        {
+            var se = sender as ASPxSpinEdit;
+
+            // Controls
+            var hf_Rate = se.NamingContainer.FindControl("hf_Rate") as HiddenField;
+            var hf_RcvUnit = se.NamingContainer.FindControl("hf_RcvUnit") as HiddenField;
+            var hf_Price = se.NamingContainer.FindControl("hf_Price") as HiddenField;
+            var hf_TaxType = se.NamingContainer.FindControl("hf_TaxType") as HiddenField;
+            var hf_TaxRate = se.NamingContainer.FindControl("hf_TaxRate") as HiddenField;
+
+            var hf_NetAmt = se.NamingContainer.FindControl("hf_NetAmt") as HiddenField;
+            var hf_TaxAmt = se.NamingContainer.FindControl("hf_TaxAmt") as HiddenField;
+            var hf_TotalAmt = se.NamingContainer.FindControl("hf_TotalAmt") as HiddenField;
+
+
+            var se_CnQty = se.NamingContainer.FindControl("se_CnQty") as ASPxSpinEdit;
+            var ddl_CnUnit = se.NamingContainer.FindControl("ddl_CnUnit") as ASPxComboBox;
+
+            var se_CnCurrNetAmt = se.NamingContainer.FindControl("se_CnCurrNetAmt") as ASPxSpinEdit;
+            var se_CnCurrTaxAmt = se.NamingContainer.FindControl("se_CnCurrTaxAmt") as ASPxSpinEdit;
+            var se_CnCurrTotalAmt = se.NamingContainer.FindControl("se_CnCurrTotalAmt") as ASPxSpinEdit;
+            // -------------------------
+
+            var rcvUnit = hf_RcvUnit.Value.ToString();
+            var cnUnit = ddl_CnUnit.SelectedItem.Value.ToString();
+            var cnQty = se_CnQty.Number;
+
+            var rate = Convert.ToDecimal(hf_Rate.Value);
+            var price = Convert.ToDecimal(hf_Price.Value);
+            var taxRate = Convert.ToDecimal(hf_TaxRate.Value);
+            var taxType = hf_TaxType.Value;
+
+            var rcNetAmt = Convert.ToDecimal(hf_NetAmt.Value);
+            var rcTaxAmt = Convert.ToDecimal(hf_TaxAmt.Value);
+            var rcTotalAmt = Convert.ToDecimal(hf_TotalAmt.Value);
+
+            price = cnUnit == rcvUnit ? price : price = Math.Round(price / rate, 4, MidpointRounding.AwayFromZero);
+            //price = GetPrice(se);
+
+
+            var item = GetTaxNetAmt(cnQty, price, taxRate, taxType);
+
+            var cnNetAmt = item.NetAmt > rcNetAmt ? rcNetAmt : item.NetAmt;
+            var cnTaxAmt = item.TaxAmt > rcTaxAmt ? rcTaxAmt : item.TaxAmt;
+
+            se_CnCurrNetAmt.Number = cnNetAmt;
+            se_CnCurrTaxAmt.Number = cnTaxAmt;
+            se_CnCurrTotalAmt.Number = cnNetAmt + cnTaxAmt;
+        }
+
+        protected void chk_TaxAdj_CheckedChanged(object sender, EventArgs e)
+        {
+            var chk = sender as CheckBox;
+
+            var se_CnCurrNetAmt = chk.NamingContainer.FindControl("se_CnCurrNetAmt") as ASPxSpinEdit;
+            var se_CnCurrTaxAmt = chk.NamingContainer.FindControl("se_CnCurrTaxAmt") as ASPxSpinEdit;
+
+            if (chk.Checked)
+            {
+                se_CnCurrNetAmt.ReadOnly = false;
+                se_CnCurrTaxAmt.ReadOnly = false;
+            }
+            else
+            {
+                se_CnCurrNetAmt.ReadOnly = true;
+                se_CnCurrTaxAmt.ReadOnly = true;
+
+            }
+
+            var se_CnQty = chk.NamingContainer.FindControl("se_CnQty") as ASPxSpinEdit;
+
+            SetCnAmountValues(chk, se_CnQty.Number);
+
+        }
 
         protected void se_CnCurrNetAmt_NumberChanged(object sender, EventArgs e)
         {
@@ -1167,39 +1252,8 @@ WHERE
                 var comment = "";
 
                 var currencyRate = se_CurrencyRate.Number;
-
-
-                if (cnType == "Q")
-                {
-                    if (cnUnit != rcvUnit)
-                        price = Math.Round( price / rate, 3, MidpointRounding.AwayFromZero);
-
-                    var amt = RoundAmt(cnQty * price);
-
-                    if (taxType == "N")
-                    {
-                        currNetAmt = amt;
-                        currTaxAmt = 0;
-                        currTotalAmt = amt;
-                    }
-                    else if (taxType == "A")
-                    {
-
-                        currNetAmt = amt;
-                        currTaxAmt = RoundAmt(amt * taxRate / 100);
-                        currTotalAmt = currNetAmt + currTaxAmt;
-                    }
-                    else
-                    {
-                        currTaxAmt = (amt * taxRate) / (100 - taxRate);
-                        currNetAmt = amt - currTaxAmt;
-                        currTotalAmt = amt;
-                    }
-                }
-
-
                 var cnDtNo = Convert.ToInt32(hf_CnDtNo.Value);
-
+                // Edit
                 if (cnDtNo > 0)
                 {
                     var cnDt = _dtCnDt.AsEnumerable().FirstOrDefault(x => x.Field<int>("CnDtNo") == cnDtNo);
@@ -1215,9 +1269,11 @@ WHERE
                             cnDt["RecQty"] = cnQty;
                             cnDt["FocQty"] = cnFoc;
                             cnDt["UnitCode"] = cnType == "Q" ? ddl_CnUnit.SelectedItem.Value.ToString() : hf_RcvUnit.Value;
+
                             cnDt["CurrNetAmt"] = currNetAmt;
                             cnDt["CurrTaxAmt"] = currTaxAmt;
                             cnDt["CurrTotalAmt"] = currTotalAmt;
+
                             cnDt["NetAmt"] = RoundAmt(currNetAmt * currencyRate);
                             cnDt["TaxAmt"] = RoundAmt(currTaxAmt * currencyRate);
                             cnDt["TotalAmt"] = RoundAmt(currTotalAmt * currencyRate);
@@ -1226,6 +1282,8 @@ WHERE
                     }
 
                 }
+
+                // Add new
                 else if (cnType != "N")
                 {
                     maxCnDtNo++;
@@ -1245,19 +1303,15 @@ WHERE
                     dr["TaxAdj"] = 0;
                     dr["TaxType"] = taxType;
                     dr["TaxRate"] = taxRate;
+
                     dr["CurrNetAmt"] = currNetAmt;
                     dr["CurrTaxAmt"] = currTaxAmt;
                     dr["CurrTotalAmt"] = currTotalAmt;
 
+                    dr["NetAmt"] = RoundAmt(currNetAmt * currencyRate);
+                    dr["TaxAmt"] = RoundAmt(currTaxAmt * currencyRate);
+                    dr["TotalAmt"] = RoundAmt(currTotalAmt * currencyRate);
 
-                    var netAmt = RoundAmt(currNetAmt * currencyRate);
-                    var taxAmt = RoundAmt(currTaxAmt * currencyRate);
-                    var totalAmt = RoundAmt(currTotalAmt * currencyRate);
-
-
-                    dr["NetAmt"] = netAmt;
-                    dr["TaxAmt"] = taxAmt;
-                    dr["TotalAmt"] = totalAmt;
                     dr["Comment"] = comment;
 
                     // Using for RecNo, RecDtNo
@@ -1272,8 +1326,6 @@ WHERE
             gv_Detail.DataBind();
 
             pop_AddItem.ShowOnPageLoad = false;
-
-
         }
 
 
@@ -1534,13 +1586,7 @@ WHERE
                     _transLog.Save("PC", "CN", cnNo, action, string.Empty, LoginInfo.LoginName, hf_ConnStr.Value);
                     Response.Redirect("Cn.aspx?ID=" + cnNo + "&BuCode=" + _BuCode);
                 }
-
             }
-
-
-
-
-
         }
 
         private void UpdateCurrencyRate(decimal value)
@@ -1620,13 +1666,9 @@ WHERE
                 var cnCurrTaxAmt = cndt.Field<decimal>("CurrTaxAmt");
                 var cnCurrTotalAmt = cndt.Field<decimal>("CurrTotalAmt");
 
-
-
                 var recItem = recDtNo != null && recDtNo > 0
                     ? dtRecDt.AsEnumerable().FirstOrDefault(x => x.Field<int>("RecDtNo") == recDtNo)
                     : dtRecDt.AsEnumerable().FirstOrDefault(x => x.Field<string>("LocationCode") == locationCode && x.Field<string>("ProductCode") == productCode);
-
-                //var recItem = dt.AsEnumerable().FirstOrDefault(x => x.Field<string>("LocationCode") == locationCode && x.Field<string>("ProductCode") == productCode);
 
                 if (recItem != null)
                 {
@@ -1637,6 +1679,10 @@ WHERE
                         recItem["CnUnit"] = cnUnit;
                         recItem["CnQty"] = cnQty;
                         recItem["CnFoc"] = cnFoc;
+
+                        recItem["CnCurrNetAmt"] = cnCurrNetAmt;
+                        recItem["CnCurrTaxAmt"] = cnCurrTaxAmt;
+                        recItem["CnCurrTotalAmt"] = cnCurrTotalAmt;
                     }
                     else
                     {
@@ -1646,9 +1692,7 @@ WHERE
                         recItem["CnCurrTaxAmt"] = cnCurrTaxAmt;
                         recItem["CnCurrTotalAmt"] = cnCurrTotalAmt;
                     }
-
                 }
-
             }
 
             return dtRecDt;
@@ -1847,6 +1891,106 @@ WHERE
             return Math.Round(value, Convert.ToInt32(_default.DigitAmt), MidpointRounding.AwayFromZero);
         }
 
+        private TaxNetAmt GetTaxNetAmt(decimal qty, decimal price, decimal taxRate, string taxType)
+        {
+            var netAmt = 0m;
+            var taxAmt = 0m;
+            var amt = RoundAmt(qty * price);
+
+            if (taxType == "N")
+            {
+                netAmt = amt;
+                taxAmt = 0;
+            }
+            else if (taxType == "A")
+            {
+
+                netAmt = amt;
+                taxAmt = RoundAmt(amt * taxRate / 100);
+            }
+            else
+            {
+                taxAmt = (amt * taxRate) / (100 - taxRate);
+                netAmt = amt - taxAmt;
+            }
+
+            return new TaxNetAmt { NetAmt = netAmt, TaxAmt = taxAmt };
+        }
+
+        private decimal GetPrice(WebControl control)
+        {
+            var hf_Rate = control.NamingContainer.FindControl("hf_Rate") as HiddenField;
+            var hf_Price = control.NamingContainer.FindControl("hf_Price") as HiddenField;
+
+            var hf_RcvUnit = control.NamingContainer.FindControl("hf_RcvUnit") as HiddenField;
+            var ddl_CnUnit = control.FindControl("ddl_CnUnit") as ASPxComboBox;
+
+            var rcvUnit = hf_RcvUnit.Value;
+            var cnUnit = ddl_CnUnit.SelectedItem.Value.ToString();
+
+            var price = Convert.ToDecimal(hf_Price.Value);
+            var rate = Convert.ToDecimal(hf_Rate.Value);
+
+            return cnUnit == rcvUnit ? price : price = Math.Round(price / rate, 4, MidpointRounding.AwayFromZero);
+        }
+
+        private void SetCnAmountValues(WebControl control, decimal qty)
+        {
+            var hf_Rate = control.NamingContainer.FindControl("hf_Rate") as HiddenField;
+            var hf_Price = control.NamingContainer.FindControl("hf_Price") as HiddenField;
+            var hf_TaxTye = control.NamingContainer.FindControl("hf_TaxType") as HiddenField;
+            var hf_TaxRate = control.NamingContainer.FindControl("hf_TaxRate") as HiddenField;
+
+            var hf_RcvUnit = control.NamingContainer.FindControl("hf_RcvUnit") as HiddenField;
+            var ddl_CnUnit = control.NamingContainer.FindControl("ddl_CnUnit") as ASPxComboBox;
+
+            var se_CnCurrNetAmt = control.NamingContainer.FindControl("se_CnCurrNetAmt") as ASPxSpinEdit;
+            var se_CnCurrTaxAmt = control.NamingContainer.FindControl("se_CnCurrTaxAmt") as ASPxSpinEdit;
+            var se_CnCurrTotalAmt = control.NamingContainer.FindControl("se_CnCurrTotalAmt") as ASPxSpinEdit;
+
+            // -------------------------------
+
+            var rcvUnit = hf_RcvUnit.Value;
+            var cnUnit = ddl_CnUnit.SelectedItem.Value.ToString();
+
+            var price = Convert.ToDecimal(hf_Price.Value);
+            var rate = Convert.ToDecimal(hf_Rate.Value);
+
+            var taxType = hf_TaxTye.Value;
+            var taxRate = Convert.ToDecimal(hf_TaxRate.Value);
+
+            price = cnUnit == rcvUnit ? price : price = Math.Round(price / rate, 4, MidpointRounding.AwayFromZero);
+
+            var netAmt = 0m;
+            var taxAmt = 0m;
+            var totalAmt = 0m;
+            var amt = RoundAmt(qty * price);
+
+            if (taxType == "N")
+            {
+                netAmt = amt;
+                taxAmt = 0;
+            }
+            else if (taxType == "A")
+            {
+
+                netAmt = amt;
+                taxAmt = RoundAmt(amt * taxRate / 100);
+            }
+            else
+            {
+                taxAmt = (amt * taxRate) / (100 - taxRate);
+                netAmt = amt - taxAmt;
+            }
+
+            totalAmt = netAmt + taxAmt;
+
+            se_CnCurrNetAmt.Number = netAmt;
+            se_CnCurrTaxAmt.Number = taxAmt;
+            se_CnCurrTotalAmt.Number = totalAmt;
+        }
+
+
         // Classes
         public class DefaultValues
         {
@@ -1856,6 +2000,13 @@ WHERE
             public decimal TaxRate { get; set; }
             public string CostMethod { get; set; }
         }
+
+        public class TaxNetAmt
+        {
+            public decimal NetAmt { get; set; }
+            public decimal TaxAmt { get; set; }
+        }
+
 
 
     }
