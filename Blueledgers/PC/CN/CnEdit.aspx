@@ -248,7 +248,7 @@
                             <asp:Label ID="lbl_RecQty" runat="server" SkinID="LBL_NR_1"></asp:Label>
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <dx:ASPxSpinEdit ID="se_CnQty" runat="server" HorizontalAlign="Right" AutoPostBack="True" Width="60px" MinValue="0">
+                            <dx:ASPxSpinEdit ID="se_CnQty" runat="server" HorizontalAlign="Right" AutoPostBack="True" Width="60px" MinValue="0" OnNumberChanged="se_CnQty_NumberChanged">
                                 <SpinButtons ShowIncrementButtons="False">
                                 </SpinButtons>
                             </dx:ASPxSpinEdit>
@@ -261,7 +261,8 @@
                             <asp:Label ID="lbl_Unit" runat="server" SkinID="LBL_NR_1" Width="60"></asp:Label>
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <asp:Label ID="lbl_Unit" runat="server" SkinID="LBL_NR_1" Width="60"></asp:Label>
+                            <%--<asp:Label ID="lbl_Unit" runat="server" SkinID="LBL_NR_1" Width="60"></asp:Label>--%>
+                            <dx:ASPxComboBox ID="ddl_CnUnit" runat="server" Width="120" AutoPostBack="true" OnSelectedIndexChanged="ddl_CnUnit_SelectedIndexChanged" />
                         </EditItemTemplate>
                         <ControlStyle />
                     </asp:TemplateField>
@@ -290,6 +291,9 @@
                                 Width="100px" OnNumberChanged="se_CnCurrNetAmt_NumberChanged">
                                 <SpinButtons ShowIncrementButtons="False" />
                             </dx:ASPxSpinEdit>
+                            <asp:CheckBox runat="server" ID="chk_TaxAdj" Text="Adjust Net/Tax" AutoPostBack="true" OnCheckedChanged="chk_TaxAdj_CheckedChanged" />
+                            <asp:HiddenField runat="server" ID="hf_OriginNetAmt" />
+                            <asp:HiddenField runat="server" ID="hf_OriginTaxAmt" />
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%-- Tax Amount --%>
@@ -334,10 +338,13 @@
                                             <td>
                                                 <asp:Label ID="lbl_RecTaxType_Nm" runat="server" SkinID="LBL_HD_GRD" Text="<%$ Resources:PC_CN_Cn, lbl_TaxType_Nm %>" />
                                                 <asp:Label ID="lbl_RecTaxType" runat="server" SkinID="LBL_NR_1" Text="" />
+                                                &nbsp;&nbsp;
+                                                <asp:Label ID="lbl_RecTaxRate_Nm" runat="server" SkinID="LBL_HD_GRD" Text="Rate: " />
+                                                <asp:Label ID="lbl_RecTaxRate" runat="server" SkinID="LBL_NR_1" Text="" />
                                             </td>
                                             <td>
-                                                <asp:Label ID="lbl_RecTaxRate_Nm" runat="server" SkinID="LBL_HD_GRD" Text="<%$ Resources:PC_CN_Cn, lbl_TaxRate_Nm %>" />
-                                                <asp:Label ID="lbl_RecTaxRate" runat="server" SkinID="LBL_NR_1" Text="" />
+                                                <%--<asp:Label ID="lbl_TaxAdj" runat="server" SkinID="LBL_HD_GRD" Text="" />--%>
+                                                <asp:CheckBox ID="chk_TaxAdj" runat="server" Text="Adjust Net/Tax" Enabled="false" />
                                             </td>
                                             <td align="right">
                                                 <table style="width: 100%;">
@@ -418,6 +425,15 @@
                         <EditItemTemplate>
                             <tr id="TR_Summmary" runat="server">
                                 <td colspan="12">
+                                    <asp:HiddenField runat="server" ID="hf_RcvUnit" />
+                                    <asp:HiddenField runat="server" ID="hf_RecQty" />
+                                    <asp:HiddenField runat="server" ID="hf_Rate" />
+                                    <asp:HiddenField runat="server" ID="hf_Price" />
+                                    <asp:HiddenField runat="server" ID="hf_TaxType" />
+                                    <asp:HiddenField runat="server" ID="hf_TaxRate" />
+                                    <asp:HiddenField runat="server" ID="hf_NetAmt" />
+                                    <asp:HiddenField runat="server" ID="hf_TaxAmt" />
+                                    <asp:HiddenField runat="server" ID="hf_TotalAmt" />
                                     <table style="width: 100%;">
                                         <tr style="vertical-align: top;">
                                             <td>
@@ -549,8 +565,6 @@
                                 <Items>
                                     <dx:ListEditItem Value="-1" Text="All" />
                                     <dx:ListEditItem Value="0" Text="Current month" Selected="true" />
-                                    <%--<dx:ListEditItem Value="1" Text="Last 1 months" />--%>
-                                    <%--<dx:ListEditItem Value="2" Text="Last 2 months" />--%>
                                     <dx:ListEditItem Value="3" Text="Last 3 months" />
                                     <dx:ListEditItem Value="6" Text="Last 6 months" />
                                 </Items>
@@ -605,7 +619,6 @@
                             </tbody>
                         </table>
                         <hr />
-                        <%--<div class="mt-10" style="overflow: hidden; height: 100%;">--%>
                         <asp:GridView ID="gv_Receiving" runat="server" Width="100%" AutoGenerateColumns="false" EmptyDataText="No Data" GridLines="None" OnRowDataBound="gv_Receiving_RowDataBound">
                             <HeaderStyle HorizontalAlign="Left" BackColor="#2196f3" ForeColor="White" Height="24" />
                             <RowStyle HorizontalAlign="Left" VerticalAlign="Top" BorderStyle="None" />
@@ -686,12 +699,13 @@
                                 <asp:TemplateField HeaderStyle-Width="0">
                                     <ItemTemplate>
                                         <tr style="vertical-align: top; background-color: #F5F5F5;">
-                                        <!-- Image and Hidden Fields -->
+                                            <!-- Image and Hidden Fields -->
                                             <td>
                                                 <asp:Image runat="server" ID="img_Check" />
-                                                <asp:HiddenField runat="server" ID="hf_LocationCode" />
                                                 <asp:HiddenField runat="server" ID="hf_ProductCode" />
-                                                <asp:HiddenField runat="server" ID="hf_RcvUnit" />                                                
+                                                <asp:HiddenField runat="server" ID="hf_LocationCode" />
+                                                <asp:HiddenField runat="server" ID="hf_RcvUnit" />
+                                                <asp:HiddenField runat="server" ID="hf_RecQty" />
                                                 <asp:HiddenField runat="server" ID="hf_Rate" />
                                                 <asp:HiddenField runat="server" ID="hf_Price" />
                                                 <asp:HiddenField runat="server" ID="hf_TaxType" />
@@ -716,7 +730,7 @@
                                                 <asp:Label runat="server" ID="lbl_InventoryQty" SkinID="LBL_NR_1" />
                                             </td>
                                             <td>
-                                            <!-- CN Unit / CN Qty -->
+                                                <!-- CN Unit / CN Qty -->
                                             </td>
                                             <td>
                                                 <div class="flex">
@@ -724,7 +738,7 @@
                                                     <dx:ASPxSpinEdit ID="se_CnQty" runat="server" AutoPostBack="true" HorizontalAlign="Right" NullText="0" Number="0.00" Width="100%" Visible="false" OnNumberChanged="se_CnQty_NumberChanged">
                                                         <SpinButtons ShowIncrementButtons="False" />
                                                     </dx:ASPxSpinEdit>
-                                                </div>                                               
+                                                </div>
                                             </td>
                                             <!-- CN Foc -->
                                             <td>
@@ -739,8 +753,10 @@
                                                     <SpinButtons ShowIncrementButtons="False" />
                                                 </dx:ASPxSpinEdit>
                                                 <div>
-                                                <asp:CheckBox runat="server" ID="chk_TaxAdj" Text="Adjust Net/Tax" AutoPostBack="true" Visible="false" OnCheckedChanged="chk_TaxAdj_CheckedChanged" />
+                                                    <asp:CheckBox runat="server" ID="chk_TaxAdj" Text="Adjust Net/Tax" AutoPostBack="true" Visible="false" OnCheckedChanged="chk_TaxAdj_CheckedChanged" />
                                                 </div>
+                                                <asp:HiddenField runat="server" ID="hf_OriginNetAmt" />
+                                                <asp:HiddenField runat="server" ID="hf_OriginTaxAmt" />
                                             </td>
                                             <!-- CurrTaxAmt -->
                                             <td align="right">
