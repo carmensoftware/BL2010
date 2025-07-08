@@ -58,6 +58,7 @@ namespace Blue.BL.dbo
             2026-01-31 = brownstarling = 18
 
             2026-01-31 = MysKhaoyai = 12
+            2026-01-31 = maduzi = 20
             ------------------------------------------------------------------
          
             2025-12-31 = bestwesternratchada = 10        
@@ -114,7 +115,6 @@ namespace Blue.BL.dbo
             2025-07-31 = granddiamondsuites = 6+4 = 10
             2025-07-31 = kappasensesubud = 17
             2025-07-31 = legacysuites = 15 + 7 = 22
-            2025-07-31 = maduzi = 20
             2025-07-31 = maraleina = 23+1 = 24
             2025-07-31 = selinaserenityrawai = 8
           
