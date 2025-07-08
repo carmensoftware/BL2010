@@ -21,17 +21,31 @@
         </asp:DropDownList>--%>
     </div>
     <hr />
-    <asp:GridView ID="gv_Detail" runat="server" SkinID="GRD_V1" Width="100%" AutoGenerateColumns="false" EmptyDataText="No any data">
+    <h2>Incorrect EOP Adjustment</h2>
+    <asp:GridView ID="gv1" runat="server" SkinID="GRD_V1" Width="100%" AutoGenerateColumns="false" EmptyDataText="No any data">
         <HeaderStyle HorizontalAlign="Left" Font-Size="Medium" />
         <RowStyle Font-Size="Medium" />
         <Columns>
             <asp:BoundField HeaderText="Location" DataField="LocationCode" />
             <asp:BoundField HeaderText="Product" DataField="ProductCode" />
-            <asp:BoundField HeaderText="Qty (EOP)" DataField="Qty" />
+            <asp:BoundField HeaderText="EOP Qty" DataField="EopQty" />
+            <asp:BoundField HeaderText="Onhand Before EOP" DataField="OnhandBeforeEop" />
+            <asp:BoundField HeaderText="IN" DataField="AdjIn" />
+            <asp:BoundField HeaderText="OUT" DataField="AdjOut" />
             <asp:BoundField HeaderText="Onhand" DataField="Onhand" />
-            <asp:BoundField HeaderText="IN" DataField="IN" />
-            <asp:BoundField HeaderText="OUT" DataField="OUT" />
-            <asp:BoundField HeaderText="Remark" DataField="Remark" />
+            <asp:BoundField HeaderText="EopId" DataField="EopId" />
+            <asp:BoundField HeaderText="EopDtId" DataField="EopDtId" />
+        </Columns>
+    </asp:GridView>
+    <hr />
+    <h2>Not found in EOP</h2>
+    <asp:GridView ID="gv2" runat="server" SkinID="GRD_V1" Width="100%" AutoGenerateColumns="false" EmptyDataText="No any data">
+        <HeaderStyle HorizontalAlign="Left" Font-Size="Medium" />
+        <RowStyle Font-Size="Medium" />
+        <Columns>
+            <asp:BoundField HeaderText="Location" DataField="LocationCode" />
+            <asp:BoundField HeaderText="Product" DataField="ProductCode" />
+            <asp:BoundField HeaderText="Onhand" DataField="Onhand" />
         </Columns>
     </asp:GridView>
     
