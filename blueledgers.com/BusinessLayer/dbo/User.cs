@@ -11,7 +11,8 @@ namespace Blue.BL.dbo
         private readonly Option.Admin.Security.UserRole userRole = new Option.Admin.Security.UserRole();
         private readonly Blue.BL.ADMIN.UserStore userStore = new Blue.BL.ADMIN.UserStore();
 
-        /* 
+        /*  Customer's license
+         
             2026-06-30 = andalanta = 7+1=8
             2026-06-30 = floralcourthotel = 5+6 = 11
 
@@ -56,6 +57,7 @@ namespace Blue.BL.dbo
             2026-01-31 = absoluteresorts = 1
             2026-01-31 = brownstarling = 18
 
+            2026-01-31 = MysKhaoyai = 12
             ------------------------------------------------------------------
          
             2025-12-31 = bestwesternratchada = 10        
@@ -104,7 +106,6 @@ namespace Blue.BL.dbo
             2025-07-31 = Zeavola = 28
             2025-07-31 = bestwesternclicksathorn11 = 10
             2025-07-31 = bwsanctuary = 10
-            2025-07-31 = MysKhaoyai = 12
             2025-07-31 = silqandsq = 9+5=14
           
           
@@ -149,29 +150,21 @@ namespace Blue.BL.dbo
         
         */
 
-        private DateTime licenseExpiredDate = new DateTime(2025, 9, 30);
-        private int licenseActiveUser = 151;
-        
+        private int licenseActiveUser = 120;
 
-        public User()
+        private DateTime licenseExpiredDate { get { return GetLicenseExpiredDate(); } }
+        //private DateTime licenseExpiredDate = new DateTime(2026, 1, 31);
+
+        public DateTime GetLicenseExpiredDate()
         {
-            SelectCommand = "SELECT * FROM [User]";
-            TableName = "User";
+            return new DateTime(2026, 1, 31);
         }
-
-        /// <summary>
-        ///     Correcting user name and password.
-        /// </summary>
-        /// <param name="LoginName"></param>
-        /// <param name="Password"></param>
-        /// <returns></returns>
-        /// 
 
         public int GetActiveUser()
         {
             string sqlSelect = "SELECT COUNT(*) as ActiveUserCount FROM [dbo].[User] WHERE IsActived = 1 AND LoginName NOT IN ('support@carmen','support@genex')";
 
-            return (int)DbExecuteQuery(sqlSelect, null).Rows[0][0]; 
+            return (int)DbExecuteQuery(sqlSelect, null).Rows[0][0];
 
         }
 
@@ -180,11 +173,13 @@ namespace Blue.BL.dbo
             return licenseActiveUser;
         }
 
-        public DateTime GetLicenseExpiredDate()
-        {
-            return licenseExpiredDate;
-        }
 
+
+        public User()
+        {
+            SelectCommand = "SELECT * FROM [User]";
+            TableName = "User";
+        }
 
         public bool GetUserListByLoginName(DataSet dsUser, string loginName, string password)
         {
@@ -208,12 +203,6 @@ namespace Blue.BL.dbo
 
         public bool CheckLogin(DataSet dsUser, string LoginName, string Password, ref string MsgError, string connStr)
         {
-            //DateTime tempLicenseDate = new DateTime(2016, 9, 9, 0, 0, 0);
-            //if (DateTime.Now.Date <= tempLicenseDate.Date)
-            //{
-            //    licenseActiveUser = 500;
-            //}
-
             // Create parameters
             var dbParams = new DbParameter[1];
             dbParams[0] = new DbParameter("@LoginName", LoginName);
