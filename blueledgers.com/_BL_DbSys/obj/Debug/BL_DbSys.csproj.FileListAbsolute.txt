@@ -1,8 +1,0 @@
-C:\Projects\Blueledgers3\blueledgers.com\BL_DbSys\bin\Debug\BL_DbSys.dll
-C:\Projects\Blueledgers3\blueledgers.com\BL_DbSys\bin\Debug\BL_DbSys.pdb
-C:\Projects\Blueledgers3\blueledgers.com\BL_DbSys\obj\Debug\BL_DbSys.dll
-C:\Projects\Blueledgers3\blueledgers.com\BL_DbSys\obj\Debug\BL_DbSys.pdb
-C:\Projects\BL2010\blueledgers.com\BL_DbSys\bin\Debug\BL_DbSys.dll
-C:\Projects\BL2010\blueledgers.com\BL_DbSys\bin\Debug\BL_DbSys.pdb
-C:\Projects\BL2010\blueledgers.com\BL_DbSys\obj\Debug\BL_DbSys.dll
-C:\Projects\BL2010\blueledgers.com\BL_DbSys\obj\Debug\BL_DbSys.pdb
