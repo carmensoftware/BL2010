@@ -564,8 +564,8 @@
                             <dx:ASPxComboBox ID="ddl_RecPeriod" runat="server" AutoPostBack="True" OnSelectedIndexChanged="ddl_RecPeriod_SelectedIndexChanged">
                                 <Items>
                                     <dx:ListEditItem Value="-1" Text="All" />
-                                    <dx:ListEditItem Value="0" Text="Current month" Selected="true" />
-                                    <dx:ListEditItem Value="3" Text="Last 3 months" />
+                                    <%--<dx:ListEditItem Value="0" Text="Current month" Selected="true" />--%>
+                                    <dx:ListEditItem Value="3" Text="Last 3 months" Selected="true" />
                                     <dx:ListEditItem Value="6" Text="Last 6 months" />
                                 </Items>
                             </dx:ASPxComboBox>

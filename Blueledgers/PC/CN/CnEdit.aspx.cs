@@ -1159,6 +1159,7 @@ WHERE
 
             var se_CnCurrNetAmt = chk.NamingContainer.FindControl("se_CnCurrNetAmt") as ASPxSpinEdit;
             var se_CnCurrTaxAmt = chk.NamingContainer.FindControl("se_CnCurrTaxAmt") as ASPxSpinEdit;
+            var se_CnCurrTotalAmt = chk.NamingContainer.FindControl("se_CnCurrTotalAmt") as ASPxSpinEdit;
 
             var hf_OriginNetAmt = chk.NamingContainer.FindControl("hf_OriginNetAmt") as HiddenField;
             var hf_OriginTaxAmt = chk.NamingContainer.FindControl("hf_OriginTaxAmt") as HiddenField;
@@ -1167,6 +1168,10 @@ WHERE
             {
                 se_CnCurrNetAmt.ReadOnly = false;
                 se_CnCurrTaxAmt.ReadOnly = false;
+
+                se_CnCurrTaxAmt.Enabled = se_CnCurrTaxAmt.MaxValue > 0;
+
+                
 
                 hf_OriginNetAmt.Value = se_CnCurrNetAmt.Number.ToString();
                 hf_OriginTaxAmt.Value = se_CnCurrTaxAmt.Number.ToString();
@@ -1180,6 +1185,8 @@ WHERE
                 se_CnCurrNetAmt.Number = Convert.ToDecimal(hf_OriginNetAmt.Value);
                 se_CnCurrTaxAmt.Number = Convert.ToDecimal(hf_OriginTaxAmt.Value);
             }
+
+            se_CnCurrTotalAmt.Number = se_CnCurrTaxAmt.Number + se_CnCurrNetAmt.Number;
         }
 
         protected void se_CnCurrNetAmt_NumberChanged(object sender, EventArgs e)
