@@ -645,7 +645,7 @@ namespace BlueLedger.PL.PC.CN
             gv.EditIndex = -1;
             gv.DataSource = _dtCnDt;
             gv.DataBind();
-       
+
         }
 
         protected void gv_Detail_RowDeleting(object sender, GridViewDeleteEventArgs e)
@@ -985,6 +985,8 @@ WHERE
                     se.Visible = cnType != "N";
                     se.ReadOnly = taxAdj == false;
 
+                    se.MaxValue = Convert.ToDecimal(DataBinder.Eval(dataItem, "CurrTaxAmt"));
+
                 }
 
                 if (e.Row.FindControl("se_CnCurrTotalAmt") != null)
@@ -1171,7 +1173,7 @@ WHERE
 
                 se_CnCurrTaxAmt.Enabled = se_CnCurrTaxAmt.MaxValue > 0;
 
-                
+
 
                 hf_OriginNetAmt.Value = se_CnCurrNetAmt.Number.ToString();
                 hf_OriginTaxAmt.Value = se_CnCurrTaxAmt.Number.ToString();
@@ -2015,7 +2017,7 @@ WHERE
 
             }
         }
-        
+
         private void BindGridRow_SpinEdit(GridViewRowEventArgs e, string itemName, object value, decimal maxValue, int digit = 2)
         {
             if (e.Row.FindControl(itemName) != null)
