@@ -1820,12 +1820,21 @@ namespace BlueLedger.PL.PC.PR
                     var buConnStr = bu.GetConnectionString(drUpdating["BuCode"].ToString());
 
                     // Get Prefer Vendor data.
+
                     var productCode = drUpdating["ProductCode"].ToString();
+                    var reqQty = decimal.Parse(drUpdating["ReqQty"].ToString());
+                    var reqUnit = drUpdating["OrderUnit"].ToString();
                     var prDate = ddl_PrType.SelectedItem.Value.ToString() == "1"
                         ? DateTime.Parse(drUpdating["ReqDate"].ToString())
                         : DateTime.Parse(txt_PrDate.Text);
-                    var reqQty = decimal.Parse(drUpdating["ReqQty"].ToString());
-                    var reqUnit = drUpdating["OrderUnit"].ToString();
+
+                    var isUsed = conf.GetValue("PC", "PR", "UseDeliveryDateForNonMarketList", hf_ConnStr.Value);
+
+                    if (isUsed.ToUpper() == "TRUE" || isUsed == "1")
+                    {
+                        prDate = DateTime.Parse(drUpdating["ReqDate"].ToString());
+                    }
+
 
                     var dtPriceList = priceList.GetList(productCode, prDate, reqQty, reqUnit, buConnStr);
 
