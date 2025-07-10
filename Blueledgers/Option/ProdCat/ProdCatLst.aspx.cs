@@ -1,13 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
+using System.Linq;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using BlueLedger.PL.BaseClass;
-using System.IO;
-using System.Data.SqlClient;
-using System.Web;
-using System.Collections.Generic;
 
 namespace BlueLedger.PL.Option.ProdCat
 {
@@ -356,27 +355,6 @@ namespace BlueLedger.PL.Option.ProdCat
             txtParent.Visible = boolStatus;
         }
 
-        protected void btnDelete_Click(object sender, EventArgs e)
-        {
-            //string tviewValue = tview.SelectedValue.ToString();
-            //int tableIndex = getTableIndexByValue(tviewValue);
-            //if (isDeleted(tviewValue, tableIndex + 1))
-            //{
-            //    deleteInDataBase(txtCategoryCode.Text);
-            //    getData();
-            //    treeNode();
-            //    clearDatail();
-            //    btnAdd01.Visible = false;
-            //    btnAdd02.Visible = false;
-            //    btnAdd03.Visible = false;
-            //    //btnDelete.Visible = false;
-            //    menu_CmdBar.Items.FindByName("Delete").Visible = false;
-            //}
-            //else
-            //{
-
-            //}
-        }
 
         protected bool isDeleted(string categoryCode, int level)
         {
@@ -443,6 +421,8 @@ namespace BlueLedger.PL.Option.ProdCat
             btnSave.Visible = false;
             btnSaveEdit.Visible = false;
             btnCancel.Visible = false;
+            btnDelete.Visible = false;
+
             txtSearch.Enabled = true;
             btnS.Enabled = true;
             cbTActive.Enabled = btnSaveEdit.Visible;
@@ -453,7 +433,8 @@ namespace BlueLedger.PL.Option.ProdCat
             string errMsg = CheckBeforeSave();
             if (errMsg == string.Empty)
             {
-                return saveToDataBase(tableIndex, ref errMsg);
+                return
+                saveToDataBase(tableIndex, ref errMsg);
             }
             else
             {
@@ -537,7 +518,8 @@ namespace BlueLedger.PL.Option.ProdCat
                 {
                     strsql = sqlInsertString(1);
                 }
-				
+
+
 
                 SqlCommand cmd = new SqlCommand(strsql, cnn);
                 cmd.Parameters.Clear();
@@ -546,8 +528,7 @@ namespace BlueLedger.PL.Option.ProdCat
                 cmd.Parameters.AddWithValue("@CategoryType", (Convert.ToInt32(categoryType) < 0) ? null : categoryType);
                 cmd.Parameters.AddWithValue("@IsActive", cbTActive.Checked ? 1 : 0);
                 cmd.Parameters.AddWithValue("@TaxAccCode", txtAccCode.Text);
-                //cmd.Parameters.AddWithValue("@AuthRules", cbAuthRules.Checked);
-				cmd.Parameters.AddWithValue("@AuthRules", false);
+                cmd.Parameters.AddWithValue("@AuthRules", cbAuthRules.Checked);
                 cmd.Parameters.AddWithValue("@ApprovalLevel", DBNull.Value); //<-- have 2 & 3 ?
                 if (string.IsNullOrEmpty(se_PriceDeviation.Text))
                     cmd.Parameters.AddWithValue("@PriceDeviation", DBNull.Value);
@@ -578,40 +559,22 @@ namespace BlueLedger.PL.Option.ProdCat
                 {
                     cnn.Close();
                     errMsg = ex.Message;
-					//lbl_Test.Text = errMsg;
-					
-					
                     return false;
                 }
 
                 // Update all if it's parent.
-
                 List<string> cateCodeList = GetChildFromCategory(tview);
                 if (txtParent.Text == "0" || cateCodeList.Count > 0)
                 {
                     string whereCateCode = string.Format("IN ('{0}')", string.Join("', '", cateCodeList.ToArray()));
-                    strsql = string.Format("UPDATE [IN].[ProductCategory] SET [CategoryType] = @CategoryType WHERE [CategoryCode] {0}", whereCateCode);
-					
-					//lbl_Test.Text = strsql + " >> " + ((Convert.ToInt32(categoryType) < 0) ? null : categoryType).ToString();
+                    strsql = string.Format(@"UPDATE [IN].[ProductCategory] SET [CategoryType] = @CategoryType
+                        WHERE [CategoryCode] {0}", whereCateCode);
 
                     cmd = new SqlCommand(strsql, cnn);
                     cmd.Parameters.Clear();
                     cmd.Parameters.AddWithValue("@CategoryType", (Convert.ToInt32(categoryType) < 0) ? null : categoryType);
-					try
-					{
-						cmd.ExecuteNonQuery();
-						
-					}
-					catch(Exception ex)
-					{
-					
-						lbl_Test.Text = ex.Message;
-					}
-					
+                    cmd.ExecuteNonQuery();
                 }
-				
-				//lbl_Test.Text = "OK1";
-
 
             }
             catch (Exception ex)
@@ -670,6 +633,7 @@ namespace BlueLedger.PL.Option.ProdCat
             btnSave.Visible = false;
             btnSaveEdit.Visible = false;
             btnCancel.Visible = false;
+            btnDelete.Visible = false;
 
             txtSearch.Enabled = true;
             btnS.Enabled = true;
@@ -677,14 +641,10 @@ namespace BlueLedger.PL.Option.ProdCat
             cbTActive.Enabled = btnSaveEdit.Visible;
         }
 
+
         protected void btn_Warning_Click(object sender, EventArgs e)
         {
             pop_Warning.ShowOnPageLoad = false;
-        }
-
-        protected void btn_Delete_Click(object sender, EventArgs e)
-        {
-
         }
         #endregion
 
@@ -945,6 +905,7 @@ namespace BlueLedger.PL.Option.ProdCat
 
             Open_TofillData();
             btnSaveEdit.Visible = true;
+            btnDelete.Visible = true;
             txtCategoryCode.Enabled = false;
             //cbTActive.Disabled = true;
             cbTActive.Enabled = btnSaveEdit.Visible;
@@ -1023,13 +984,67 @@ namespace BlueLedger.PL.Option.ProdCat
         {
             string tviewValue = tview.SelectedValue.ToString();
             int tableIndex = getTableIndexByValue(tviewValue);
+
             if (SaveProcess(tableIndex))
             {
                 SettingAfterSave();
                 SetVisibleOfDetail(0);
             }
         }
+
+
+        protected void btnDelete_Click(object sender, EventArgs e)
+        {
+            var id = tview.SelectedValue.ToString();
+            
+            
+            var query = "SELECT TOP(1) CategoryCode FROM [IN].ProductCategory WHERE ParentNo=@id";
+
+            var dt = prodCat.DbExecuteQuery(query, new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@id", id) }, LoginInfo.ConnStr);
+
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                ShowAlert("No deleted, this code is not empty"); 
+
+                return;
+            }
+
+            query = "SELECT ProductCode FROM [IN].[Product] WHERE ProductCate = @id";
+
+
+            dt = prodCat.DbExecuteQuery(query, new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@id", id) }, LoginInfo.ConnStr);
+
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                var codes = dt.AsEnumerable()
+                    .Select(x => x.Field<string>("ProductCode"))
+                    .ToArray();
+
+                ShowAlert(string.Format("Some products are using this code.<br/> {0}", string.Join(", ", codes)));
+
+                return;
+            }
+            lbl_ConfirmDelete.Text = string.Format("Do you want to delete this code '{0}'?", id);
+            pop_ConfirmDelete.ShowOnPageLoad = true;
+
+        }
+
+        protected void btn_ConfirmDelete_Click(object sender, EventArgs e)
+        {
+            var id = tview.SelectedValue.ToString();
+            var query = "DELETE FROM [IN].ProductCategory WHERE CategoryCode=@id";
+            var dt = prodCat.DbExecuteQuery(query, new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@id", id) }, LoginInfo.ConnStr);
+
+            Response.Redirect("ProdCatLst.aspx");
+        }
+
         // End Added.
         #endregion
+
+        protected void ShowAlert(string text)
+        {
+            lbl_Warning.Text = text;
+            pop_Warning.ShowOnPageLoad = true;
+        }
     }
 }
