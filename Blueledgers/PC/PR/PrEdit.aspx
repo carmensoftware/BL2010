@@ -1536,7 +1536,7 @@
                                                         <dx:ASPxComboBox ID="ddl_TaxType_Grd_Av" runat="server" AutoPostBack="true" Font-Size="9pt" Font-Names="arial" ForeColor="#4d4d4d" ValueType="System.String"
                                                             Width="80px" SelectedIndex="0" OnSelectedIndexChanged="ddl_TaxType_Grd_Av_SelectedIndexChanged">
                                                             <Items>
-                                                                <dx:ListEditItem Text="None" Value="N" Selected="True" />
+                                                                <dx:ListEditItem Text="None" Value="N" />
                                                                 <dx:ListEditItem Text="Add" Value="A" />
                                                                 <dx:ListEditItem Text="Included" Value="I" />
                                                             </Items>

@@ -297,6 +297,26 @@ public static class SendEmailWorkflow
 
     }
 
+
+    public static bool IsSentMailPR(string refNo, int fromStepNo, string loginName, string connectionString)
+    {
+        var query = @"
+DECLARE @WfStep INT = (SELECT TOP(1) StepTo FROM [IM].Inbox WHERE RefNo=@RefNo AND Sender=@LoginName AND StepFrom=@StepFrom)
+SELECT SentEmail FROM APP.WFDt WHERE WFId=1 AND Step=@WfStep";
+
+                    var parameters = new Blue.DAL.DbParameter[] 
+                    { 
+                        new Blue.DAL.DbParameter("@RefNo", refNo), 
+                        new Blue.DAL.DbParameter("@LoginName", loginName), 
+                        new Blue.DAL.DbParameter("@StepFrom", fromStepNo.ToString()) 
+                    };
+
+                    var dtSentMail = DbExecuteQuery(query, parameters, connectionString);
+
+                    return dtSentMail != null && dtSentMail.Rows.Count > 0 && dtSentMail.Rows[0][0].ToString() == "1";
+    }
+
+
     // Private method(s)
 
     private static string ConvertLoginName_ToEmail(string strLogin, string connectionString)

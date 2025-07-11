@@ -1563,11 +1563,14 @@ namespace BlueLedger.PL.PC.PR
             {
                 //Added on: 2017/05/23, By: Fon
                 bool sentable = false;
-                if (Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["SentEmail"]))
+                var isSentMail = SendEmailWorkflow.IsSentMailPR(prNo, wfStep, LoginInfo.LoginName, hf_ConnStr.Value);
+                
+                //if (Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["SentEmail"]))
+                if (isSentMail)
                 {
                     lbl_hide_action.Text = "Redirect".ToUpper();
                     lbl_hide_value.Text = true.ToString();
-                    //sentable = SendEmail("A");
+                    
                     sentable = SendEmailWorkflow.Send("A", prNo, wfId, wfStep, LoginInfo.LoginName, hf_ConnStr.Value);
                 }
 
@@ -1578,11 +1581,6 @@ namespace BlueLedger.PL.PC.PR
                 }
                 else
                 {
-                    /* old ver.*/
-                    //pop_ConfirmApprove.ShowOnPageLoad = false;
-                    //pop_OKApprove_Succ.ShowOnPageLoad = true;
-
-                    // Modified on: 2017/04, By: Fon
                     if (Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["IsAllocateVendor"]))
                     {
                         if (noSelectedVendorCount == confirmApproveCount || approveCount == 0 && noSelectedVendorCount >= 0 || approveCount > 0 && noSelectedVendorCount > 0)

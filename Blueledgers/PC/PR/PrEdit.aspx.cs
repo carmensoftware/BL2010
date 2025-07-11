@@ -765,6 +765,11 @@ namespace BlueLedger.PL.PC.PR
 
                     string refNo = drPr["PrNo"].ToString();
 
+                    var isSendMail = SendEmailWorkflow.IsSentMailPR(refNo, 1, LoginInfo.LoginName, hf_ConnStr.Value);
+                    {
+                        SendEmailWorkflow.Send("A", refNo, 1, 1, LoginInfo.LoginName, hf_ConnStr.Value);
+                    }
+
                     _transLog.Save("PC", "PR", refNo, _action, string.Empty, LoginInfo.LoginName, hf_ConnStr.Value);
 
                     if (!pop_Alert.ShowOnPageLoad)
@@ -4068,14 +4073,14 @@ namespace BlueLedger.PL.PC.PR
             string locationCode = string.Empty;
             // End Added.
 
-            #region IsAllocateVendor
-            if (Convert.ToBoolean(drWFDt["IsAllocateVendor"]))
+            var isAllocateVendor = Convert.ToBoolean(drWFDt["IsAllocateVendor"]);
+
+            if (isAllocateVendor)
             {
+                #region IsAllocateVendor
                 // Allocate Vendor.                
                 if (ddl_Vendor_av.Value != null)
                 {
-                    /* Fixed on: 2017/03/30, for manual select.
-                    drUpdating["VendorCode"] = ddl_Vendor_av.Value.ToString();*/
                     drUpdating["VendorCode"] = ddl_Vendor_av.Value.ToString().Split(':')[0].Trim();
                 }
 
@@ -4094,17 +4099,6 @@ namespace BlueLedger.PL.PC.PR
                 {
                     drUpdating["ProductCode"] = ddl_ProductCode_av.Text.Split(':')[0].Trim();
                 }
-
-                ////var txt_DescEN_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("Txt_DescEN_av") as TextBox;
-                //var txt_DescEN_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("Txt_DescEN_av") as Label;
-                //drUpdating["Descen"] = txt_DescEN_av.Text;
-
-                ////var txt_DescLL_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_DescLL_av") as TextBox;
-                //var txt_DescLL_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_DescLL_av") as Label;
-                //drUpdating["Descll"] = txt_DescLL_av.Text;
-                //drUpdating["Descen"] = product.GetName(ddl_ProductCode_av.Value.ToString(), bu.GetConnectionString(ddl_BuCode.Value.ToString()));
-                //drUpdating["Descll"] = product.GetName2(ddl_ProductCode_av.Value.ToString(), bu.GetConnectionString(ddl_BuCode.Value.ToString()));
-
 
                 var dte_DeliDate_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("dte_DeliDate_av") as ASPxDateEdit;
                 if (!string.IsNullOrEmpty(dte_DeliDate_av.Text))
@@ -4127,7 +4121,6 @@ namespace BlueLedger.PL.PC.PR
                 }
                 else
                 {
-                    //drUpdating["ReqQty"] = 0.00;
                     pop_AlertQty.ShowOnPageLoad = true;
                     return;
                 }
@@ -4188,20 +4181,22 @@ namespace BlueLedger.PL.PC.PR
 
 
                 var chk_Adj_Grd_Av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("chk_Adj_Grd_Av") as ASPxCheckBox;
+
                 drUpdating["TaxAdj"] = chk_Adj_Grd_Av.Checked;
+
+                var ddl_TaxType_Grd_Av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_TaxType_Grd_Av") as ASPxComboBox;
+                var txt_TaxRate_Grd_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_TaxRate_Grd_av") as TextBox;
 
                 if (!chk_Adj_Grd_Av.Checked)
                 {
-                    drUpdating["TaxType"] = product.GetTaxType(drUpdating["ProductCode"].ToString(), hf_ConnStr.Value);
-                    drUpdating["TaxRate"] = product.GetTaxRate(drUpdating["ProductCode"].ToString(), hf_ConnStr.Value).ToString();
+                    //drUpdating["TaxType"] = product.GetTaxType(drUpdating["ProductCode"].ToString(), hf_ConnStr.Value);
+                    //drUpdating["TaxRate"] = product.GetTaxRate(drUpdating["ProductCode"].ToString(), hf_ConnStr.Value).ToString();
                 }
                 else
                 {
-                    var ddl_TaxType_Grd_Av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_TaxType_Grd_Av") as ASPxComboBox;
 
                     drUpdating["TaxType"] = ddl_TaxType_Grd_Av.Value;
 
-                    var txt_TaxRate_Grd_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_TaxRate_Grd_av") as TextBox;
 
                     if (!string.IsNullOrEmpty(txt_TaxRate_Grd_av.Text) && ddl_TaxType_Grd_Av.Value.ToString() == "N")
                     {
@@ -4237,18 +4232,12 @@ namespace BlueLedger.PL.PC.PR
 
                 var txt_DiscAmt_Grd_Av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_DiscAmt_Grd_Av") as TextBox;
 
-                // Modified on: 31/08/2017, By: Fon
-                //if (!string.IsNullOrEmpty(txt_DiscAmt_Grd_Av.Text) &&
-                //    (decimal.Parse(txt_DiscAmt_Grd_Av.Text) / decimal.Parse(txt_ReqQty_av.Text)) <
-                //    decimal.Parse(txt_Price_av.Text))
                 if (!string.IsNullOrEmpty(txt_CurrDiscAmt_Grd_Av.Text) &&
                    (decimal.Parse(txt_CurrDiscAmt_Grd_Av.Text) / decimal.Parse(txt_ReqQty_av.Text)) < decimal.Parse(txt_Price_av.Text))
                 {
                     drUpdating["CurrDiscAmt"] = txt_CurrDiscAmt_Grd_Av.Text;
                     drUpdating["DiscAmt"] = txt_DiscAmt_Grd_Av.Text;
                 }
-                //else if ((decimal.Parse(txt_DiscAmt_Grd_Av.Text) / decimal.Parse(txt_ReqQty_av.Text)) >
-                //         decimal.Parse(txt_Price_av.Text))
                 else if ((decimal.Parse(txt_CurrDiscAmt_Grd_Av.Text) / decimal.Parse(txt_ReqQty_av.Text)) > decimal.Parse(txt_Price_av.Text))
                 {
                     pop_AlertDiscAmt.ShowOnPageLoad = true;
@@ -4265,10 +4254,8 @@ namespace BlueLedger.PL.PC.PR
 
 
                 var txt_ApprQty_av = (ASPxSpinEdit)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_ApprQty_av");
-                //if (!string.IsNullOrEmpty(txt_ReqQty_av.Text) && decimal.Parse(txt_ReqQty_av.Text) != 0)
                 if (!string.IsNullOrEmpty(txt_ApprQty_av.Text) && decimal.Parse(txt_ApprQty_av.Text) != 0)
                 {
-                    //drUpdating["ApprQty"] = txt_ReqQty_av.Text;
                     drUpdating["ApprQty"] = RoundQty(decimal.Parse(txt_ApprQty_av.Text));
                 }
                 else
@@ -4285,11 +4272,11 @@ namespace BlueLedger.PL.PC.PR
                 drUpdating["Comment"] = (txt_Comment_Detail.Text != null ? txt_Comment_Detail.Text : string.Empty);
 
                 decimal DiscAmt = (decimal.Parse(drUpdating["Price"].ToString()) * decimal.Parse(drUpdating["DiscPercent"].ToString())) / 100;
+                #endregion
             }
-            #endregion
-            #region Not Allocate Vendor
             else
             {
+                #region Not Allocate Vendor
                 var ddl_ProductCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_ProductCode") as ASPxComboBox;
 
                 drUpdating["ProductCode"] = ddl_ProductCode.Value.ToString().Split(' ')[0].Trim();
@@ -4423,8 +4410,8 @@ namespace BlueLedger.PL.PC.PR
                 drUpdating["TotalAmt"] = RoundAmt(Convert.ToDecimal(drUpdating["CurrTotalAmt"]) * currRate);
 
                 // End Modified
+                #endregion
             }
-            #endregion
 
             if (ddl_JobCode.Value != null)
             {
@@ -5260,7 +5247,7 @@ WHERE
             SqlDataSource1.SelectParameters.Add("filter", TypeCode.String, string.Format("%{0}%", e.Filter.Trim()));
             SqlDataSource1.SelectParameters.Add("startIndex", TypeCode.Int64, (e.BeginIndex + 1).ToString());
             SqlDataSource1.SelectParameters.Add("endIndex", TypeCode.Int64, (e.EndIndex + 1).ToString());
-            
+
             comboBox.DataSource = SqlDataSource1;
             comboBox.DataBind();
             comboBox.ToolTip = comboBox.Text;
