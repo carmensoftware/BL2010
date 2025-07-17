@@ -64,7 +64,10 @@
                 <tr>
                     <td>
                         <asp:Label ID="Label1" runat="server" Text="View" />
-                        <asp:DropDownList runat="server" ID="ddl_View" Width="200" AutoPostBack="true" OnSelectedIndexChanged="ddl_View_SelectedIndexChanged" />
+                        <asp:DropDownList runat="server" ID="ddl_View" Width="200" AutoPostBack="true" OnSelectedIndexChanged="ddl_View_SelectedIndexChanged">
+                            <asp:ListItem Value="AP" Text="Posting to AP" />
+                            <asp:ListItem Value="GL" Text="Posting to GL" />
+                        </asp:DropDownList>
                     </td>
                     <td align="right">
                         <asp:TextBox runat="server" ID="txt_Search" AutoPostBack="true" Width="280" OnTextChanged="txt_Search_TextChanged" />
@@ -231,8 +234,9 @@
                             </div>
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <asp:TextBox runat="server" ID="txt_A5"  Visible="false"/>
-                            <dx:ASPxComboBox runat="server" ID="ddl_A5" DropDownStyle="DropDown" Width="140" IncrementalFilteringMode="Contains" CallbackPageSize="100" EnableCallbackMode="true"  Visible="false"/>
+                            <asp:TextBox runat="server" ID="txt_A5" Visible="false" />
+                            <dx:ASPxComboBox runat="server" ID="ddl_A5" DropDownStyle="DropDown" Width="140" IncrementalFilteringMode="Contains" CallbackPageSize="100" EnableCallbackMode="true"
+                                Visible="false" />
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%-- A6 --%>
@@ -246,8 +250,9 @@
                             </div>
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <asp:TextBox runat="server" ID="txt_A6"  Visible="false"/>
-                            <dx:ASPxComboBox runat="server" ID="ddl_A6" DropDownStyle="DropDown" Width="140" IncrementalFilteringMode="Contains" CallbackPageSize="100" EnableCallbackMode="true"  Visible="false"/>
+                            <asp:TextBox runat="server" ID="txt_A6" Visible="false" />
+                            <dx:ASPxComboBox runat="server" ID="ddl_A6" DropDownStyle="DropDown" Width="140" IncrementalFilteringMode="Contains" CallbackPageSize="100" EnableCallbackMode="true"
+                                Visible="false" />
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%-- A7 --%>
@@ -257,12 +262,13 @@
                                 <%# Eval("A7") %>
                             </b>
                             <div>
-                                <asp:Label runat="server" ID="lbl_A7_Desc"  Visible="false"/>
+                                <asp:Label runat="server" ID="lbl_A7_Desc" Visible="false" />
                             </div>
                         </ItemTemplate>
                         <EditItemTemplate>
                             <asp:TextBox runat="server" ID="txt_A7" />
-                            <dx:ASPxComboBox runat="server" ID="ddl_A7" DropDownStyle="DropDown" Width="140" IncrementalFilteringMode="Contains" CallbackPageSize="100" EnableCallbackMode="true"  Visible="false"/>
+                            <dx:ASPxComboBox runat="server" ID="ddl_A7" DropDownStyle="DropDown" Width="140" IncrementalFilteringMode="Contains" CallbackPageSize="100" EnableCallbackMode="true"
+                                Visible="false" />
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%-- A8 --%>
@@ -272,12 +278,13 @@
                                 <%# Eval("A8") %>
                             </b>
                             <div>
-                                <asp:Label runat="server" ID="lbl_A8_Desc"  Visible="false"/>
+                                <asp:Label runat="server" ID="lbl_A8_Desc" Visible="false" />
                             </div>
                         </ItemTemplate>
                         <EditItemTemplate>
                             <asp:TextBox runat="server" ID="txt_A8" />
-                            <dx:ASPxComboBox runat="server" ID="ddl_A8" DropDownStyle="DropDown" Width="140" IncrementalFilteringMode="Contains" CallbackPageSize="100" EnableCallbackMode="true"  Visible="false"/>
+                            <dx:ASPxComboBox runat="server" ID="ddl_A8" DropDownStyle="DropDown" Width="140" IncrementalFilteringMode="Contains" CallbackPageSize="100" EnableCallbackMode="true"
+                                Visible="false" />
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%-- A9 --%>
@@ -291,8 +298,9 @@
                             </div>
                         </ItemTemplate>
                         <EditItemTemplate>
-                            <asp:TextBox runat="server" ID="txt_A9"  Visible="false"/>
-                            <dx:ASPxComboBox runat="server" ID="ddl_A9" DropDownStyle="DropDown" Width="140" IncrementalFilteringMode="Contains" CallbackPageSize="100" EnableCallbackMode="true" Visible="false" />
+                            <asp:TextBox runat="server" ID="txt_A9" Visible="false" />
+                            <dx:ASPxComboBox runat="server" ID="ddl_A9" DropDownStyle="DropDown" Width="140" IncrementalFilteringMode="Contains" CallbackPageSize="100" EnableCallbackMode="true"
+                                Visible="false" />
                         </EditItemTemplate>
                     </asp:TemplateField>
                     <%-- Edit/Save/Cancel --%>
