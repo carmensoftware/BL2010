@@ -5,6 +5,7 @@
 <%@ Register Assembly="DevExpress.Web.ASPxEditors.v10.1" Namespace="DevExpress.Web.ASPxEditors" TagPrefix="dx" %>
 <asp:Content ID="Header" runat="server" ContentPlaceHolderID="head">
     <style type="text/css">
+        
     </style>
     <script type="text/javascript">
         function PrintPage() {
@@ -18,7 +19,6 @@
         }
        
     </script>
-
 </asp:Content>
 <asp:Content ID="Content1" ContentPlaceHolderID="cph_Main" runat="Server">
     <div class="flex flex-justify-content-between flex-align-items-center mb-10" style="background-color: #4d4d4d;">
@@ -64,29 +64,41 @@
             <RowStyle Height="24" />
             <PagerStyle Font-Size="Medium" HorizontalAlign="Center" />
             <Columns>
+                <%--Column=0--%>
                 <asp:BoundField HeaderText="Doc. Date" DataField="DocDate" DataFormatString="{0:d}"></asp:BoundField>
+                <%--Column=1--%>
                 <asp:BoundField HeaderText="Doc. No." DataField="DocNo"></asp:BoundField>
+                <%--Column=2--%>
                 <asp:BoundField HeaderText="Doc. Type" DataField="DocType"></asp:BoundField>
+                <%--Column=3--%>
                 <asp:BoundField HeaderText="Invoice Date" DataField="InvoiceDate" DataFormatString="{0:d}"></asp:BoundField>
+                <%--Column=4--%>
                 <asp:BoundField HeaderText="Invoice No." DataField="InvoiceNo"></asp:BoundField>
+                <%--Column=5--%>
                 <asp:BoundField HeaderText="Vendor" DataField="VendorCode"></asp:BoundField>
+                <%--Column=6--%>
                 <asp:BoundField HeaderText="Description" DataField="Description"></asp:BoundField>
+                <%--Column=7--%>
                 <asp:BoundField HeaderText="Dr./Cr." DataField="DrCr"></asp:BoundField>
+                <%--Column=8--%>
                 <asp:BoundField HeaderText="Amount" DataField="Amount" DataFormatString="{0:###,###.00}">
                     <HeaderStyle HorizontalAlign="Right" />
                     <ItemStyle HorizontalAlign="Right" />
                 </asp:BoundField>
+                <%--Column=9--%>
                 <asp:TemplateField HeaderText="">
                     <ItemTemplate>
                         &nbsp;&nbsp;&nbsp;
                     </ItemTemplate>
                 </asp:TemplateField>
+                <%--Column=10--%>
                 <%--<asp:BoundField HeaderText="Sun Account No" DataField="SunAccountNo"></asp:BoundField>--%>
                 <asp:TemplateField HeaderText="Sun Account No.">
                     <ItemTemplate>
                         <asp:Label runat="server" ID="lbl_SunAccountNo" />
                     </ItemTemplate>
                 </asp:TemplateField>
+                <%--Column=11--%>
                 <asp:TemplateField HeaderText="A1">
                     <HeaderTemplate>
                         <asp:Label runat="server" ID="lbl_A1_Header" />
@@ -95,6 +107,7 @@
                         <asp:Label runat="server" ID="lbl_A1" />
                     </ItemTemplate>
                 </asp:TemplateField>
+                <%--Column=12--%>
                 <asp:TemplateField HeaderText="A2">
                     <HeaderTemplate>
                         <asp:Label runat="server" ID="lbl_A2_Header" />
@@ -103,6 +116,7 @@
                         <asp:Label runat="server" ID="lbl_A2" />
                     </ItemTemplate>
                 </asp:TemplateField>
+                <%--Column=13--%>
                 <asp:TemplateField HeaderText="Exported">
                     <HeaderStyle HorizontalAlign="Center" />
                     <ItemStyle HorizontalAlign="Center" />
@@ -110,6 +124,7 @@
                         <asp:Image runat="server" ID="img_ExportStatus" ImageUrl="~/App_Themes/Default/Images/check.png" />
                     </ItemTemplate>
                 </asp:TemplateField>
+                <%--Column=14--%>
                 <%--<asp:TemplateField HeaderText="Remark">
                             <ItemTemplate>
                                 &nbsp;&nbsp;
@@ -173,6 +188,44 @@
                     </asp:DropDownList>
                     &nbsp;
                     <asp:TextBox runat="server" ID="txt_Config_TaxAccountCode" Width="120" Text="" />
+                </div>
+                <%--<div class="mb-10">
+                    <asp:Label ID="Label101" runat="server" Text="Use A1" />
+                </div>
+                <div class="mb-20">
+                    <asp:DropDownList runat="server" ID="ddl_UseA1" Width="120">
+                        <asp:ListItem Value="true" Text="Yes" />
+                        <asp:ListItem Value="false" Text="No" />
+                    </asp:DropDownList>
+                </div>
+
+                <div class="mb-10">
+                    <asp:Label ID="Label102" runat="server" Text="Use A2" />
+                </div>
+                <div class="mb-20">
+                    <asp:DropDownList runat="server" ID="ddl_UseA2" Width="120">
+                        <asp:ListItem Value="true" Text="Yes" />
+                        <asp:ListItem Value="false" Text="No" />
+                    </asp:DropDownList>
+                </div>
+
+                <div class="mb-10">
+                    <asp:Label ID="Label103" runat="server" Text="Use A3" />
+                </div>
+                <div class="mb-20">
+                    <asp:DropDownList runat="server" ID="ddl_UseA3" Width="120">
+                        <asp:ListItem Value="true" Text="Yes" />
+                        <asp:ListItem Value="false" Text="No" />
+                    </asp:DropDownList>
+                </div>--%>
+                <div class="mb-10">
+                    <asp:Label ID="Label103" runat="server" Text="Use Committed Date" />
+                </div>
+                <div class="mb-20">
+                    <asp:DropDownList runat="server" ID="ddl_Config_UseCommitDate" Width="120">
+                        <asp:ListItem Value="true" Text="Yes" />
+                        <asp:ListItem Value="false" Text="No" />
+                    </asp:DropDownList>
                 </div>
                 <div class="mb-10">
                     <asp:Label ID="Label5" runat="server" Text="Only once export" />

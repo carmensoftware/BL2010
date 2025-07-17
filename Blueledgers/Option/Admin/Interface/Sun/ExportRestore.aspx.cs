@@ -121,8 +121,8 @@ namespace BlueLedger.PL.Option.Admin.Interface.Sun
                 var sunAccountNo = DataBinder.Eval(dataItem, "SunAccountNo").ToString();
                 var a1 = DataBinder.Eval(dataItem, "A1").ToString();
                 var a2 = DataBinder.Eval(dataItem, "A2").ToString();
-                var locationCode = DataBinder.Eval(dataItem, "LocationCode").ToString();
-                var itemGroupCode = DataBinder.Eval(dataItem, "ItemGroupCode").ToString();
+                //var locationCode = DataBinder.Eval(dataItem, "LocationCode").ToString();
+                //var itemGroupCode = DataBinder.Eval(dataItem, "ItemGroupCode").ToString();
 
                 var color = Color.Transparent;
 
@@ -169,10 +169,10 @@ namespace BlueLedger.PL.Option.Admin.Interface.Sun
                     lbl.ForeColor = string.IsNullOrEmpty(value) && docType == "ExpenseLine" ? Color.Tomato : Color.Black;
                     lbl.Font.Bold = string.IsNullOrEmpty(value) && docType == "ExpenseLine" ? false : true;
 
-                    if (string.IsNullOrEmpty(value) && docType == "ExpenseLine")
-                    {
-                        lbl.ToolTip = string.Format("Set '{0}' at location='{1}' and itemgroup='{2}' in Account Mapping.", _descA1, locationCode, itemGroupCode);
-                    }
+                    //if (string.IsNullOrEmpty(value) && docType == "ExpenseLine")
+                    //{
+                    //    lbl.ToolTip = string.Format("Set '{0}' at location='{1}' and itemgroup='{2}' in Account Mapping.", _descA1, locationCode, itemGroupCode);
+                    //}
                 }
 
                 if (e.Row.FindControl("lbl_A2") != null)
@@ -185,10 +185,10 @@ namespace BlueLedger.PL.Option.Admin.Interface.Sun
                     lbl.ForeColor = string.IsNullOrEmpty(value) && docType == "ExpenseLine" ? Color.Tomato : Color.Black;
                     lbl.Font.Bold = string.IsNullOrEmpty(value) && docType == "ExpenseLine" ? false : true;
 
-                    if (string.IsNullOrEmpty(value) && docType == "ExpenseLine")
-                    {
-                        lbl.ToolTip = string.Format("Set '{0}' at location='{1}' and itemgroup='{2}' in Account Mapping.", _descA2, locationCode, itemGroupCode);
-                    }
+                    //if (string.IsNullOrEmpty(value) && docType == "ExpenseLine")
+                    //{
+                    //    lbl.ToolTip = string.Format("Set '{0}' at location='{1}' and itemgroup='{2}' in Account Mapping.", _descA2, locationCode, itemGroupCode);
+                    //}
 
                 }
 

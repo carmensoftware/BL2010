@@ -19,10 +19,21 @@ namespace BlueLedger.PL.Option.Admin.Interface.Sun
 
         private string prevDocNo = "";
         private bool _toggle_color = false;
-        private DataTable _dtAccMapDesc;
+
+        //private AccountMappView _accMapView = new AccountMappView();
+
+        //private DataTable _dtAccMapDesc;
+
+
 
 
         #region "Attributes"
+        private AccMapView _accMapView
+        {
+            get { return ViewState["_accMapView"] as AccMapView; }
+            set { ViewState["_accMapView"] = value; }
+        }
+
         protected bool _hasPermissionEdit
         {
             get
@@ -32,12 +43,6 @@ namespace BlueLedger.PL.Option.Admin.Interface.Sun
                 return pagePermiss >= 3;
             }
         }
-
-        //private DataTable _dtExport
-        //{
-        //    get { return ViewState["_dtExport"] as DataTable; }
-        //    set { ViewState["_dtExport"] = value; }
-        //}
 
 
         #endregion
@@ -56,16 +61,13 @@ namespace BlueLedger.PL.Option.Admin.Interface.Sun
 
             btn_Config.Visible = _hasPermissionEdit;
 
-            _dtAccMapDesc = config.DbExecuteQuery("SELECT TOP(1) DescA1, DescA2, DescA3 FROM [ADMIN].AccountMappView WHERE PostType='AP'", null, LoginInfo.ConnStr);
-
+            //_dtAccMapDesc = config.DbExecuteQuery("SELECT TOP(1) A1, A2, A3, DescA1, DescA2, DescA3 FROM [ADMIN].AccountMappView WHERE PostType='AP'", null, LoginInfo.ConnStr);
+            GetAccountMappView();
         }
+
 
         protected void btn_Preview_Click(object sender, EventArgs e)
         {
-            //var dateFrom = de_FromDate.Date;
-            //var dateTo = de_ToDate.Date;
-
-            //Preview(dateFrom, dateTo);
             BindData();
         }
 
@@ -79,39 +81,7 @@ namespace BlueLedger.PL.Option.Admin.Interface.Sun
 
         protected void btn_Config_Click(object sender, EventArgs e)
         {
-            var sql = new Helpers.SQL(LoginInfo.ConnStr);
-            var query = @"
-
-DECLARE @doc XML = (SELECT TOP(1) [Value] FROM APP.Config WHERE [Module]='APP' AND SubModule='INTF' AND [Key]='SunSystems')
-DECLARE @Version nvarchar(10) =  @doc.value('(/Config/Version)[1]', 'varchar(10)')
-DECLARE @JournalType nvarchar(5) =  @doc.value('(/Config/JournalType)[1]', 'varchar(5)')
-DECLARE @SingleExport nvarchar(5) = @doc.value('(/Config/SingleExport)[1]', 'varchar(5)')
-DECLARE @TaxAccountType nvarchar(20) = @doc.value('(/Config/TaxAccountCode/@Type)[1]', 'varchar(20)')
-DECLARE @TaxAccountCode nvarchar(20) = @doc.value('(/Config/TaxAccountCode)[1]', 'varchar(20)')
-
-SELECT 
-	@Version as [Version], 
-	@JournalType as [JournalType], 
-	@SingleExport as [SingleExport],
-	@TaxAccountType as TaxAccountType,
-	@TaxAccountCode as TaxAccountCode";
-            var dt = sql.ExecuteQuery(query);
-
-            if (dt != null && dt.Rows.Count > 0)
-            {
-                var dr = dt.Rows[0];
-
-                ddl_Config_Version.SelectedValue = dr["Version"].ToString();
-                txt_Config_JournalType.Text = dr["JournalType"].ToString();
-                ddl_Config_TaxAccountType.SelectedValue = dr["TaxAccountType"].ToString();
-                txt_Config_TaxAccountCode.Text = dr["TaxAccountCode"].ToString();
-
-                ddl_Config_SingleExport.SelectedValue = string.IsNullOrEmpty(dr["SingleExport"].ToString()) ? "true" : dr["SingleExport"].ToString();
-
-            }
-
-
-
+            SetConfig();
 
             pop_Config.ShowOnPageLoad = true;
         }
@@ -154,40 +124,18 @@ VALUES ('APP','INTF','SunSystems', @Value, 'SYSTEM',GETDATE())";
         protected void ddl_View_SelectedIndexChanged(object sender, EventArgs e)
         {
             BindData();
-            //var value = (sender as DropDownList).SelectedItem.Value.ToString();
-
-            //switch (value)
-            //{
-            //    case "0":
-            //        var rowNoExport = _dtExport.Select("ExportStatus=0");
-
-            //        gv_Data.DataSource = rowNoExport.Length > 0 ? rowNoExport.CopyToDataTable() : null;
-            //        gv_Data.DataBind();
-            //        break;
-            //    case "1":
-            //        var rowExport = _dtExport.Select("ExportStatus=1");
-
-            //        gv_Data.DataSource = rowExport.Length > 0 ? rowExport.CopyToDataTable() : null;
-            //        gv_Data.DataBind();
-            //        break;
-            //    default:
-            //        gv_Data.DataSource = _dtExport;
-            //        gv_Data.DataBind();
-
-            //        break;
-            //}
         }
 
         protected void gv_Data_RowDataBound(object sender, GridViewRowEventArgs e)
         {
-            string _descA1 = "", _descA2 = "", _descA3 = "";
+            //string _descA1 = "", _descA2 = "", _descA3 = "";
 
-            if (_dtAccMapDesc != null && _dtAccMapDesc.Rows.Count > 0)
-            {
-                _descA1 = _dtAccMapDesc.Rows[0]["DescA1"].ToString();
-                _descA2 = _dtAccMapDesc.Rows[0]["DescA2"].ToString();
-                _descA3 = _dtAccMapDesc.Rows[0]["DescA3"].ToString();
-            }
+            //if (_dtAccMapDesc != null && _dtAccMapDesc.Rows.Count > 0)
+            //{
+            //    _descA1 = _dtAccMapDesc.Rows[0]["DescA1"].ToString();
+            //    _descA2 = _dtAccMapDesc.Rows[0]["DescA2"].ToString();
+            //    _descA3 = _dtAccMapDesc.Rows[0]["DescA3"].ToString();
+            //}
 
             #region --header--
             if (e.Row.RowType == DataControlRowType.Header)
@@ -197,14 +145,16 @@ VALUES ('APP','INTF','SunSystems', @Value, 'SYSTEM',GETDATE())";
                 {
                     var lbl = e.Row.FindControl("lbl_A1_Header") as Label;
 
-                    lbl.Text = _descA1;
+                    lbl.Text = _accMapView.DescA1;
+                    //lbl.Text = _descA1;
                 }
 
                 if (e.Row.FindControl("lbl_A2_Header") != null)
                 {
                     var lbl = e.Row.FindControl("lbl_A2_Header") as Label;
 
-                    lbl.Text = _descA2;
+                    lbl.Text = _accMapView.DescA2;
+                    //lbl.Text = _descA2;
                 }
 
             }
@@ -222,8 +172,6 @@ VALUES ('APP','INTF','SunSystems', @Value, 'SYSTEM',GETDATE())";
                 var sunAccountNo = DataBinder.Eval(dataItem, "SunAccountNo").ToString();
                 var a1 = DataBinder.Eval(dataItem, "A1").ToString();
                 var a2 = DataBinder.Eval(dataItem, "A2").ToString();
-                var locationCode = DataBinder.Eval(dataItem, "LocationCode").ToString();
-                var itemGroupCode = DataBinder.Eval(dataItem, "ItemGroupCode").ToString();
 
                 var color = Color.Transparent;
 
@@ -251,7 +199,7 @@ VALUES ('APP','INTF','SunSystems', @Value, 'SYSTEM',GETDATE())";
                     }
                     else if (string.IsNullOrEmpty(value) && docType == "ExpenseLine")
                     {
-                        lbl.ToolTip = string.Format("Set at '{0}' in Account Mapping.", _descA3);
+                        lbl.ToolTip = string.Format("Set at '{0}' in Account Mapping.", _accMapView.DescA3);
                     }
                     else if (string.IsNullOrEmpty(value) && docType == "TaxLine")
                     {
@@ -270,10 +218,6 @@ VALUES ('APP','INTF','SunSystems', @Value, 'SYSTEM',GETDATE())";
                     lbl.ForeColor = string.IsNullOrEmpty(value) && docType == "ExpenseLine" ? Color.Tomato : Color.Black;
                     lbl.Font.Bold = string.IsNullOrEmpty(value) && docType == "ExpenseLine" ? false : true;
 
-                    if (string.IsNullOrEmpty(value) && docType == "ExpenseLine")
-                    {
-                        lbl.ToolTip = string.Format("Set '{0}' at location='{1}' and itemgroup='{2}' in Account Mapping.", _descA1, locationCode, itemGroupCode);
-                    }
                 }
 
                 if (e.Row.FindControl("lbl_A2") != null)
@@ -286,10 +230,6 @@ VALUES ('APP','INTF','SunSystems', @Value, 'SYSTEM',GETDATE())";
                     lbl.ForeColor = string.IsNullOrEmpty(value) && docType == "ExpenseLine" ? Color.Tomato : Color.Black;
                     lbl.Font.Bold = string.IsNullOrEmpty(value) && docType == "ExpenseLine" ? false : true;
 
-                    if (string.IsNullOrEmpty(value) && docType == "ExpenseLine")
-                    {
-                        lbl.ToolTip = string.Format("Set '{0}' at location='{1}' and itemgroup='{2}' in Account Mapping.", _descA2, locationCode, itemGroupCode);
-                    }
 
                 }
 
@@ -339,6 +279,93 @@ VALUES ('APP','INTF','SunSystems', @Value, 'SYSTEM',GETDATE())";
             pop_Alert.ShowOnPageLoad = true;
         }
 
+        private void GetAccountMappView()
+        {
+            if (_accMapView == null)
+                _accMapView = new AccMapView();
+
+
+            var dt = config.DbExecuteQuery("SELECT TOP(1) A1, A2, A3, DescA1, DescA2, DescA3 FROM [ADMIN].AccountMappView WHERE PostType='AP'", null, LoginInfo.ConnStr);
+
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                var dr = dt.Rows[0];
+
+                _accMapView.A1 = Convert.ToBoolean(dr["A1"]);
+                _accMapView.A2 = Convert.ToBoolean(dr["A2"]);
+                _accMapView.A3 = Convert.ToBoolean(dr["A3"]);
+
+                _accMapView.DescA1 = dr["DescA1"].ToString();
+                _accMapView.DescA2 = dr["DescA2"].ToString();
+                _accMapView.DescA3 = dr["DescA3"].ToString();
+            }
+
+            lbl_Title.Text = _accMapView.A2.ToString();
+        }
+
+        private SunConfig GetConfig()
+        {
+            var sql = new Helpers.SQL(LoginInfo.ConnStr);
+            var query = @"
+DECLARE @doc XML = (SELECT TOP(1) [Value] FROM APP.Config WHERE [Module]='APP' AND SubModule='INTF' AND [Key]='SunSystems')
+
+DECLARE @Version nvarchar(10) =  @doc.value('(/Config/Version)[1]', 'varchar(10)')
+DECLARE @JournalType nvarchar(5) =  @doc.value('(/Config/JournalType)[1]', 'varchar(5)')
+DECLARE @TaxAccountType nvarchar(20) = @doc.value('(/Config/TaxAccountCode/@Type)[1]', 'varchar(20)')
+DECLARE @TaxAccountCode nvarchar(20) = @doc.value('(/Config/TaxAccountCode)[1]', 'varchar(20)')
+
+DECLARE @UseCommitDate nvarchar(5) = @doc.value('(/Config/UseCommitDate)[1]', 'varchar(5)')
+DECLARE @SingleExport nvarchar(5) = @doc.value('(/Config/SingleExport)[1]', 'varchar(5)')
+
+SELECT
+	ISNULL(@Version,'42601') as [Version], 
+	ISNULL(@JournalType,'MCINV') as [JournalType], 
+	
+	ISNULL(@TaxAccountType,'PRODUCT') as TaxAccountType,
+	@TaxAccountCode as TaxAccountCode,
+
+	ISNULL(@UseCommitDate,'true') as UseCommitDate,
+	ISNULL(@SingleExport,'true') as [SingleExport]
+";
+            var dt = sql.ExecuteQuery(query);
+
+            var config = new SunConfig();
+
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                var dr = dt.Rows[0];
+
+                config.Version = dr["Version"].ToString();
+                config.JournalType = dr["JournalType"].ToString();
+
+                config.TaxAccountType = dr["TaxAccountType"].ToString();
+                config.TaxAccountCode = dr["TaxAccountCode"].ToString();
+
+                config.UseCommitDate = Convert.ToBoolean(dr["UseCommitDate"]);
+                config.SingleExport = Convert.ToBoolean(dr["SingleExport"]);
+            }
+
+            return config;
+        }
+
+        private void SetConfig()
+        {
+            var config = GetConfig();
+
+            ddl_Config_Version.SelectedValue = config.Version;
+            txt_Config_JournalType.Text = config.JournalType;
+            ddl_Config_TaxAccountType.SelectedValue = config.TaxAccountType;
+            txt_Config_TaxAccountCode.Text = config.TaxAccountCode;
+
+            //ddl_UseA1.SelectedValue = config.UseA1 ? "true" : "false";
+            //ddl_UseA2.SelectedValue = config.UseA2 ? "true" : "false";
+            //ddl_UseA3.SelectedValue = config.UseA3 ? "true" : "false";
+
+            ddl_Config_UseCommitDate.SelectedValue = config.UseCommitDate ? "true" : "false";
+            ddl_Config_SingleExport.SelectedValue = config.SingleExport ? "true" : "false";
+
+        }
+
         private void BindData()
         {
             var fDate = de_FromDate.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
@@ -357,7 +384,14 @@ VALUES ('APP','INTF','SunSystems', @Value, 'SYSTEM',GETDATE())";
 
             var dt = sql.ExecuteQuery(query, parameters);
 
-            //_dtExport = dt;
+
+            bool a1 = _accMapView.A1;
+            bool a2 = _accMapView.A2;
+
+            gv_Data.Columns[11].Visible = a1;
+            gv_Data.Columns[12].Visible = a2;
+
+            //lbl_Title.Text = a2.ToString();
 
             gv_Data.DataSource = dt;
             gv_Data.DataBind();
@@ -387,7 +421,7 @@ VALUES ('APP','INTF','SunSystems', @Value, 'SYSTEM',GETDATE())";
 
             if (dt != null && dt.Rows.Count == 1)
             {
-                ShowAlert("Some transactions have not been assigned the values.");
+                ShowAlert(dt.Rows[0][0].ToString());
 
                 return;
             }
@@ -417,6 +451,60 @@ VALUES ('APP','INTF','SunSystems', @Value, 'SYSTEM',GETDATE())";
             Response.Write(text);
             Response.Flush();
             Response.End();
+        }
+
+
+
+        [Serializable]
+        public class AccMapView
+        {
+            public AccMapView()
+            {
+                A1 = true;
+                A2 = false;
+                A3 = true;
+
+                DescA1 = "";
+                DescA2 = "";
+                DescA3 = "";
+            }
+
+            public bool A1 { get; set; }
+            public bool A2 { get; set; }
+            public bool A3 { get; set; }
+
+            public string DescA1 { get; set; }
+            public string DescA2 { get; set; }
+            public string DescA3 { get; set; }
+
+        }
+
+        public class SunConfig
+        {
+            public SunConfig()
+            {
+                Version = "42601";
+                JournalType = "MCINV";
+                TaxAccountType = "PRODUCT";
+                TaxAccountCode = "";
+
+                SingleExport = true;
+                UseCommitDate = true;
+                //UseA1 = true;
+                //UseA2 = true;
+                //UseA3 = true;
+            }
+
+            public string Version { get; set; }
+            public string JournalType { get; set; }
+            public string TaxAccountType { get; set; }
+            public string TaxAccountCode { get; set; }
+            public bool SingleExport { get; set; }
+            public bool UseCommitDate { get; set; }
+
+            //public bool UseA1 { get; set; }
+            //public bool UseA2 { get; set; }
+            //public bool UseA3 { get; set; }
         }
     }
 

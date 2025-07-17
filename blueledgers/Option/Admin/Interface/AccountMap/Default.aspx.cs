@@ -33,7 +33,7 @@ namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
             }
         }
 
-        protected DataTable _dtAP
+        protected DataTable _dtData
         {
             get { return ViewState["_dtAP"] as DataTable; }
             set { ViewState["_dtAP"] = value; }
@@ -45,7 +45,17 @@ namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
             set { ViewState["_accMapView"] = value; }
         }
 
+        protected IEnumerable<ListItem> _accountCodes
+        {
+            get { return ViewState["_accountCodes"] as IEnumerable<ListItem>; }
+            set { ViewState["_accountCodes"] = value; }
+        }
 
+        protected IEnumerable<ListItem> _departmentCodes
+        {
+            get { return ViewState["_departmentCodes"] as IEnumerable<ListItem>; }
+            set { ViewState["_departmentCodes"] = value; }
+        }
 
         #region --Event(s)--
 
@@ -61,9 +71,447 @@ namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
 
         private void Page_Retrieve()
         {
+            _departmentCodes = GetDepartments();
+            _accountCodes = GetAccounts();
+
+
+            Page_Setting();
+        }
+
+        private void Page_Setting()
+        {
+            // Set AP
+            var postType = ddl_View.SelectedValue.ToString();
+            SetData(postType);
+            BindGridView();
+
+            SetEditMode(false);
+        }
+
+
+        protected void menu_CmdBar_ItemClick(object source, DevExpress.Web.ASPxMenu.MenuItemEventArgs e)
+        {
+            Page.Validate();
+            if (Page.IsValid)
+            {
+                switch (e.Item.Name.ToUpper())
+                {
+                    case "GETNEW":
+                        //GetNewCode();
+                        break;
+
+                    case "IMPORT":
+                        //pop_ImportExport.ShowOnPageLoad = true;
+                        break;
+
+                    case "PRINT":
+                        //Session["AccountMappPrint"] = GetData1(true);
+                        //ScriptManager.RegisterStartupScript(Page, GetType(), "print", string.Format("<script>window.open('AccountMappPrint.aspx?type={0}', 'Print');</script>", _postType), false);
+                        break;
+                }
+            }
+        }
+
+        protected void ddl_View_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var value = (sender as ASPxComboBox).SelectedItem.Value.ToString();
+
+            SetData(value);
+            BindGridView();
+
+            //_sortColumn = "LocationCode";
+            //_sortDirection = "ASC";
+
+            //var items = gv_Data.Columns.Cast<DataControlField>().ToArray();
+
+            //foreach (var item in items)
+            //{
+            //    item.Visible = true;
+            //}
+
+            //var hideType = _postType == "AP" ? "GL" : "AP";
+
+            //var listHide = gv_Data.Columns.Cast<DataControlField>().Where(x => x.ControlStyle.CssClass.Contains(hideType)).ToArray();
+
+            //foreach (var item in listHide)
+            //{
+            //    item.Visible = false;
+            //}
+
+            //txt_Search.Text = "";
+
+            //GetData(_rows, 1);
+        }
+
+        protected void txt_Search_TextChanged(object sender, EventArgs e)
+        {
+            //GetData(_rows, 1);
+        }
+
+        protected void btn_Search_Click(object sender, EventArgs e)
+        {
+            //GetData(_rows, 1);
+        }
+
+
+        // gv_AP
+
+
+        protected void gv_AP_RowDataBound(object sender, GridViewRowEventArgs e)
+        {
+            var gv = sender as GridView;
+            var isEdit = _hasPermissionEdit;
+
+            if (e.Row.RowType == DataControlRowType.DataRow)
+            {
+                var dataItem = e.Row.DataItem;
+
+                var a1 = DataBinder.Eval(dataItem, "A1").ToString();
+                var a2 = DataBinder.Eval(dataItem, "A2").ToString();
+                var a3 = DataBinder.Eval(dataItem, "A3").ToString();
+                var a4 = DataBinder.Eval(dataItem, "A4").ToString();
+                var a5 = DataBinder.Eval(dataItem, "A5").ToString();
+                var a6 = DataBinder.Eval(dataItem, "A6").ToString();
+                var a7 = DataBinder.Eval(dataItem, "A7").ToString();
+                var a8 = DataBinder.Eval(dataItem, "A8").ToString();
+                var a9 = DataBinder.Eval(dataItem, "A9").ToString();
+
+                // A1
+                if (e.Row.FindControl("lbl_A1_Desc") != null)
+                {
+                    var lbl = e.Row.FindControl("lbl_A1_Desc") as Label;
+
+                    AssignName(lbl, _accMapView.TypeA1, a1);
+                }
+
+
+                if (e.Row.FindControl("txt_A1") != null)
+                {
+                    var txt = e.Row.FindControl("txt_A1") as TextBox;
+
+                    txt.Text = a1;
+                    txt.Visible = _accMapView.A1 && string.IsNullOrEmpty(_accMapView.TypeA1);
+
+                }
+
+                if (e.Row.FindControl("ddl_A1") != null)
+                {
+                    var ddl = e.Row.FindControl("ddl_A1") as ASPxComboBox;
+
+                    ddl.Value = a1;
+                    ddl.Visible = _accMapView.A1 && !string.IsNullOrEmpty(_accMapView.TypeA1);
+                    AssignDropdownList(ddl, _accMapView.TypeA1, a1);
+                }
+
+                // A2
+                if (e.Row.FindControl("lbl_A2_Desc") != null)
+                {
+                    var lbl = e.Row.FindControl("lbl_A2_Desc") as Label;
+
+                    AssignName(lbl, _accMapView.TypeA2, a2);
+                }
+
+                if (e.Row.FindControl("txt_A2") != null)
+                {
+                    var txt = e.Row.FindControl("txt_A2") as TextBox;
+
+                    txt.Text = a2;
+                    txt.Visible = _accMapView.A2 && string.IsNullOrEmpty(_accMapView.TypeA2);
+                }
+
+                if (e.Row.FindControl("ddl_A2") != null)
+                {
+                    var ddl = e.Row.FindControl("ddl_A2") as ASPxComboBox;
+
+                    ddl.Value = a2;
+                    ddl.Visible = _accMapView.A2 && !string.IsNullOrEmpty(_accMapView.TypeA2);
+                    AssignDropdownList(ddl, _accMapView.TypeA2, a2);
+                }
+
+                // A3
+                if (e.Row.FindControl("lbl_A3_Desc") != null)
+                {
+                    var lbl = e.Row.FindControl("lbl_A3_Desc") as Label;
+
+                    AssignName(lbl, _accMapView.TypeA3, a3);
+                }
+
+                if (e.Row.FindControl("txt_A3") != null)
+                {
+                    var txt = e.Row.FindControl("txt_A3") as TextBox;
+
+                    txt.Text = a3;
+                    txt.Visible = _accMapView.A3 && string.IsNullOrEmpty(_accMapView.TypeA3);
+                }
+
+                if (e.Row.FindControl("ddl_A3") != null)
+                {
+                    var ddl = e.Row.FindControl("ddl_A3") as ASPxComboBox;
+
+                    ddl.Value = a3;
+                    ddl.Visible = _accMapView.A3 && !string.IsNullOrEmpty(_accMapView.TypeA3);
+                    AssignDropdownList(ddl, _accMapView.TypeA3, a3);
+                }
+
+                // A4
+                if (e.Row.FindControl("lbl_A4_Desc") != null)
+                {
+                    var lbl = e.Row.FindControl("lbl_A4_Desc") as Label;
+
+                    AssignName(lbl, _accMapView.TypeA4, a4);
+                }
+
+                if (e.Row.FindControl("txt_A4") != null)
+                {
+                    var txt = e.Row.FindControl("txt_A4") as TextBox;
+
+                    txt.Text = a4;
+                    txt.Visible = _accMapView.A4 && string.IsNullOrEmpty(_accMapView.TypeA4);
+
+                }
+
+
+                if (e.Row.FindControl("ddl_A4") != null)
+                {
+                    var ddl = e.Row.FindControl("ddl_A4") as ASPxComboBox;
+
+                    ddl.Value = a4;
+                    ddl.Visible = _accMapView.A4 && !string.IsNullOrEmpty(_accMapView.TypeA4);
+                    AssignDropdownList(ddl, _accMapView.TypeA4, a4);
+                }
+
+                // A5
+                if (e.Row.FindControl("lbl_A5_Desc") != null)
+                {
+                    var lbl = e.Row.FindControl("lbl_A5_Desc") as Label;
+
+                    AssignName(lbl, _accMapView.TypeA5, a5);
+                }
+
+                if (e.Row.FindControl("txt_A5") != null)
+                {
+                    var txt = e.Row.FindControl("txt_A5") as TextBox;
+
+                    txt.Text = a5;
+                    txt.Visible = _accMapView.A5 && string.IsNullOrEmpty(_accMapView.TypeA5);
+                }
+
+                if (e.Row.FindControl("ddl_A5") != null)
+                {
+                    var ddl = e.Row.FindControl("ddl_A5") as ASPxComboBox;
+
+                    ddl.Value = a5;
+                    ddl.Visible = _accMapView.A5 && !string.IsNullOrEmpty(_accMapView.TypeA5);
+                    AssignDropdownList(ddl, _accMapView.TypeA5, a5);
+                }
+
+                // A6
+                if (e.Row.FindControl("lbl_A6_Desc") != null)
+                {
+                    var lbl = e.Row.FindControl("lbl_A6_Desc") as Label;
+
+                    AssignName(lbl, _accMapView.TypeA6, a6);
+                }
+
+                if (e.Row.FindControl("txt_A6") != null)
+                {
+                    var txt = e.Row.FindControl("txt_A6") as TextBox;
+
+                    txt.Text = a6;
+                    txt.Visible = _accMapView.A6 && string.IsNullOrEmpty(_accMapView.TypeA6);
+                }
+
+                if (e.Row.FindControl("ddl_A6") != null)
+                {
+                    var ddl = e.Row.FindControl("ddl_A6") as ASPxComboBox;
+
+                    ddl.Value = a6;
+                    ddl.Visible = _accMapView.A6 && !string.IsNullOrEmpty(_accMapView.TypeA6);
+                    AssignDropdownList(ddl, _accMapView.TypeA6, a6);
+                }
+
+                // A7
+                if (e.Row.FindControl("lbl_A7_Desc") != null)
+                {
+                    var lbl = e.Row.FindControl("lbl_A7_Desc") as Label;
+
+                    AssignName(lbl, _accMapView.TypeA7, a7);
+                }
+
+                if (e.Row.FindControl("txt_A7") != null)
+                {
+                    var txt = e.Row.FindControl("txt_A7") as TextBox;
+
+                    txt.Text = a7;
+                    txt.Visible = _accMapView.A7 && string.IsNullOrEmpty(_accMapView.TypeA7);
+                }
+
+                if (e.Row.FindControl("ddl_A7") != null)
+                {
+                    var ddl = e.Row.FindControl("ddl_A7") as ASPxComboBox;
+
+                    ddl.Value = a7;
+                    ddl.Visible = _accMapView.A7 && !string.IsNullOrEmpty(_accMapView.TypeA7);
+                    AssignDropdownList(ddl, _accMapView.TypeA7, a7);
+                }
+
+                // A8
+                if (e.Row.FindControl("lbl_A8_Desc") != null)
+                {
+                    var lbl = e.Row.FindControl("lbl_A8_Desc") as Label;
+
+                    AssignName(lbl, _accMapView.TypeA8, a8);
+                }
+
+                if (e.Row.FindControl("txt_A8") != null)
+                {
+                    var txt = e.Row.FindControl("txt_A8") as TextBox;
+
+                    txt.Text = a8;
+                    txt.Visible = _accMapView.A8 && string.IsNullOrEmpty(_accMapView.TypeA8);
+                }
+
+                if (e.Row.FindControl("ddl_A8") != null)
+                {
+                    var ddl = e.Row.FindControl("ddl_A8") as ASPxComboBox;
+
+                    ddl.Value = a8;
+                    ddl.Visible = _accMapView.A8 && !string.IsNullOrEmpty(_accMapView.TypeA8);
+                    AssignDropdownList(ddl, _accMapView.TypeA8, a8);
+                }
+
+                // A9
+                if (e.Row.FindControl("lbl_A9_Desc") != null)
+                {
+                    var lbl = e.Row.FindControl("lbl_A9_Desc") as Label;
+
+                    AssignName(lbl, _accMapView.TypeA9, a9);
+                }
+
+                if (e.Row.FindControl("txt_A9") != null)
+                {
+                    var txt = e.Row.FindControl("txt_A9") as TextBox;
+
+                    txt.Text = a9;
+                    txt.Visible = _accMapView.A9 && string.IsNullOrEmpty(_accMapView.TypeA9);
+                }
+
+                if (e.Row.FindControl("ddl_A9") != null)
+                {
+                    var ddl = e.Row.FindControl("ddl_A9") as ASPxComboBox;
+
+                    ddl.Value = a9;
+                    ddl.Visible = _accMapView.A9 && !string.IsNullOrEmpty(_accMapView.TypeA9);
+                    AssignDropdownList(ddl, _accMapView.TypeA9, a9);
+                }
+
+            }
+        }
+
+        protected void gv_AP_RowEditing(object sender, GridViewEditEventArgs e)
+        {
+            var gv = sender as GridView;
+
+            gv.EditIndex = e.NewEditIndex;
+            BindGridView();
+
+            SetEditMode(true);
+        }
+
+        protected void gv_AP_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e)
+        {
+            //Reset the edit index.
+            (sender as GridView).EditIndex = -1;
+            //Bind data to the GridView control.
+            BindGridView();
+
+            SetEditMode(false);
+        }
+
+        protected void gv_AP_RowUpdating(object sender, GridViewUpdateEventArgs e)
+        {
+            //var row = (sender as GridView).Rows[e.RowIndex] as GridViewRow;
+            //var hf_ID = row.FindControl("hf_ID") as HiddenField;
+            //var id = hf_ID.Value;
+
+
+            //var ddl_DepCode = row.FindControl("ddl_DepCode") as ASPxComboBox;
+            //var ddl_AccCode = row.FindControl("ddl_AccCode") as ASPxComboBox;
+
+            //var sql = new Helpers.SQL(LoginInfo.ConnStr);
+            //var query = @"UPDATE [ADMIN].AccountMapp SET A1=@DepCode, A2=@AccCode WHERE ID=@Id";
+
+            //var department = ddl_DepCode.Text.Split(':');
+            //var account = ddl_AccCode.Text.Split(':');
+
+            //var depCode = department[0].Trim();
+            //var depName = department.Length > 1 ? department[1].Trim() : "";
+            //var accCode = account[0].Trim();
+            //var accName = accCode.Length > 1 ? account[1].Trim() : "";
+
+
+            //sql.ExecuteQuery(query, new SqlParameter[]
+            //    {
+            //        new SqlParameter("ID", id),
+            //        new SqlParameter("DepCode", depCode),
+            //        new SqlParameter("AccCode", accCode)
+            //    });
+
+            //var dr = _dtAP.AsEnumerable().FirstOrDefault(x => x.Field<string>("ID") == id);
+
+            //if (dr != null)
+            //{
+            //    dr["DepCode"] = depCode;
+            //    dr["DepName"] = depName;
+            //    dr["AccCode"] = accCode;
+            //    dr["AccName"] = accName;
+            //    dr.AcceptChanges();
+            //}
+
+
+
+            //SetEditMode(false);
+            ////Reset the edit index.
+            //(sender as GridView).EditIndex = -1;
+
+            ////Bind data to the GridView control.
+            //BindAP();
+        }
+
+        protected void gv_AP_PageIndexChanging(object sender, GridViewPageEventArgs e)
+        {
+            (sender as GridView).PageIndex = e.NewPageIndex;
+            BindGridView();
+        }
+
+        protected void gv_AP_Sorting(object sender, GridViewSortEventArgs e)
+        {
+            //_sortColumn = e.SortExpression;
+            //_sortDirection = _sortDirection == "ASC" ? "DESC" : "ASC";
+
+            //var page = _page;
+            //var rows = _rows;
+
+            //GetData(rows, page);
+        }
+
+        #endregion
+
+
+        #region --Method(s)--
+
+        private void SetEditMode(bool isEdit)
+        {
+            ddl_View.Enabled = !isEdit;
+            txt_Search.Enabled = !isEdit;
+            btn_Search.Enabled = !isEdit;
+        }
+
+        private void SetAccMapView()
+        {
             var sql = new Helpers.SQL(LoginInfo.ConnStr);
 
-            var postType = "AP";
+            var postType = ddl_View.SelectedValue.ToString();
             var dtAccMapView = sql.ExecuteQuery("SELECT * FROM [ADMIN].AccountMappView WHERE PostType=@PostType", new SqlParameter[] { new SqlParameter("@PostType", postType) });
 
             if (dtAccMapView != null && dtAccMapView.Rows.Count > 0)
@@ -131,399 +579,23 @@ namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
 
                     })
                     .FirstOrDefault();
-
-
-                // Set AP
-                SetDataAP();
-                BindAP();
-
-
             }
-
-
-            Page_Setting();
         }
 
-        private void Page_Setting()
+        private void SetData(string postType)
         {
-            //BindAP();
+            var query = "";
 
-
-
-            SetEditMode(false);
-        }
-
-
-        protected void menu_CmdBar_ItemClick(object source, DevExpress.Web.ASPxMenu.MenuItemEventArgs e)
-        {
-            Page.Validate();
-            if (Page.IsValid)
+            if (postType.ToUpper() == "AP")
             {
-                switch (e.Item.Name.ToUpper())
-                {
-                    case "GETNEW":
-                        //GetNewCode();
-                        break;
-
-                    case "IMPORT":
-                        //pop_ImportExport.ShowOnPageLoad = true;
-                        break;
-
-                    case "PRINT":
-                        //Session["AccountMappPrint"] = GetData1(true);
-                        //ScriptManager.RegisterStartupScript(Page, GetType(), "print", string.Format("<script>window.open('AccountMappPrint.aspx?type={0}', 'Print');</script>", _postType), false);
-                        break;
-                }
-            }
-        }
-
-        protected void ddl_View_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            //_sortColumn = "LocationCode";
-            //_sortDirection = "ASC";
-
-            //var items = gv_Data.Columns.Cast<DataControlField>().ToArray();
-
-            //foreach (var item in items)
-            //{
-            //    item.Visible = true;
-            //}
-
-            //var hideType = _postType == "AP" ? "GL" : "AP";
-
-            //var listHide = gv_Data.Columns.Cast<DataControlField>().Where(x => x.ControlStyle.CssClass.Contains(hideType)).ToArray();
-
-            //foreach (var item in listHide)
-            //{
-            //    item.Visible = false;
-            //}
-
-            //txt_Search.Text = "";
-
-            //GetData(_rows, 1);
-        }
-
-        protected void txt_Search_TextChanged(object sender, EventArgs e)
-        {
-            //GetData(_rows, 1);
-        }
-
-        protected void btn_Search_Click(object sender, EventArgs e)
-        {
-            //GetData(_rows, 1);
-        }
-
-
-        // gv_AP
-        // gv_AP
-        protected void gv_AP_PageIndexChanging(object sender, GridViewPageEventArgs e)
-        {
-            (sender as GridView).PageIndex = e.NewPageIndex;
-            BindAP();
-        }
-
-        protected void gv_AP_Sorting(object sender, GridViewSortEventArgs e)
-        {
-            //_sortColumn = e.SortExpression;
-            //_sortDirection = _sortDirection == "ASC" ? "DESC" : "ASC";
-
-            //var page = _page;
-            //var rows = _rows;
-
-            //GetData(rows, page);
-        }
-
-        protected void gv_AP_RowDataBound(object sender, GridViewRowEventArgs e)
-        {
-            var gv = sender as GridView;
-            var isEdit = _hasPermissionEdit;
-
-            if (e.Row.RowType == DataControlRowType.DataRow)
-            {
-                var dataItem = e.Row.DataItem;
-
-                var a1 = DataBinder.Eval(dataItem,"A1").ToString();
-                var a2 = DataBinder.Eval(dataItem,"A2").ToString();
-                var a3 = DataBinder.Eval(dataItem,"A3").ToString();
-                var a4 = DataBinder.Eval(dataItem,"A4").ToString();
-                var a5 = DataBinder.Eval(dataItem,"A5").ToString();
-                var a6 = DataBinder.Eval(dataItem,"A6").ToString();
-                var a7 = DataBinder.Eval(dataItem,"A7").ToString();
-                var a8 = DataBinder.Eval(dataItem,"A8").ToString();
-                var a9 = DataBinder.Eval(dataItem,"A9").ToString();
-
-                // A1
-                if (e.Row.FindControl("txt_A1") != null)
-                {
-                    var txt = e.Row.FindControl("txt_A1") as TextBox;
-
-                    txt.Text = a1;
-                }
-
-                if (e.Row.FindControl("ddl_A1") != null)
-                {
-                    var ddl = e.Row.FindControl("ddl_A1") as ASPxComboBox;
-
-                    ddl.Value = a1;
-                }
-
-                // A2
-                if (e.Row.FindControl("txt_A2") != null)
-                {
-                    var txt = e.Row.FindControl("txt_A2") as TextBox;
-
-                    txt.Text = a2;
-                }
-
-                if (e.Row.FindControl("ddl_A2") != null)
-                {
-                    var ddl = e.Row.FindControl("ddl_A2") as ASPxComboBox;
-
-                    ddl.Value = a2;
-                }
-
-                // A3
-                if (e.Row.FindControl("txt_A3") != null)
-                {
-                    var txt = e.Row.FindControl("txt_A3") as TextBox;
-
-                    txt.Text = a3;
-                }
-
-                if (e.Row.FindControl("ddl_A3") != null)
-                {
-                    var ddl = e.Row.FindControl("ddl_A3") as ASPxComboBox;
-
-                    ddl.Value = a3;
-                }
-
-                // A4
-                if (e.Row.FindControl("txt_A4") != null)
-                {
-                    var txt = e.Row.FindControl("txt_A4") as TextBox;
-
-                    txt.Text = a4;
-                }
-
-                
-                if (e.Row.FindControl("ddl_A4") != null)
-                {
-                    var ddl = e.Row.FindControl("ddl_A4") as ASPxComboBox;
-
-                    ddl.Value = a4;
-                }
-
-                // A5
-                if (e.Row.FindControl("txt_A5") != null)
-                {
-                    var txt = e.Row.FindControl("txt_A5") as TextBox;
-
-                    txt.Text = a5;
-                }
-
-                if (e.Row.FindControl("ddl_A5") != null)
-                {
-                    var ddl = e.Row.FindControl("ddl_A5") as ASPxComboBox;
-
-                    ddl.Value = a5;
-                }
-
-                // A6
-                if (e.Row.FindControl("txt_A6") != null)
-                {
-                    var txt = e.Row.FindControl("txt_A6") as TextBox;
-
-                    txt.Text = a6;
-                }
-
-                if (e.Row.FindControl("ddl_A6") != null)
-                {
-                    var ddl = e.Row.FindControl("ddl_A6") as ASPxComboBox;
-
-                    ddl.Value = a6;
-                }
-
-                // A7
-                if (e.Row.FindControl("txt_A7") != null)
-                {
-                    var txt = e.Row.FindControl("txt_A7") as TextBox;
-
-                    txt.Text = a7;
-                }
-
-                if (e.Row.FindControl("ddl_A7") != null)
-                {
-                    var ddl = e.Row.FindControl("ddl_A7") as ASPxComboBox;
-
-                    ddl.Value = a7;
-                }
-
-                // A8
-                if (e.Row.FindControl("txt_A8") != null)
-                {
-                    var txt = e.Row.FindControl("txt_A8") as TextBox;
-
-                    txt.Text = a8;
-                }
-
-                if (e.Row.FindControl("ddl_A8") != null)
-                {
-                    var ddl = e.Row.FindControl("ddl_A8") as ASPxComboBox;
-
-                    ddl.Value = a8;
-                }
-
-                // A9
-                if (e.Row.FindControl("txt_A9") != null)
-                {
-                    var txt = e.Row.FindControl("txt_A9") as TextBox;
-
-                    txt.Text = a9;
-                }
-
-                if (e.Row.FindControl("ddl_A9") != null)
-                {
-                    var ddl = e.Row.FindControl("ddl_A9") as ASPxComboBox;
-
-                    ddl.Value = a9;
-                }
-
-
-
-
-                //if (e.Row.FindControl("DepCode") != null)
-                //{
-                //    (e.Row.FindControl("DepCode") as Label).Text = DataBinder.Eval(dataItem, "DepCode").ToString();
-                //    (e.Row.FindControl("DepName") as Label).Text = DataBinder.Eval(dataItem, "DepName").ToString();
-                //}
-
-                //if (e.Row.FindControl("AccCode") != null)
-                //{
-                //    (e.Row.FindControl("AccCode") as Label).Text = DataBinder.Eval(dataItem, "AccCode").ToString();
-                //    (e.Row.FindControl("AccName") as Label).Text = DataBinder.Eval(dataItem, "AccName").ToString();
-                //}
-
-                //if (e.Row.FindControl("ddl_DepCode") != null)
-                //{
-                //    var ddl = e.Row.FindControl("ddl_DepCode") as ASPxComboBox;
-                //    var value = DataBinder.Eval(dataItem, "DepCode").ToString();
-
-                //    ddl.Items.Clear();
-                //    //ddl.Items.AddRange(GetDepartments(value).ToArray());
-                //    ddl.ToolTip = ddl.Text;
-
-
-                //}
-
-                //if (e.Row.FindControl("ddl_AccCode") != null)
-                //{
-                //    var ddl = e.Row.FindControl("ddl_AccCode") as ASPxComboBox;
-                //    var value = DataBinder.Eval(dataItem, "AccCode").ToString();
-
-                //    ddl.Items.Clear();
-                //    //ddl.Items.AddRange(GetAccounts(value).ToArray());
-                //    ddl.ToolTip = ddl.Text;
-                //}
-
-
-
-
-            }
-        }
-
-        protected void gv_AP_RowEditing(object sender, GridViewEditEventArgs e)
-        {
-            var gv = sender as GridView;
-
-            gv.EditIndex = e.NewEditIndex;
-            BindAP();
-
-            SetEditMode(true);
-        }
-
-        protected void gv_AP_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e)
-        {
-            //Reset the edit index.
-            (sender as GridView).EditIndex = -1;
-            //Bind data to the GridView control.
-            BindAP();
-
-            SetEditMode(false);
-        }
-
-        protected void gv_AP_RowUpdating(object sender, GridViewUpdateEventArgs e)
-        {
-            //var row = (sender as GridView).Rows[e.RowIndex] as GridViewRow;
-            //var hf_ID = row.FindControl("hf_ID") as HiddenField;
-            //var id = hf_ID.Value;
-
-
-            //var ddl_DepCode = row.FindControl("ddl_DepCode") as ASPxComboBox;
-            //var ddl_AccCode = row.FindControl("ddl_AccCode") as ASPxComboBox;
-
-            //var sql = new Helpers.SQL(LoginInfo.ConnStr);
-            //var query = @"UPDATE [ADMIN].AccountMapp SET A1=@DepCode, A2=@AccCode WHERE ID=@Id";
-
-            //var department = ddl_DepCode.Text.Split(':');
-            //var account = ddl_AccCode.Text.Split(':');
-
-            //var depCode = department[0].Trim();
-            //var depName = department.Length > 1 ? department[1].Trim() : "";
-            //var accCode = account[0].Trim();
-            //var accName = accCode.Length > 1 ? account[1].Trim() : "";
-
-
-            //sql.ExecuteQuery(query, new SqlParameter[]
-            //    {
-            //        new SqlParameter("ID", id),
-            //        new SqlParameter("DepCode", depCode),
-            //        new SqlParameter("AccCode", accCode)
-            //    });
-
-            //var dr = _dtAP.AsEnumerable().FirstOrDefault(x => x.Field<string>("ID") == id);
-
-            //if (dr != null)
-            //{
-            //    dr["DepCode"] = depCode;
-            //    dr["DepName"] = depName;
-            //    dr["AccCode"] = accCode;
-            //    dr["AccName"] = accName;
-            //    dr.AcceptChanges();
-            //}
-
-
-
-            //SetEditMode(false);
-            ////Reset the edit index.
-            //(sender as GridView).EditIndex = -1;
-
-            ////Bind data to the GridView control.
-            //BindAP();
-        }
-
-
-        #endregion
-
-
-        #region --Method(s)--
-
-        private void SetEditMode(bool isEdit)
-        {
-            ddl_View.Enabled = !isEdit;
-            txt_Search.Enabled = !isEdit;
-            btn_Search.Enabled = !isEdit;
-        }
-
-        private void SetDataAP()
-        {
-            var query = @"
+                #region --AP--
+                query = @"
 SELECT
 	ac.ID,
-	StoreCode as LocationCode,
+	ac.StoreCode as LocationCode,
 	ac.CategoryCode,
 	ac.SubCategoryCode,
 	ac.ItemGroupCode,
-
 	A1,
 	A2,
 	A3,
@@ -543,19 +615,68 @@ FROM
 	LEFT JOIN [IN].StoreLocation l ON l.LocationCode=ac.StoreCode
 	LEFT JOIN [IN].vProdCatList c ON c.ItemGroupCode=ac.ItemGroupCode
 WHERE
-	PostType='AP'
+	PostType=@PostType
 ORDER BY
-	StoreCode,
+	ac.StoreCode,
 	ac.CategoryCode,
 	ac.ItemGroupCode";
+            #endregion
+            }
+            // GL
+            else
+            {
+                #region --GL--
+                query = @"
+SELECT
+	ac.ID,
+	ac.LocationCode,
+	ac.CategoryCode,
+	ac.SubCategoryCode,
+	ac.ItemGroupCode,
+    ac.AdjCode,
+	A1,
+	A2,
+	A3,
+	A4,
+	A5,
+	A6,
+	A7,
+	A8,
+	A9,
+
+	l.LocationName,
+	c.CategoryName,
+	c.SubCategoryName,
+	c.ItemGroupName,
+	CASE ac.AdjCode
+		WHEN 'EOPI' THEN 'EOP-IN'
+		WHEN 'EOPO' THEN 'EOP-OUT'
+		ELSE t.AdjName
+	END AdjName
+FROM
+	[ADMIN].AccountMapp ac
+	LEFT JOIN [IN].StoreLocation l ON l.LocationCode=ac.LocationCode
+	LEFT JOIN [IN].vProdCatList c ON c.ItemGroupCode=ac.ItemGroupCode
+	LEFT JOIN [IN].AdjType t ON t.AdjCode=ac.AdjCode
+WHERE
+	PostType='GL'
+ORDER BY
+	ac.LocationCode,
+	ac.CategoryCode,
+	ac.ItemGroupCode,
+	ac.AdjCode";
+                #endregion
+            }
 
             var sql = new Helpers.SQL(LoginInfo.ConnStr);
 
-            _dtAP = sql.ExecuteQuery(query);
+            _dtData = sql.ExecuteQuery(query, new SqlParameter[] { new SqlParameter("@PostType", postType) });
         }
 
-        private void BindAP()
+        private void BindGridView()
         {
+            SetAccMapView();
+
             //Location
             gv_AP.Columns[0].Visible = _accMapView.StoreCode;
             // Category
@@ -593,9 +714,117 @@ ORDER BY
             gv_AP.Columns[12].Visible = _accMapView.A9;
             gv_AP.Columns[12].HeaderText = _accMapView.DescA9;
 
-            gv_AP.DataSource = _dtAP;
+            gv_AP.DataSource = _dtData;
             gv_AP.DataBind();
         }
+
+        private IEnumerable<ListItem> GetAccounts()
+        {
+            var dt = new Helpers.SQL(LoginInfo.ConnStr).ExecuteQuery("SELECT AccCode as [Code], AccDesc1 as [Name1], AccDesc2 as [Name2] FROM [ADMIN].AccountCode ORDER BY AccCode");
+
+            var items = dt.AsEnumerable()
+                .Select(x => new ListItem
+                {
+                    Code = x.Field<string>("Code"),
+                    Name1 = x.Field<string>("Name1"),
+                    Name2 = x.Field<string>("Name2")
+                })
+                .ToArray();
+            return items;
+        }
+
+        private IEnumerable<ListItem> GetDepartments()
+        {
+            var dt = new Helpers.SQL(LoginInfo.ConnStr).ExecuteQuery("SELECT DeptCode as [Code], DeptDesc as [Name1] FROM [ADMIN].AccountDepartment ORDER BY DeptCode");
+
+            var items = dt.AsEnumerable()
+                .Select(x => new ListItem
+                {
+                    Code = x.Field<string>("Code"),
+                    Name1 = x.Field<string>("Name1"),
+                    Name2 = x.Field<string>("Name1")
+                })
+                .ToArray();
+            return items;
+        }
+
+        private ListEditItemCollection GetListEdit_Account(string selectedValue)
+        {
+            var items = new ListEditItemCollection();
+
+            foreach (ListItem item in _accountCodes)
+            {
+                items.Add(new ListEditItem
+                {
+                    Value = item.Code,
+                    Text = string.Format("{0} : {1} | {2}", item.Code, item.Name1, item.Name2),
+                    Selected = item.Code == selectedValue
+                });
+
+            }
+
+            return items;
+        }
+
+        private ListEditItemCollection GetListEdit_Department(string selectedValue)
+        {
+            var items = new ListEditItemCollection();
+
+            foreach (ListItem item in _departmentCodes)
+            {
+                items.Add(new ListEditItem
+                {
+                    Value = item.Code,
+                    Text = string.Format("{0} : {1}", item.Code, item.Name1),
+                    Selected = item.Code == selectedValue
+                });
+
+            }
+
+            return items;
+        }
+
+        private void AssignDropdownList(ASPxComboBox ddl, string type, string value = "")
+        {
+            var items = new ListEditItemCollection();
+
+            switch (type.ToLower())
+            {
+                case "acccode":
+                    items = GetListEdit_Account(value);
+                    break;
+                case "accdept":
+                    items = GetListEdit_Department(value);
+                    break;
+            }
+
+            ddl.Items.Clear();
+            ddl.Items.AddRange(items);
+            ddl.Width = new Unit("90%");
+        }
+
+        private void AssignName(Label label, string type, string code)
+        {
+            var name = "";
+
+
+            switch (type.ToLower())
+            {
+                case "acccode":
+                    var acc = _accountCodes.FirstOrDefault(x => x.Code.ToLower() == code.ToLower());
+
+                    name = acc == null ? "" : string.Format("{0} | {1}", acc.Name1, acc.Name2);
+                    break;
+                case "accdept":
+                    var dep = _departmentCodes.FirstOrDefault(x => x.Code.ToLower() == code.ToLower());
+
+                    name = dep == null ? "" : dep.Name1;
+                    break;
+            }
+
+            label.Text = name;
+        }
+
 
         #endregion
 
@@ -658,5 +887,13 @@ ORDER BY
             public string TypeA9 { get; set; }
         }
 
+
+        [Serializable]
+        public class ListItem
+        {
+            public string Code { get; set; }
+            public string Name1 { get; set; }
+            public string Name2 { get; set; }
+        }
     }
 }
