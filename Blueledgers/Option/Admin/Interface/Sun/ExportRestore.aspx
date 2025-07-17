@@ -1,180 +1,129 @@
 <%@ Page Language="C#" MasterPageFile="~/Master/In/SkinDefault.master" AutoEventWireup="true" CodeFile="ExportRestore.aspx.cs" Inherits="BlueLedger.PL.Option.Admin.Interface.Sun.ExportRestore" %>
-
 <%@ MasterType VirtualPath="~/master/In/SkinDefault.master" %>
-<%@ Register Assembly="DevExpress.Web.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Web.ASPxMenu" TagPrefix="dx" %>
-<%@ Register Assembly="DevExpress.Web.ASPxEditors.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Web.ASPxEditors"
-    TagPrefix="dx" %>
-<%@ Register Assembly="DevExpress.Web.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Web.ASPxPopupControl"
-    TagPrefix="dx" %>
-<asp:Content ID="Content1" ContentPlaceHolderID="cph_Main" runat="Server">
+<%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxPopupControl" TagPrefix="dx" %>
+<%@ Register Assembly="DevExpress.Web.ASPxEditors.v10.1" Namespace="DevExpress.Web.ASPxEditors" TagPrefix="dx" %>
+<asp:Content ID="Header" runat="server" ContentPlaceHolderID="head">
     <style type="text/css">
-        .normalrow
-        {
-            border-style: none;
-            cursor: pointer;
-        }
-        .hightlighrow
-        {
-            border-style: solid;
-            border-color: #4d4d4d;
-            border-width: 1px;
-        }
     </style>
-    <table border="0" cellpadding="0" cellspacing="0" width="100%">
-        <tr>
-            <td align="left">
-                <table border="0" cellpadding="2" cellspacing="0" width="100%">
-                    <tr style="background-color: #4d4d4d; height: 17px; padding-left: 10px">
-                        <td style="padding-left: 10px; width: 10px">
-                            <asp:Image ID="Image1" runat="server" ImageUrl="~/App_Themes/Default/Images/master/icon/icon_purchase.png" />
-                        </td>
-                        <td style="background-color: #4d4d4d;">
-                            <asp:Label ID="lbl_Title" runat="server" SkinID="LBL_HD_WHITE" Text="<%$ Resources:Option.Admin.Interface.Sun.ExportRestore, lbl_Title %>"></asp:Label>
-                        </td>
-                        <td style="padding: 0px 10px 0px 0px; background-color: #4D4D4D" align="right">
-                            <dx:ASPxMenu runat="server" ID="ASPxMenu2" Font-Bold="True" BackColor="Transparent" Border-BorderStyle="None" ItemSpacing="2px" VerticalAlign="Middle"
-                                Height="16px" OnItemClick="menu_CmdBar_ItemClick">
-                                <ItemStyle BackColor="Transparent">
-                                    <HoverStyle BackColor="Transparent">
-                                        <Border BorderStyle="None" />
-                                    </HoverStyle>
-                                    <Paddings Padding="2px" />
-                                    <Border BorderStyle="None" />
-                                </ItemStyle>
-                                <Items>
-                                    <%--<dx:MenuItem Name="Create" Text="">
-                                        <ItemStyle Height="16px" Width="49px">
-                                            <HoverStyle>
-                                                <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-create.png"
-                                                    Repeat="NoRepeat" VerticalPosition="center" />
-                                            </HoverStyle>
-                                            <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/create.png"
-                                                Repeat="NoRepeat" VerticalPosition="center" />
-                                        </ItemStyle>
-                                    </dx:MenuItem>
-                                    <dx:MenuItem Name="Delete" Text="">
-                                        <ItemStyle Height="16px" Width="38px">
-                                            <HoverStyle>
-                                                <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-delete.png"
-                                                    Repeat="NoRepeat" VerticalPosition="center" />
-                                            </HoverStyle>
-                                            <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/delete.png"
-                                                Repeat="NoRepeat" VerticalPosition="center" />
-                                        </ItemStyle>
-                                    </dx:MenuItem>--%>
-                                    <%--<dx:MenuItem Name="Print" Text="">
-                                        <ItemStyle Height="16px" Width="46px">
-                                            <HoverStyle>
-                                                <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-print.png" Repeat="NoRepeat" VerticalPosition="center" />
-                                            </HoverStyle>
-                                            <BackgroundImage ImageUrl="~/App_Themes/Default/Images/master/icon/print.png" Repeat="NoRepeat" HorizontalPosition="center" VerticalPosition="center" />
-                                        </ItemStyle>
-                                    </dx:MenuItem>--%>
-                                </Items>
-                            </dx:ASPxMenu>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-    <table border="0" cellpadding="1" cellspacing="0">
-        <tr valign="middle" style="height: 25px">
-            <td style="height: 17px; padding-left: 10px">
-                <asp:Label ID="lbl_FromDate_Nm" runat="server" Text="<%$ Resources:Option.Admin.Interface.Sun.ExportRestore, lbl_FromDate_Nm %>" SkinID="LBL_HD"></asp:Label>
-            </td>
-            <td>
-                <dx:ASPxDateEdit ID="txt_FromDate" ClientInstanceName="txt_FromDate" runat="server" DisplayFormatString="dd/MM/yyyy" EditFormat="Custom" EditFormatString="dd/MM/yyyy">
-                </dx:ASPxDateEdit>
-            </td>
-            <td>
-                <asp:RequiredFieldValidator ID="fromDate" runat="server" ControlToValidate="txt_FromDate" ErrorMessage="*" ForeColor="Red" Font-Bold="true" Font-Size="Larger"></asp:RequiredFieldValidator>
-            </td>
-            <td>
-                <asp:Label ID="lbl_ToDate_Nm" runat="server" Text="<%$ Resources:Option.Admin.Interface.Sun.ExportRestore, lbl_ToDate_Nm %>" SkinID="LBL_HD"></asp:Label>
-            </td>
-            <td>
-                <dx:ASPxDateEdit ID="txt_ToDate" ClientInstanceName="txt_ToDate" runat="server" DisplayFormatString="dd/MM/yyyy" EditFormat="Custom" EditFormatString="dd/MM/yyyy">
-                </dx:ASPxDateEdit>
-            </td>
-            <td>
-                <asp:RequiredFieldValidator ID="toDate" runat="server" ControlToValidate="txt_ToDate" ErrorMessage="*" ForeColor="Red" Font-Bold="true" Font-Size="Larger"></asp:RequiredFieldValidator>
-            </td>
-            <td>
-                <asp:Button ID="btn_Preview" runat="server" OnClick="btn_Preview_Click" Text="<%$ Resources:Option.Admin.Interface.Sun.ExportRestore, btn_Preview %>" SkinID="BTN_V1" />
-            </td>
-            <td>
-                <asp:Button ID="btn_Restore" runat="server" Text="<%$ Resources:Option.Admin.Interface.Sun.ExportRestore, btn_Restore %>" OnClick="btn_Restore_Click" SkinID="BTN_V1" />
-            </td>
-        </tr>
-    </table>
-    <asp:UpdatePanel ID="UpdatePanel" runat="server" UpdateMode="Conditional">
-        <ContentTemplate>
-            <div id="divPv" runat="server">
-                <asp:GridView ID="grd_Preview2" runat="server" AutoGenerateColumns="False" EnableModelValidation="True" SkinID="GRD_V1" Width="100%">
-                    <Columns>
-                        <asp:BoundField HeaderText="<%$ Resources:Option.Admin.Interface.Sun.ExportPosting, DocDate %>" DataField="DocDate" DataFormatString="{0:d}">
-                            <HeaderStyle HorizontalAlign="Left" />
-                        </asp:BoundField>
-                        <asp:BoundField HeaderText="<%$ Resources:Option.Admin.Interface.Sun.ExportPosting, DocNo %>" DataField="DocNo">
-                            <HeaderStyle HorizontalAlign="Left" />
-                        </asp:BoundField>
-                        <asp:BoundField HeaderText="<%$ Resources:Option.Admin.Interface.Sun.ExportPosting, Doctype %>" DataField="RecordType">
-                            <HeaderStyle HorizontalAlign="Left" />
-                        </asp:BoundField>
-                        <asp:BoundField HeaderText="<%$ Resources:Option.Admin.Interface.Sun.ExportPosting, InvoiceDate %>" DataField="InvoiceDate" DataFormatString="{0:d}">
-                            <HeaderStyle HorizontalAlign="Left" />
-                        </asp:BoundField>
-                        <asp:BoundField HeaderText="<%$ Resources:Option.Admin.Interface.Sun.ExportPosting, InvoiceNo %>" DataField="InvoiceNo">
-                            <HeaderStyle HorizontalAlign="Left" />
-                        </asp:BoundField>
-                        <asp:BoundField HeaderText="<%$ Resources:Option.Admin.Interface.Sun.ExportPosting, VendorCode %>" DataField="VendorCode">
-                            <HeaderStyle HorizontalAlign="Left" />
-                        </asp:BoundField>
-                        <asp:BoundField HeaderText="Description" DataField="Description">
-                            <HeaderStyle HorizontalAlign="Left" />
-                        </asp:BoundField>
-                        <asp:BoundField HeaderText="Account No." DataField="TheAccountNumber">
-                            <HeaderStyle HorizontalAlign="Left" />
-                        </asp:BoundField>
-                        <asp:BoundField HeaderText="Dr./Cr." DataField="DBCR">
-                            <HeaderStyle HorizontalAlign="Left" />
-                        </asp:BoundField>
-                        <asp:BoundField HeaderText="<%$ Resources:Option.Admin.Interface.Sun.ExportPosting, RecordAmount %>" DataField="RecordAmount" DataFormatString="{0:###,###.00}">
-                            <HeaderStyle HorizontalAlign="Right" />
-                            <ItemStyle HorizontalAlign="Right" />
-                        </asp:BoundField>
-                        <asp:BoundField DataField="ExportStatus" HeaderText="Exported">
-                            <HeaderStyle HorizontalAlign="Right" />
-                            <ItemStyle HorizontalAlign="Right" />
-                        </asp:BoundField>
-                    </Columns>
-                </asp:GridView>
-            </div>
-        </ContentTemplate>
-    </asp:UpdatePanel>
-    <dx:ASPxPopupControl runat="server" ID="pop_Confrim" Width="360px" HeaderText="Confirmation" ShowCloseButton="False" CloseAction="CloseButton" Modal="True"
-        PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter">
-        <ContentStyle VerticalAlign="Top">
-        </ContentStyle>
+    <script type="text/javascript">
+        function PrintPage() {
+            var printContent = document.getElementById('<%= printArea.ClientID %>');
+            var printWindow = window.open('', '', 'left=50000,top=50000,width=0,height=0');
+            printWindow.document.write(printContent.innerHTML);
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+            printWindow.close();
+        }
+       
+    </script>
+
+</asp:Content>
+<asp:Content ID="Content1" ContentPlaceHolderID="cph_Main" runat="Server">
+    <div class="flex flex-justify-content-between flex-align-items-center mb-10" style="background-color: #2196f3;">
+        <div class="flex flex-align-items-center">
+            <asp:Image ID="Image1" runat="server" ImageUrl="~/App_Themes/Default/Images/master/icon/icon_purchase.png" />
+            <asp:Label ID="lbl_Title" runat="server" SkinID="LBL_HD_WHITE" Text="Restore Export"></asp:Label>
+        </div>
+        <div>
+            <asp:LinkButton ID="lnkPrint" runat="server" ForeColor="White" Font-Bold="true" ToolTip="Click to Print All Records" OnClientClick="PrintPage();"><img src="../../../../App_Themes/Default/Images/master/icon/print.png" alt="Print" /></asp:LinkButton>
+        </div>
+    </div>
+    <div class="flex flex-justify-content-between flex-align-items-center mb-10">
+        <div class="flex flex-align-items-center">
+            <asp:Label ID="lbl_FromDate_Nm" runat="server" Text="<%$ Resources:Option.Admin.Interface.Sun.ExportPosting, lbl_FromDate_Nm %>" SkinID="LBL_HD" />
+            &nbsp;&nbsp;
+            <dx:ASPxDateEdit ID="de_FromDate" ClientInstanceName="txt_FromDate" runat="server" DisplayFormatString="dd/MM/yyyy" EditFormat="Custom" EditFormatString="dd/MM/yyyy" />
+            &nbsp;&nbsp;
+            <asp:Label ID="lbl_ToDate_Nm" runat="server" Text="<%$ Resources:Option.Admin.Interface.Sun.ExportPosting, lbl_ToDate_Nm %>" SkinID="LBL_HD"></asp:Label>
+            &nbsp;&nbsp;
+            <dx:ASPxDateEdit ID="de_ToDate" ClientInstanceName="txt_ToDate" runat="server" DisplayFormatString="dd/MM/yyyy" EditFormat="Custom" EditFormatString="dd/MM/yyyy" />
+            &nbsp;&nbsp;
+            <asp:Button ID="btn_Preview" runat="server" Width="60px" SkinID="BTN_V1" Text="Preview" OnClick="btn_Preview_Click" />
+        </div>
+        <div>
+            <asp:Button ID="btn_Restore" runat="server" Width="60px" SkinID="BTN_V1" Text="Restore" OnClick="btn_Restore_Click" OnClientClick="return confirm('Do you want to restore all items?')" />
+        </div>
+    </div>
+    <hr />
+    <div id="printArea" runat="server">
+        <asp:GridView ID="gv_Data" runat="server" AutoGenerateColumns="False" Width="100%" GridLines="None" AllowPaging="true" PageSize="100" OnRowDataBound="gv_Data_RowDataBound"
+            OnPageIndexChanging="gv_Data_PageIndexChanging">
+            <HeaderStyle HorizontalAlign="Left" Height="32" Font-Size="Small" BackColor="#2196f3" ForeColor="White" BorderStyle="Solid" BorderColor="#2196f3" />
+            <RowStyle Height="24" />
+            <PagerStyle Font-Size="Medium" HorizontalAlign="Center" />
+            <Columns>
+                <asp:BoundField HeaderText="Doc. Date" DataField="DocDate" DataFormatString="{0:d}"></asp:BoundField>
+                <asp:BoundField HeaderText="Doc. No." DataField="DocNo"></asp:BoundField>
+                <asp:BoundField HeaderText="Doc. Type" DataField="DocType"></asp:BoundField>
+                <asp:BoundField HeaderText="Invoice Date" DataField="InvoiceDate" DataFormatString="{0:d}"></asp:BoundField>
+                <asp:BoundField HeaderText="Invoice No." DataField="InvoiceNo"></asp:BoundField>
+                <asp:BoundField HeaderText="Vendor" DataField="VendorCode"></asp:BoundField>
+                <asp:BoundField HeaderText="Description" DataField="Description"></asp:BoundField>
+                <asp:BoundField HeaderText="Dr./Cr." DataField="DrCr"></asp:BoundField>
+                <asp:BoundField HeaderText="Amount" DataField="Amount" DataFormatString="{0:###,###.00}">
+                    <HeaderStyle HorizontalAlign="Right" />
+                    <ItemStyle HorizontalAlign="Right" />
+                </asp:BoundField>
+                <asp:TemplateField HeaderText="">
+                    <ItemTemplate>
+                        &nbsp;&nbsp;&nbsp;
+                    </ItemTemplate>
+                </asp:TemplateField>
+                <%--<asp:BoundField HeaderText="Sun Account No" DataField="SunAccountNo"></asp:BoundField>--%>
+                <asp:TemplateField HeaderText="Sun Account No.">
+                    <ItemTemplate>
+                        <asp:Label runat="server" ID="lbl_SunAccountNo" />
+                    </ItemTemplate>
+                </asp:TemplateField>
+                <asp:TemplateField HeaderText="A1">
+                    <HeaderTemplate>
+                        <asp:Label runat="server" ID="lbl_A1_Header" />
+                    </HeaderTemplate>
+                    <ItemTemplate>
+                        <asp:Label runat="server" ID="lbl_A1" />
+                    </ItemTemplate>
+                </asp:TemplateField>
+                <asp:TemplateField HeaderText="A2">
+                    <HeaderTemplate>
+                        <asp:Label runat="server" ID="lbl_A2_Header" />
+                    </HeaderTemplate>
+                    <ItemTemplate>
+                        <asp:Label runat="server" ID="lbl_A2" />
+                    </ItemTemplate>
+                </asp:TemplateField>
+                <asp:TemplateField HeaderText="Exported">
+                    <HeaderStyle HorizontalAlign="Center" />
+                    <ItemStyle HorizontalAlign="Center" />
+                    <ItemTemplate>
+                        <asp:Image runat="server" ID="img_ExportStatus" ImageUrl="~/App_Themes/Default/Images/check.png" />
+                    </ItemTemplate>
+                </asp:TemplateField>
+                <%--<asp:TemplateField HeaderText="Remark">
+                            <ItemTemplate>
+                                &nbsp;&nbsp;
+                                <asp:Label runat="server" ID="lbl_Remark" />
+                            </ItemTemplate>
+                        </asp:TemplateField>--%>
+            </Columns>
+        </asp:GridView>
+    </div>
+    <!-- Popup(s)-->
+    <dx:ASPxPopupControl ID="pop_Alert" ClientInstanceName="pop_Alert" runat="server" Width="420" HeaderText="<%$ Resources:PC_REC_RecEdit, Warning %>" Modal="True"
+        ShowCloseButton="true" CloseAction="CloseButton" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowPageScrollbarWhenModal="True">
+        <HeaderStyle BackColor="#ffffcc" />
         <ContentCollection>
-            <dx:PopupControlContentControl ID="PopupControlContentControl2" runat="server">
-                <table border="0" cellpadding="5" cellspacing="0" width="100%">
-                    <tr>
-                        <td align="center" colspan="2" height="50px">
-                            <asp:Label ID="lbl_TitleConfirm" runat="server" width="360" SkinID="LBL_NR"></asp:Label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td align="right">
-                            <asp:Button ID="btn_Confrim" runat="server" SkinID="BTN_V1" Width="50px" Text="<%$ Resources:Option.Admin.Interface.Sun.ExportRestore, btn_Yes %>" OnClick="btn_Confrim_Click" />
-                        </td>
-                        <td align="left">
-                            <asp:Button ID="btn_Cancel" runat="server" SkinID="BTN_V1" Width="50px" Text="<%$ Resources:Option.Admin.Interface.Sun.ExportRestore, btn_No %>" OnClick="btn_Cancel_Click" />
-                        </td>
-                    </tr>
-                </table>
+            <dx:PopupControlContentControl ID="PopupControlContentControl_Alert" runat="server">
+                <div class="flex flex-justify-content-center mt-20 mb-20 width-100">
+                    <asp:Label ID="lbl_Alert" runat="server" SkinID="LBL_NR" Font-Size="Small"></asp:Label>
+                </div>
+                <div class="flex flex-justify-content-center mt-20 width-100">
+                    <button style="width: 100px; padding: 5px;" onclick="pop_Alert.Hide();">
+                        Ok
+                    </button>
+                </div>
             </dx:PopupControlContentControl>
         </ContentCollection>
     </dx:ASPxPopupControl>
+    
 </asp:Content>

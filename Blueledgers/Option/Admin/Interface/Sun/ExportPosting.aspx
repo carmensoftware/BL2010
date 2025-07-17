@@ -3,7 +3,9 @@
 <%@ MasterType VirtualPath="~/master/In/SkinDefault.master" %>
 <%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxPopupControl" TagPrefix="dx" %>
 <%@ Register Assembly="DevExpress.Web.ASPxEditors.v10.1" Namespace="DevExpress.Web.ASPxEditors" TagPrefix="dx" %>
-<asp:Content ID="Content1" ContentPlaceHolderID="cph_Main" runat="Server">
+<asp:Content ID="Header" runat="server" ContentPlaceHolderID="head">
+    <style type="text/css">
+    </style>
     <script type="text/javascript">
         function PrintPage() {
             var printContent = document.getElementById('<%= printArea.ClientID %>');
@@ -16,10 +18,13 @@
         }
        
     </script>
+
+</asp:Content>
+<asp:Content ID="Content1" ContentPlaceHolderID="cph_Main" runat="Server">
     <div class="flex flex-justify-content-between flex-align-items-center mb-10" style="background-color: #4d4d4d;">
         <div class="flex flex-align-items-center">
             <asp:Image ID="Image1" runat="server" ImageUrl="~/App_Themes/Default/Images/master/icon/icon_purchase.png" />
-            <asp:Label ID="Label1" runat="server" SkinID="LBL_HD_WHITE" Text="<%$ Resources:Option.Admin.Interface.Sun.ExportPosting, lbl_Title %>"></asp:Label>
+            <asp:Label ID="lbl_Title" runat="server" SkinID="LBL_HD_WHITE" Text="<%$ Resources:Option.Admin.Interface.Sun.ExportPosting, lbl_Title %>"></asp:Label>
         </div>
         <div>
             <asp:LinkButton ID="lnkPrint" runat="server" ForeColor="White" Font-Bold="true" ToolTip="Click to Print All Records" OnClientClick="PrintPage();"><img src="../../../../App_Themes/Default/Images/master/icon/print.png" alt="Print" /></asp:LinkButton>
@@ -31,8 +36,8 @@
             &nbsp;&nbsp;
             <asp:DropDownList ID="ddl_View" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddl_View_SelectedIndexChanged">
                 <asp:ListItem Value="" Text="All" />
-                <asp:ListItem Value="0" Text="No Exported" />
-                <asp:ListItem Value="1" Text="Exported" />
+                <asp:ListItem Value="N" Text="No Exported" />
+                <asp:ListItem Value="E" Text="Exported" />
             </asp:DropDownList>
             &nbsp;&nbsp;
             <asp:Label ID="lbl_FromDate_Nm" runat="server" Text="<%$ Resources:Option.Admin.Interface.Sun.ExportPosting, lbl_FromDate_Nm %>" SkinID="LBL_HD" />
@@ -46,17 +51,18 @@
             <asp:Button ID="btn_Preview" runat="server" Width="60px" SkinID="BTN_V1" Text="Preview" OnClick="btn_Preview_Click" />
         </div>
         <div>
-            <% var dateFrom = de_FromDate.Date.ToString("dd/MM/yyyy");
-               var dateTo = de_ToDate.Date.ToString("dd/MM/yyyy");
-            %>
+            <asp:Button ID="btn_Config" runat="server" Width="80px" SkinID="BTN_V1" Text="Configuration" OnClick="btn_Config_Click" />
+            &nbsp;&nbsp;&nbsp;
             <asp:Button ID="btn_Export" runat="server" Width="60px" SkinID="BTN_V1" Text="Export" OnClick="btn_Export_Click" OnClientClick="return confirm('Do you want to export?')" />
         </div>
     </div>
     <hr />
     <div id="printArea" runat="server">
-        <asp:GridView ID="gv_Data" runat="server" AutoGenerateColumns="False" Width="100%" OnRowDataBound="gv_Data_RowDataBound" GridLines="None">
+        <asp:GridView ID="gv_Data" runat="server" AutoGenerateColumns="False" Width="100%" GridLines="None" AllowPaging="true" PageSize="100" OnRowDataBound="gv_Data_RowDataBound"
+            OnPageIndexChanging="gv_Data_PageIndexChanging">
             <HeaderStyle HorizontalAlign="Left" Height="32" Font-Size="Small" BackColor="#2196f3" ForeColor="White" BorderStyle="Solid" BorderColor="#2196f3" />
             <RowStyle Height="24" />
+            <PagerStyle Font-Size="Medium" HorizontalAlign="Center" />
             <Columns>
                 <asp:BoundField HeaderText="Doc. Date" DataField="DocDate" DataFormatString="{0:d}"></asp:BoundField>
                 <asp:BoundField HeaderText="Doc. No." DataField="DocNo"></asp:BoundField>
@@ -126,6 +132,61 @@
                     <button style="width: 100px; padding: 5px;" onclick="pop_Alert.Hide();">
                         Ok
                     </button>
+                </div>
+            </dx:PopupControlContentControl>
+        </ContentCollection>
+    </dx:ASPxPopupControl>
+    <dx:ASPxPopupControl ID="pop_Config" ClientInstanceName="pop_Config" runat="server" Width="420" HeaderText="Configuration" Modal="True" ShowCloseButton="true"
+        CloseAction="CloseButton" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowPageScrollbarWhenModal="True">
+        <HeaderStyle BackColor="#ffffcc" />
+        <ContentCollection>
+            <dx:PopupControlContentControl ID="PopupControlContentControl1" runat="server">
+                <div class="mb-10">
+                    <asp:Label runat="server" Text="Version" />
+                </div>
+                <div class="mb-20">
+                    <asp:DropDownList runat="server" ID="ddl_Config_Version" Width="120">
+                        <asp:ListItem Value="42601" Text="42601" />
+                        <asp:ListItem Value="610" Text="610" />
+                        <asp:ListItem Value="620" Text="620" />
+                    </asp:DropDownList>
+                </div>
+                <div class="mb-10">
+                    <asp:Label ID="Label4" runat="server" Text="Journal Type" />
+                </div>
+                <div class="mb-20">
+                    <asp:TextBox runat="server" ID="txt_Config_JournalType" Width="120" Text="MCINV" />
+                    <div>
+                        <small>*default = MCINV</small>
+                    </div>
+                </div>
+                <div class="mb-10">
+                    <asp:Label ID="Label3" runat="server" Text="Tax Account" />
+                </div>
+                <div class="mb-20">
+                    <asp:DropDownList runat="server" ID="ddl_Config_TaxAccountType" Width="120">
+                        <asp:ListItem Value="CATEGORY" Text="Category" />
+                        <asp:ListItem Value="SUBCATEGORY" Text="Sub-Category" />
+                        <asp:ListItem Value="ITEMGROUP" Text="Item Group" />
+                        <asp:ListItem Value="PRODUCT" Text="Product" />
+                        <asp:ListItem Value="" Text="Fix code" />
+                    </asp:DropDownList>
+                    &nbsp;
+                    <asp:TextBox runat="server" ID="txt_Config_TaxAccountCode" Width="120" Text="" />
+                </div>
+                <div class="mb-10">
+                    <asp:Label ID="Label5" runat="server" Text="Only once export" />
+                </div>
+                <div class="mb-20">
+                    <asp:DropDownList runat="server" ID="ddl_Config_SingleExport" Width="120">
+                        <asp:ListItem Value="true" Text="Yes" />
+                        <asp:ListItem Value="false" Text="No" />
+                    </asp:DropDownList>
+                </div>
+                <div class="flex flex-justify-content-center mt-20 width-100">
+                    <asp:Button runat="server" ID="btn_SaveConfig" Text="Save" OnClick="btn_SaveConfig_Click" />
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <asp:Button runat="server" ID="btn_CancelConfig" Text="Cancel" OnClientClick="pop_Config.Hide()" />
                 </div>
             </dx:PopupControlContentControl>
         </ContentCollection>

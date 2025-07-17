@@ -1,36 +1,49 @@
 ﻿using System;
-using System.Collections;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
+using System.Web.UI;
 using System.Web.UI.WebControls;
 using BlueLedger.PL.BaseClass;
-using System.Collections.Generic;
+using System.Drawing;
+using System.Text;
+
 
 namespace BlueLedger.PL.Option.Admin.Interface.Sun
 {
     public partial class ExportRestore : BasePage
     {
+        const string moduleID = "2.9.31";
+
+        private readonly Blue.BL.APP.Config config = new Blue.BL.APP.Config();
+        private readonly Blue.BL.ADMIN.RolePermission permission = new Blue.BL.ADMIN.RolePermission();
+
+        private string prevDocNo = "";
+        private bool _toggle_color = false;
+        private DataTable _dtAccMapDesc;
+
+
         #region "Attributes"
+        protected bool _hasPermissionEdit
+        {
+            get
+            {
+                var pagePermiss = permission.GetPagePermission(moduleID, LoginInfo.LoginName, LoginInfo.ConnStr);
 
-        private readonly Blue.BL.ADMIN.Bu bu = new Blue.BL.ADMIN.Bu();
-        //private readonly Blue.BL.ADMIN.AccountMapp MyaccountMapp = new Blue.BL.ADMIN.AccountMapp();
-        private readonly Blue.BL.ADMIN.AccountMapp accountMapp = new Blue.BL.ADMIN.AccountMapp();
-        private readonly Blue.BL.AP.Vendor vendor = new Blue.BL.AP.Vendor();
-        private readonly Blue.BL.PC.CN.Cn cn = new Blue.BL.PC.CN.Cn();
-        private readonly Blue.BL.PC.REC.REC rec = new Blue.BL.PC.REC.REC();
+                return pagePermiss >= 3;
+            }
+        }
 
-        private SqlConnection con;
-        private SqlCommand cmd = new SqlCommand();
-        private SqlDataAdapter da = new SqlDataAdapter();
-        private DataSet ds = new DataSet();
-        private DataSet dsExport = new DataSet();
-        private DataSet dsRestore = new DataSet();
-        private DataTable dtInterfaceExp = new DataTable();
-        private DataTable dtInterfaceExpFalse = new DataTable();
-        private string rptquery = string.Empty;
+        //private DataTable _dtExport
+        //{
+        //    get { return ViewState["_dtExport"] as DataTable; }
+        //    set { ViewState["_dtExport"] = value; }
+        //}
 
 
         #endregion
+
+        #region "Event(s)"
 
         protected override void Page_Load(object sender, EventArgs e)
         {
@@ -38,144 +51,239 @@ namespace BlueLedger.PL.Option.Admin.Interface.Sun
 
             if (!IsPostBack)
             {
-                txt_FromDate.Date = ServerDateTime.Date;
-                txt_ToDate.Date = ServerDateTime.Date;
+                de_FromDate.Date = ServerDateTime.Date;
+                de_ToDate.Date = ServerDateTime.Date;
             }
-        }
 
-        protected void menu_CmdBar_ItemClick(object source, DevExpress.Web.ASPxMenu.MenuItemEventArgs e)
-        {
-            Page.Validate();
-            if (Page.IsValid)
-            {
-                switch (e.Item.Name.ToUpper())
-                {
-                    case "PRINT":
-                        var objArrList = new ArrayList();
-                        objArrList.Add(txt_FromDate.Value);
-                        objArrList.Add(txt_ToDate.Value);
-                        Session["s_arrNo"] = objArrList;
+            _dtAccMapDesc = config.DbExecuteQuery("SELECT TOP(1) DescA1, DescA2, DescA3 FROM [ADMIN].AccountMappView WHERE PostType='AP'", null, LoginInfo.ConnStr);
 
-                        var reportLink = "../../../../RPT/ReportCriteria.aspx?category=001&reportid=170" + "&BuCode=" +
-                                         LoginInfo.BuInfo.BuCode;
-                        Response.Redirect("javascript:window.open('" + reportLink + "','_blank'  )");
-                        //Response.Write("<script>");
-                        //Response.Write("window.open('" + reportLink + "','_blank'  )");
-                        //Response.Write("</script>");
-                        break;
-                }
-            }
         }
 
         protected void btn_Preview_Click(object sender, EventArgs e)
         {
-            GrdPreView();
-        }
+            //var dateFrom = de_FromDate.Date;
+            //var dateTo = de_ToDate.Date;
 
-        private void GrdPreView()
-        {
-            //con = new SqlConnection(LoginInfo.ConnStr);
-            //rptquery = "Select * from vPre_Restore where DocDate >= @FFDate and DocDate <= @TTDate";
-
-            //cmd.CommandType = System.Data.CommandType.Text;
-            //cmd.CommandText = rptquery;
-            //cmd.Connection = con;
-            ////cmd.Parameters.Add("FFDate", System.Data.SqlDbType.DateTime).Value = txt_FromDate.Value.ToString();
-            ////cmd.Parameters.Add("TTDate", System.Data.SqlDbType.DateTime).Value = txt_ToDate.Value.ToString();
-            //cmd.Parameters.Add("FFDate", System.Data.SqlDbType.DateTime).Value = txt_FromDate.Date.ToString("yyyy-MM-dd");
-            //cmd.Parameters.Add("TTDate", System.Data.SqlDbType.DateTime).Value = txt_ToDate.Date.ToString("yyyy-MM-dd");
-            //da.SelectCommand = cmd;
-            //da.Fill(ds, "vPre_Restore");
-
-            //grd_Preview2.DataSource = ds;
-            string sql = string.Format("SELECT * FROM [ADMIN].vExportToAP WHERE CommittedDate BETWEEN '{0}' AND '{1}'", txt_FromDate.Date.ToString("yyyy-MM-dd"), txt_ToDate.Date.ToString("yyyy-MM-dd"));
-            grd_Preview2.DataSource = bu.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
-            grd_Preview2.DataBind();
+            //Preview(dateFrom, dateTo);
+            BindData();
         }
 
         protected void btn_Restore_Click(object sender, EventArgs e)
         {
-            lbl_TitleConfirm.Text = string.Format("Confirm to restore export from {0} to {1}?", txt_FromDate.Text, txt_ToDate.Text);
-            pop_Confrim.ShowOnPageLoad = true;
+            var dateFrom = de_FromDate.Date;
+            var dateTo = de_ToDate.Date;
+
+            Restore(dateFrom, dateTo);
         }
 
-        protected void btn_Cancel_Click(object sender, EventArgs e)
+
+        protected void gv_Data_RowDataBound(object sender, GridViewRowEventArgs e)
         {
-            pop_Confrim.ShowOnPageLoad = false;
-        }
+            string _descA1 = "", _descA2 = "", _descA3 = "";
 
-        protected void btn_Confrim_Click(object sender, EventArgs e)
-        {
-            //isExp("REST");
-            RestoreExport(txt_FromDate.Date, txt_ToDate.Date);
-            GrdPreView();
-
-            pop_Confrim.ShowOnPageLoad = false;
-        }
-
-        private void RestoreExport(DateTime dateFrom, DateTime dateTo)
-        {
-            var sql = @"
-DECLARE @doc TABLE(
-	DocNo nvarchar(20) NOT NULL,
-
-	PRIMARY KEY (DocNo)
-)
-INSERT INTO @doc SELECT DISTINCT DocNo FROM [ADMIN].vExportToAP WHERE CommittedDate BETWEEN @FrDate AND @ToDate
-
-UPDATE PC.Rec SET ExportStatus = 0 WHERE RecNo IN (SELECT DocNo FROM @doc)
-UPDATE PC.Cn SET ExportStatus = 0 WHERE CnNo IN (SELECT DocNo FROM @doc)";
-            var p = new List<Blue.DAL.DbParameter>();
-            p.Add(new Blue.DAL.DbParameter("@FrDate", dateFrom.ToString("yyyy-MM-dd")));
-            p.Add(new Blue.DAL.DbParameter("@FrDate", dateTo.ToString("yyyy-MM-dd")));
-
-            bu.DbExecuteQuery(sql, p.ToArray(), LoginInfo.ConnStr);
-
-            //string sql = string.Format("UPDATE PC.Rec SET ExportStatus = 0 WHERE CAST(RecDate AS DATE) BETWEEN '{0}' AND '{1}'", dateFrom.ToString("yyyy-MM-dd"), dateTo.ToString("yyyy-MM-dd"));
-            //bu.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
-
-            //sql = string.Format("UPDATE PC.Cn SET ExportStatus = 0 WHERE CAST(CnDate AS DATE) BETWEEN '{0}' AND '{1}'", dateFrom.ToString("yyyy-MM-dd"), dateTo.ToString("yyyy-MM-dd"));
-            //bu.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
-        }
-
-        private void isExp(string _exp)
-        {
-            var dsUpdate = new DataSet();
-
-            //Get data for update
-            cn.GetCnbyDate(txt_FromDate.Date, txt_ToDate.Date, dsUpdate, 1, LoginInfo.ConnStr);
-            rec.GetRecbyDate(txt_FromDate.Date, txt_ToDate.Date, dsUpdate, 1, LoginInfo.ConnStr);
-
-            if (dsUpdate != null)
+            if (_dtAccMapDesc != null && _dtAccMapDesc.Rows.Count > 0)
             {
-                if (dsUpdate.Tables[cn.TableName].Rows.Count > 0)
+                _descA1 = _dtAccMapDesc.Rows[0]["DescA1"].ToString();
+                _descA2 = _dtAccMapDesc.Rows[0]["DescA2"].ToString();
+                _descA3 = _dtAccMapDesc.Rows[0]["DescA3"].ToString();
+            }
+
+            #region --header--
+            if (e.Row.RowType == DataControlRowType.Header)
+            {
+
+                if (e.Row.FindControl("lbl_A1_Header") != null)
                 {
-                    for (var a = 0; a < dsUpdate.Tables[cn.TableName].Rows.Count; a++)
+                    var lbl = e.Row.FindControl("lbl_A1_Header") as Label;
+
+                    lbl.Text = _descA1;
+                }
+
+                if (e.Row.FindControl("lbl_A2_Header") != null)
+                {
+                    var lbl = e.Row.FindControl("lbl_A2_Header") as Label;
+
+                    lbl.Text = _descA2;
+                }
+
+            }
+            #endregion
+
+            if (e.Row.RowType == DataControlRowType.DataRow)
+            {
+                var dataItem = e.Row.DataItem;
+
+                var docNo = DataBinder.Eval(dataItem, "DocNo").ToString();
+
+                var exportStatus = DataBinder.Eval(dataItem, "ExportStatus").ToString();
+
+                var docType = DataBinder.Eval(dataItem, "DocType").ToString();
+                var sunAccountNo = DataBinder.Eval(dataItem, "SunAccountNo").ToString();
+                var a1 = DataBinder.Eval(dataItem, "A1").ToString();
+                var a2 = DataBinder.Eval(dataItem, "A2").ToString();
+                var locationCode = DataBinder.Eval(dataItem, "LocationCode").ToString();
+                var itemGroupCode = DataBinder.Eval(dataItem, "ItemGroupCode").ToString();
+
+                var color = Color.Transparent;
+
+                if (string.IsNullOrEmpty(prevDocNo) || prevDocNo != docNo)
+                {
+                    _toggle_color = !_toggle_color;
+                    prevDocNo = docNo;
+                }
+
+                e.Row.BackColor = _toggle_color ? Color.Transparent : Color.WhiteSmoke;
+
+
+                if (e.Row.FindControl("lbl_SunAccountNo") != null)
+                {
+                    var lbl = e.Row.FindControl("lbl_SunAccountNo") as Label;
+                    var value = sunAccountNo;
+
+                    lbl.Text = string.IsNullOrEmpty(value) ? "Not Set" : value;
+                    lbl.ForeColor = string.IsNullOrEmpty(value) ? Color.Tomato : Color.Black;
+                    lbl.Font.Bold = string.IsNullOrEmpty(value) ? false : true;
+
+                    if (string.IsNullOrEmpty(value) && docType == "VendorLine")
                     {
-                        dsUpdate.Tables[cn.TableName].Rows[a]["ExportStatus"] = 0;
+                        lbl.ToolTip = "Set at 'Acct. Link Ref.' in Vendor Profile.";
+                    }
+                    else if (string.IsNullOrEmpty(value) && docType == "ExpenseLine")
+                    {
+                        lbl.ToolTip = string.Format("Set at '{0}' in Account Mapping.", _descA3);
+                    }
+                    else if (string.IsNullOrEmpty(value) && docType == "TaxLine")
+                    {
+                        lbl.ToolTip = "Set at 'Tax Account' in Product.";
+                    }
+
+                }
+
+                if (e.Row.FindControl("lbl_A1") != null)
+                {
+                    var lbl = e.Row.FindControl("lbl_A1") as Label;
+
+                    var value = a1;
+
+                    lbl.Text = string.IsNullOrEmpty(value) && docType == "ExpenseLine" ? "Not Set" : value;
+                    lbl.ForeColor = string.IsNullOrEmpty(value) && docType == "ExpenseLine" ? Color.Tomato : Color.Black;
+                    lbl.Font.Bold = string.IsNullOrEmpty(value) && docType == "ExpenseLine" ? false : true;
+
+                    if (string.IsNullOrEmpty(value) && docType == "ExpenseLine")
+                    {
+                        lbl.ToolTip = string.Format("Set '{0}' at location='{1}' and itemgroup='{2}' in Account Mapping.", _descA1, locationCode, itemGroupCode);
                     }
                 }
 
-                if (dsUpdate.Tables[rec.TableName].Rows.Count > 0)
+                if (e.Row.FindControl("lbl_A2") != null)
                 {
-                    for (var b = 0; b < dsUpdate.Tables[rec.TableName].Rows.Count; b++)
+                    var lbl = e.Row.FindControl("lbl_A2") as Label;
+
+                    var value = a2;
+
+                    lbl.Text = string.IsNullOrEmpty(value) && docType == "ExpenseLine" ? "Not Set" : value;
+                    lbl.ForeColor = string.IsNullOrEmpty(value) && docType == "ExpenseLine" ? Color.Tomato : Color.Black;
+                    lbl.Font.Bold = string.IsNullOrEmpty(value) && docType == "ExpenseLine" ? false : true;
+
+                    if (string.IsNullOrEmpty(value) && docType == "ExpenseLine")
                     {
-                        dsUpdate.Tables[rec.TableName].Rows[b]["ExportStatus"] = 0;
+                        lbl.ToolTip = string.Format("Set '{0}' at location='{1}' and itemgroup='{2}' in Account Mapping.", _descA2, locationCode, itemGroupCode);
                     }
+
                 }
 
-                //Commit to database.
-                var cnResult = cn.UpdateExportStatus(dsUpdate, LoginInfo.ConnStr);
-                var recResult = rec.UpdateExportStatus(dsUpdate, LoginInfo.ConnStr);
-
-                if (cnResult & recResult)
+                if (e.Row.FindControl("img_ExportStatus") != null)
                 {
+                    var img = e.Row.FindControl("img_ExportStatus") as System.Web.UI.WebControls.Image;
 
-                    grd_Preview2.DataSource = null;
-                    grd_Preview2.DataBind();
+                    img.Visible = Convert.ToBoolean(exportStatus);
+
                 }
+
+                //if (e.Row.FindControl("lbl_Remark") != null)
+                //{
+                //    var lbl = e.Row.FindControl("lbl_Remark") as Label;
+                //    var errors = new List<string>();
+
+                //    if (string.IsNullOrEmpty(sunAccountNo))
+                //    {
+                //        errors.Add("No Sun vendor or Tax Account. *set Sun Vendor at Vendor Profile / Tax accunt at Product.");
+                //        errors.Add("");
+                //    }
+
+                //    if (string.IsNullOrEmpty(a1) || string.IsNullOrEmpty(a2))
+                //    {
+                //        errors.Add("No mapping accounts. *set at Account Mapping.");
+                //        errors.Add("");
+                //    }
+
+
+                //    lbl.Text = string.Join("<br/>", errors);
+                //    lbl.ForeColor = Color.Tomato;
+                //}
             }
         }
+
+        protected void gv_Data_PageIndexChanging(object sender, GridViewPageEventArgs e)
+        {
+            (sender as GridView).PageIndex = e.NewPageIndex;
+
+
+            var dateFrom = de_FromDate.Date;
+            var dateTo = de_ToDate.Date;
+
+            BindData();
+        }
+
+        #endregion
+
+        private void ShowAlert(string text)
+        {
+            lbl_Alert.Text = text;
+            pop_Alert.ShowOnPageLoad = true;
+        }
+
+        private void BindData()
+        {
+            var fDate = de_FromDate.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            var tDate = de_ToDate.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+            var sql = new Helpers.SQL(LoginInfo.ConnStr);
+            var query = "EXEC [Tool].ExportToAP_SunSystems @FDate=@FDate, @TDate=@TDate, @IsExport=0, @Status='E'";            
+            var parameters = new SqlParameter[] 
+            {
+                new SqlParameter("@FDate", fDate),
+                new SqlParameter("@TDate", tDate),
+            };
+
+            var dt = sql.ExecuteQuery(query, parameters);
+
+            gv_Data.DataSource = dt;
+            gv_Data.DataBind();
+        }
+
+        private void Restore(DateTime dateFrom, DateTime dateTo)
+        {
+            var fDate = dateFrom.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            var tDate = dateTo.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+            var query = @"
+UPDATE PC.Rec SET ExportStatus=0 WHERE RecDate BETWEEN @FDate AND @TDate
+UPDATE PC.Cn SET ExportStatus=0 WHERE CnDate BETWEEN @FDate AND @TDate";
+            var parameters = new SqlParameter[] 
+            {
+                new SqlParameter("@FDate", fDate),
+                new SqlParameter("@TDate", tDate)
+            };
+
+            new Helpers.SQL(LoginInfo.ConnStr).ExecuteQuery(query, parameters);
+
+            BindData();
+
+            ShowAlert(string.Format("All documents from {0} to {1} are restored.", dateFrom.ToString("dd/MM/yyyy"), dateTo.ToString("dd/MM/yyyy")));
+        }
+
+
 
     }
 }
