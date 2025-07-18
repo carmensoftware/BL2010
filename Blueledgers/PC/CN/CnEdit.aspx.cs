@@ -565,8 +565,8 @@ namespace BlueLedger.PL.PC.CN
             se_CnCurrTaxAmt.Visible = cnType.StartsWith("A") || cnType.StartsWith("Q");
             se_CnCurrTotalAmt.Visible = cnType.StartsWith("A") || cnType.StartsWith("Q");
 
-            se_CnCurrNetAmt.ReadOnly = !taxAdj;
-            se_CnCurrTaxAmt.ReadOnly = !taxAdj;
+            se_CnCurrNetAmt.ReadOnly = !taxAdj && cnType.StartsWith("Q");
+            se_CnCurrTaxAmt.ReadOnly = !taxAdj && cnType.StartsWith("Q");
 
             btn_AddItem.Enabled = false;
             btn_DeleteItems.Enabled = false;
