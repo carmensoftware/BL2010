@@ -1017,6 +1017,17 @@ WHERE
                     (e.Row.FindControl("hf_RcvUnit") as HiddenField).Value = DataBinder.Eval(dataItem, "RcvUnit").ToString();
                 }
 
+                if (e.Row.FindControl("hf_RecQty") != null)
+                {
+                    (e.Row.FindControl("hf_RecQty") as HiddenField).Value = DataBinder.Eval(dataItem, "RecQty").ToString();
+                }
+
+                if (e.Row.FindControl("hf_FocQty") != null)
+                {
+                    (e.Row.FindControl("hf_FocQty") as HiddenField).Value = DataBinder.Eval(dataItem, "FocQty").ToString();
+                }
+
+
                 if (e.Row.FindControl("hf_Rate") != null)
                 {
                     (e.Row.FindControl("hf_Rate") as HiddenField).Value = DataBinder.Eval(dataItem, "Rate").ToString();
@@ -1254,6 +1265,8 @@ WHERE
                 var hf_LocationCode = row.FindControl("hf_LocationCode") as HiddenField;
                 var hf_ProductCode = row.FindControl("hf_ProductCode") as HiddenField;
                 var hf_RcvUnit = row.FindControl("hf_RcvUnit") as HiddenField;
+                var hf_RecQty = row.FindControl("hf_RecQty") as HiddenField;
+                var hf_FocQty = row.FindControl("hf_FocQty") as HiddenField;
                 var hf_Rate = row.FindControl("hf_Rate") as HiddenField;
                 var hf_Price = row.FindControl("hf_Price") as HiddenField;
                 var hf_TaxType = row.FindControl("hf_TaxType") as HiddenField;
@@ -1279,6 +1292,8 @@ WHERE
                 var taxType = hf_TaxType.Value;
                 var taxRate = Convert.ToDecimal(hf_TaxRate.Value);
                 var rcvUnit = hf_RcvUnit.Value.ToString();
+                var recQty = Convert.ToDecimal(hf_RecQty.Value);
+                var focQty = Convert.ToDecimal(hf_FocQty.Value);
                 var cnUnit = ddl_CnUnit.SelectedItem.Value.ToString();
                 var rate = Convert.ToDecimal(hf_Rate.Value);
                 var cnQty = se_CnQty.Number;
@@ -1292,6 +1307,7 @@ WHERE
 
                 var currencyRate = se_CurrencyRate.Number;
                 var cnDtNo = Convert.ToInt32(hf_CnDtNo.Value);
+
                 // Edit
                 if (cnDtNo > 0)
                 {
@@ -1305,8 +1321,8 @@ WHERE
                         {
                             cnDt["CnType"] = cnType;
 
-                            cnDt["RecQty"] = cnQty;
-                            cnDt["FocQty"] = cnFoc;
+                            cnDt["RecQty"] = cnType == "A" ? recQty : cnQty;
+                            cnDt["FocQty"] = cnType == "A" ? focQty : cnFoc;
                             cnDt["UnitCode"] = cnType == "Q" ? ddl_CnUnit.SelectedItem.Value.ToString() : hf_RcvUnit.Value;
 
 
@@ -1338,8 +1354,8 @@ WHERE
                     dr["Location"] = hf_LocationCode.Value;
                     dr["ProductCode"] = hf_ProductCode.Value;
                     dr["UnitCode"] = cnType == "Q" ? ddl_CnUnit.SelectedItem.Value.ToString() : hf_RcvUnit.Value;
-                    dr["RecQty"] = cnQty;
-                    dr["FocQty"] = cnFoc;
+                    dr["RecQty"] = cnType == "A" ? recQty : cnQty;
+                    dr["FocQty"] = cnType == "A" ? focQty : cnFoc;
                     dr["Price"] = price;
                     dr["TaxAdj"] = 0;
                     dr["TaxType"] = taxType;

@@ -706,6 +706,7 @@
                                                 <asp:HiddenField runat="server" ID="hf_LocationCode" />
                                                 <asp:HiddenField runat="server" ID="hf_RcvUnit" />
                                                 <asp:HiddenField runat="server" ID="hf_RecQty" />
+                                                <asp:HiddenField runat="server" ID="hf_FocQty" />
                                                 <asp:HiddenField runat="server" ID="hf_Rate" />
                                                 <asp:HiddenField runat="server" ID="hf_Price" />
                                                 <asp:HiddenField runat="server" ID="hf_TaxType" />
