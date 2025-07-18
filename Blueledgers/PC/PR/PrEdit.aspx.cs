@@ -273,18 +273,15 @@ namespace BlueLedger.PL.PC.PR
             #endregion
 
 
+            ddl_PrType.DataSource = dsWF.Tables["UserProdCateType"];
+            ddl_PrType.DataBind();
+
+
             Page_Setting();
         }
 
         private void Page_Setting()
         {
-            #region Modified on: 24/03/2017
-            ddl_PrType.DataSource = dsWF.Tables["UserProdCateType"];
-            //ddl_PrType.DataTextField = "Description";
-            //ddl_PrType.DataValueField = "Code";
-            ddl_PrType.DataBind();
-            #endregion
-
             // Display current process description
             if (Request.Cookies["[PC].[vPrList]"] != null)
             {
@@ -304,6 +301,7 @@ namespace BlueLedger.PL.PC.PR
 
 
             var drPr = dsPR.Tables[pr.TableName].Rows[0];
+
             txt_Ref.Text = (MODE.ToUpper() == "NEW" || MODE.ToUpper() == "TEMPLATE"
                 ? string.Empty
                 : drPr["PrNo"].ToString());
@@ -2160,10 +2158,14 @@ namespace BlueLedger.PL.PC.PR
             for (var i = 0; i <= grd_PrDt1.Rows.Count - 1; i++)
             {
                 var drUpdating = dsPR.Tables[prDt.TableName].Rows[grd_PrDt1.Rows[i].DataItemIndex];
+
                 drUpdating["ReqDate"] = DateTime.Parse(dte_DeliDate.Date.ToString("dd/MM/yyyy"));
             }
 
-            Page_Setting();
+
+            grd_PrDt1.DataSource = dsPR.Tables[prDt.TableName];
+            grd_PrDt1.DataBind();
+            //Page_Setting();
 
             pop_ConfirmChangeDeliDate.ShowOnPageLoad = false;
         }
