@@ -1483,6 +1483,7 @@ WHERE
                 var recQty = dr["RecQty"].ToString();
                 var focQty = dr["FocQty"].ToString();
                 var price = dr["Price"].ToString();
+                var taxAdj = dr["TaxAdj"].ToString(); //Convert.ToBoolean(dr["TaxAdj"]);
                 var taxType = dr["TaxType"].ToString();
                 var taxRate = dr["TaxRate"].ToString();
                 var currNetAmt = dr["CurrNetAmt"].ToString();
@@ -1496,8 +1497,7 @@ WHERE
                 var poDtNo = string.IsNullOrEmpty(dr["PoDtNo"].ToString()) ? "NULL" : dr["PoDtNo"].ToString();
 
                 queries.Append("INSERT INTO PC.CnDt (CnNo, CnDtNo, CnType, RecNo, Location, ProductCode, UnitCode, RecQty, FocQty, Price, TaxType, TaxRate, TaxAdj, CurrNetAmt, CurrTaxAmt, CurrTotalAmt, NetAmt, TaxAmt, TotalAmt, Comment, PoNo, PoDtNo)");
-                //queries.AppendFormat(" VALUES(@CnNo, {0}, '{1}', '{2}', '{3}', '{4}', '{18}', {5}, {6}, {7}, '{8}', {9}, 0, {10}, {11}, {12}, {13}, {14}, {15}, '', '{16}', {17})",
-                queries.AppendFormat(" VALUES(@CnNo, {0}, '{1}', '{2}', '{3}', '{4}', @UnitCode{0}, {5}, {6}, {7}, '{8}', {9}, 0, {10}, {11}, {12}, {13}, {14}, {15}, @Comment{0}, '{16}', {17})",
+                queries.AppendFormat(" VALUES(@CnNo, {0}, '{1}', '{2}', '{3}', '{4}', @UnitCode{0}, {5}, {6}, {7}, '{8}', {9}, '{10}', {11}, {12}, {13}, {14}, {15}, {16}, @Comment{0}, '{17}', {18})",
                     cnDtNo,
                     cnType,
                     recNo,
@@ -1508,6 +1508,7 @@ WHERE
                     price,
                     taxType,
                     taxRate,
+                    taxAdj,
                     currNetAmt,
                     currTaxAmt,
                     currTotalAmt,
@@ -1866,25 +1867,51 @@ WHERE
                         .Where(x => x.Field<string>("RecNo") == recNo)
                         .ToArray();
 
-            foreach (var cndt in cnDtList)
+            //foreach (var cndt in cnDtList)
+            foreach (DataRow dr in _dtCnDt.Rows)
             {
-                var recDtNo = cndt.Field<Nullable<int>>("PoDtNo");
-                var locationCode = cndt.Field<string>("Location");
-                var productCode = cndt.Field<string>("ProductCode");
 
-                var cnDtNo = cndt.Field<int>("CnDtNo");
-                var cnType = cndt.Field<string>("CnType");
-                var cnUnit = cndt.Field<string>("UnitCode");
-                var cnQty = cndt.Field<decimal>("RecQty");
-                var cnFoc = cndt.Field<decimal>("FocQty");
-                var taxAdj = cndt.Field<bool>("TaxAdj");
-                var cnCurrNetAmt = cndt.Field<decimal>("CurrNetAmt");
-                var cnCurrTaxAmt = cndt.Field<decimal>("CurrTaxAmt");
-                var cnCurrTotalAmt = cndt.Field<decimal>("CurrTotalAmt");
+                var cnRecNo = dr["RecNo"].ToString().Trim();
+                var recDtNo = dr["PoDtNo"].ToString() == "" ? -1 : Convert.ToInt32(dr["PoDtNo"]);
+                var locationCode = dr["Location"].ToString().Trim();
+                var productCode = dr["ProductCode"].ToString().Trim();
 
-                var recItem = recDtNo != null && recDtNo > 0
+                var cnDtNo = Convert.ToInt32(dr["CnDtNo"]);
+                var cnType = dr["CnType"].ToString();
+                var cnUnit = dr["UnitCode"].ToString();
+                var cnQty = Convert.ToDecimal(dr["RecQty"]);
+                var cnFoc = Convert.ToDecimal(dr["FocQty"]);
+                var taxAdj = Convert.ToBoolean(dr["TaxAdj"]);
+                var cnCurrNetAmt = Convert.ToDecimal(dr["CurrNetAmt"]);
+                var cnCurrTaxAmt = Convert.ToDecimal(dr["CurrTaxAmt"]);
+                var cnCurrTotalAmt = Convert.ToDecimal(dr["CurrTotalAmt"]);
+
+
+                //var recDtNo = cndt.Field<Nullable<int>>("PoDtNo");
+                //var locationCode = cndt.Field<string>("Location");
+                //var productCode = cndt.Field<string>("ProductCode");
+
+                //var cnDtNo = cndt.Field<int>("CnDtNo");
+                //var cnType = cndt.Field<string>("CnType");
+                //var cnUnit = cndt.Field<string>("UnitCode");
+                //var cnQty = cndt.Field<decimal>("RecQty");
+                //var cnFoc = cndt.Field<decimal>("FocQty");
+                //var taxAdj = cndt.Field<bool>("TaxAdj");
+                //var cnCurrNetAmt = cndt.Field<decimal>("CurrNetAmt");
+                //var cnCurrTaxAmt = cndt.Field<decimal>("CurrTaxAmt");
+                //var cnCurrTotalAmt = cndt.Field<decimal>("CurrTotalAmt");
+
+
+                var recItem = recDtNo > -1
                     ? dtRecDt.AsEnumerable().FirstOrDefault(x => x.Field<int>("RecDtNo") == recDtNo)
-                    : dtRecDt.AsEnumerable().FirstOrDefault(x => x.Field<string>("LocationCode") == locationCode && x.Field<string>("ProductCode") == productCode);
+                    : dtRecDt.AsEnumerable()
+                        .Where(x => x.Field<string>("RecNo").Trim() == cnRecNo)
+                        .Where(x => x.Field<string>("LocationCode").Trim() == locationCode)
+                        .Where(x => x.Field<string>("ProductCode").Trim() == productCode)
+                        .FirstOrDefault();
+
+
+
 
                 if (recItem != null)
                 {
