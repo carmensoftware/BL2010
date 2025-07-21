@@ -423,6 +423,11 @@ namespace BlueLedger.PL.PC.CN
                 BindGridRow_HiddenField(e, "hf_NetAmt", originCurrNetAmt);
                 BindGridRow_HiddenField(e, "hf_TaxAmt", originCurrTaxAmt);
 
+                BindGridRow_HiddenField(e, "hf_OriginNetAmt", originCurrNetAmt);
+                BindGridRow_HiddenField(e, "hf_OriginTaxAmt", originCurrTaxAmt);
+
+
+
                 if (rcvUnit != unitCode)
                 {
                     originRecQty = RoundQty(originRecQty * rate);
@@ -1903,7 +1908,7 @@ WHERE
 
 
                 var recItem = recDtNo > -1
-                    ? dtRecDt.AsEnumerable().FirstOrDefault(x => x.Field<int>("RecDtNo") == recDtNo)
+                    ? dtRecDt.AsEnumerable().FirstOrDefault(x => x.Field<string>("RecNo").Trim() == cnRecNo && x.Field<int>("RecDtNo") == recDtNo)
                     : dtRecDt.AsEnumerable()
                         .Where(x => x.Field<string>("RecNo").Trim() == cnRecNo)
                         .Where(x => x.Field<string>("LocationCode").Trim() == locationCode)
