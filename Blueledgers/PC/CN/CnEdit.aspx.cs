@@ -1219,6 +1219,7 @@ WHERE
         protected void btn_SelectItems_Click(object sender, EventArgs e)
         {
             // Check invalid value (qty/amt)
+            #region
             foreach (GridViewRow row in gv_Receiving.Rows)
             {
                 var lbl_RecDtNo = row.FindControl("lbl_RecDtNo") as Label;
@@ -1252,8 +1253,9 @@ WHERE
 
                 }
             }
+            #endregion
 
-            var maxCnDtNo = _dtCnDt.Rows.Count == 0 ? 0 : _dtCnDt.AsEnumerable().Max(x => x.Field<int>("CnDtNo"));
+            var maxCnDtNo = _dtCnDt.Rows.Count == 0 ? 1 : _dtCnDt.AsEnumerable().Max(x => x.Field<int>("CnDtNo"));
 
             foreach (GridViewRow row in gv_Receiving.Rows)
             {
@@ -1379,6 +1381,8 @@ WHERE
                     _dtCnDt.Rows.Add(dr);
                 }
             }
+
+            _dtCnDt.AcceptChanges();
 
             gv_Detail.DataSource = _dtCnDt;
             gv_Detail.DataBind();
