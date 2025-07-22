@@ -88,35 +88,7 @@ namespace BlueLedger.PL.Option.Admin.Interface.Sun
 
         protected void btn_SaveConfig_Click(object sender, EventArgs e)
         {
-            var version = ddl_Config_Version.SelectedItem.Value.ToString();
-            var journalType = txt_Config_JournalType.Text.Trim();
-            var taxAccType = ddl_Config_TaxAccountType.SelectedItem.Value.ToString();
-            var taxAccCode = txt_Config_TaxAccountCode.Text.Trim();
-            var singleExport = ddl_Config_SingleExport.SelectedItem.Value.ToString();
-
-
-            if (string.IsNullOrEmpty(taxAccType) && string.IsNullOrEmpty(taxAccCode)) // Fix code
-            {
-                ShowAlert("Please set Tax Account Code.");
-
-                return;
-            }
-
-            var config = new StringBuilder();
-
-            config.Append("<Config>");
-            config.Append(string.Format("<Version>{0}</Version>", version));
-            config.Append(string.Format("<JournalType>{0}</JournalType>", journalType));
-            config.Append(string.Format("<TaxAccountCode Type=\"{0}\">{1}</TaxAccountCode>", taxAccType, taxAccCode));
-            config.Append(string.Format("<SingleExport>{0}</SingleExport>", singleExport));
-            config.Append("</Config>");
-
-            var query = @"
-DELETE FROM APP.Config WHERE [Module]='APP' AND SubModule='INTF' AND [Key]='SunSystems'
-
-INSERT INTO APP.Config (Module, SubModule, [Key], [Value], UpdatedBy, UpdatedDate)
-VALUES ('APP','INTF','SunSystems', @Value, 'SYSTEM',GETDATE())";
-            new Helpers.SQL(LoginInfo.ConnStr).ExecuteQuery(query, new SqlParameter[] { new SqlParameter("@Value", config.ToString()) });
+            SaveConfig();
 
             pop_Config.ShowOnPageLoad = false;
         }
@@ -128,15 +100,6 @@ VALUES ('APP','INTF','SunSystems', @Value, 'SYSTEM',GETDATE())";
 
         protected void gv_Data_RowDataBound(object sender, GridViewRowEventArgs e)
         {
-            //string _descA1 = "", _descA2 = "", _descA3 = "";
-
-            //if (_dtAccMapDesc != null && _dtAccMapDesc.Rows.Count > 0)
-            //{
-            //    _descA1 = _dtAccMapDesc.Rows[0]["DescA1"].ToString();
-            //    _descA2 = _dtAccMapDesc.Rows[0]["DescA2"].ToString();
-            //    _descA3 = _dtAccMapDesc.Rows[0]["DescA3"].ToString();
-            //}
-
             #region --header--
             if (e.Row.RowType == DataControlRowType.Header)
             {
@@ -146,7 +109,6 @@ VALUES ('APP','INTF','SunSystems', @Value, 'SYSTEM',GETDATE())";
                     var lbl = e.Row.FindControl("lbl_A1_Header") as Label;
 
                     lbl.Text = _accMapView.DescA1;
-                    //lbl.Text = _descA1;
                 }
 
                 if (e.Row.FindControl("lbl_A2_Header") != null)
@@ -154,7 +116,6 @@ VALUES ('APP','INTF','SunSystems', @Value, 'SYSTEM',GETDATE())";
                     var lbl = e.Row.FindControl("lbl_A2_Header") as Label;
 
                     lbl.Text = _accMapView.DescA2;
-                    //lbl.Text = _descA2;
                 }
 
             }
@@ -225,6 +186,7 @@ VALUES ('APP','INTF','SunSystems', @Value, 'SYSTEM',GETDATE())";
                     var lbl = e.Row.FindControl("lbl_A2") as Label;
 
                     var value = a2;
+
 
                     lbl.Text = string.IsNullOrEmpty(value) && docType == "ExpenseLine" ? "Not Set" : value;
                     lbl.ForeColor = string.IsNullOrEmpty(value) && docType == "ExpenseLine" ? Color.Tomato : Color.Black;
@@ -300,7 +262,7 @@ VALUES ('APP','INTF','SunSystems', @Value, 'SYSTEM',GETDATE())";
                 _accMapView.DescA3 = dr["DescA3"].ToString();
             }
 
-            lbl_Title.Text = _accMapView.A2.ToString();
+            //lbl_Title.Text = _accMapView.A2.ToString();
         }
 
         private SunConfig GetConfig()
@@ -317,12 +279,21 @@ DECLARE @TaxAccountCode nvarchar(20) = @doc.value('(/Config/TaxAccountCode)[1]',
 DECLARE @UseCommitDate nvarchar(5) = @doc.value('(/Config/UseCommitDate)[1]', 'varchar(5)')
 DECLARE @SingleExport nvarchar(5) = @doc.value('(/Config/SingleExport)[1]', 'varchar(5)')
 
+DECLARE @UseA1 nvarchar(5) = @doc.value('(/Config/UseA1)[1]', 'varchar(5)')
+DECLARE @UseA2 nvarchar(5) = @doc.value('(/Config/UseA2)[1]', 'varchar(5)')
+DECLARE @UseA3 nvarchar(5) = @doc.value('(/Config/UseA3)[1]', 'varchar(5)')
+
+
 SELECT
 	ISNULL(@Version,'42601') as [Version], 
 	ISNULL(@JournalType,'MCINV') as [JournalType], 
 	
 	ISNULL(@TaxAccountType,'PRODUCT') as TaxAccountType,
 	@TaxAccountCode as TaxAccountCode,
+
+	ISNULL(@UseA1,'true') as UseA1,
+	ISNULL(@UseA2,'true') as UseA2,
+	ISNULL(@UseA3,'true') as UseA3,
 
 	ISNULL(@UseCommitDate,'true') as UseCommitDate,
 	ISNULL(@SingleExport,'true') as [SingleExport]
@@ -343,6 +314,11 @@ SELECT
 
                 config.UseCommitDate = Convert.ToBoolean(dr["UseCommitDate"]);
                 config.SingleExport = Convert.ToBoolean(dr["SingleExport"]);
+
+                config.UseA1 = Convert.ToBoolean(dr["UseA1"]);
+                config.UseA2 = Convert.ToBoolean(dr["UseA2"]);
+                config.UseA3 = Convert.ToBoolean(dr["UseA3"]);
+
             }
 
             return config;
@@ -357,13 +333,56 @@ SELECT
             ddl_Config_TaxAccountType.SelectedValue = config.TaxAccountType;
             txt_Config_TaxAccountCode.Text = config.TaxAccountCode;
 
-            //ddl_UseA1.SelectedValue = config.UseA1 ? "true" : "false";
-            //ddl_UseA2.SelectedValue = config.UseA2 ? "true" : "false";
-            //ddl_UseA3.SelectedValue = config.UseA3 ? "true" : "false";
+            ddl_UseA1.SelectedValue = config.UseA1 ? "true" : "false";
+            ddl_UseA2.SelectedValue = config.UseA2 ? "true" : "false";
+            ddl_UseA3.SelectedValue = config.UseA3 ? "true" : "false";
 
             ddl_Config_UseCommitDate.SelectedValue = config.UseCommitDate ? "true" : "false";
             ddl_Config_SingleExport.SelectedValue = config.SingleExport ? "true" : "false";
 
+        }
+
+        private void SaveConfig()
+        {
+            var version = ddl_Config_Version.SelectedItem.Value.ToString();
+            var journalType = txt_Config_JournalType.Text.Trim();
+            var taxAccType = ddl_Config_TaxAccountType.SelectedItem.Value.ToString();
+            var taxAccCode = txt_Config_TaxAccountCode.Text.Trim();
+            var singleExport = ddl_Config_SingleExport.SelectedItem.Value.ToString();
+
+            var useA1 = ddl_UseA1.SelectedItem.Value.ToString();
+            var useA2 = ddl_UseA2.SelectedItem.Value.ToString();
+            var useA3 = ddl_UseA3.SelectedItem.Value.ToString();
+
+
+            if (string.IsNullOrEmpty(taxAccType) && string.IsNullOrEmpty(taxAccCode)) // Fix code
+            {
+                ShowAlert("Please set Tax Account Code.");
+
+                return;
+            }
+
+            var config = new StringBuilder();
+
+            config.Append("<Config>");
+            config.Append(string.Format("<Version>{0}</Version>", version));
+            config.Append(string.Format("<JournalType>{0}</JournalType>", journalType));
+            config.Append(string.Format("<TaxAccountCode Type=\"{0}\">{1}</TaxAccountCode>", taxAccType, taxAccCode));
+            config.Append(string.Format("<SingleExport>{0}</SingleExport>", singleExport));
+
+            config.Append(string.Format("<UseA1>{0}</UseA1>", useA1));
+            config.Append(string.Format("<UseA2>{0}</UseA2>", useA2));
+            config.Append(string.Format("<UseA3>{0}</UseA3>", useA3));
+
+            config.Append("</Config>");
+
+            var query = @"
+DELETE FROM APP.Config WHERE [Module]='APP' AND SubModule='INTF' AND [Key]='SunSystems'
+
+INSERT INTO APP.Config (Module, SubModule, [Key], [Value], UpdatedBy, UpdatedDate)
+VALUES ('APP','INTF','SunSystems', @Value, 'SYSTEM',GETDATE())";
+
+            new Helpers.SQL(LoginInfo.ConnStr).ExecuteQuery(query, new SqlParameter[] { new SqlParameter("@Value", config.ToString()) });
         }
 
         private void BindData()
@@ -490,9 +509,10 @@ SELECT
 
                 SingleExport = true;
                 UseCommitDate = true;
-                //UseA1 = true;
-                //UseA2 = true;
-                //UseA3 = true;
+
+                UseA1 = true;
+                UseA2 = true;
+                UseA3 = true;
             }
 
             public string Version { get; set; }
@@ -502,9 +522,9 @@ SELECT
             public bool SingleExport { get; set; }
             public bool UseCommitDate { get; set; }
 
-            //public bool UseA1 { get; set; }
-            //public bool UseA2 { get; set; }
-            //public bool UseA3 { get; set; }
+            public bool UseA1 { get; set; }
+            public bool UseA2 { get; set; }
+            public bool UseA3 { get; set; }
         }
     }
 

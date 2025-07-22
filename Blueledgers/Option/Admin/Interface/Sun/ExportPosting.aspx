@@ -189,37 +189,8 @@
                     &nbsp;
                     <asp:TextBox runat="server" ID="txt_Config_TaxAccountCode" Width="120" Text="" />
                 </div>
-                <%--<div class="mb-10">
-                    <asp:Label ID="Label101" runat="server" Text="Use A1" />
-                </div>
-                <div class="mb-20">
-                    <asp:DropDownList runat="server" ID="ddl_UseA1" Width="120">
-                        <asp:ListItem Value="true" Text="Yes" />
-                        <asp:ListItem Value="false" Text="No" />
-                    </asp:DropDownList>
-                </div>
-
                 <div class="mb-10">
-                    <asp:Label ID="Label102" runat="server" Text="Use A2" />
-                </div>
-                <div class="mb-20">
-                    <asp:DropDownList runat="server" ID="ddl_UseA2" Width="120">
-                        <asp:ListItem Value="true" Text="Yes" />
-                        <asp:ListItem Value="false" Text="No" />
-                    </asp:DropDownList>
-                </div>
-
-                <div class="mb-10">
-                    <asp:Label ID="Label103" runat="server" Text="Use A3" />
-                </div>
-                <div class="mb-20">
-                    <asp:DropDownList runat="server" ID="ddl_UseA3" Width="120">
-                        <asp:ListItem Value="true" Text="Yes" />
-                        <asp:ListItem Value="false" Text="No" />
-                    </asp:DropDownList>
-                </div>--%>
-                <div class="mb-10">
-                    <asp:Label ID="Label103" runat="server" Text="Use Committed Date" />
+                    <asp:Label ID="Label104" runat="server" Text="Use Committed Date" />
                 </div>
                 <div class="mb-20">
                     <asp:DropDownList runat="server" ID="ddl_Config_UseCommitDate" Width="120">
@@ -232,6 +203,36 @@
                 </div>
                 <div class="mb-20">
                     <asp:DropDownList runat="server" ID="ddl_Config_SingleExport" Width="120">
+                        <asp:ListItem Value="true" Text="Yes" />
+                        <asp:ListItem Value="false" Text="No" />
+                    </asp:DropDownList>
+                </div>
+                <hr />
+                <div class="mb-10">
+                    <asp:Label ID="Label101" runat="server" Text="Required A1" />
+                </div>
+                <div class="mb-20">
+                    <asp:DropDownList runat="server" ID="ddl_UseA1" Width="120">
+                        <asp:ListItem Value="true" Text="Yes" />
+                        <asp:ListItem Value="false" Text="No" />
+                    </asp:DropDownList>
+                </div>
+
+                <div class="mb-10">
+                    <asp:Label ID="Label102" runat="server" Text="Required A2" />
+                </div>
+                <div class="mb-20">
+                    <asp:DropDownList runat="server" ID="ddl_UseA2" Width="120">
+                        <asp:ListItem Value="true" Text="Yes" />
+                        <asp:ListItem Value="false" Text="No" />
+                    </asp:DropDownList>
+                </div>
+
+                <div class="mb-10">
+                    <asp:Label ID="Label103" runat="server" Text="Required A3" />
+                </div>
+                <div class="mb-20">
+                    <asp:DropDownList runat="server" ID="ddl_UseA3" Width="120">
                         <asp:ListItem Value="true" Text="Yes" />
                         <asp:ListItem Value="false" Text="No" />
                     </asp:DropDownList>
