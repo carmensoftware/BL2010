@@ -714,6 +714,19 @@ namespace BlueLedger.PL.Option.Admin
         #endregion
 
         // ---------------------------------------------------------------------
+        #region File Management
+
+        protected void btn_FileManage_Click(object sender, EventArgs e)
+        {
+
+            Response.Redirect("Files.aspx");
+        }
+
+
+        #endregion
+
+
+        // ---------------------------------------------------------------------
         #region Web Server
 
         private void SetMode_WebServer(bool isEdit)

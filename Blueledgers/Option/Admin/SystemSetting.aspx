@@ -60,6 +60,15 @@
                 Set password complexity and period of expiry.
             </div>
         </div>
+         <%--File Management--%>
+        <div style="display: inline-block; width: 300px; vertical-align: top; padding: 10px;">
+            <div style="font-size: 1.5em; font-weight: bold;">
+                <asp:LinkButton ID="btn_FileManage" runat="server" Text="File Management" OnClick="btn_FileManage_Click" ForeColor="Black" />
+            </div>
+            <div>
+                Managing the attachment's files.
+            </div>
+        </div>
         <%--Other--%>
         <div style="display: inline-block; width: 300px; vertical-align: top; padding: 10px;">
             <div style="font-size: 1.5em; font-weight: bold;">
