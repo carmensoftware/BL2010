@@ -681,7 +681,7 @@ namespace BlueLedger.PL.PC.CN
         // gv_Receiving
         private DataTable GetReceivingList(string vendorCode, string currencyCode, int month)
         {
-            var toDate = de_DocDate.Date;
+            var toDate = de_CnDate.Date;
             var frDate = new DateTime(toDate.Year, toDate.Month, 1).AddMonths(month * (-1));
 
             var query = @"
