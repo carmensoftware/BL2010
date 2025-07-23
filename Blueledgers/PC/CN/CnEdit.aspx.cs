@@ -1617,24 +1617,24 @@ FROM
 	onhand
 WHERE
 	Qty > onhand";
-                    var dtOnhand = _bu.DbExecuteQuery(
-                        query,
-                        new Blue.DAL.DbParameter[]
-                        {
-                            new Blue.DAL.DbParameter("@CnNo", cnNo),
-                        },
-                        hf_ConnStr.Value);
+                    //var dtOnhand = _bu.DbExecuteQuery(
+                    //    query,
+                    //    new Blue.DAL.DbParameter[]
+                    //    {
+                    //        new Blue.DAL.DbParameter("@CnNo", cnNo),
+                    //    },
+                    //    hf_ConnStr.Value);
 
-                    if (dtOnhand.Rows.Count > 0)
-                    {
-                        var productCode = dtOnhand.Rows[0]["ProductCode"].ToString();
-                        var locationCode = dtOnhand.Rows[0]["LocationCode"].ToString();
+                    //if (dtOnhand.Rows.Count > 0)
+                    //{
+                    //    var productCode = dtOnhand.Rows[0]["ProductCode"].ToString();
+                    //    var locationCode = dtOnhand.Rows[0]["LocationCode"].ToString();
 
-                        error = string.Format("Not enough quantity in Location='{0}' : Product='{1}'.", locationCode, productCode);
-                        ShowWarning(error);
+                    //    error = string.Format("Not enough quantity in Location='{0}' : Product='{1}'.", locationCode, productCode);
+                    //    ShowWarning(error);
 
-                        return;
-                    }
+                    //    return;
+                    //}
 
 
                     _bu.DbExecuteQuery("EXEC [PC].CnCommit @DocNo", new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@DocNo", cnNo) }, hf_ConnStr.Value);
