@@ -70,6 +70,13 @@ namespace BlueLedger.PL.Option.Admin
 
             return string.Format("{0:N} {1}", size, unit);
         }
+        
+        private string ByteToGB(decimal sizeByte)
+        {
+            decimal size = Math.Round(sizeByte / 1073741824, 2, MidpointRounding.AwayFromZero);
+
+            return string.Format("{0:N}", size);
+        }
 
         private long FolderSize(DirectoryInfo folder)
         {
@@ -123,6 +130,12 @@ namespace BlueLedger.PL.Option.Admin
         private void UpdateAllSize()
         {
             var path = getAttachPath();
+
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+
             var folder = new DirectoryInfo(path);
             
             decimal folderSize = FolderSize(folder);
@@ -131,11 +144,11 @@ namespace BlueLedger.PL.Option.Admin
             decimal dataSize = Convert.ToDecimal(dtDbSize.Rows[0][0].ToString());
 
 
-            lbl_Total.Text = SizeToText(folderSize + dataSize);
+            lbl_Total.Text = ByteToGB(folderSize + dataSize);
 
-            lbl_Data.Text = SizeToText(dataSize);
+            lbl_Data.Text = ByteToGB(dataSize);
 
-            lbl_Folder.Text = SizeToText(folderSize);
+            lbl_Folder.Text = ByteToGB(folderSize);
 
             var pr = SubFolderSize(folder.GetDirectories("PR*"));
             var po = SubFolderSize(folder.GetDirectories("PO*"));
@@ -148,14 +161,14 @@ namespace BlueLedger.PL.Option.Admin
 
             other = other < 0 ? 0 : other;
 
-            lbl_PR.Text = SizeToText(pr);
-            lbl_PO.Text = SizeToText(po);
-            lbl_RC.Text = SizeToText(rc);
-            lbl_CN.Text = SizeToText(cn);
-            lbl_SI.Text = SizeToText(si);
-            lbl_SO.Text = SizeToText(so);
-            lbl_SR.Text = SizeToText(sr);
-            lbl_Others.Text = SizeToText(other);
+            lbl_PR.Text = ByteToGB(pr);
+            lbl_PO.Text = ByteToGB(po);
+            lbl_RC.Text = ByteToGB(rc);
+            lbl_CN.Text = ByteToGB(cn);
+            lbl_SI.Text = ByteToGB(si);
+            lbl_SO.Text = ByteToGB(so);
+            lbl_SR.Text = ByteToGB(sr);
+            lbl_Others.Text = ByteToGB(other);
         }
 
         #endregion

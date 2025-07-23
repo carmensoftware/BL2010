@@ -39,8 +39,8 @@
     <br />
     <div class="card mt-10" style="padding: 10px;">
         <div class="flex flex-justify-content-between">
-            <asp:Label runat="server" ID="Label10" Font-Bold="true" Font-Size="Large" Text="Total" />
-            <asp:Label runat="server" ID="lbl_Total" Font-Bold="true" Font-Size="Large" Text="Total - " />
+            <asp:Label runat="server" ID="Label10" Font-Bold="true" Font-Size="Large" Text="Total (GB)" />
+            <asp:Label runat="server" ID="lbl_Total" Font-Bold="true" Font-Size="Large" Text="0" />
         </div>
     </div>
     <hr />
