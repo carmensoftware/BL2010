@@ -93,6 +93,8 @@ namespace BlueLedger.PL.PC.CN
             var taxRate = _config.GetValue("APP", "Default", "TaxRate", hf_ConnStr.Value);
             var costMethod = _config.GetValue("IN", "SYS", "COST", hf_ConnStr.Value);
 
+            digitQty = 3; //force following receiving
+
             _default = new DefaultValues
             {
                 Currency = currency,
@@ -935,7 +937,7 @@ WHERE
                     var se = e.Row.FindControl("se_CnQty") as ASPxSpinEdit;
                     var maxValue = rcvUnit == cnUnit ? Convert.ToDecimal(recQty) : inventoryQty;
 
-                    se.DecimalPlaces = _default.DigitQty;
+                    se.DecimalPlaces =  _default.DigitQty;
                     se.MaxValue = maxValue;
 
                     se.Value = DataBinder.Eval(dataItem, "CnQty");
@@ -949,7 +951,7 @@ WHERE
                     var se = e.Row.FindControl("se_cnFoc") as ASPxSpinEdit;
                     var maxValue = Convert.ToDecimal(focQty);
 
-                    se.DecimalPlaces = _default.DigitQty;
+                    se.DecimalPlaces = 3; // _default.DigitQty;
                     se.MaxValue = maxValue;
 
                     se.Value = DataBinder.Eval(dataItem, "CnFoc");
@@ -986,7 +988,7 @@ WHERE
                     var se = e.Row.FindControl("se_CnCurrTaxAmt") as ASPxSpinEdit;
 
                     se.Value = DataBinder.Eval(dataItem, "CnCurrTaxAmt");
-                    se.DecimalPlaces = _default.DigitAmt;
+                    se.DecimalPlaces =  _default.DigitAmt;
                     se.Visible = cnType != "N";
                     se.ReadOnly = taxAdj == false;
 
@@ -999,7 +1001,7 @@ WHERE
                     var se = e.Row.FindControl("se_CnCurrTotalAmt") as ASPxSpinEdit;
 
                     se.Value = DataBinder.Eval(dataItem, "CnCurrTotalAmt");
-                    se.DecimalPlaces = _default.DigitAmt;
+                    se.DecimalPlaces =  _default.DigitAmt;
                     se.Visible = cnType != "N";
 
                 }
