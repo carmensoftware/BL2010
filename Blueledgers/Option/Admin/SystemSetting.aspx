@@ -45,7 +45,7 @@
         <%--Interface--%>
         <div style="display: inline-block; width: 300px; vertical-align: top; padding: 10px;">
             <div style="font-size: 1.5em; font-weight: bold;">
-                <asp:LinkButton ID="btn_InterfaceAccount" runat="server" Text="Interface to Accounting System" OnClick="btn_InterfaceAccount_Click" ForeColor="Black" />
+                <asp:LinkButton ID="btn_InterfaceAccount" runat="server" Text="Interface System" OnClick="btn_InterfaceSystem_Click" ForeColor="Black" />
             </div>
             <div>
                 Export Receiving, Credit Note, Store Requisition to Accounting System.
@@ -60,7 +60,7 @@
                 Set password complexity and period of expiry.
             </div>
         </div>
-         <%--File Management--%>
+        <%--File Management--%>
         <div style="display: inline-block; width: 300px; vertical-align: top; padding: 10px;">
             <div style="font-size: 1.5em; font-weight: bold;">
                 <asp:LinkButton ID="btn_FileManage" runat="server" Text="File Management" OnClick="btn_FileManage_Click" ForeColor="Black" />
@@ -500,6 +500,23 @@
                                 </tr>
                             </table>--%>
                         </asp:Panel>
+                        <br />
+                        <div>
+                            <div style="display: inline-block;">
+                                <h3>
+                                    <b>POS Interface</b>
+                                </h3>
+                            </div>
+                            <div style="display: inline-block; float: right; margin-top: 5px; margin-right: 40px;">
+                            </div>
+                        </div>
+                        <div style="display: inline-block;">
+                            <b>Endpoint : </b>
+                            <asp:Label runat="server" ID="lbl_PosEndpoint" />
+                            <br />
+                            <b>Token&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: </b>
+                            <asp:Label runat="server" ID="lbl_PosToken" />
+                        </div>
                         <br />
                         <div style="text-align: right; margin-right: 40px;">
                             <asp:Button ID="btn_InterfaceSave" runat="server" Text="Save" OnClick="btn_InterfaceSave_Click" />

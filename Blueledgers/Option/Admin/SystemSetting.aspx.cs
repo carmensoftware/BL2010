@@ -52,17 +52,6 @@ namespace BlueLedger.PL.Option.Admin
 
         private void Page_Setting()
         {
-            //SetControlEditMode_Bu(false);
-            //SetControlEditMode_Mail(false);
-            //SetControlEditMode_Interface(false);
-            //SetControlEditMode_Password(false);
-            //SetControlEditMode_WebServer(false);
-
-            //GetCompanyProfile();
-            //GetMailConfig();
-            //GetInterfaceConfig();
-            //GetPasswordConfig();
-            //GetWebSererConfig();
 
         }
 
@@ -82,7 +71,7 @@ namespace BlueLedger.PL.Option.Admin
             pop_MailServer.ShowOnPageLoad = true;
         }
 
-        protected void btn_InterfaceAccount_Click(object sender, EventArgs e)
+        protected void btn_InterfaceSystem_Click(object sender, EventArgs e)
         {
             SetMode_Interface(false);
             GetConfig_Interface();
@@ -575,6 +564,17 @@ namespace BlueLedger.PL.Option.Admin
                 txt_InterfaceVendor.Text = "";
             }
 
+            var host = config.GetConfigValue("APP", "IM", "WebServer", LoginInfo.ConnStr).Trim().TrimEnd('/');
+            var endpoint = string.Format("[POST] {0}/blueledgers.api/api/interface/pos/sale", host);
+            lbl_PosEndpoint.Text = endpoint;
+
+            var query = string.Format("SELECT ClientID FROM dbo.BuAPI WHERE AppName='POS' AND BuCode='{0}'", LoginInfo.BuInfo.BuCode);
+            var dt = config.DbExecuteQuery(query, null, sys_db);
+
+
+
+            lbl_PosToken.Text = dt != null && dt.Rows.Count > 0 ? dt.Rows[0][0].ToString() : "Not Set";
+            
 
 
 
