@@ -457,50 +457,17 @@
                                     </td>
                                 </tr>
                             </table>
-                            <%--<table>
-                                <tr>
-                                    <td width="120">
-                                        <asp:Label ID="Label3" runat="server" Text="Server:" />
-                                    </td>
-                                    <td>
-                                        <asp:TextBox ID="txt_InterfaceServer" runat="server" Width="300" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <asp:Label ID="Label4" runat="server" Text="Port:" />
-                                    </td>
-                                    <td>
-                                        <dx:ASPxSpinEdit ID="txt_InterfacePort" runat="server" Width="80" NumberType="Integer" SpinButtons-ShowIncrementButtons="true" Number="3306" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <asp:Label ID="Label6" runat="server" Text="User Name:" />
-                                    </td>
-                                    <td>
-                                        <asp:TextBox ID="txt_InterfaceUserName" runat="server" Width="300" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <asp:Label ID="Label7" runat="server" Text="Password" />
-                                    </td>
-                                    <td>
-                                        <asp:TextBox ID="txt_InterfacePassword" runat="server" TextMode="Password" Width="300" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <asp:Label ID="Label8" runat="server" Text="Database:" />
-                                    </td>
-                                    <td>
-                                        <asp:TextBox ID="txt_InterfaceDatabase" runat="server" Width="300" />
-                                    </td>
-                                </tr>
-                            </table>--%>
+                            <br />
+                            <b>Options</b>
+                            <div>
+                                <asp:CheckBox ID="chk_AccountMappAllItems" runat="server" Text="Set account mapping for all items" />
+                            </div>
+                            <div>
+                                <asp:CheckBox ID="chk_PostTranferToGl" runat="server" Text="Allow posting the transfer to GL" />
+                            </div>
                         </asp:Panel>
                         <br />
+                        <hr />
                         <div>
                             <div style="display: inline-block;">
                                 <h3>

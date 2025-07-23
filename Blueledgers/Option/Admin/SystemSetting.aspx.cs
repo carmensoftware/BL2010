@@ -564,6 +564,15 @@ namespace BlueLedger.PL.Option.Admin
                 txt_InterfaceVendor.Text = "";
             }
 
+            // Options
+            var isAllItems = config.GetConfigValue("ADMIN", "AccountMap", "IsAll", LoginInfo.ConnStr).Trim().ToLower();
+            var allowTransfer = config.GetConfigValue("ADMIN", "AccountMap", "AllowTransfer", LoginInfo.ConnStr).Trim().ToLower();
+
+            chk_AccountMappAllItems.Checked = isAllItems == "true" || isAllItems == "1";
+            chk_PostTranferToGl.Checked = allowTransfer == "true" || allowTransfer == "1";
+
+
+
             var host = config.GetConfigValue("APP", "IM", "WebServer", LoginInfo.ConnStr).Trim().TrimEnd('/');
             var endpoint = string.Format("[POST] {0}/blueledgers.api/api/interface/pos/sale", host);
             lbl_PosEndpoint.Text = endpoint;
@@ -620,6 +629,14 @@ namespace BlueLedger.PL.Option.Admin
             config.SetConfigValue("APP", "INTF", "ACCOUNT", intf, LoginInfo.ConnStr);
 
 
+
+            var isAllItems = chk_AccountMappAllItems.Checked;
+            var allowTransfer = chk_PostTranferToGl.Checked;
+
+            config.SetConfigValue("ADMIN", "AccountMap", "IsAll", isAllItems.ToString(), LoginInfo.ConnStr);
+            config.SetConfigValue("ADMIN", "AccountMap", "AllowTransfer", allowTransfer.ToString(), LoginInfo.ConnStr);
+
+            
             SetMode_Interface(false);
         }
 
