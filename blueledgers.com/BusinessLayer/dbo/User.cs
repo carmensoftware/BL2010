@@ -77,6 +77,7 @@ namespace Blue.BL.dbo
             2025-10-31 = blumonkeybangtaophuket = 6
              
             2025-10-30 = sztowerthai = 13
+            2025-10-30 = uchijapanese-phuket = 2
              
              
             2025-09-30 = rasahospitality = 73 + 17 = 90
@@ -150,14 +151,14 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser = 222;
+        private int licenseActiveUser = 200;
 
         private DateTime licenseExpiredDate { get { return GetLicenseExpiredDate(); } }
         //private DateTime licenseExpiredDate = new DateTime(2026, 1, 31);
 
         public DateTime GetLicenseExpiredDate()
         {
-            return new DateTime(2026, 1, 31);
+            return new DateTime(2025, 10, 31);
         }
 
         public int GetActiveUser()
