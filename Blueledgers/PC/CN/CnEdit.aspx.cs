@@ -93,7 +93,7 @@ namespace BlueLedger.PL.PC.CN
             var taxRate = _config.GetValue("APP", "Default", "TaxRate", hf_ConnStr.Value);
             var costMethod = _config.GetValue("IN", "SYS", "COST", hf_ConnStr.Value);
 
-            digitQty = 3; //force following receiving
+            digitQty = "3"; //force following receiving
 
             _default = new DefaultValues
             {
