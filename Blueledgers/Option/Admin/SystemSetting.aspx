@@ -413,7 +413,6 @@
                                 <asp:Button ID="btn_InterfaceEdit" runat="server" Text="Edit" OnClick="btn_InterfaceEdit_Click" />
                             </div>
                         </div>
-
                         <br />
                         <!-- APIs and options -->
                         <asp:Panel ID="pn_Interface" runat="server">
@@ -647,67 +646,74 @@
                                 <asp:Button ID="btn_EditSystem" runat="server" Text="Edit" OnClick="btn_EditSystem_Click" />
                             </div>
                         </div>
-                        <p>
-                            <table>
-                                <tr>
-                                    <td width="140">
-                                        <asp:Label ID="Label19" runat="server" Text="Currency" />
-                                    </td>
-                                    <td>
-                                        <asp:TextBox ID="txt_SystemCurrency" runat="server" Width="120" ReadOnly="true" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <asp:Label ID="Label20" runat="server" Text="Tax Rate" />
-                                    </td>
-                                    <td>
-                                        <asp:TextBox ID="txt_SystemTaxRate" runat="server" Width="120" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <asp:Label ID="Label21" runat="server" Text="Service Rate" />
-                                    </td>
-                                    <td>
-                                        <asp:TextBox ID="txt_SystemSvcRate" runat="server" Width="120" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <asp:Label ID="Label22" runat="server" Text="Decimal Digit for Amount" />
-                                    </td>
-                                    <td>
-                                        <asp:TextBox ID="txt_SystemDigitAmt" runat="server" Width="120" ReadOnly="true" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <asp:Label ID="Label23" runat="server" Text="Decimal Digit for Qty" />
-                                    </td>
-                                    <td>
-                                        <asp:TextBox ID="txt_SystemDigitQty" runat="server" Width="120" ReadOnly="true" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <asp:Label ID="Label24" runat="server" Text="Cost System" />
-                                    </td>
-                                    <td>
-                                        <asp:TextBox ID="txt_SystemCost" runat="server" Width="120" ReadOnly="true" />
-                                    </td>
-                                </tr>
-                                <tr>
+                        <table>
+                            <tr>
+                                <td width="140">
+                                    <asp:Label ID="Label19" runat="server" Text="Currency" />
+                                </td>
+                                <td>
+                                    <asp:TextBox ID="txt_SystemCurrency" runat="server" Width="120" ReadOnly="true" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <asp:Label ID="Label20" runat="server" Text="Tax Rate" />
+                                </td>
+                                <td>
+                                    <asp:TextBox ID="txt_SystemTaxRate" runat="server" Width="120" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <asp:Label ID="Label21" runat="server" Text="Service Rate" />
+                                </td>
+                                <td>
+                                    <asp:TextBox ID="txt_SystemSvcRate" runat="server" Width="120" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <asp:Label ID="Label22" runat="server" Text="Decimal Digit for Amount" />
+                                </td>
+                                <td>
+                                    <asp:TextBox ID="txt_SystemDigitAmt" runat="server" Width="120" ReadOnly="true" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <asp:Label ID="Label23" runat="server" Text="Decimal Digit for Qty" />
+                                </td>
+                                <td>
+                                    <asp:TextBox ID="txt_SystemDigitQty" runat="server" Width="120" ReadOnly="true" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <asp:Label ID="Label24" runat="server" Text="Cost System" />
+                                </td>
+                                <td>
+                                    <asp:TextBox ID="txt_SystemCost" runat="server" Width="120" ReadOnly="true" />
+                                </td>
+                            </tr>
+                            <%--<tr>
                                     <td>
                                         <asp:Label ID="Label25" runat="server" Text="Enable edit the commit document" />
                                     </td>
                                     <td>
                                         <dx:ASPxCheckBox ID="chk_EnableEditCommit" runat="server" />
                                     </td>
-                                </tr>
-                            </table>
-                            <br />
-                        </p>
+                                </tr>--%>
+                        </table>
+                        <hr />
+                        <br />
+
+                        <div>
+                            <dx:ASPxCheckBox ID="chk_EnableEditCommit" runat="server" Text="Enable edit the commit document" />
+                        </div>
+                        <div>
+                            <dx:ASPxCheckBox ID="chk_UseDeliveryDateForNonMarketList" runat="server" Text="Use Delivery date for Non-Market List" />
+                        </div>
+                        <br />
                         <div style="text-align: right; margin-right: 40px;">
                             <asp:Button ID="btn_SaveSystem" runat="server" Text="Save" OnClick="btn_SaveSystem_Click" Visible="false" />
                             <asp:Button ID="btn_CancelSystem" runat="server" Text="Cancel" OnClick="btn_CancelSystem_Click" Visible="false" />

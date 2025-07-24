@@ -833,6 +833,7 @@ namespace BlueLedger.PL.Option.Admin
             txt_SystemDigitQty.Enabled = false;
             txt_SystemCost.Enabled = false;
             chk_EnableEditCommit.Enabled = isEdit;
+            chk_UseDeliveryDateForNonMarketList.Enabled = isEdit;
         }
 
         private void GetConfig_System()
@@ -846,7 +847,8 @@ namespace BlueLedger.PL.Option.Admin
             string digitQty = config.GetValue("APP", "Default", "DigitQty", LoginInfo.ConnStr);
 
             string cost = config.GetValue("IN", "SYS", "COST", LoginInfo.ConnStr);
-            string enableEditCommit = config.GetValue("APP", "SYS", "EnableEditCommit", LoginInfo.ConnStr);
+            string enableEditCommit = config.GetValue("APP", "SYS", "EnableEditCommit", LoginInfo.ConnStr).Trim();
+            string useDelivereyDateForNonMarketList = config.GetValue("PC", "PR", "UseDeliveryDateForNonMarketList", LoginInfo.ConnStr).Trim();
 
 
             txt_SystemCurrency.Text = currency;
@@ -857,6 +859,7 @@ namespace BlueLedger.PL.Option.Admin
 
             txt_SystemCost.Text = cost.ToUpper() == "FIFO" ? "FIFO" : "Average";
             chk_EnableEditCommit.Checked = enableEditCommit == "1";
+            chk_UseDeliveryDateForNonMarketList.Checked = useDelivereyDateForNonMarketList.ToLower() == "true" || useDelivereyDateForNonMarketList == "1";
         }
 
         protected void btn_EditSystem_Click(object sender, EventArgs e)
