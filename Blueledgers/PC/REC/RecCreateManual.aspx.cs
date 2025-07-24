@@ -34,6 +34,12 @@ namespace BlueLedger.PL.IN.REC
         private readonly Blue.BL.APP.Config config = new Blue.BL.APP.Config();
         //private readonly BlueLedger.PL.IN.REC.RecFunc recFunc = new BlueLedger.PL.IN.REC.RecFunc();
 
+        protected DefaultValues _default
+        {
+            get { return ViewState["DefaultValues"] as DefaultValues; }
+            set { ViewState["DefaultValues"] = value; }
+        }
+
         public DataSet dsImport = new DataSet();
         public DataSet DsRecEdit
         {
@@ -195,6 +201,24 @@ namespace BlueLedger.PL.IN.REC
             {
                 Response.Redirect("~/ErrorPages/SessionTimeOut.aspx");
             }
+
+
+
+
+            var currency = config.GetValue("APP", "BU", "DefaultCurrency", hf_ConnStr.Value);
+            var digitAmt = config.GetValue("APP", "Default", "DigitAmt", hf_ConnStr.Value);
+            var digitQty = config.GetValue("APP", "Default", "DigitQty", hf_ConnStr.Value);
+            var taxRate = config.GetValue("APP", "Default", "TaxRate", hf_ConnStr.Value);
+            var costMethod = config.GetValue("IN", "SYS", "COST", hf_ConnStr.Value);
+
+            _default = new DefaultValues
+            {
+                Currency = currency,
+                DigitAmt = string.IsNullOrEmpty(digitAmt) ? 2 : Convert.ToInt32(digitAmt),
+                DigitQty = string.IsNullOrEmpty(digitQty) ? 2 : Convert.ToInt32(digitQty),
+                TaxRate = string.IsNullOrEmpty(taxRate) ? 0 : Convert.ToDecimal(taxRate),
+                CostMethod = costMethod.ToUpper()
+            };
         }
 
         protected override void Page_Load(object sender, EventArgs e)
@@ -1020,6 +1044,8 @@ as st where st.[rn] between @startIndex and @endIndex";
                 {
                     var obj = e.Row.FindControl("se_Amount") as ASPxSpinEdit;
                     obj.Value = DataBinder.Eval(e.Row.DataItem, "Amount");
+
+                    obj.DecimalPlaces = _default.DigitAmt;
                 }
 
 
@@ -1715,11 +1741,15 @@ as st where st.[rn] between @startIndex and @endIndex";
             }
 
             var seRecQtyEdit = e.Row.FindControl("se_RecQtyEdit") as ASPxSpinEdit;
+
+
             if (seRecQtyEdit != null)
             {
                 seRecQtyEdit.Text = QtyRecUpdate == 0
                     ? string.Format(DefaultQtyFmt, recQty)
                     : string.Format(DefaultQtyFmt, QtyRecUpdate);
+
+                seRecQtyEdit.DecimalPlaces = _default.DigitQty;
             }
 
             #endregion
@@ -1737,8 +1767,14 @@ as st where st.[rn] between @startIndex and @endIndex";
             }
 
             var seFocEdit = e.Row.FindControl("se_FocEdit") as ASPxSpinEdit;
+
+
             if (seFocEdit != null)
+            {
                 seFocEdit.Text = string.Format(DefaultQtyFmt, focQty);
+
+                seFocEdit.DecimalPlaces = _default.DigitQty;
+            }
 
             #endregion
 
@@ -1755,11 +1791,15 @@ as st where st.[rn] between @startIndex and @endIndex";
             }
 
             var sePriceEdit = e.Row.FindControl("se_PriceEdit") as ASPxSpinEdit;
+
+
             if (sePriceEdit != null)
             {
                 sePriceEdit.Text = PriceUpdate == 0
                     ? string.Format(DefaultAmtFmt, price)
                     : string.Format(DefaultAmtFmt, PriceUpdate);
+
+                sePriceEdit.DecimalPlaces = _default.DigitAmt;
             }
 
             #endregion
@@ -3709,5 +3749,13 @@ as st where st.[rn] between @startIndex and @endIndex";
 
         }
 
+        public class DefaultValues
+        {
+            public string Currency { get; set; }
+            public int DigitAmt { get; set; }
+            public int DigitQty { get; set; }
+            public decimal TaxRate { get; set; }
+            public string CostMethod { get; set; }
+        }
     }
 }
