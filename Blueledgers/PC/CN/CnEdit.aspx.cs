@@ -93,8 +93,6 @@ namespace BlueLedger.PL.PC.CN
             var taxRate = _config.GetValue("APP", "Default", "TaxRate", hf_ConnStr.Value);
             var costMethod = _config.GetValue("IN", "SYS", "COST", hf_ConnStr.Value);
 
-            digitQty = "3"; //force following receiving
-
             _default = new DefaultValues
             {
                 Currency = currency,
@@ -1443,14 +1441,15 @@ WHERE
             parameters.Add(new Blue.DAL.DbParameter("@DocNo", docNo));
             parameters.Add(new Blue.DAL.DbParameter("@DocDate", docDate.ToString("yyyy-MM-dd")));
             parameters.Add(new Blue.DAL.DbParameter("@VendorCode", vendorCode));
+            parameters.Add(new Blue.DAL.DbParameter("@Description", description));
             parameters.Add(new Blue.DAL.DbParameter("@CurrencyCode", currencyCode));
             parameters.Add(new Blue.DAL.DbParameter("@ExRateAudit", currencyRate.ToString()));
             parameters.Add(new Blue.DAL.DbParameter("@UpdatedBy", LoginInfo.LoginName));
 
             if (isNew)
             {
-                queries.AppendLine("INSERT INTO PC.Cn (CnNo, CnDate, DocNo, DocDate, VendorCode, CurrencyCode, ExRateAudit, DocStatus, ExportStatus, CreatedDate, CreatedBy, UpdatedDate, UpdatedBy)");
-                queries.AppendLine("VALUES(@CnNo, @CnDate, @DocNo, @DocDate, @VendorCode, @CurrencyCode, @ExRateAudit, 'Saved', 0, GETDATE(), @UpdatedBy, GETDATE(), @UpdatedBy)");
+                queries.AppendLine("INSERT INTO PC.Cn (CnNo, CnDate, DocNo, DocDate, VendorCode, Description, CurrencyCode, ExRateAudit, DocStatus, ExportStatus, CreatedDate, CreatedBy, UpdatedDate, UpdatedBy)");
+                queries.AppendLine("VALUES(@CnNo, @CnDate, @DocNo, @DocDate, @VendorCode, @Description, @CurrencyCode, @ExRateAudit, 'Saved', 0, GETDATE(), @UpdatedBy, GETDATE(), @UpdatedBy)");
             }
             else
             {
@@ -1460,6 +1459,7 @@ WHERE
                 queries.AppendLine("  DocNo=@DocNo,");
                 queries.AppendLine("  DocDate=@DocDate,");
                 queries.AppendLine("  VendorCode=@VendorCode,");
+                queries.AppendLine("  Description=@Description,");
                 queries.AppendLine("  CurrencyCode=@CurrencyCode,");
                 queries.AppendLine("  ExRateAudit=@ExRateAudit,");
                 queries.AppendLine("  UpdatedDate=GETDATE(),");
