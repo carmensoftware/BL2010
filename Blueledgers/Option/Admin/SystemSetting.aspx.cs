@@ -572,16 +572,20 @@ namespace BlueLedger.PL.Option.Admin
             chk_PostTranferToGl.Checked = allowTransfer == "true" || allowTransfer == "1";
 
 
-
             var host = config.GetConfigValue("APP", "IM", "WebServer", LoginInfo.ConnStr).Trim().TrimEnd('/');
-            var endpoint = string.Format("[POST] {0}/blueledgers.api/api/interface/pos/sale", host);
-            lbl_PosEndpoint.Text = endpoint;
 
-            var query = string.Format("SELECT ClientID FROM dbo.BuAPI WHERE AppName='POS' AND BuCode='{0}'", LoginInfo.BuInfo.BuCode);
+            var query = string.Format("SELECT ClientID FROM dbo.BuAPI WHERE AppName='CARMEN' AND BuCode='{0}'", LoginInfo.BuInfo.BuCode);
             var dt = config.DbExecuteQuery(query, null, sys_db);
 
+            lbl_AccountEndpoint.Text = string.Format("[POST] {0}/blueledgers.api", host);
+            lbl_AccountToken.Text = dt != null && dt.Rows.Count > 0 ? dt.Rows[0][0].ToString() : "Not Set";
 
+            // POS
 
+            query = string.Format("SELECT ClientID FROM dbo.BuAPI WHERE AppName='POS' AND BuCode='{0}'", LoginInfo.BuInfo.BuCode);
+            dt = config.DbExecuteQuery(query, null, sys_db);
+
+            lbl_PosEndpoint.Text = string.Format("[POST] {0}/blueledgers.api/api/interface/pos/sale", host);
             lbl_PosToken.Text = dt != null && dt.Rows.Count > 0 ? dt.Rows[0][0].ToString() : "Not Set";
             
 

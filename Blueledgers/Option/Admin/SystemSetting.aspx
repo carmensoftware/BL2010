@@ -413,7 +413,9 @@
                                 <asp:Button ID="btn_InterfaceEdit" runat="server" Text="Edit" OnClick="btn_InterfaceEdit_Click" />
                             </div>
                         </div>
+
                         <br />
+                        <!-- APIs and options -->
                         <asp:Panel ID="pn_Interface" runat="server">
                             <table>
                                 <tr>
@@ -467,11 +469,31 @@
                             </div>
                         </asp:Panel>
                         <br />
+                        <!-- Carmen -->
                         <hr />
                         <div>
                             <div style="display: inline-block;">
                                 <h3>
-                                    <b>POS Interface</b>
+                                    <b>Account</b>
+                                </h3>
+                            </div>
+                            <div style="display: inline-block; float: right; margin-top: 5px; margin-right: 40px;">
+                            </div>
+                        </div>
+                        <div style="display: inline-block;">
+                            <b>Endpoint : </b>
+                            <asp:Label runat="server" ID="lbl_AccountEndpoint" />
+                            <br />
+                            <b>Token&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: </b>
+                            <asp:Label runat="server" ID="lbl_AccountToken" />
+                        </div>
+                        <br />
+                        <!-- POS -->
+                        <hr />
+                        <div>
+                            <div style="display: inline-block;">
+                                <h3>
+                                    <b>POS</b>
                                 </h3>
                             </div>
                             <div style="display: inline-block; float: right; margin-top: 5px; margin-right: 40px;">
@@ -485,6 +507,7 @@
                             <asp:Label runat="server" ID="lbl_PosToken" />
                         </div>
                         <br />
+                        <!-- Save & Cancel -->
                         <div style="text-align: right; margin-right: 40px;">
                             <asp:Button ID="btn_InterfaceSave" runat="server" Text="Save" OnClick="btn_InterfaceSave_Click" />
                             <asp:Button ID="btn_InterfaceCancel" runat="server" Text="Cancel" OnClick="btn_InterfaceCancel_Click" />
