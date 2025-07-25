@@ -13,8 +13,12 @@ namespace Blue.BL.dbo
 
         /*  Customer's license
          
+         
+            2026-07-31 = Nexen = 20
+         
             2026-06-30 = andalanta = 7+1=8
             2026-06-30 = floralcourthotel = 5+6 = 11
+            2026-06-30 = maraleina = 23+1 = 24
 
 
             2026-05-31 = ramadadmabangkok = 19
@@ -23,6 +27,8 @@ namespace Blue.BL.dbo
 
 
             2026-04-30 = indochinephuket = 27
+            2025-04-30 = silqandsq = 9+5=14
+            2025-04-30 = bestwesternratchada = 10        
 
             2026-03-31 = wyndhamjomtienpattaya = 20 + 2 = 22
             2026-03-31 = silavadeepoolsparesort = 28
@@ -61,7 +67,6 @@ namespace Blue.BL.dbo
             2026-01-31 = maduzi = 20
             ------------------------------------------------------------------
          
-            2025-12-31 = bestwesternratchada = 10        
          
             2025-11-30 = skyviewresortphuket = 11
             2025-11-30 = wyndhamgardennaithon = 21
@@ -89,9 +94,6 @@ namespace Blue.BL.dbo
             2025-09-30 = urbana-sathorn = 6
           
           
-          
-          
-          
             2025-08-31 = Diamond Cottage = 15+5=20
             2025-08-31 = chatriumniseko = 9
             2025-08-31 = palayanagroup = 2+20 = 22
@@ -102,21 +104,20 @@ namespace Blue.BL.dbo
             2025-08-31 = themarinphuket = 19
             2025-08-31 = celessamui = 25
 
+            2025-08-31 = bwsanctuary = 10
+            2025-08-31 = kappasensesubud = 17
+            2025-08-31 = Zeavola = 28
+
+
             ---------------------------------------------------------------
 
-            2025-07-31 = Nexen = 20
-            2025-07-31 = Zeavola = 28
             2025-07-31 = bestwesternclicksathorn11 = 10
-            2025-07-31 = bwsanctuary = 10
-            2025-07-31 = silqandsq = 9+5=14
           
           
             2025-07-31 = BaanSamuiResort = 8
             2025-07-31 = firaphuketbeachclub = 5+3=8
             2025-07-31 = granddiamondsuites = 6+4 = 10
-            2025-07-31 = kappasensesubud = 17
             2025-07-31 = legacysuites = 15 + 7 = 22
-            2025-07-31 = maraleina = 23+1 = 24
             2025-07-31 = selinaserenityrawai = 8
           
             2025-07-31 = paresaresort = 23
@@ -151,15 +152,16 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser = 200;
+        private int licenseActiveUser = 20;
+
+        public DateTime GetLicenseExpiredDate()
+        {
+            return new DateTime(2026, 7, 31);
+        }
 
         private DateTime licenseExpiredDate { get { return GetLicenseExpiredDate(); } }
         //private DateTime licenseExpiredDate = new DateTime(2026, 1, 31);
 
-        public DateTime GetLicenseExpiredDate()
-        {
-            return new DateTime(2025, 10, 31);
-        }
 
         public int GetActiveUser()
         {
