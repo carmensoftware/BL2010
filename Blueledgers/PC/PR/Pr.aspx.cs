@@ -1199,31 +1199,26 @@ namespace BlueLedger.PL.PC.PR
             if (sendMail)
             {
 
-                bool sentComplete = true;
-                bool isSentEmail = Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["SentEmail"]);
+                SendEmailWorkflow.Send("R", prNo, wfId, wfStep, LoginInfo.LoginName, hf_ConnStr.Value);
 
-                if (isSentEmail)
-                {
-                    lbl_hide_action.Text = "Redirect".ToUpper();
-                    lbl_hide_value.Text = rejectItemCount == dsPR.Tables[prDt.TableName].Rows.Count ? "true" : "false";
+                Response.Redirect("PrList.aspx");
 
-                    //sentComplete = SendEmail("R");
-                    sentComplete = SendEmailWorkflow.Send("R", prNo, wfId, wfStep, LoginInfo.LoginName, hf_ConnStr.Value);
-                }
+                //bool sentComplete = true;
+                //bool isSentEmail = Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["SentEmail"]);
 
-                if (sentComplete)
-                {
-                    Response.Redirect("PrList.aspx");
-                    //// Origin ver.
-                    //if (rejectItemCount == dsPR.Tables[prDt.TableName].Rows.Count)
-                    //{
-                    //    Response.Redirect("PrList.aspx");
-                    //}
-                    //else
-                    //{
-                    //    Page_Retrieve();
-                    //}
-                }
+                //if (isSentEmail)
+                //{
+                //    lbl_hide_action.Text = "Redirect".ToUpper();
+                //    lbl_hide_value.Text = rejectItemCount == dsPR.Tables[prDt.TableName].Rows.Count ? "true" : "false";
+
+                //    //sentComplete = SendEmail("R");
+                //    sentComplete = SendEmailWorkflow.Send("R", prNo, wfId, wfStep, LoginInfo.LoginName, hf_ConnStr.Value);
+                //}
+
+                //if (sentComplete)
+                //{
+                //    Response.Redirect("PrList.aspx");
+                //}
             }
         }
 
@@ -1527,8 +1522,7 @@ namespace BlueLedger.PL.PC.PR
                                 continue;
 
                             var dbParams = new Blue.DAL.DbParameter[3];
-                            dbParams[0] = new Blue.DAL.DbParameter("@PrNo",
-                                dsPR.Tables[pr.TableName].Rows[0]["PRNo"].ToString());
+                            dbParams[0] = new Blue.DAL.DbParameter("@PrNo", dsPR.Tables[pr.TableName].Rows[0]["PRNo"].ToString());
                             dbParams[1] = new Blue.DAL.DbParameter("@PrDtNo", drApprove["PRDtNo"].ToString());
                             dbParams[2] = new Blue.DAL.DbParameter("@LoginName", LoginInfo.LoginName);
 
@@ -1544,6 +1538,7 @@ namespace BlueLedger.PL.PC.PR
                     }
 
                     lbl_Approve_Chk.Text = confirmApproveCount + " item(s) are approved.";
+
                     #endregion
                 }
 
@@ -1561,18 +1556,17 @@ namespace BlueLedger.PL.PC.PR
             }
             else
             {
-                //Added on: 2017/05/23, By: Fon
-                bool sentable = false;
-                var isSentMail = SendEmailWorkflow.IsSentMailPR(prNo, wfStep, LoginInfo.LoginName, hf_ConnStr.Value);
-                
-                //if (Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["SentEmail"]))
-                if (isSentMail)
-                {
-                    lbl_hide_action.Text = "Redirect".ToUpper();
-                    lbl_hide_value.Text = true.ToString();
-                    
-                    sentable = SendEmailWorkflow.Send("A", prNo, wfId, wfStep, LoginInfo.LoginName, hf_ConnStr.Value);
-                }
+                SendEmailWorkflow.Send("A", prNo, wfId, wfStep, LoginInfo.LoginName, hf_ConnStr.Value);
+
+                //bool sentable = false;
+                //var isSentMail = SendEmailWorkflow.IsSentMailPR(prNo, wfStep, LoginInfo.LoginName, hf_ConnStr.Value);
+                //if (isSentMail)
+                //{
+                //    lbl_hide_action.Text = "Redirect".ToUpper();
+                //    lbl_hide_value.Text = true.ToString();
+
+                //    sentable = SendEmailWorkflow.Send("A", prNo, wfId, wfStep, LoginInfo.LoginName, hf_ConnStr.Value);
+                //}
 
 
                 if (chk_Approve_NoShowMessage.Checked)
@@ -1695,15 +1689,17 @@ namespace BlueLedger.PL.PC.PR
                 }
             }
 
-            var isSentEmail = Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["SentEmail"]);
+            SendEmailWorkflow.Send("S", prNo, wfId, wfStep, LoginInfo.LoginName, hf_ConnStr.Value);
 
-            if (isSentEmail)
-            {
-                lbl_hide_action.Text = "Redirect".ToUpper();
-                lbl_hide_value.Text = true.ToString();
+            //var isSentEmail = Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["SentEmail"]);
 
-                SendEmailWorkflow.Send("S", prNo, wfId, wfStep, LoginInfo.LoginName, hf_ConnStr.Value);
-            }
+            //if (isSentEmail)
+            //{
+            //    lbl_hide_action.Text = "Redirect".ToUpper();
+            //    lbl_hide_value.Text = true.ToString();
+
+            //    SendEmailWorkflow.Send("S", prNo, wfId, wfStep, LoginInfo.LoginName, hf_ConnStr.Value);
+            //}
 
             pop_SendBack.ShowOnPageLoad = false;
             pop_ConfirmSendback.ShowOnPageLoad = false;
@@ -2280,22 +2276,7 @@ namespace BlueLedger.PL.PC.PR
             Response.Redirect("PrList.aspx");
         }
 
-        //protected void grd_PRDt2_RowDataBound(object sender, GridViewRowEventArgs e)
-        //{
-        //    var lbl_ProductCode = e.Row.FindControl("lbl_ProductCode") as Label;
 
-        //    if (lbl_ProductCode != null)
-        //    {
-        //        lbl_ProductCode.Text = DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString();
-        //    }
-
-        //    var lbl_Descen = e.Row.FindControl("lbl_Descen") as Label;
-
-        //    if (lbl_Descen != null)
-        //    {
-        //        lbl_Descen.Text = DataBinder.Eval(e.Row.DataItem, "Descen").ToString();
-        //    }
-        //}
 
         protected void btn_PopupAlert_Click(object sender, EventArgs e)
         {

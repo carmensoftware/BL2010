@@ -9,6 +9,7 @@ using System.Data.SqlClient;
 using Blue.DAL;
 using System.Globalization;
 using Newtonsoft.Json;
+using System.Text;
 
 /// <summary>
 /// Summary description for SendEmailWorkflow
@@ -51,21 +52,36 @@ public static class SendEmailWorkflow
 
     public static bool Send(string approveCode, string docNo, int wfId, int wfStep, string loginName, string connectionString)
     {
-        var errorMessage = string.Empty;
 
+        var errorMessage = string.Empty;
         var code = approveCode.ToUpper();
+        var inboxNo = "";
+        var receiver = "";
 
         try
         {
-            string sql = string.Format("SELECT TOP(1) InboxNo, StepTo FROM [IM].[Inbox] WHERE [RefNo]='{0}' AND [Sender]='{1}' AND StepFrom = {2} ORDER BY InboxNo DESC", docNo, loginName, wfStep);
+            var sql = string.Format("SELECT TOP(1) InboxNo, StepTo FROM [IM].[Inbox] WHERE [RefNo]='{0}' AND [Sender]='{1}' AND StepFrom = {2} ORDER BY InboxNo DESC", docNo, loginName, wfStep);
             var dtInbox = DbExecuteQuery(sql, null, connectionString);
+
 
             if (dtInbox != null && dtInbox.Rows.Count > 0) // Found
             {
                 var dr = dtInbox.Rows[0];
-
-                var inboxNo = dr["InboxNo"].ToString();
+               
                 var stepTo = Convert.ToInt32(dr["StepTo"]);
+
+                inboxNo = dr["InboxNo"].ToString();
+
+                var dtSentMail = DbExecuteQuery(string.Format("SELECT SentEmail FROM APP.WFDt WHERE WFId=1 AND Step={0}", stepTo), null, connectionString);
+
+                //var isSent = dtSentMail != null && dtSentMail.Rows.Count > 0 && dtSentMail.Rows[0][0].ToString() == "1";
+                var isSent = Convert.ToBoolean(dtSentMail.Rows[0][0]);
+
+
+                if (!isSent)
+                {
+                    return false;
+                }
 
                 var mailTo = "";
 
@@ -73,6 +89,8 @@ public static class SendEmailWorkflow
                     mailTo = Get_InvolvedLoginFromApprovals(docNo, wfId, stepTo, connectionString);
                 else
                     mailTo = Get_InvolvedEmail(docNo, connectionString);
+
+                receiver = mailTo;
 
                 if (!string.IsNullOrEmpty(mailTo.Trim()))
                 {
@@ -99,12 +117,16 @@ public static class SendEmailWorkflow
 
                         var api = new API(url, token);
 
+
+
                         var result = api.Post("api/mail/inbox/" + inboxNo, "");
 
                         errorMessage = "";
                     }
                     else
+                    {
                         errorMessage = "Invalid token.";
+                    }
                 }
 
             }
@@ -117,6 +139,18 @@ public static class SendEmailWorkflow
         {
             errorMessage = ex.Message;
         }
+
+
+        if (errorMessage != "")
+        {
+            SaveLog(inboxNo, docNo, errorMessage, loginName, connectionString);
+        }
+        else
+        {
+            var msg = string.Format("email send to {0}", receiver);
+            SaveLog(inboxNo, docNo, msg, loginName, connectionString);
+        }
+
 
 
         return string.IsNullOrEmpty(errorMessage);
@@ -297,31 +331,65 @@ public static class SendEmailWorkflow
 
     }
 
-
     public static bool IsSentMailPR(string refNo, int fromStepNo, string loginName, string connectionString)
     {
         var query = @"
 DECLARE @WfStep INT = (SELECT TOP(1) StepTo FROM [IM].Inbox WHERE RefNo=@RefNo AND Sender=@LoginName AND StepFrom=@StepFrom)
 SELECT SentEmail FROM APP.WFDt WHERE WFId=1 AND Step=@WfStep";
 
-                    var parameters = new Blue.DAL.DbParameter[] 
+        var parameters = new Blue.DAL.DbParameter[] 
                     { 
                         new Blue.DAL.DbParameter("@RefNo", refNo), 
                         new Blue.DAL.DbParameter("@LoginName", loginName), 
                         new Blue.DAL.DbParameter("@StepFrom", fromStepNo.ToString()) 
                     };
 
-                    var dtSentMail = DbExecuteQuery(query, parameters, connectionString);
+        var dtSentMail = DbExecuteQuery(query, parameters, connectionString);
 
-                    return dtSentMail != null && dtSentMail.Rows.Count > 0 && dtSentMail.Rows[0][0].ToString() == "1";
+        var result = Convert.ToBoolean(dtSentMail.Rows[0][0]);
+
+        return result;
+        //return dtSentMail != null && dtSentMail.Rows.Count > 0 && dtSentMail.Rows[0][0].ToString() == "1";
     }
 
 
     // Private method(s)
+    private static void SaveLog(string inboxNo, string docNo, string message, string loginName, string connectionString)
+    {
+        var dtId = DbExecuteQuery("EXEC [Admin].[GetTransLogNewID]", null, connectionString);
+
+        var id = dtId.Rows[0][0].ToString();
+
+        var log = new StringBuilder();
+
+        message = string.Format("[{0}] {1}", inboxNo, message);
+
+        log.Append("<MODIFY>");
+        log.AppendFormat("<TABLE id=\"PR\">");
+        log.AppendFormat("<MAIL>{0}</MAIL>", message);
+        log.AppendFormat("</TABLE>");
+        //log.AppendFormat("<INBOX>{0}</INBOX>", inboxNo);
+        //log.AppendFormat("<MESSAGE>{0}</MESSAGE>", message);
+        log.Append("</MODIFY>");
+
+
+        var query = "INSERT INTO [ADMIN].[TransLog] (ID, Module, Submodule, RefNo, [Log], CreatedDate, CreatedBy) VALUES (@ID, 'PC','PR',@RefNo, @log, GETDATE(), @CreatedBy)";
+        var parameters = new Blue.DAL.DbParameter[]
+                        {
+                            new Blue.DAL.DbParameter("@ID", id),
+                            new Blue.DAL.DbParameter("@RefNo", docNo),
+                            new Blue.DAL.DbParameter("@log", log.ToString()),
+                            new Blue.DAL.DbParameter("@CreatedBy", loginName)
+                        };
+
+        DbExecuteQuery(query, parameters, connectionString);
+    }
 
     private static string ConvertLoginName_ToEmail(string strLogin, string connectionString)
     {
         string emails = string.Empty;
+        var mails = new List<string>();
+
         if (strLogin != null)
         {
             List<string> logins = strLogin.Split(';').ToList();
@@ -340,12 +408,22 @@ SELECT SentEmail FROM APP.WFDt WHERE WFId=1 AND Step=@WfStep";
                 da.Fill(dt);
 
                 if (dt.Rows.Count > 0)
-                    emails += dt.Rows[0][0].ToString() + ";";
+                {
+                    //emails += dt.Rows[0][0].ToString() + ";";
+                    mails.Add(dt.Rows[0][0].ToString().Trim());
+                }
                 else
-                    emails += login + ";";
+                {
+                    //emails += login + ";";
+                    mails.Add(login);
+                }
+
                 con.Close();
             }
         }
+
+
+        emails = string.Join(";", mails.Select(x=>x).Distinct());
 
         return emails;
     }
@@ -353,7 +431,6 @@ SELECT SentEmail FROM APP.WFDt WHERE WFId=1 AND Step=@WfStep";
     private static string Get_InvolvedEmail(string prNo, string connectionString)
     {
         // Should alert the relevant.
-        string emails = string.Empty;
         string cmdStr = "SELECT DISTINCT h.ProcessBy, u.Email";
         cmdStr += " FROM [APP].[WFHis] AS h";
         cmdStr += " LEFT JOIN [ADMIN].[vUser] AS u ON h.ProcessBy COLLATE Latin1_General_CI_AS = u.LoginName COLLATE Latin1_General_CI_AS";
@@ -368,11 +445,17 @@ SELECT SentEmail FROM APP.WFDt WHERE WFId=1 AND Step=@WfStep";
         da.Fill(dt);
         con.Close();
 
+        var emails = new List<string>();
+
         foreach (DataRow dr in dt.Rows)
         {
-            emails += dr["Email"].ToString() + ";";
+            //emails += dr["Email"].ToString() + ";";
+            emails.Add(dr["Email"].ToString().Trim());
         }
-        return emails;
+
+        
+
+        return string.Join(";", emails.Select(x=>x.Trim()).Distinct()); ;
     }
 
     private static string Get_InvolvedLoginFromApprovals(string prNo, int wfId, int toStep, string connectionString)
@@ -441,11 +524,17 @@ SELECT * FROM @list");
 
         con.Close();
 
+
+        var users = new List<string>();
+
         foreach (DataRow dr in dt.Rows)
         {
-            login += dr["Email"].ToString() + ";";
+            //login += dr["Email"].ToString() + ";";
+            users.Add(dr["Email"].ToString().Trim());
         }
-        return login;
+
+        return string.Join(";", users.Select(x => x).Distinct());
+        //return login;
     }
 
 
