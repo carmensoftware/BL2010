@@ -763,12 +763,14 @@ namespace BlueLedger.PL.PC.PR
 
                     string refNo = drPr["PrNo"].ToString();
 
-                    var isSendMail = SendEmailWorkflow.IsSentMailPR(refNo, 1, LoginInfo.LoginName, hf_ConnStr.Value);
-                    {
-                        SendEmailWorkflow.Send("A", refNo, 1, 1, LoginInfo.LoginName, hf_ConnStr.Value);
-                    }
-
                     _transLog.Save("PC", "PR", refNo, _action, string.Empty, LoginInfo.LoginName, hf_ConnStr.Value);
+
+                    SendEmailWorkflow.Send("A", refNo, 1, 1, LoginInfo.LoginName, hf_ConnStr.Value);
+
+                    //var isSendMail = SendEmailWorkflow.IsSentMailPR(refNo, 1, LoginInfo.LoginName, hf_ConnStr.Value);
+                    //{
+                    //    SendEmailWorkflow.Send("A", refNo, 1, 1, LoginInfo.LoginName, hf_ConnStr.Value);
+                    //}
 
                     if (!pop_Alert.ShowOnPageLoad)
                         Response.Redirect("Pr.aspx?BuCode=" + Request.Params["BuCode"] + "&ID=" + drPr["PrNo"] + "&VID=" + Request.Params["VID"]);

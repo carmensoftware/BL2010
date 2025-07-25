@@ -296,14 +296,14 @@
                                     <asp:Button ID="btn_TestSendMail" runat="server" Text="Test sending PR/SR" OnClick="btn_TestSendMail_Click" />
                                 </td>
                                 <td>
-                                    <asp:TextBox ID="txt_TestReceiver" runat="server" Width="300" />
+                                    <asp:TextBox ID="txt_TestSendMail" runat="server" Width="300" />
                                 </td>
                             </tr>
                             <tr>
                                 <td>
                                 </td>
                                 <td>
-                                    <asp:Label ID="lbl_TestReceiver" runat="server" ForeColor="Blue" Width="300" />
+                                    <asp:Label ID="lbl_TestSendMail" runat="server" ForeColor="Blue" Width="300" />
                                 </td>
                             </tr>
                         </table>

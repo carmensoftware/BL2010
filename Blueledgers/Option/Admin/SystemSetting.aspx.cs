@@ -5,12 +5,13 @@ using System.Web;
 using System.Data.SqlClient;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Drawing;
 
 namespace BlueLedger.PL.Option.Admin
 {
     public partial class SystemSetting : BasePage
     {
-        private string sys_db = System.Configuration.ConfigurationSettings.AppSettings["ConnStr"];
+        private readonly string sys_db = System.Configuration.ConfigurationSettings.AppSettings["ConnStr"];
         private readonly Blue.BL.APP.Config config = new Blue.BL.APP.Config();
         private readonly Blue.BL.ADMIN.Bu bu = new Blue.BL.ADMIN.Bu();
 
@@ -438,37 +439,114 @@ namespace BlueLedger.PL.Option.Admin
 
         protected void btn_TestSendMail_Click(object sender, EventArgs e)
         {
-            KeyValues smtpNotification = new KeyValues();
-            smtpNotification = (KeyValues)Session["smtpNotification"];
+            var smtpNotification = (KeyValues)Session["smtpNotification"];
 
-            if (txt_TestReceiver.Text != string.Empty)
+
+
+            var buCode = LoginInfo.BuInfo.BuCode;
+            var connectionString = LoginInfo.ConnStr;
+
+            var dtApi = config.DbExecuteQuery("SELECT TOP(1) ClientID FROM [dbo].[BuAPI] WHERE AppName='CARMEN' AND BuCode=@BuCode", new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@BuCode", buCode) }, sys_db);
+
+            if (dtApi != null && dtApi.Rows.Count > 0)
             {
-                Mail email = new Mail();
 
-                email.SmtpServer = txt_ServerName.Text;
-                email.Port = Convert.ToInt16(txt_Port.Text);
-                email.EnableSsl = check_SSL.Checked;
+                var dtConfig = config.DbExecuteQuery("SELECT RTRIM(LTRIM([Value])) FROM APP.Config WHERE [Module]='APP' AND SubModule='IM' AND [Key]='WebServer'", null, connectionString);
+                var webServer = dtConfig != null && dtConfig.Rows.Count > 0 ? dtConfig.Rows[0][0].ToString() : "";
+                var url = webServer.Trim().TrimEnd('/') + "/blueledgers.api";
+                var token = dtApi.Rows[0][0].ToString();
 
-                email.IsAuthentication = check_Authen.Checked;
-                if (check_Authen.Checked)
+                var api = new API(url, token);
+
+                var host = txt_ServerName.Text.Trim();
+                var port = Convert.ToInt32(txt_Port.Text);
+                var useSsl = check_SSL.Checked;
+                var useAuthen = check_Authen.Checked;
+                var username = txt_Username.Text.Trim();
+                var password = txt_Password.Text.Trim();
+
+                if (string.IsNullOrEmpty(password))
                 {
-                    email.Name = txt_Name.Text;
-                    email.UserName = txt_Username.Text;
-                    if (txt_Password.Text == string.Empty)
-                        email.Password = smtpNotification.Value("password");
-                    else
-                        email.Password = txt_Password.Text;
+                    password = smtpNotification.Value("password");
                 }
 
-                email.From = txt_Username.Text;
-                email.To = txt_TestReceiver.Text;
-                email.Subject = string.Format("Test sending mail from Blueledgers ({0}) at {1}", LoginInfo.BuInfo.BuCode, DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"));
-                email.Body = string.Format("This is testing to send email from '{0} : {1}'.", LoginInfo.BuInfo.BuCode, LoginInfo.BuInfo.BuName);
-                
-                var error = email.Send();
 
-                lbl_TestReceiver.Text = string.IsNullOrEmpty(error) ? "Mail sent." : error;
+                var setting = new
+                {
+                    host,
+                    port,
+                    useSsl,
+                    useAuthen,
+                    username,
+                    password
+                };
+
+
+                var from = username;
+                var to = txt_TestSendMail.Text.Trim();
+                var subject = string.Format("Test sending mail from Blueledgers ({0}) at {1}", LoginInfo.BuInfo.BuCode, DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"));
+                var body = string.Format("This is testing to send email from '{0} : {1} at {2}'.", LoginInfo.BuInfo.BuCode, LoginInfo.BuInfo.BuName, url); ;
+
+                var email = new
+                {
+                    setting,
+                    from,
+                    to,
+                    subject,
+                    body
+                };
+
+                var data = JsonConvert.SerializeObject(email);
+
+                //lbl_TestSendMail.Text = data;
+
+                try
+                {
+                    var result = api.Post("api/mail/Send", data);
+
+                    result = string.IsNullOrEmpty(result) ? "Mail sent." : result;
+
+                    lbl_TestSendMail.ForeColor = Color.Blue;
+                    lbl_TestSendMail.Text = result + string.Format("<br/><small>{0}</small>", DateTime.Now);
+                }
+                catch (Exception ex)
+                {
+                    lbl_TestSendMail.ForeColor = Color.Red;
+                    lbl_TestSendMail.Text = ex.Message + string.Format("<br/><small>{0}</small>", DateTime.Now);
+                }
             }
+
+            //KeyValues smtpNotification = new KeyValues();
+            //smtpNotification = (KeyValues)Session["smtpNotification"];
+
+            //if (txt_TestReceiver.Text != string.Empty)
+            //{
+            //    Mail email = new Mail();
+
+            //    email.SmtpServer = txt_ServerName.Text;
+            //    email.Port = Convert.ToInt16(txt_Port.Text);
+            //    email.EnableSsl = check_SSL.Checked;
+
+            //    email.IsAuthentication = check_Authen.Checked;
+            //    if (check_Authen.Checked)
+            //    {
+            //        email.Name = txt_Name.Text;
+            //        email.UserName = txt_Username.Text;
+            //        if (txt_Password.Text == string.Empty)
+            //            email.Password = smtpNotification.Value("password");
+            //        else
+            //            email.Password = txt_Password.Text;
+            //    }
+
+            //    email.From = txt_Username.Text;
+            //    email.To = txt_TestReceiver.Text;
+            //    email.Subject = string.Format("Test sending mail from Blueledgers ({0}) at {1}", LoginInfo.BuInfo.BuCode, DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"));
+            //    email.Body = string.Format("This is testing to send email from '{0} : {1}'.", LoginInfo.BuInfo.BuCode, LoginInfo.BuInfo.BuName);
+
+            //    var error = email.Send();
+
+            //    lbl_TestReceiver.Text = string.IsNullOrEmpty(error) ? "Mail sent." : error;
+            //}
         }
 
         protected void btn_TestMailPo_Click(object sender, EventArgs e)
@@ -508,12 +586,8 @@ namespace BlueLedger.PL.Option.Admin
                     var json = JsonConvert.SerializeObject(data);
 
                     var webServer = config.GetConfigValue("APP", "IM", "WebServer", connectionString);
-                    //lbl_Title.Text = webServer;
                     var url = webServer.Trim().TrimEnd('/') + "/blueledgers.api";
-
                     var api = new API(url, token);
-
-
                     try
                     {
                         var result = api.Post("api/mail/po", json);
@@ -587,7 +661,7 @@ namespace BlueLedger.PL.Option.Admin
 
             lbl_PosEndpoint.Text = string.Format("[POST] {0}/blueledgers.api/api/interface/pos/sale", host);
             lbl_PosToken.Text = dt != null && dt.Rows.Count > 0 ? dt.Rows[0][0].ToString() : "Not Set";
-            
+
 
 
 
@@ -640,7 +714,7 @@ namespace BlueLedger.PL.Option.Admin
             config.SetConfigValue("ADMIN", "AccountMap", "IsAll", isAllItems.ToString(), LoginInfo.ConnStr);
             config.SetConfigValue("ADMIN", "AccountMap", "AllowTransfer", allowTransfer.ToString(), LoginInfo.ConnStr);
 
-            
+
             SetMode_Interface(false);
         }
 
