@@ -498,7 +498,6 @@ namespace BlueLedger.PL.Option.Admin
 
                 var data = JsonConvert.SerializeObject(email);
 
-                //lbl_TestSendMail.Text = data;
 
                 try
                 {

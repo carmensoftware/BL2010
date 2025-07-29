@@ -744,6 +744,8 @@ namespace BlueLedger.PL.PC.PR
 
                 if (save)
                 {
+                    string refNo = drPr["PrNo"].ToString();
+                    
                     if (action.ToUpper() == "COMMIT")
                     {
                         // Update WorkFlowStatus
@@ -759,22 +761,19 @@ namespace BlueLedger.PL.PC.PR
                                 upAppr = UpdateApprStatus();
                             }
                         }
+
+                        if (wfStep <= 1)
+                        {
+                            SendEmailWorkflow.Send("A", refNo, 1, 1, LoginInfo.LoginName, hf_ConnStr.Value);
+                        }
                     }
 
-                    string refNo = drPr["PrNo"].ToString();
-
+                    
                     _transLog.Save("PC", "PR", refNo, _action, string.Empty, LoginInfo.LoginName, hf_ConnStr.Value);
 
-                    SendEmailWorkflow.Send("A", refNo, 1, 1, LoginInfo.LoginName, hf_ConnStr.Value);
-
-                    //var isSendMail = SendEmailWorkflow.IsSentMailPR(refNo, 1, LoginInfo.LoginName, hf_ConnStr.Value);
-                    //{
-                    //    SendEmailWorkflow.Send("A", refNo, 1, 1, LoginInfo.LoginName, hf_ConnStr.Value);
-                    //}
 
                     if (!pop_Alert.ShowOnPageLoad)
                         Response.Redirect("Pr.aspx?BuCode=" + Request.Params["BuCode"] + "&ID=" + drPr["PrNo"] + "&VID=" + Request.Params["VID"]);
-
                 }
             }
         }

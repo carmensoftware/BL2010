@@ -72,10 +72,11 @@ public static class SendEmailWorkflow
 
                 inboxNo = dr["InboxNo"].ToString();
 
-                var dtSentMail = DbExecuteQuery(string.Format("SELECT SentEmail FROM APP.WFDt WHERE WFId=1 AND Step={0}", stepTo), null, connectionString);
+                var dtSentFrom = DbExecuteQuery(string.Format("SELECT SentEmail FROM APP.WFDt WHERE WFId=1 AND Step={0}", wfStep), null, connectionString);
+                var dtSentTo = DbExecuteQuery(string.Format("SELECT SentEmail FROM APP.WFDt WHERE WFId=1 AND Step={0}", stepTo), null, connectionString);
 
                 //var isSent = dtSentMail != null && dtSentMail.Rows.Count > 0 && dtSentMail.Rows[0][0].ToString() == "1";
-                var isSent = Convert.ToBoolean(dtSentMail.Rows[0][0]);
+                var isSent = Convert.ToBoolean(dtSentFrom.Rows[0][0]) || Convert.ToBoolean(dtSentTo.Rows[0][0]);
 
 
                 if (!isSent)
@@ -141,15 +142,15 @@ public static class SendEmailWorkflow
         }
 
 
-        if (errorMessage != "")
-        {
-            SaveLog(inboxNo, docNo, errorMessage, loginName, connectionString);
-        }
-        else
-        {
-            var msg = string.Format("email send to {0}", receiver);
-            SaveLog(inboxNo, docNo, msg, loginName, connectionString);
-        }
+        //if (errorMessage != "")
+        //{
+        //    SaveLog(inboxNo, docNo, errorMessage, loginName, connectionString);
+        //}
+        //else
+        //{
+        //    var msg = string.Format("email send to {0}", receiver);
+        //    SaveLog(inboxNo, docNo, msg, loginName, connectionString);
+        //}
 
 
 
