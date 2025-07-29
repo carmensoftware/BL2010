@@ -1002,6 +1002,19 @@ namespace BlueLedger.PL.Option.Admin
 
             bu.DbExecuteQuery(string.Format(sql, chk_EnableEditCommit.Checked ? "1" : "0", LoginInfo.LoginName), null, LoginInfo.ConnStr);
 
+            // Use Delivery date for non-marketlist
+            sql = @"IF NOT EXISTS (SELECT * FROM APP.Config WHERE [Module]='PC' AND [SubModule]='PR' AND [Key]='UseDeliveryDateForNonMarketList')
+                    BEGIN
+                        INSERT INTO APP.Config ([Module],[SubModule],[Key], [Value], [UpdatedDate], [UpdatedBy])
+                        VALUES ('PC','PR', 'UseDeliveryDateForNonMarketList', '{0}', GETDATE(), '{1}')
+                    END
+                    ELSE
+                    BEGIN
+                        UPDATE APP.Config SET Value = '{0}', UpdatedBy= N'{1}' WHERE [Module]='PC' AND [SubModule]='PR' AND [Key]='UseDeliveryDateForNonMarketList'
+                    END";
+
+            bu.DbExecuteQuery(string.Format(sql, chk_UseDeliveryDateForNonMarketList.Checked ? "1" : "0", LoginInfo.LoginName), null, LoginInfo.ConnStr);
+
             SetMode_System(false);
             GetConfig_System();
         }
