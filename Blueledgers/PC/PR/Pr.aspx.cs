@@ -712,17 +712,15 @@ namespace BlueLedger.PL.PC.PR
         protected void pc_Prdt_Load(object sender, EventArgs e)
         {
             // Display/Hide Edit TabPage in Edit Form
-            if (viewHandler.GetWFStep(int.Parse(Request.Cookies["[PC].[vPrList]"].Value.ToString()), hf_ConnStr.Value) <
-                2)
-            {
-                pc_Prdt.TabPages[1].Enabled = false; // Hide Allocate Buyer
-            }
+            //if (viewHandler.GetWFStep(int.Parse(Request.Cookies["[PC].[vPrList]"].Value.ToString()), hf_ConnStr.Value) < 2)
+            //{
+            //    pc_Prdt.TabPages[1].Enabled = false; // Hide Allocate Buyer
+            //}
 
-            if (viewHandler.GetWFStep(int.Parse(Request.Cookies["[PC].[vPrList]"].Value.ToString()), hf_ConnStr.Value) <
-                3)
-            {
-                pc_Prdt.TabPages[2].Enabled = false; // Hide Allocate Vendor
-            }
+            //if (viewHandler.GetWFStep(int.Parse(Request.Cookies["[PC].[vPrList]"].Value.ToString()), hf_ConnStr.Value) < 3)
+            //{
+            //    pc_Prdt.TabPages[2].Enabled = false; // Hide Allocate Vendor
+            //}
         }
 
         /// <summary>
