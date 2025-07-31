@@ -17,7 +17,7 @@ namespace BlueLedger.PL.Option.Admin.Security.User
     public partial class UserList : BasePage
     {
         private readonly string moduleID = "99.98.1.2";
-        
+
         private readonly Blue.BL.dbo.Bu _bu = new Blue.BL.dbo.Bu();
         private readonly Blue.BL.dbo.User _user = new Blue.BL.dbo.User();
 
@@ -27,12 +27,9 @@ namespace BlueLedger.PL.Option.Admin.Security.User
 
         #region "Declaration"
 
-
-        private string _status { get { return Request.QueryString["status"] == null ? "" : Request.QueryString["status"].ToString(); } }
-
-        private string _buCode { get { return Request.QueryString["bu"] == null ? "" : Request.QueryString["bu"].ToString(); } }
-
         private string _connectionString { get { return System.Configuration.ConfigurationManager.AppSettings["ConnStr"].ToString(); } }
+
+        private int _userLicenseCount { get { return _user.GetActiveUserLicense(); } }
 
         protected DataTable _dtBu
         {
@@ -61,11 +58,32 @@ namespace BlueLedger.PL.Option.Admin.Security.User
 
             if (!IsPostBack)
             {
-                _dtBusinessUnit = GetBusinessUnit();
-                LoadUserList(_status, _buCode);
+                Page_Setting();
             }
 
             Control_HeaderMenuBar();
+        }
+
+        protected void Page_Setting()
+        {
+            var listBu = GetBusinessUnit();
+
+            ddl_Bu.Items.Clear();
+            var buItems = listBu.AsEnumerable()
+                .Select(x => new ListItem
+                {
+                    Value = x.Field<string>("BuCode"),
+                    Text = x.Field<string>("BuName")
+                })
+                .ToList();
+
+            buItems.Insert(0, new ListItem { Value = "", Text = "All" });
+
+            ddl_Bu.Items.AddRange(buItems.ToArray());
+
+
+            _dtBusinessUnit = listBu;
+            LoadUserList();
         }
 
         protected void Control_HeaderMenuBar()
@@ -104,9 +122,7 @@ namespace BlueLedger.PL.Option.Admin.Security.User
         protected void btn_NewUserCreate_Click(object sender, EventArgs e)
         {
             var loginName = txt_NewUsername.Text.Trim();
-            var pwd = txt_NewPassword.Text.Trim();
-            //var email = txt_NewEmail.Text.Trim();
-            var email = "";
+            var password = txt_NewPassword.Text.Trim();
 
             if (string.IsNullOrEmpty(loginName))
             {
@@ -114,7 +130,7 @@ namespace BlueLedger.PL.Option.Admin.Security.User
                 return;
             }
 
-            var error = CheckPassword(pwd, pwd);
+            var error = CheckPassword(password, password);
 
             if (error != "")
             {
@@ -124,6 +140,16 @@ namespace BlueLedger.PL.Option.Admin.Security.User
             }
 
 
+            CreateUser(loginName, password);
+
+            LoadUserList();
+
+            pop_NewUser.ShowOnPageLoad = false;
+            ShowUserProfile(loginName, true);
+        }
+
+        private void CreateUser(string loginName, string password)
+        {
             var sql = new Helpers.SQL(_connectionString);
 
             var dtFound = sql.ExecuteQuery("SELECT TOP(1) LoginName FROM [dbo].[User] WHERE LoginName=@LoginName", new SqlParameter[] { new SqlParameter("@LoginName", loginName) });
@@ -135,29 +161,63 @@ namespace BlueLedger.PL.Option.Admin.Security.User
                 return;
             }
 
-            var password = Blue.BL.GnxLib.EnDecryptString(pwd, Blue.BL.GnxLib.EnDeCryptor.EnCrypt, Blue.BL.GnxLib.KEY_LOGIN_PASSWORD);
-            var query = "INSERT INTO [dbo].[User]([LoginName], [Password], [FName], [Email], [IsActived]) VALUES (@LoginName, @Password, @FName, @Email, 0)";
+            var activeUsers = GetActiveUserCount();
+            var isActive = activeUsers < _userLicenseCount;
+
+
+            var pwd = Blue.BL.GnxLib.EnDecryptString(password, Blue.BL.GnxLib.EnDeCryptor.EnCrypt, Blue.BL.GnxLib.KEY_LOGIN_PASSWORD);
+            var query = "INSERT INTO [dbo].[User]([LoginName], [Password], [FName], [Email], [IsActived]) VALUES (@LoginName, @Password, @FName, '', @IsActived)";
 
             sql.ExecuteQuery(query, new SqlParameter[]
             {
                 new SqlParameter("@LoginName",loginName),
-                new SqlParameter("@Password", password),
+                new SqlParameter("@Password", pwd),
                 new SqlParameter("@FName", loginName),
-                new SqlParameter("@Email",email),
+                new SqlParameter("@IsActived", isActive),
             });
 
-            pop_NewUser.ShowOnPageLoad = false;
-            ShowUserProfile(loginName, true);
         }
+
 
         protected void btn_Print_Click(object sender, EventArgs e)
         {
         }
 
+
+        protected void ddl_Bu_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            LoadUserList();
+        }
+
+        protected void ddl_Status_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            LoadUserList();
+        }
+
+
         protected void gv_User_RowDataBound(object sender, GridViewRowEventArgs e)
         {
+            var gv = sender as GridView;
+
             if (e.Row.RowType == DataControlRowType.DataRow)
             {
+                #region -- Row Click --
+
+                e.Row.Attributes["onclick"] = Page.ClientScript.GetPostBackClientHyperlink(gv, "Select$" + e.Row.RowIndex);
+                //e.Row.Attributes["onclick"] = "__doPostBack('" + this.UniqueID + "$" + gv.ID + "', 'Select$" + e.Row.RowIndex + "')";
+                e.Row.Attributes["onmouseover"] = "this.style.backgroundColor='#808080'; this.style.color='white';";
+                e.Row.Attributes["onmouseout"] = "this.style.backgroundColor='white'; this.style.color='black';";
+                e.Row.Attributes["style"] = "cursor:pointer";
+
+                #endregion
+
+                if (e.Row.FindControl("hf_LoginName") != null)
+                {
+                    var hf = e.Row.FindControl("hf_LoginName") as HiddenField;
+
+                    hf.Value = DataBinder.Eval(e.Row.DataItem, "LoginName").ToString();
+                }
+
                 if (e.Row.FindControl("img_Status") != null)
                 {
                     var item = e.Row.FindControl("img_Status") as Image;
@@ -171,22 +231,26 @@ namespace BlueLedger.PL.Option.Admin.Security.User
             }
         }
 
-        protected void btn_View_Click(object sender, EventArgs e)
+        protected void gv_User_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var btn = sender as ImageButton;
-            var loginName = btn.CommandArgument.ToString();
+            var gv = sender as GridView;
+
+            var hf_LoginName = gv.SelectedRow.FindControl("hf_LoginName") as HiddenField;
+
+            var loginName = hf_LoginName.Value;
 
             ShowUserProfile(loginName);
+
         }
 
         #region -- User--
 
-        protected void btn_EditUser_Click(object sender, EventArgs e)
+        protected void btn_UserEdit_Click(object sender, EventArgs e)
         {
             SetUserEditMode(true);
         }
 
-        protected void btn_DelUser_Click(object sender, EventArgs e)
+        protected void btn_UserDel_Click(object sender, EventArgs e)
         {
             var loginName = lbl_LoginName.Text;
             var name = txt_FirstName.Text + " " + txt_MidName.Text.Trim() + " " + txt_LastName.Text.Trim();
@@ -196,7 +260,7 @@ namespace BlueLedger.PL.Option.Admin.Security.User
             pop_UserConfirmDelete.ShowOnPageLoad = true;
         }
 
-        protected void btn_UserConfirm_Yes_Click(object sender, EventArgs e)
+        protected void btn_UserConfirmDelete_Yes_Click(object sender, EventArgs e)
         {
             var loginName = lbl_LoginName.Text;
 
@@ -204,19 +268,20 @@ namespace BlueLedger.PL.Option.Admin.Security.User
             pop_UserConfirmDelete.ShowOnPageLoad = false;
             pop_User.ShowOnPageLoad = false;
 
-            Response.Redirect("UserList.aspx");
+            LoadUserList();
         }
 
-        protected void btn_SaveUser_Click(object sender, EventArgs e)
+        protected void btn_UserSave_Click(object sender, EventArgs e)
         {
             var loginName = lbl_LoginName.Text.Trim();
 
             SaveUser(loginName);
             GetUserProfile(loginName);
             SetUserEditMode(false);
+            LoadUserList();
         }
 
-        protected void btn_CancelUser_Click(object sender, EventArgs e)
+        protected void btn_UserCancel_Click(object sender, EventArgs e)
         {
             var loginName = lbl_LoginName.Text.Trim();
 
@@ -310,7 +375,7 @@ namespace BlueLedger.PL.Option.Admin.Security.User
             pop_ChangePassword.ShowOnPageLoad = false;
         }
 
-        protected void btn_AddBu_Click(object sender, EventArgs e)
+        protected void btn_BuAdd_Click(object sender, EventArgs e)
         {
             var selectedBu = new List<string>();
 
@@ -381,7 +446,7 @@ namespace BlueLedger.PL.Option.Admin.Security.User
 
         }
 
-        protected void btn_DelBu_Click(object sender, EventArgs e)
+        protected void btn_BuDel_Click(object sender, EventArgs e)
         {
             var buName = list_Bu.SelectedItem.Text;
             var loginName = lbl_LoginName.Text;
@@ -409,7 +474,7 @@ namespace BlueLedger.PL.Option.Admin.Security.User
                 return;
 
             panel_BuUser.Visible = false;
-            btn_DelBu.Enabled = false;
+            btn_BuDel.Enabled = false;
 
             if (item.SelectedItem.Value != null)
             {
@@ -417,7 +482,7 @@ namespace BlueLedger.PL.Option.Admin.Security.User
                 var loginName = lbl_LoginName.Text;
 
                 panel_BuUser.Visible = true;
-                btn_DelBu.Enabled = true;
+                btn_BuDel.Enabled = true;
 
                 lbl_SelectedBu.Text = item.SelectedItem.Text;
 
@@ -489,12 +554,6 @@ namespace BlueLedger.PL.Option.Admin.Security.User
 
 
         // Method(s)
-        private void ShowAlert(string text)
-        {
-            lbl_Alert.Text = text;
-            pop_Alert.ShowOnPageLoad = true;
-        }
-
 
         private bool IsValidUsername(string username)
         {
@@ -578,10 +637,16 @@ namespace BlueLedger.PL.Option.Admin.Security.User
             return policy;
         }
 
+        private void ShowAlert(string text)
+        {
+            lbl_Alert.Text = text;
+            pop_Alert.ShowOnPageLoad = true;
+        }
+
         private DataTable GetBusinessUnit()
         {
             var sql = new Helpers.SQL(_connectionString);
-            var query = @"SELECT BuCode, BuName, 1 as Selected FROM dbo.Bu WHERE IsActived=1 ORDER BY BuName";
+            var query = @"SELECT BuCode, CONCAT(BuName,' (',BuCode,')') as BuName, 1 as Selected FROM dbo.Bu WHERE IsActived=1 ORDER BY BuName";
 
             return sql.ExecuteQuery(query);
         }
@@ -634,8 +699,11 @@ ORDER BY
             return dt.Rows.Count > 0 ? dt.Rows[0] : null;
         }
 
-        private void LoadUserList(string status = "", string buCode = "")
+        private void LoadUserList()
         {
+            var status = ddl_Status.SelectedItem.Value.ToString();
+            var buCode = ddl_Bu.SelectedItem.Value.ToString();
+
             var sql = new Helpers.SQL(_connectionString);
             var dt = new DataTable();
 
@@ -654,7 +722,7 @@ FROM
 	[dbo].[User]
 WHERE
     LoginName <> 'support@carmen'
-    AND IsActived = CASE @status WHEN 'active' THEN 1 WHEN 'inactive' THEN 0 ELSE IsActived END
+    AND IsActived = CASE @status WHEN '1' THEN 1 WHEN '0' THEN 0 ELSE IsActived END
 ORDER BY
     LoginName";
 
@@ -677,7 +745,7 @@ FROM
     JOIN [dbo].BuUser bu ON bu.LoginName=u.LoginName
 WHERE
     u.LoginName <> 'support@carmen'
-    AND IsActived = CASE @status WHEN 'active' THEN 1 WHEN 'inactive' THEN 0 ELSE IsActived END
+    AND IsActived = CASE @status WHEN '1' THEN 1 WHEN '0' THEN 0 ELSE IsActived END
     AND bu.BuCode = CASE WHEN ISNULL(@buCode,'') = '' THEN bu.BuCode ELSE @buCode END
 ORDER BY
     IsActived DESC,
@@ -690,27 +758,17 @@ ORDER BY
             gv_User.DataSource = dt;
             gv_User.DataBind();
 
-            var dtUser = sql.ExecuteQuery("SELECT COUNT(LoginName) FROM [dbo].[User] WHERE IsActived=1 AND LoginName <> 'support@carmen'");
+            var users = GetActiveUserCount();
+            var license = _userLicenseCount;
 
-            var users = Convert.ToInt32(dtUser.Rows[0][0]);
-            var license = _user.GetActiveUserLicense();
+            lbl_UserCount.Text = string.Format("<b>License of active users</b>: {0}/{1}", users, license);
+        }
 
-            //var all = dt.AsEnumerable()
-            //    //.Where(x => x.Field<string>("LoginName") != username)
-            //    .Count();
-            //var active = dt.AsEnumerable()
-            //    //.Where(x => x.Field<string>("LoginName") != username)
-            //    .Where(x => x.Field<bool>("IsActived") == true)
-            //    .Count();
-            //var inactive = dt.AsEnumerable()
-            //    //.Where(x => x.Field<string>("LoginName") != username)
-            //    .Where(x => x.Field<bool>("IsActived") == false)
-            //    .Count();
+        private int GetActiveUserCount()
+        {
+            var dtUser = new Helpers.SQL(_connectionString).ExecuteQuery("SELECT COUNT(LoginName) FROM [dbo].[User] WHERE IsActived=1 AND LoginName <> 'support@carmen'");
 
-
-            //lbl_UserCount.Text = string.Format("<b>License</b>: {0}/{1} | <b>Active</b>: {2} | <b>Inactive</b>: {3}", users, license, active, inactive);
-            lbl_UserCount.Text = string.Format("<b>License</b>: {0}/{1}", users, license);
-
+            return Convert.ToInt32(dtUser.Rows[0][0]);
         }
 
         #region --BU User--
@@ -748,15 +806,15 @@ ORDER BY
             txt_Email.ReadOnly = !isEdit;
             txt_JobTitle.ReadOnly = !isEdit;
 
-            btn_EditUser.Visible = !isEdit;
-            btn_SaveUser.Visible = isEdit;
-            btn_CacelUser.Visible = isEdit;
+            btn_UserEdit.Visible = !isEdit;
+            btn_UserSave.Visible = isEdit;
+            btn_UserCancel.Visible = isEdit;
 
             btn_ChangePassword.Visible = !isEdit;
-            btn_DelUser.Visible = !isEdit;
+            btn_UserDel.Visible = !isEdit;
 
 
-            btn_AddBu.Enabled = !isEdit;
+            btn_BuAdd.Enabled = !isEdit;
             list_Bu.Enabled = !isEdit;
             panel_BuUser.Visible = !isEdit && list_Bu.SelectedItem != null;
 
@@ -764,7 +822,7 @@ ORDER BY
 
         private void SetBuEditMode(bool isEdit)
         {
-            btn_DelBu.Visible = !isEdit;
+            btn_BuDel.Visible = !isEdit;
             btn_BuEdit.Visible = !isEdit;
             btn_BuSave.Visible = isEdit;
             btn_BuCancel.Visible = isEdit;
@@ -783,11 +841,11 @@ ORDER BY
 
 
 
-            btn_AddBu.Enabled = !isEdit;
+            btn_BuAdd.Enabled = !isEdit;
 
-            btn_EditUser.Visible = !isEdit;
+            btn_UserEdit.Visible = !isEdit;
             btn_ChangePassword.Visible = !isEdit;
-            btn_DelUser.Visible = !isEdit;
+            btn_UserDel.Visible = !isEdit;
         }
 
         private void GetUserProfile(string loginName)
@@ -929,6 +987,17 @@ ORDER BY
             var email = txt_Email.Text.Trim();
             var jobTitle = txt_JobTitle.Text.Trim();
             var isActive = chk_IsActive.Checked;
+
+            var activeUsers = GetActiveUserCount();
+            var licenseCount = _userLicenseCount;
+
+            if (activeUsers > licenseCount)
+            {
+                ShowAlert(string.Format("This license key has reached the maximum number of activations ({0} users).<br/>This user will be set as inactive.", licenseCount));
+
+                isActive = false;
+            }
+
 
             var sql = new Helpers.SQL(_connectionString);
 
@@ -1097,9 +1166,6 @@ INSERT INTO [ADMIN].UserDepartment (LoginName, DepCode) VALUES (@LoginName, @Dep
             catch
             {
             }
-
-
-
             pop_BuConfirmDelete.ShowOnPageLoad = false;
         }
 
