@@ -223,8 +223,35 @@
             </dx:PopupControlContentControl>
         </ContentCollection>
     </dx:ASPxPopupControl>
-    <dx:ASPxPopupControl ID="pop_User" ClientInstanceName="pop_User" runat="server" Width="960px" Height="600px" HeaderText="Profile" Modal="True" ShowCloseButton="true" CloseAction="CloseButton"
-        ShowPageScrollbarWhenModal="true" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" AutoUpdatePosition="True">
+    <dx:ASPxPopupControl ID="pop_NewUser" ClientInstanceName="pop_NewUser" runat="server" Width="320" Modal="True" HeaderText="New user" ShowCloseButton="true"
+        CloseAction="CloseButton" ShowPageScrollbarWhenModal="true" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter">
+        <ContentCollection>
+            <dx:PopupControlContentControl ID="PopupControlContentControl6" runat="server">
+                <div>
+                    <asp:Label runat="server" Font-Bold="true" Text="Username" />
+                </div>
+                <div>
+                    <asp:TextBox runat="server" ID="txt_NewUsername" Width="95%" Font-Size="Small" />
+                </div>
+                <br />
+                <div>
+                    <asp:Label ID="Label9" runat="server" Font-Bold="true" Text="Password" />
+                </div>
+                <div>
+                    <asp:TextBox runat="server" ID="txt_NewPassword" Width="95%" Font-Size="Small" TextMode="Password" />
+                </div>
+                <br />
+                <br />
+                <div class="flex flex-justify-content-center mb-10">
+                    <asp:Button ID="Button4" runat="server" Text="Create" Width="60" OnClick="btn_NewUserCreate_Click" />
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <asp:Button ID="Button5" runat="server" Text="Cancel" Width="60" OnClientClick="pop_NewUser.Hide()" />
+                </div>
+            </dx:PopupControlContentControl>
+        </ContentCollection>
+    </dx:ASPxPopupControl>
+    <dx:ASPxPopupControl ID="pop_User" ClientInstanceName="pop_User" runat="server" Width="960px" Height="600px" HeaderText="Profile" Modal="True" ShowCloseButton="true"
+        CloseAction="CloseButton" ShowPageScrollbarWhenModal="true" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" AutoUpdatePosition="True">
         <HeaderStyle Font-Size="Small" />
         <ContentCollection>
             <dx:PopupControlContentControl ID="PopupControlContentControl1" runat="server">
@@ -359,6 +386,7 @@
                         </div>
                     </ContentTemplate>
                     <Triggers>
+                        <asp:PostBackTrigger ControlID="btn_DelUser" />
                         <asp:PostBackTrigger ControlID="btn_ChangePassword" />
                         <asp:PostBackTrigger ControlID="btn_DelBu" />
                         <asp:PostBackTrigger ControlID="btn_AddBu" />
@@ -383,6 +411,26 @@
                     <asp:Button ID="btn_BuConfirm_Yes" runat="server" Text="Yes" Width="60" OnClick="btn_BuConfirm_Yes_Click" />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <asp:Button ID="btn_BuConfirm_No" runat="server" Text="No" Width="60" OnClientClick="pop_BuConfirmDelete.Hide()" />
+                </div>
+            </dx:PopupControlContentControl>
+        </ContentCollection>
+    </dx:ASPxPopupControl>
+    <dx:ASPxPopupControl ID="pop_UserConfirmDelete" ClientInstanceName="pop_UserConfirmDelete" runat="server" Width="540" Modal="True" HeaderText="Confirmation"
+        ShowCloseButton="true" CloseAction="CloseButton" ShowPageScrollbarWhenModal="true" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter">
+        <ContentCollection>
+            <dx:PopupControlContentControl ID="PopupControlContentControl5" runat="server">
+                <div class="flex flex-justify-content-center mb-10">
+                    <asp:Label runat="server" ID="lbl_UserConfirmDelete" Font-Size="Small" />
+                </div>
+                <div style="text-align: center; width: 100%;">
+                    <asp:Label runat="server" ID="Label11" Font-Size="Smaller" ForeColor="Red" Text="*All roles and locations will be removed from all business units." />
+                </div>
+                <br />
+                <br />
+                <div class="flex flex-justify-content-center mb-10">
+                    <asp:Button ID="Button1" runat="server" Text="Yes" Width="60" OnClick="btn_UserConfirm_Yes_Click" />
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <asp:Button ID="Button3" runat="server" Text="No" Width="60" OnClientClick="pop_UserConfirmDelete.Hide()" />
                 </div>
             </dx:PopupControlContentControl>
         </ContentCollection>
@@ -421,7 +469,7 @@
                             <asp:Label runat="server" Text="New Password" />
                         </td>
                         <td>
-                            <asp:TextBox ID="txt_NewPassword" runat="server" Text="" Width="180px" TextMode="Password" />
+                            <asp:TextBox ID="txt_ChangePassword" runat="server" Text="" Width="180px" TextMode="Password" />
                         </td>
                     </tr>
                     <tr>
@@ -429,7 +477,7 @@
                             <asp:Label runat="server" Text="Confirm Password" />
                         </td>
                         <td>
-                            <asp:TextBox ID="txt_NewPasswordConfirm" runat="server" Text="" Width="180px" TextMode="Password" />
+                            <asp:TextBox ID="txt_ChangePasswordConfirm" runat="server" Text="" Width="180px" TextMode="Password" />
                         </td>
                     </tr>
                 </table>

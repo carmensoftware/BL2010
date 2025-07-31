@@ -17,18 +17,20 @@ namespace BlueLedger.PL.Option.Admin.Security.User
     public partial class UserList : BasePage
     {
         private readonly string moduleID = "99.98.1.2";
-
-        #region "Declaration"
-        private readonly Blue.BL.dbo.Bu bu = new Blue.BL.dbo.Bu();
+        
+        private readonly Blue.BL.dbo.Bu _bu = new Blue.BL.dbo.Bu();
+        private readonly Blue.BL.dbo.User _user = new Blue.BL.dbo.User();
 
         private readonly Blue.BL.Option.Admin.Security.UserRole userRole = new Blue.BL.Option.Admin.Security.UserRole();
 
-        private readonly Blue.BL.dbo.User _user = new Blue.BL.dbo.User();
-        private readonly Blue.BL.dbo.BUUser _buUser = new Blue.BL.dbo.BUUser();
-        private readonly Blue.BL.ADMIN.UserStore _userStore = new Blue.BL.ADMIN.UserStore();
         private readonly Blue.BL.ADMIN.RolePermission _rolePermiss = new Blue.BL.ADMIN.RolePermission();
 
-        #endregion
+        #region "Declaration"
+
+
+        private string _status { get { return Request.QueryString["status"] == null ? "" : Request.QueryString["status"].ToString(); } }
+
+        private string _buCode { get { return Request.QueryString["bu"] == null ? "" : Request.QueryString["bu"].ToString(); } }
 
         private string _connectionString { get { return System.Configuration.ConfigurationManager.AppSettings["ConnStr"].ToString(); } }
 
@@ -44,12 +46,14 @@ namespace BlueLedger.PL.Option.Admin.Security.User
             set { ViewState["_dtBusinessUnit"] = value; }
         }
 
-        private string _status { get { return Request.QueryString["status"] == null ? "" : Request.QueryString["status"].ToString(); } }
+        [Serializable]
+        protected class PasswordPolicy
+        {
+            public int Length { get; set; }
+            public bool Complexity { get; set; }
+        }
 
-        private string _bu { get { return Request.QueryString["bu"] == null ? "" : Request.QueryString["bu"].ToString(); } }
-
-
-        // Event(s)
+        #endregion
 
         protected override void Page_Load(object sender, EventArgs e)
         {
@@ -58,11 +62,8 @@ namespace BlueLedger.PL.Option.Admin.Security.User
             if (!IsPostBack)
             {
                 _dtBusinessUnit = GetBusinessUnit();
-                LoadUserList(_status, _bu);
-
+                LoadUserList(_status, _buCode);
             }
-
-
 
             Control_HeaderMenuBar();
         }
@@ -70,6 +71,12 @@ namespace BlueLedger.PL.Option.Admin.Security.User
         protected void Control_HeaderMenuBar()
         {
             int pagePermission = _rolePermiss.GetPagePermission(moduleID, LoginInfo.LoginName, LoginInfo.ConnStr);
+
+            if (LoginInfo.LoginName == "support@carmen")
+            {
+                pagePermission = 7;
+            }
+
 
             if (pagePermission < 3)
             {
@@ -84,9 +91,63 @@ namespace BlueLedger.PL.Option.Admin.Security.User
 
         }
 
+        // Event(s)
+
         protected void btn_Create_Click(object sender, EventArgs e)
         {
+            txt_NewUsername.Text = "";
+            txt_NewPassword.Text = "";
 
+            pop_NewUser.ShowOnPageLoad = true;
+        }
+
+        protected void btn_NewUserCreate_Click(object sender, EventArgs e)
+        {
+            var loginName = txt_NewUsername.Text.Trim();
+            var pwd = txt_NewPassword.Text.Trim();
+            //var email = txt_NewEmail.Text.Trim();
+            var email = "";
+
+            if (string.IsNullOrEmpty(loginName))
+            {
+                ShowAlert("Username is required.");
+                return;
+            }
+
+            var error = CheckPassword(pwd, pwd);
+
+            if (error != "")
+            {
+                ShowAlert(error);
+
+                return;
+            }
+
+
+            var sql = new Helpers.SQL(_connectionString);
+
+            var dtFound = sql.ExecuteQuery("SELECT TOP(1) LoginName FROM [dbo].[User] WHERE LoginName=@LoginName", new SqlParameter[] { new SqlParameter("@LoginName", loginName) });
+
+            if (dtFound != null && dtFound.Rows.Count > 0)
+            {
+                ShowAlert(string.Format("This username '{0}' is already used.", loginName));
+
+                return;
+            }
+
+            var password = Blue.BL.GnxLib.EnDecryptString(pwd, Blue.BL.GnxLib.EnDeCryptor.EnCrypt, Blue.BL.GnxLib.KEY_LOGIN_PASSWORD);
+            var query = "INSERT INTO [dbo].[User]([LoginName], [Password], [FName], [Email], [IsActived]) VALUES (@LoginName, @Password, @FName, @Email, 0)";
+
+            sql.ExecuteQuery(query, new SqlParameter[]
+            {
+                new SqlParameter("@LoginName",loginName),
+                new SqlParameter("@Password", password),
+                new SqlParameter("@FName", loginName),
+                new SqlParameter("@Email",email),
+            });
+
+            pop_NewUser.ShowOnPageLoad = false;
+            ShowUserProfile(loginName, true);
         }
 
         protected void btn_Print_Click(object sender, EventArgs e)
@@ -127,6 +188,23 @@ namespace BlueLedger.PL.Option.Admin.Security.User
 
         protected void btn_DelUser_Click(object sender, EventArgs e)
         {
+            var loginName = lbl_LoginName.Text;
+            var name = txt_FirstName.Text + " " + txt_MidName.Text.Trim() + " " + txt_LastName.Text.Trim();
+
+            lbl_UserConfirmDelete.Text = string.Format("Do you want to delete this user <b>'{0}'</b>?<br/><br/><center><b>{1}</b></center>", loginName, name);
+
+            pop_UserConfirmDelete.ShowOnPageLoad = true;
+        }
+
+        protected void btn_UserConfirm_Yes_Click(object sender, EventArgs e)
+        {
+            var loginName = lbl_LoginName.Text;
+
+            DeleteUser(loginName);
+            pop_UserConfirmDelete.ShowOnPageLoad = false;
+            pop_User.ShowOnPageLoad = false;
+
+            Response.Redirect("UserList.aspx");
         }
 
         protected void btn_SaveUser_Click(object sender, EventArgs e)
@@ -149,22 +227,10 @@ namespace BlueLedger.PL.Option.Admin.Security.User
 
         protected void btn_ChangePassword_Click(object sender, EventArgs e)
         {
-            var dt = new Helpers.SQL(_connectionString).ExecuteQuery("SELECT LOWER([Key]) as [Key], LTRIM(RTRIM([Value])) as [Value] FROM [dbo].[Config]");
+            var passwordPolicy = GetPasswordPolicy();
 
-            var configItems = dt.AsEnumerable().Select(x => new ListEditItem { Text = x.Field<string>("Key"), Value = x.Field<string>("Value") }).ToArray();
-
-            var pwdLength = configItems.Where(x => x.Text == "password.length").FirstOrDefault();
-            var pwdComplex = configItems.Where(x => x.Text == "password.complexity").FirstOrDefault();
-            //var pwdSymbol = configItems.Where(x => x.Text == "password.symbols").FirstOrDefault();
-            //var pwdNumber = configItems.Where(x => x.Text == "password.numbers").FirstOrDefault();
-            //var pwdLowerCase = configItems.Where(x => x.Text == "password.lowercase").FirstOrDefault();
-            //var pwdUpperCase = configItems.Where(x => x.Text == "password.uppercase").FirstOrDefault();
-
-            var length = pwdLength != null && !string.IsNullOrEmpty(pwdLength.Value.ToString()) ? Convert.ToInt32(pwdLength.Value) : 0;
-            var isComplex = pwdComplex.Value.ToString() == "1";
-
-            hf_PwdComplexity.Value = isComplex.ToString();
-            hf_PwdLength.Value = length.ToString();
+            var length = passwordPolicy.Length;
+            var isComplex = passwordPolicy.Complexity;
 
             lbl_PwdLength.Text = string.Format("*The password must contain at least {0} character(s).", length);
             if (isComplex)
@@ -179,45 +245,54 @@ namespace BlueLedger.PL.Option.Admin.Security.User
 
         protected void btn_ChangePassword_Yes_Click(object sender, EventArgs e)
         {
-            var pwd = txt_NewPassword.Text.Trim();
-            var pwd2 = txt_NewPasswordConfirm.Text.Trim();
+            var pwd = txt_ChangePassword.Text.Trim();
+            var pwd2 = txt_ChangePasswordConfirm.Text.Trim();
 
-            if (string.IsNullOrEmpty(pwd))
+            //if (string.IsNullOrEmpty(pwd))
+            //{
+            //    ShowAlert("Password is required.");
+
+            //    return;
+            //}
+
+            //if (pwd != pwd2)
+            //{
+            //    ShowAlert("Password does not match.");
+
+            //    return;
+            //}
+
+            //var length = Convert.ToInt32(hf_PwdLength.Value);
+            //var isComplex = Convert.ToBoolean(hf_PwdComplexity.Value);
+
+            //// length
+            //if (pwd.Length < length)
+            //{
+            //    ShowAlert(string.Format("The password you entered does not meet the required length.<br/><small>*Minimum {0} characters.</small>", length));
+
+            //    return;
+            //}
+
+            //// Complexity
+            //if (isComplex)
+            //{
+            //    var isStrong = IsStrongPassword(pwd, length);
+
+            //    if (!isStrong)
+            //    {
+            //        ShowAlert("Please choose a stronger password. Try a mix of letters, numbers, and symbols.");
+
+            //        return;
+            //    }
+            //}
+
+            var error = CheckPassword(pwd, pwd2);
+
+            if (error != "")
             {
-                ShowAlert("Password is required.");
+                ShowAlert(error);
 
                 return;
-            }
-
-            if (pwd != pwd2)
-            {
-                ShowAlert("Password does not match.");
-
-                return;
-            }
-
-            var length = Convert.ToInt32(hf_PwdLength.Value);
-            var isComplex = Convert.ToBoolean(hf_PwdComplexity.Value);
-
-            // length
-            if (pwd.Length < length)
-            {
-                ShowAlert(string.Format("The password you entered does not meet the required length.<br/><small>*Minimum {0} characters.</small>", length));
-
-                return;
-            }
-
-            // Complexity
-            if (isComplex)
-            {
-                var isStrong = IsStrongPassword(pwd, length);
-
-                if (!isStrong)
-                {
-                    ShowAlert("Please choose a stronger password. Try a mix of letters, numbers, and symbols.");
-
-                    return;
-                }
             }
 
             var password = Blue.BL.GnxLib.EnDecryptString(pwd, Blue.BL.GnxLib.EnDeCryptor.EnCrypt, Blue.BL.GnxLib.KEY_LOGIN_PASSWORD);
@@ -420,7 +495,21 @@ namespace BlueLedger.PL.Option.Admin.Security.User
             pop_Alert.ShowOnPageLoad = true;
         }
 
-        private static bool IsStrongPassword(string password, int length)
+
+        private bool IsValidUsername(string username)
+        {
+            // Example pattern:
+            // - Starts with a letter (uppercase or lowercase)
+            // - Contains letters, numbers, or underscores
+            // - Has a length between 6 and 12 characters
+            string pattern = @"^[a-zA-Z][a-zA-Z0-9_]{5,11}$";
+
+            Regex regex = new Regex(pattern);
+
+            return regex.IsMatch(username);
+        }
+
+        private bool IsStrongPassword(string password, int length)
         {
             // This regex requires:
             // - At least 8 characters long (.{8,})
@@ -434,6 +523,60 @@ namespace BlueLedger.PL.Option.Admin.Security.User
             return Regex.IsMatch(password, passwordRegex);
         }
 
+        private string CheckPassword(string password, string passwordConfirm)
+        {
+            var pwd = password;
+            var pwd2 = passwordConfirm;
+
+            if (string.IsNullOrEmpty(pwd))
+            {
+                return "Password is required.";
+            }
+
+            if (pwd != pwd2)
+            {
+                return "Password does not match.";
+            }
+
+            var passwordPolicy = GetPasswordPolicy();
+
+            var length = passwordPolicy.Length;
+            var isComplex = passwordPolicy.Complexity;
+
+            // length
+            if (pwd.Length < length)
+            {
+                return string.Format("The password you entered does not meet the required length.<br/><small>*Minimum {0} characters.</small>", length);
+            }
+
+            // Complexity
+            if (isComplex && !IsStrongPassword(pwd, length))
+            {
+                return "Please choose a stronger password. Try a mix of letters, numbers, and symbols.";
+            }
+
+            return "";
+        }
+
+        private PasswordPolicy GetPasswordPolicy()
+        {
+            var dt = new Helpers.SQL(_connectionString).ExecuteQuery("SELECT LOWER([Key]) as [Key], LTRIM(RTRIM([Value])) as [Value] FROM [dbo].[Config]");
+            var configItems = dt.AsEnumerable().Select(x => new ListEditItem { Text = x.Field<string>("Key"), Value = x.Field<string>("Value") }).ToArray();
+
+            var pwdLength = configItems.Where(x => x.Text == "password.length").FirstOrDefault();
+            var pwdComplex = configItems.Where(x => x.Text == "password.complexity").FirstOrDefault();
+            //var pwdSymbol = configItems.Where(x => x.Text == "password.symbols").FirstOrDefault();
+            //var pwdNumber = configItems.Where(x => x.Text == "password.numbers").FirstOrDefault();
+            //var pwdLowerCase = configItems.Where(x => x.Text == "password.lowercase").FirstOrDefault();
+            //var pwdUpperCase = configItems.Where(x => x.Text == "password.uppercase").FirstOrDefault();
+
+            var length = pwdLength != null && !string.IsNullOrEmpty(pwdLength.Value.ToString()) ? Convert.ToInt32(pwdLength.Value) : 0;
+            var isComplex = pwdComplex.Value.ToString() == "1";
+
+            var policy = new PasswordPolicy { Length = length, Complexity = isComplex };
+
+            return policy;
+        }
 
         private DataTable GetBusinessUnit()
         {
@@ -570,35 +713,26 @@ ORDER BY
 
         }
 
-        //private IEnumerable<ListEditItem> GetListEditItem_BusinessUnit()
-        //{
-        //    var items = new List<ListEditItem>();
-
-        //    var sql = new Helpers.SQL(_connectionString);
-        //    var query = "SELECT BuCode, BuName, 1 as Selected FROM dbo.Bu WHERE IsActived=1 ORDER BY BuName";
-        //    var dt = sql.ExecuteQuery(query);
-
-
-        //    if (dt.Rows.Count > 0)
-        //    {
-        //        return dt.AsEnumerable()
-        //            .Select(x => new ListEditItem
-        //            {
-        //                Value = x.Field<string>("BuCode"),
-        //                Text = string.Format("{0} ({1})", x.Field<string>("BuName"), x.Field<string>("BuCode")),
-        //            })
-        //            .ToArray();
-        //    }
-        //    else
-        //        return null;
-        //}
-
         #region --BU User--
 
-        private void ShowUserProfile(string loginName)
+        private void DeleteUser(string loginName)
+        {
+            var dtBuUser = new Helpers.SQL(_connectionString).ExecuteQuery("SELECT BuCode FROM [dbo].[BuUser] WHERE LoginName=@LoginName", new SqlParameter[] { new SqlParameter("@LoginName", loginName) });
+            var buUsers = dtBuUser.AsEnumerable().Select(x => x.Field<string>("BuCode").Trim()).ToArray();
+
+            foreach (var buCode in buUsers)
+            {
+                DeleteBuUser(buCode, loginName);
+            }
+
+            // Delete from AdminDB
+            new Helpers.SQL(_connectionString).ExecuteQuery("DELETE FROM [dbo].[User] WHERE LoginName=@LoginName", new SqlParameter[] { new SqlParameter("@LoginName", loginName) });
+        }
+
+        private void ShowUserProfile(string loginName, bool isEdit = false)
         {
             GetUserProfile(loginName);
-            SetUserEditMode(false);
+            SetUserEditMode(isEdit);
             pop_User.ShowOnPageLoad = true;
         }
 
@@ -727,7 +861,7 @@ ORDER BY
 
         private void GetBuUser(string buCode, string loginName)
         {
-            var buConnStr = bu.GetConnectionString(buCode);
+            var buConnStr = _bu.GetConnectionString(buCode);
             var sql = new Helpers.SQL(buConnStr);
 
             // Departmetn
@@ -828,7 +962,7 @@ SET
 
         private void SaveBuUser(string buCode, string loginName)
         {
-            var buConnStr = bu.GetConnectionString(buCode);
+            var buConnStr = _bu.GetConnectionString(buCode);
             var sql = new Helpers.SQL(buConnStr);
 
             // Department
@@ -886,77 +1020,84 @@ INSERT INTO [ADMIN].UserDepartment (LoginName, DepCode) VALUES (@LoginName, @Dep
 
         private void DeleteBuUser(string buCode, string loginName)
         {
-            var buConnStr = bu.GetConnectionString(buCode);
-            var sql = new Helpers.SQL(buConnStr);
-
-            // Department
-            sql.ExecuteQuery("DELETE FROM [ADMIN].UserDepartment WHERE LoginName=@LoginName", new SqlParameter[] { new SqlParameter("@LoginName", loginName) });
-
-            // Role
-            sql.ExecuteQuery("DELETE FROM [ADMIN].UserRole WHERE LoginName=@LoginName", new SqlParameter[] { new SqlParameter("@LoginName", loginName) });
-
-            // Location
-            sql.ExecuteQuery("DELETE FROM [ADMIN].UserStore WHERE LoginName=@LoginName", new SqlParameter[] { new SqlParameter("@LoginName", loginName) });
-
-
-            // Remove Head of department
-            var dtDep = sql.ExecuteQuery("SELECT DepCode, HeadOfDep FROM [ADMIN].Department WHERE DepCode IN (SELECT DISTINCT DepCode FROM [admin].vHeadOfDepartment WHERE LoginName=@LoginName)", new SqlParameter[] { new SqlParameter("@LoginName", loginName) });
-
-            if (dtDep != null && dtDep.Rows.Count > 0)
+            try
             {
-                foreach (DataRow dr in dtDep.Rows)
-                {
-                    var depCode = dr["DepCode"].ToString().ToUpper();
-                    var hod = dr["HeadOfDep"].ToString().Split(',').Select(x => x.TrimEnd()).ToList();
-                    var headOfDep = hod.Where(x => x.ToUpper() != depCode).Select(x => x.Trim()).Distinct().ToArray();
+                var buConnStr = _bu.GetConnectionString(buCode);
+                var sql = new Helpers.SQL(buConnStr);
 
-                    sql.ExecuteQuery(
-                        "UPDATE [ADMIN].Department SET HeadOfDep=@HeadOfDep WHERE DepCode=@DepCode",
-                        new SqlParameter[] 
+                // Department
+                sql.ExecuteQuery("DELETE FROM [ADMIN].UserDepartment WHERE LoginName=@LoginName", new SqlParameter[] { new SqlParameter("@LoginName", loginName) });
+
+                // Role
+                sql.ExecuteQuery("DELETE FROM [ADMIN].UserRole WHERE LoginName=@LoginName", new SqlParameter[] { new SqlParameter("@LoginName", loginName) });
+
+                // Location
+                sql.ExecuteQuery("DELETE FROM [ADMIN].UserStore WHERE LoginName=@LoginName", new SqlParameter[] { new SqlParameter("@LoginName", loginName) });
+
+
+                // Remove Head of department
+                var dtDep = sql.ExecuteQuery("SELECT DepCode, HeadOfDep FROM [ADMIN].Department WHERE DepCode IN (SELECT DISTINCT DepCode FROM [admin].vHeadOfDepartment WHERE LoginName=@LoginName)", new SqlParameter[] { new SqlParameter("@LoginName", loginName) });
+
+                if (dtDep != null && dtDep.Rows.Count > 0)
+                {
+                    foreach (DataRow dr in dtDep.Rows)
+                    {
+                        var depCode = dr["DepCode"].ToString().ToUpper();
+                        var hod = dr["HeadOfDep"].ToString().Split(',').Select(x => x.TrimEnd()).ToList();
+                        var headOfDep = hod.Where(x => x.ToUpper() != depCode).Select(x => x.Trim()).Distinct().ToArray();
+
+                        sql.ExecuteQuery(
+                            "UPDATE [ADMIN].Department SET HeadOfDep=@HeadOfDep WHERE DepCode=@DepCode",
+                            new SqlParameter[] 
                         { 
                             new SqlParameter("@HeadOfDep", string.Join(",", headOfDep)), 
                             new SqlParameter("@DepCode", depCode) 
                         });
+                    }
                 }
-            }
 
-            // Remove from Workflow
-            var dtWf = sql.ExecuteQuery("SELECT WfId, Step, Approvals FROM APP.WFDt");
+                // Remove from Workflow
+                var dtWf = sql.ExecuteQuery("SELECT WfId, Step, Approvals FROM APP.WFDt");
 
-            if (dtWf != null && dtWf.Rows.Count > 0)
-            {
-                foreach (DataRow dr in dtWf.Rows)
+                if (dtWf != null && dtWf.Rows.Count > 0)
                 {
-                    var wfId = dr["WfId"].ToString();
-                    var step = dr["Step"].ToString();
-                    var items = dr["Approvals"].ToString().Split(',').Select(x => x.TrimEnd()).ToList();
-
-
-                    var username = string.Format("#{0}", loginName);
-                    var item = items.Where(x => x.ToUpper() == username.ToUpper()).FirstOrDefault();
-
-                    if (item != null)
+                    foreach (DataRow dr in dtWf.Rows)
                     {
-                        var approvals = items.Where(x => x.ToUpper() != username.ToUpper()).Select(x => x.Trim()).Distinct().ToArray();
+                        var wfId = dr["WfId"].ToString();
+                        var step = dr["Step"].ToString();
+                        var items = dr["Approvals"].ToString().Split(',').Select(x => x.TrimEnd()).ToList();
 
-                        sql.ExecuteQuery(
-                            "UPDATE [APP].WfDt SET Approvals=@Approvals WHERE WfId=@WfId AND Step=@Step",
-                            new SqlParameter[] 
+
+                        var username = string.Format("#{0}", loginName);
+                        var item = items.Where(x => x.ToUpper() == username.ToUpper()).FirstOrDefault();
+
+                        if (item != null)
+                        {
+                            var approvals = items.Where(x => x.ToUpper() != username.ToUpper()).Select(x => x.Trim()).Distinct().ToArray();
+
+                            sql.ExecuteQuery(
+                                "UPDATE [APP].WfDt SET Approvals=@Approvals WHERE WfId=@WfId AND Step=@Step",
+                                new SqlParameter[] 
                         { 
                             new SqlParameter("@Approvals", string.Join(",", approvals)), 
                             new SqlParameter("@WfId", wfId), 
                             new SqlParameter("@Step", step) 
                         });
+                        }
                     }
                 }
+
+                // Remove in [dbo].[BuUser]
+                new Helpers.SQL(_connectionString).ExecuteQuery("DELETE FROM [dbo].BuUser WHERE LoginName=@LoginName AND BuCode=@BuCode", new SqlParameter[] 
+                { 
+                    new SqlParameter("@LoginName", loginName),
+                    new SqlParameter("@BuCode", buCode) 
+                });
+            }
+            catch
+            {
             }
 
-            // Remove in [dbo].[BuUser]
-            new Helpers.SQL(_connectionString).ExecuteQuery("DELETE FROM [dbo].BuUser WHERE LoginName=@LoginName AND BuCode=@BuCode", new SqlParameter[] 
-            { 
-                new SqlParameter("@LoginName", loginName),
-                new SqlParameter("@BuCode", buCode) 
-            });
 
 
             pop_BuConfirmDelete.ShowOnPageLoad = false;
