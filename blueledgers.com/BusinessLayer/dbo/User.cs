@@ -19,6 +19,7 @@ namespace Blue.BL.dbo
             2026-06-30 = andalanta = 7+1=8
             2026-06-30 = floralcourthotel = 5+6 = 11
             2026-06-30 = maraleina = 23+1 = 24
+            2026-06-30 = granddiamondsuites = 6+4 = 10
 
 
             2026-05-31 = ramadadmabangkok = 19
@@ -111,15 +112,14 @@ namespace Blue.BL.dbo
 
 
             2025-08-31 = firaphuketbeachclub = 5+3=8
+            2025-08-31 = bestwesternclicksathorn11 = 10
 
 
             ---------------------------------------------------------------
 
-            2025-07-31 = bestwesternclicksathorn11 = 10
           
           
             2025-07-31 = BaanSamuiResort = 8
-            2025-07-31 = granddiamondsuites = 6+4 = 10
             2025-07-31 = legacysuites = 15 + 7 = 22
             2025-07-31 = selinaserenityrawai = 8
           
@@ -154,11 +154,11 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser = 50;
+        private int licenseActiveUser = 10;
 
         public DateTime GetLicenseExpiredDate()
         {
-            return new DateTime(2025, 12, 31);
+            return new DateTime(2026, 06, 30);
         }
 
         private DateTime licenseExpiredDate { get { return GetLicenseExpiredDate(); } }
