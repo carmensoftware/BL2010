@@ -62,6 +62,8 @@ namespace BlueLedger.PL.Option.Admin.Security.User
             }
 
             Control_HeaderMenuBar();
+
+            btn_Support.Visible = LoginInfo.LoginName.ToLower() == "support@carmen";
         }
 
         protected void Page_Setting()
@@ -110,6 +112,10 @@ namespace BlueLedger.PL.Option.Admin.Security.User
         }
 
         // Event(s)
+        protected void btn_Support_Click(object sender, EventArgs e)
+        {
+            ShowUserProfile(LoginInfo.LoginName);
+        }
 
         protected void btn_Create_Click(object sender, EventArgs e)
         {
@@ -204,9 +210,8 @@ namespace BlueLedger.PL.Option.Admin.Security.User
                 #region -- Row Click --
 
                 e.Row.Attributes["onclick"] = Page.ClientScript.GetPostBackClientHyperlink(gv, "Select$" + e.Row.RowIndex);
-                //e.Row.Attributes["onclick"] = "__doPostBack('" + this.UniqueID + "$" + gv.ID + "', 'Select$" + e.Row.RowIndex + "')";
-                e.Row.Attributes["onmouseover"] = "this.style.backgroundColor='#808080'; this.style.color='white';";
-                e.Row.Attributes["onmouseout"] = "this.style.backgroundColor='white'; this.style.color='black';";
+                //e.Row.Attributes["onmouseover"] = "this.style.backgroundColor='#808080'; this.style.color='white';";
+                //e.Row.Attributes["onmouseout"] = "this.style.backgroundColor='white'; this.style.color='black';";
                 e.Row.Attributes["style"] = "cursor:pointer";
 
                 #endregion
@@ -255,6 +260,14 @@ namespace BlueLedger.PL.Option.Admin.Security.User
             var loginName = lbl_LoginName.Text;
             var name = txt_FirstName.Text + " " + txt_MidName.Text.Trim() + " " + txt_LastName.Text.Trim();
 
+            if (loginName.ToLower() == "support@carmen")
+            {
+                ShowAlert("This user is reserved.");
+                return;
+            }
+
+
+
             lbl_UserConfirmDelete.Text = string.Format("Do you want to delete this user <b>'{0}'</b>?<br/><br/><center><b>{1}</b></center>", loginName, name);
 
             pop_UserConfirmDelete.ShowOnPageLoad = true;
@@ -292,6 +305,13 @@ namespace BlueLedger.PL.Option.Admin.Security.User
 
         protected void btn_ChangePassword_Click(object sender, EventArgs e)
         {
+            if (lbl_LoginName.Text.ToLower() == "support@carmen")
+            {
+                ShowAlert("This user is reserved.");
+                return;
+            }
+
+
             var passwordPolicy = GetPasswordPolicy();
 
             var length = passwordPolicy.Length;
@@ -796,7 +816,6 @@ ORDER BY
 
         private void SetUserEditMode(bool isEdit)
         {
-            //txt_LoginName.ReadOnly = !isEdit;
             chk_IsActive.Enabled = isEdit;
 
             txt_FirstName.ReadOnly = !isEdit;
@@ -817,6 +836,13 @@ ORDER BY
             btn_BuAdd.Enabled = !isEdit;
             list_Bu.Enabled = !isEdit;
             panel_BuUser.Visible = !isEdit && list_Bu.SelectedItem != null;
+
+            if (lbl_LoginName.Text.ToLower() == "support@carmen")
+            {
+                chk_IsActive.Checked = true;
+                chk_IsActive.Enabled = false;
+            }
+
 
         }
 
@@ -846,6 +872,7 @@ ORDER BY
             btn_UserEdit.Visible = !isEdit;
             btn_ChangePassword.Visible = !isEdit;
             btn_UserDel.Visible = !isEdit;
+
         }
 
         private void GetUserProfile(string loginName)

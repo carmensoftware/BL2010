@@ -27,18 +27,13 @@ namespace BlueLedger.PL.Option.User
                     items.Add(i.ToString());
                 }
 
-                //foreach (var item in items)
-                //{
-                //    if (item != "LoginInfo" && item != "Err" && item != "PreviousPage" && item != "dsUser")
-                //    {
-                //        Session.Remove(item);
-                //    }
-                //}
 
                 var text = string.Join(", ", items);
 
                 lbl_Session.Text = text;
             }
+
+            btn_ChangePassword.Visible = LoginInfo.LoginName.ToLower() != "support@carmen";
 
         }
 

@@ -92,6 +92,7 @@ namespace Blue.BL.dbo
             2025-09-30 = theyamaphuket = 12
             2025-09-30 = sunshine-residences = 10+5=15
             2025-09-30 = urbana-sathorn = 6
+            2025-09-30 = paresaresort = 23
           
           
             2025-08-31 = Diamond Cottage = 15+5=20
@@ -122,7 +123,6 @@ namespace Blue.BL.dbo
             2025-07-31 = legacysuites = 15 + 7 = 22
             2025-07-31 = selinaserenityrawai = 8
           
-            2025-07-31 = paresaresort = 23
             2025-07-31 = hopinnth = 27 
           
           
@@ -154,11 +154,11 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser = 45;
+        private int licenseActiveUser = 50;
 
         public DateTime GetLicenseExpiredDate()
         {
-            return new DateTime(2025, 8, 31);
+            return new DateTime(2025, 12, 31);
         }
 
         private DateTime licenseExpiredDate { get { return GetLicenseExpiredDate(); } }

@@ -101,10 +101,8 @@
                 </asp:GridView>
             </div>
             <br />
-            <asp:Panel runat="server" ID="panel_User" Style="position: relative; bottom: 0; width: 100%; height: 200; background-color: gray; border: 1 solid silver;"
-                Visible="false">
-            </asp:Panel>
-            <asp:Button runat="server" ID="btn_Support" Text="support@carmen" Font-Size="Small" Visible="false" />
+            <br />
+            <asp:Button runat="server" ID="btn_Support" Text="support@carmen" Width="200" Font-Size="Medium" OnClick="btn_Support_Click"  />
             <!--Hidden Field-->
             <asp:HiddenField runat="server" ID="hf_LoginName" />
             <!-- Popup -->
