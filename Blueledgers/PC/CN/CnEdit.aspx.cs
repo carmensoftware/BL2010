@@ -1496,9 +1496,15 @@ WHERE
                 var currNetAmt = dr["CurrNetAmt"].ToString();
                 var currTaxAmt = dr["CurrTaxAmt"].ToString();
                 var currTotalAmt = dr["CurrTotalAmt"].ToString();
-                var netAmt = dr["NetAmt"].ToString();
-                var taxAmt = dr["TaxAmt"].ToString();
-                var totalAmt = dr["TotalAmt"].ToString();
+                
+                //var netAmt = dr["NetAmt"].ToString();
+                //var taxAmt = dr["TaxAmt"].ToString();
+                //var totalAmt = dr["TotalAmt"].ToString();
+                var netAmt = RoundAmt(Convert.ToDecimal(currNetAmt) * Convert.ToDecimal(currencyRate));
+                var taxAmt = RoundAmt(Convert.ToDecimal(currTaxAmt) * Convert.ToDecimal(currencyRate));
+                var totalAmt = RoundAmt(Convert.ToDecimal(currTotalAmt) * Convert.ToDecimal(currencyRate));
+                
+                
                 var comment = dr["Comment"].ToString();
                 var poNo = dr["RecNo"].ToString();
                 var poDtNo = string.IsNullOrEmpty(dr["PoDtNo"].ToString()) ? "NULL" : dr["PoDtNo"].ToString();
@@ -1588,7 +1594,7 @@ cn AS(
 	SELECT
 		LocationCode,
 		ProductCode,
-		SUM(ROUND(CnQty * UnitRate, App.DigitAmt())) as Qty
+		SUM(ROUND(CnQty * UnitRate, App.DigitQty())) as Qty
 	FROM 
 		cnrec
 	GROUP BY
