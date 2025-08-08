@@ -96,9 +96,17 @@ namespace BlueLedger.PL.IN.STK
             lbl_Status.Text = drStkOut["Status"].ToString();
             lbl_Status.ToolTip = lbl_Status.Text;
 
-            if (drStkOut["CommitDate"].ToString() != string.Empty)
+            var query = @"SELECT TOP(1) CAST(CommittedDate as DATE) as CommittedDate FROM [IN].Inventory WHERE HdrNo=@DocNo";
+            var dtCommit = stkOut.DbExecuteQuery(query,
+                new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@DocNo", lbl_Ref.Text) },
+                LoginInfo.ConnStr);
+
+            //if (drStkOut["CommitDate"].ToString() != string.Empty)
+            if (dtCommit != null & dtCommit.Rows.Count > 0)
             {
-                lbl_CommitDate.Text = String.Format("{0:dd/MM/yyyy}", drStkOut["CommitDate"]);
+                //lbl_CommitDate.Text = String.Format("{0:dd/MM/yyyy}", drStkOut["CommitDate"]);
+
+                lbl_CommitDate.Text = String.Format("{0:dd/MM/yyyy}", Convert.ToDateTime(dtCommit.Rows[0][0]));
                 lbl_CommitDate.ToolTip = lbl_CommitDate.Text;
             }
 
