@@ -25,18 +25,18 @@
             </div>
         </div>
         <%--Web Server--%>
-        <div style="display: inline-block; width: 300px; vertical-align: top; padding: 10px;">
+        <%--<div style="display: inline-block; width: 300px; vertical-align: top; padding: 10px;">
             <div style="font-size: 1.5em; font-weight: bold;">
                 <asp:LinkButton ID="btn_WebServer" runat="server" Text="Web Server (URL)" OnClick="btn_WebServer_Click" ForeColor="Black" />
             </div>
             <div>
                 Domain and sub-domain for access via web browser.
             </div>
-        </div>
+        </div>--%>
         <%--Mail Server--%>
         <div style="display: inline-block; width: 300px; vertical-align: top; padding: 10px;">
             <div style="font-size: 1.5em; font-weight: bold;">
-                <asp:LinkButton ID="btn_MailServer" runat="server" Text="Mail Server Configuration" OnClick="btn_MailServer_Click" ForeColor="Black" />
+                <asp:LinkButton ID="btn_MailServer" runat="server" Text="Web & Mail Server" OnClick="btn_MailServer_Click" ForeColor="Black" />
             </div>
             <div>
                 SMTP for Purchase Request, Purchase Order and others.
@@ -206,15 +206,47 @@
         <ContentCollection>
             <dx:PopupControlContentControl ID="PopupControlContentControl2" runat="server">
                 <div style="width: 480px;">
+                    <div style="display: inline-block; float: right; margin-top: 5px; margin-right: 40px;">
+                        <asp:Button ID="btn_EditSMTP" runat="server" Text="Edit" OnClick="btn_EditSMTP_Click" />
+                    </div>
                     <div class="container">
+                        <h3>
+                            <b>Web Server</b>
+                        </h3>
+                        <br />
+                        <asp:Panel ID="Panel_WebServer" runat="server">
+                            <table>
+                                <tr>
+                                    <td width="120">
+                                        <asp:Label ID="Label15" runat="server" Text="Domain/IP" />
+                                    </td>
+                                    <td>
+                                        <asp:TextBox ID="txt_Domain" runat="server" Width="300" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <asp:Label ID="Label16" runat="server" Text="Sub-Domain" />
+                                    </td>
+                                    <td>
+                                        <asp:TextBox ID="txt_SubDomain" runat="server"  Width="300"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        URL:
+                                    </td>
+                                    <td>
+                                        <asp:Label ID="lbl_URL" runat="server" />
+                                    </td>
+                                </tr>
+                            </table>
+                        </asp:Panel>
                         <div>
                             <div style="display: inline-block;">
                                 <h3>
                                     <b>Mail Server</b>
                                 </h3>
-                            </div>
-                            <div style="display: inline-block; float: right; margin-top: 5px; margin-right: 40px;">
-                                <asp:Button ID="btn_EditSMTP" runat="server" Text="Edit" OnClick="btn_EditSMTP_Click" />
                             </div>
                         </div>
                         <table>
@@ -577,7 +609,7 @@
         ShowCloseButton="True" CloseAction="CloseButton">
         <ContentCollection>
             <dx:PopupControlContentControl ID="PopupControlContentControl5" runat="server">
-                <div style="width: 480px;">
+                <%--<div style="width: 480px;">
                     <div class="container">
                         <div>
                             <div style="display: inline-block;">
@@ -624,7 +656,7 @@
                             <asp:Button ID="btn_WebServerCancel" runat="server" Text="Cancel" OnClick="btn_WebServerCancel_Click" />
                         </div>
                     </div>
-                </div>
+                </div>--%>
             </dx:PopupControlContentControl>
         </ContentCollection>
     </dx:ASPxPopupControl>
@@ -706,7 +738,6 @@
                         </table>
                         <hr />
                         <br />
-
                         <div>
                             <dx:ASPxCheckBox ID="chk_EnableEditCommit" runat="server" Text="Enable edit the commit document" />
                         </div>

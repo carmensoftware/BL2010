@@ -67,6 +67,9 @@ namespace BlueLedger.PL.Option.Admin
         protected void btn_MailServer_Click(object sender, EventArgs e)
         {
             SetMode_Mail(false);
+
+            GetConfig_WebServer();
+
             GetConfig_Mail();
 
             pop_MailServer.ShowOnPageLoad = true;
@@ -90,10 +93,10 @@ namespace BlueLedger.PL.Option.Admin
 
         protected void btn_WebServer_Click(object sender, EventArgs e)
         {
-            SetMode_WebServer(false);
-            GetConfig_WebServer();
+            //SetMode_WebServer(false);
+            //GetConfig_WebServer();
 
-            pop_WebServer.ShowOnPageLoad = true;
+            //pop_WebServer.ShowOnPageLoad = true;
         }
 
         protected void btn_System_Click(object sendere, EventArgs e)
@@ -247,6 +250,8 @@ namespace BlueLedger.PL.Option.Admin
 
         private void SetMode_Mail(bool isEdit)
         {
+            Panel_WebServer.Enabled = isEdit;
+
             btn_EditSMTP.Visible = !isEdit;
             btn_SaveSMTP.Visible = isEdit;
             btn_CancelSMTP.Visible = isEdit;
@@ -266,6 +271,7 @@ namespace BlueLedger.PL.Option.Admin
             txt_PoMessageBody.ReadOnly = !isEdit;
             txt_PoCc.ReadOnly = !isEdit;
             chk_PoCcHod.Enabled = isEdit;
+
         }
 
         private void GetConfig_Mail()
@@ -426,8 +432,50 @@ namespace BlueLedger.PL.Option.Admin
 
             config.Save(dsPO, LoginInfo.ConnStr);
 
+
+            // WebServer
+            SaveWebServer();
+
             SetMode_Mail(false);
             GetConfig_Mail();
+
+        }
+
+        private void SaveWebServer()
+        {
+            string sql = "";
+
+            // WebServer (Domain)
+            sql = @"IF NOT EXISTS (SELECT * FROM APP.Config WHERE [Module]='APP' AND [SubModule]='IM' AND [Key]='WebServer')
+                    BEGIN
+                        INSERT INTO APP.Config ([Module],[SubModule],[Key], [Value], [UpdatedDate], [UpdatedBy])
+                        VALUES ('APP','IM', 'WebServer', '{0}', GETDATE(), N'{1}')
+                    END
+                    ELSE
+                    BEGIN
+                        UPDATE APP.Config SET Value = '{0}', UpdatedBy= N'{1}' WHERE [Module]='APP' AND [SubModule]='IM' AND [Key]='WebServer'
+                    END";
+            var webServer = txt_Domain.Text.Trim().TrimEnd('/');
+
+            bu.DbExecuteQuery(string.Format(sql, webServer, LoginInfo.LoginName), null, LoginInfo.ConnStr);
+
+            // WebName (SubDomain)
+            sql = @"IF NOT EXISTS (SELECT * FROM APP.Config WHERE [Module]='APP' AND [SubModule]='IM' AND [Key]='WebName')
+                    BEGIN
+                        INSERT INTO APP.Config ([Module],[SubModule],[Key], [Value], [UpdatedDate], [UpdatedBy])
+                        VALUES ('APP','IM', 'WebName', '{0}', GETDATE(), N'{1}')
+                    END
+                    ELSE
+                    BEGIN
+                        UPDATE APP.Config SET Value = '{0}', UpdatedBy= N'{1}' WHERE [Module]='APP' AND [SubModule]='IM' AND [Key]='WebName'
+                    END";
+
+            var subDomain = txt_SubDomain.Text.Trim().TrimStart('/').TrimEnd('/');
+
+            bu.DbExecuteQuery(string.Format(sql, subDomain, LoginInfo.LoginName), null, LoginInfo.ConnStr);
+
+            //SetMode_WebServer(false);
+            GetConfig_WebServer();
         }
 
         protected void btn_CancelSMTP_Click(object sender, EventArgs e)
@@ -695,11 +743,11 @@ namespace BlueLedger.PL.Option.Admin
 
         protected void btn_InterfaceSave_Click(object sender, EventArgs e)
         {
-            string host = txt_InterfaceServer.Text;
+            string host = txt_InterfaceServer.Text.Trim().TrimEnd('/') + "/";
             string auth = txt_InterfaceToken.Text;
-            string accountcode = txt_InterfaceAccCode.Text;
-            string department = txt_InterfaceDepCode.Text;
-            string vendor = txt_InterfaceVendor.Text;
+            string accountcode = txt_InterfaceAccCode.Text.Trim().TrimEnd('/');
+            string department = txt_InterfaceDepCode.Text.Trim().TrimEnd('/');
+            string vendor = txt_InterfaceVendor.Text.Trim().TrimEnd('/');
 
             string intf = string.Format("type=API; host={0}; auth={1}; accountcode={2}; department={3}; vendor={4};", host, auth, accountcode, department, vendor);
 
@@ -715,6 +763,7 @@ namespace BlueLedger.PL.Option.Admin
 
 
             SetMode_Interface(false);
+            GetConfig_Interface();
         }
 
         protected void btn_InterfaceCancel_Click(object sender, EventArgs e)
@@ -823,14 +872,14 @@ namespace BlueLedger.PL.Option.Admin
         // ---------------------------------------------------------------------
         #region Web Server
 
-        private void SetMode_WebServer(bool isEdit)
-        {
-            btn_WebServerEdit.Visible = !isEdit;
-            btn_WebServerSave.Visible = isEdit;
-            btn_WebServerCancel.Visible = isEdit;
+        //private void SetMode_WebServer(bool isEdit)
+        //{
+        //    btn_WebServerEdit.Visible = !isEdit;
+        //    btn_WebServerSave.Visible = isEdit;
+        //    btn_WebServerCancel.Visible = isEdit;
 
-            Panel_WebServer.Enabled = isEdit;
-        }
+        //    Panel_WebServer.Enabled = isEdit;
+        //}
 
         private void GetConfig_WebServer()
         {
@@ -845,7 +894,7 @@ namespace BlueLedger.PL.Option.Admin
 
         protected void btn_WebServerEdit_Click(object sender, EventArgs e)
         {
-            SetMode_WebServer(true);
+            //SetMode_WebServer(true);
         }
 
         protected void btn_WebServerSave_Click(object sender, EventArgs e)
@@ -878,14 +927,14 @@ namespace BlueLedger.PL.Option.Admin
 
             bu.DbExecuteQuery(string.Format(sql, txt_SubDomain.Text, LoginInfo.LoginName), null, LoginInfo.ConnStr);
 
-            SetMode_WebServer(false);
+            //SetMode_WebServer(false);
             GetConfig_WebServer();
         }
 
         protected void btn_WebServerCancel_Click(object sender, EventArgs e)
         {
             GetConfig_WebServer();
-            SetMode_WebServer(false);
+            //SetMode_WebServer(false);
         }
 
         #endregion
