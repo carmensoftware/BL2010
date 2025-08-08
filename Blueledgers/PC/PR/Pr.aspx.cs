@@ -1300,7 +1300,7 @@ namespace BlueLedger.PL.PC.PR
                     sql += " ApprStatus, DocStatus, IsVoid, CreatedDate, CreatedBy, UpdatedDate, UpdatedBy,";
                     sql += " AddField1, AddField2, AddField3, AddField4, AddField5, AddField6, AddField7, AddField8, AddField9, AddField10)";
 
-                    sql += string.Format(" SELECT '{0}', PrDate, Location, PrType, DeliPoint, '{1}', Discount, Buyer, HOD, HODRE, GrpBuyer,", newPrNo, newDesc);
+                    sql += string.Format(" SELECT '{0}', PrDate, Location, PrType, DeliPoint, N'{1}', Discount, Buyer, HOD, HODRE, GrpBuyer,", newPrNo, newDesc);
                     sql += " ApprStatus, DocStatus, IsVoid, CreatedDate, CreatedBy, UpdatedDate, UpdatedBy,";
                     sql += string.Format(" AddField1, AddField2, AddField3, AddField4, AddField5, AddField6, AddField7, AddField8, AddField9, '{0}'", lbl_PRNo.Text);
                     sql += " FROM PC.Pr";
@@ -1347,7 +1347,7 @@ namespace BlueLedger.PL.PC.PR
                     newDesc = string.Format(" Splitted from {0}", lbl_PRNo.Text);
                     // Insert into App.WfHis
                     sql = "INSERT INTO APP.WFHis (Module, SubModule, RefNo, RefNoDt, Step, Process, ProcessBack, ProcessBy, ProcessDate, Comment)";
-                    sql += string.Format(" SELECT Module, SubModule, '{0}', RefNoDt, Step, Process, ProcessBack, ProcessBy, ProcessDate, '{1}'", newPrNo, newDesc);
+                    sql += string.Format(" SELECT Module, SubModule, '{0}', RefNoDt, Step, Process, ProcessBack, ProcessBy, ProcessDate, N'{1}'", newPrNo, newDesc);
                     sql += " FROM APP.WFHis";
                     sql += string.Format(" WHERE Module='PC' AND SubModule='PR' AND RefNo = '{0}' AND Step < {1}", oldPrNo, wfStep.ToString());
                     sql += string.Format(" AND RefNoDt IN ({0})", string.Join(",", prDtNoList));
