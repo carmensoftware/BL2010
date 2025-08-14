@@ -397,7 +397,7 @@ SELECT SentEmail FROM APP.WFDt WHERE WFId=1 AND Step=@WfStep";
 
             foreach (string login in logins)
             {
-                string strCmd = "SELECT [Email] FROM [ADMIN].[vUser]";
+                string strCmd = "SELECT [Email] FROM [ADMIN].[vUser] WHERE IsActived=1";
                 strCmd += string.Format(" WHERE [LoginName] = '{0}'", login);
 
                 DataTable dt = new DataTable();
@@ -434,7 +434,7 @@ SELECT SentEmail FROM APP.WFDt WHERE WFId=1 AND Step=@WfStep";
         // Should alert the relevant.
         string cmdStr = "SELECT DISTINCT h.ProcessBy, u.Email";
         cmdStr += " FROM [APP].[WFHis] AS h";
-        cmdStr += " LEFT JOIN [ADMIN].[vUser] AS u ON h.ProcessBy COLLATE Latin1_General_CI_AS = u.LoginName COLLATE Latin1_General_CI_AS";
+        cmdStr += " LEFT JOIN [ADMIN].[vUser] AS u ON h.ProcessBy COLLATE Latin1_General_CI_AS = u.LoginName COLLATE Latin1_General_CI_AS AND u.IsActived=1";
         cmdStr += string.Format(" WHERE RefNo = '{0}'", prNo);
 
         DataTable dt = new DataTable();
@@ -464,8 +464,8 @@ SELECT SentEmail FROM APP.WFDt WHERE WFId=1 AND Step=@WfStep";
         //string prNo = Request.Params["ID"];
 
         #region
-        string sql = string.Format(
-@"DECLARE @list TABLE ( [LoginName] NVARCHAR(100), [Email] NVARCHAR(MAX) )
+        string sql = string.Format(@"
+DECLARE @list TABLE ( [LoginName] NVARCHAR(100), [Email] NVARCHAR(MAX) )
 DECLARE @approvals NVARCHAR(MAX) = ( SELECT [Approvals] + ',' FROM [APP].[WFDt]  WHERE [WFId] = @wfId AND [Step] = @wfStep )
                
 IF ISNULL((SELECT IsHOD FROM [APP].[WFDt] WHERE [WFId] = @wfId AND [Step] = @wfStep), 0) = 1
@@ -486,7 +486,7 @@ BEGIN
 		    INSERT INTO @list ( [LoginName], Email )
 		    SELECT vU.[LoginName], vU.[Email]
 		    FROM [ADMIN].[vUser] AS vU 
-		    LEFT JOIN @list AS l ON l.LoginName COLLATE Latin1_General_CI_AS = vU.[LoginName] COLLATE Latin1_General_CI_AS
+		    LEFT JOIN @list AS l ON l.LoginName COLLATE Latin1_General_CI_AS = vU.[LoginName] COLLATE Latin1_General_CI_AS AND vU.IsActived=1
 		    WHERE vU.[LoginName] = REPLACE(@subAppr, '#', '') AND l.LoginName IS NULL 
 	    END
 	    ELSE
@@ -495,7 +495,7 @@ BEGIN
 		    SELECT ur.[LoginName], vU.[Email]
 		    FROM [ADMIN].[UserRole] AS ur
 		    LEFT JOIN @list AS l ON l.[LoginName] COLLATE Latin1_General_CI_AS = ur.[LoginName] COLLATE Latin1_General_CI_AS
-            JOIN [ADMIN].[vUser] AS vU ON vU.[LoginName] COLLATE Latin1_General_CI_AS= ur.[LoginName] COLLATE Latin1_General_CI_AS
+            JOIN [ADMIN].[vUser] AS vU ON vU.[LoginName] COLLATE Latin1_General_CI_AS= ur.[LoginName] COLLATE Latin1_General_CI_AS AND vU.IsActived=1
 		    WHERE ur.[RoleName] = @subAppr AND ur.[IsActive] = 1 AND l.LoginName IS NULL
 	    END
 	
@@ -603,7 +603,7 @@ SELECT * FROM @list");
         userList.AddRange(users);
 
         var userExpression = "'" + string.Join("','", userList) + "'";
-        var sql = string.Format("SELECT DISTINCT Email FROM [ADMIN].vUser WHERE LoginName IN ({0})", userExpression);
+        var sql = string.Format("SELECT DISTINCT Email FROM [ADMIN].vUser WHERE IsActived=1 AND LoginName IN ({0})", userExpression);
         var dtEmail = DbExecuteQuery(sql, null, connectionString);
 
         var emails = new List<string>();
