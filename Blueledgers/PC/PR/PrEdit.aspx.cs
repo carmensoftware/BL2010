@@ -9,6 +9,7 @@ using DevExpress.Web.ASPxEditors;
 using System.Data.SqlClient;
 using Blue.BL;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace BlueLedger.PL.PC.PR
 {
@@ -689,7 +690,6 @@ namespace BlueLedger.PL.PC.PR
                         }
 
                         drPrDt["PrNo"] = drPr["PrNo"].ToString();
-                        //ddl_JobCode.Value = ddl_JobCode.SelectedIndex > -1? ddl_JobCode.Value.ToString().Split(':')[0]: string.Empty;
                         drPrDt["AddField1"] = ddl_JobCode.SelectedIndex > -1 ? ddl_JobCode.Value.ToString().Split(':')[0] : string.Empty;
 
                         if (DBNull.Value.Equals(drPrDt["ApprStatus"]))
@@ -703,7 +703,7 @@ namespace BlueLedger.PL.PC.PR
                 drPr["UpdatedBy"] = LoginInfo.LoginName;
 
 
-
+                // Job Code
                 drPr["AddField1"] = ddl_JobCode.SelectedIndex > -1 ? ddl_JobCode.Value.ToString() : string.Empty;
 
                 // Remove PR Detail where ReqQty = 0
@@ -745,7 +745,7 @@ namespace BlueLedger.PL.PC.PR
                 if (save)
                 {
                     string refNo = drPr["PrNo"].ToString();
-                    
+
                     if (action.ToUpper() == "COMMIT")
                     {
                         // Update WorkFlowStatus
@@ -768,7 +768,7 @@ namespace BlueLedger.PL.PC.PR
                         }
                     }
 
-                    
+
                     _transLog.Save("PC", "PR", refNo, _action, string.Empty, LoginInfo.LoginName, hf_ConnStr.Value);
 
 
@@ -1095,72 +1095,13 @@ namespace BlueLedger.PL.PC.PR
 
         protected void ddl_ProductCode_OnItemRequestedByValue_SQL(object source, ListEditItemRequestedByValueEventArgs e)
         {
-            //            if (e.Value == null || e.Value.ToString() == string.Empty)
-            //                return;
-
-            //            var ddl_BuCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_BuCode") as ASPxComboBox;
-            //            var ddl_LocationCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_LocationCode") as ASPxComboBox;
-
-            //            if (ddl_BuCode.Value == null || ddl_LocationCode.Value == null)
-            //                return;
-
-            //            string buCode = ddl_BuCode.Value.ToString();
-            //            string locationCode = ddl_LocationCode.Value.ToString();
-
-            //            SqlDataSource1.ConnectionString = bu.GetConnectionString(buCode);
-
-            //            if (LoginInfo.BuInfo.IsHQ && buCode != LoginInfo.BuInfo.HQBuCode)
-            //            {
-
-            //                DataTable dt = bu.GetHQConnectionString(LoginInfo.BuInfo.BuGrpCode);
-            //                string hqDBName = dt.Rows[0]["DatabaseName"].ToString();
-
-            //                SqlDataSource1.SelectCommand =
-            //                    //                    @"SELECT p.ProductCode, p.ProductDesc1, p.ProductDesc2,row_number()over(order by p.[ProductCode]) as [rn] 
-            //                    //                    	FROM [IN].Product p 
-            //                    //                    	WHERE p.productcode IN (SELECT ProductCodeHQ FROM [IN].[ProdLocHQ] WHERE LocationCode = @LocationCode)
-            //                    //                    	AND p.IsActive ='True'";
-
-            //                string.Format(@"SELECT hq.ProductCode, hq.ProductDesc1, hq.ProductDesc2, row_number()over(order by hq.ProductCode) as [rn] 
-            //                                	FROM [IN].Product p
-            //                                    JOIN  {0}.[IN].Product hq ON hq.ProductCode = p.AddField10
-            //                                    JOIN [IN].ProdLoc l ON l.ProductCode = p.ProductCode AND LocationCode = @LocationCode'
-            //                                	WHERE p.IsActive ='True'", hqDBName);
-            //            }
-            //            else
-            //            {
-            //                SqlDataSource1.SelectCommand =
-
-            //                // Modified on: 20/02/2018. By: Fon, Note: Still waiting about 1 product with 2 types.
-            //                    //  @"SELECT p.ProductCode, p.ProductDesc1, p.ProductDesc2,row_number()over(order by p.[ProductCode]) as [rn] 
-            //                    //	FROM [IN].Product p 
-            //                    //	WHERE p.productcode IN (SELECT ProductCode FROM [IN].[ProdLoc] WHERE LocationCode = @LocationCode)
-            //                    //	AND p.IsActive ='True' AND ( p.ProductCode + ' ' + p.ProductDesc1 + ' ' + p.ProductDesc2 LIKE @filter )";
-            //                @"SELECT p.ProductCode, p.ProductDesc1, p.ProductDesc2,row_number()over(order by p.[ProductCode]) as [rn] 
-            //                                	FROM [IN].Product p 
-            //                                	WHERE p.productcode IN (SELECT ProductCode FROM [IN].[ProdLoc] WHERE LocationCode = @LocationCode)
-            //                                	AND p.IsActive ='True'";
-            //            }
-            //            SqlDataSource1.SelectParameters.Clear();
-            //            SqlDataSource1.SelectParameters.Add("filter", TypeCode.String, string.Format("%{0}%", e.Value));
-            //            SqlDataSource1.SelectParameters.Add("LocationCode", TypeCode.String, locationCode);
-
-            //            try
-            //            {
-            //                var comboBox = (ASPxComboBox)source;
-            //                comboBox.DataSource = SqlDataSource1;
-            //                comboBox.DataBind();
-            //                comboBox.ToolTip = comboBox.Text;
-            //            }
-            //            catch (Exception ex)
-            //            {
-            //                LogManager.Error(ex);
-            //            }
         }
 
-        protected void ddl_ProductCode_OnItemsRequestedByFilterCondition_SQL(object source,
-            ListEditItemsRequestedByFilterConditionEventArgs e)
+        protected void ddl_ProductCode_OnItemsRequestedByFilterCondition_SQL(object source, ListEditItemsRequestedByFilterConditionEventArgs e)
         {
+            var comboBox = (ASPxComboBox)source;
+
+
             var ddl_BuCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_BuCode") as ASPxComboBox;
             var ddl_LocationCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_LocationCode") as ASPxComboBox;
             var prType = ddl_PrType.SelectedItem.Value.ToString();
@@ -1217,7 +1158,6 @@ namespace BlueLedger.PL.PC.PR
             SqlDataSource1.SelectParameters.Add("startIndex", TypeCode.Int64, (e.BeginIndex + 1).ToString());
             SqlDataSource1.SelectParameters.Add("endIndex", TypeCode.Int64, (e.EndIndex + 1).ToString());
 
-            var comboBox = (ASPxComboBox)source;
             comboBox.DataSource = SqlDataSource1;
             comboBox.DataBind();
             comboBox.ToolTip = comboBox.Text;
@@ -1234,35 +1174,45 @@ namespace BlueLedger.PL.PC.PR
             var hf_ProductCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("hf_ProductCode") as HiddenField;
             var ddl_Unit = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_Unit") as ASPxComboBox;
 
+            var productCode = ddl_ProductCode.Text.Split(':')[0].Trim();
+
             if (ddl_Unit != null)
             {
                 ddl_Unit.DataSource = prodUnit.GetLookUp_OrderUnitByProductCode(ddl_ProductCode.ClientValue, bu.GetConnectionString(ddl_BuCode.Value.ToString()));
                 ddl_Unit.DataBind();
             }
 
-            //if (ddl_ProductCode.Value.ToString() != hf_ProductCode.Value)
-            //{
-            //    txt_DescEn.Text = product.GetName(ddl_ProductCode.ClientValue, bu.GetConnectionString(ddl_BuCode.Value.ToString()));
-
-            //    txt_DescLL.Text = product.GetName2(ddl_ProductCode.ClientValue, bu.GetConnectionString(ddl_BuCode.Value.ToString()));
-
-            //    ddl_Unit.Value = prodUnit.GetDefaultOrderUnit(ddl_ProductCode.ClientValue, bu.GetConnectionString(ddl_BuCode.Value.ToString()));
-            //}
-
-            if (ddl_ProductCode.Text.Split(':')[0].Trim() != hf_ProductCode.Value)
+            if (productCode != hf_ProductCode.Value)
             {
                 txt_DescEn.Text = product.GetName(ddl_ProductCode.Text.Split(':')[0].Trim(), bu.GetConnectionString(ddl_BuCode.Value.ToString()));
-
                 txt_DescLL.Text = product.GetName2(ddl_ProductCode.Text.Split(':')[0].Trim(), bu.GetConnectionString(ddl_BuCode.Value.ToString()));
-
                 ddl_Unit.Value = prodUnit.GetDefaultOrderUnit(ddl_ProductCode.Text.Split(':')[0].Trim(), bu.GetConnectionString(ddl_BuCode.Value.ToString()));
             }
 
+            hf_ProductCode.Value = productCode;
+            //hf_ProductCode.Value = ddl_ProductCode.Text.Split(':')[0].Trim();
 
-            //hf_ProductCode.Value = ddl_ProductCode.ClientValue;
-            hf_ProductCode.Value = ddl_ProductCode.Text.Split(':')[0].Trim();
+            // Get Product Information
+            var items = txt_PrDate.Text.Split('/');
+            var yyyy = Convert.ToInt32(items[2]);
+            var mm = Convert.ToInt32(items[1]);
+            var dd = Convert.ToInt32(items[0]);
+            var prDate = new DateTime(yyyy, mm, dd);
 
+            //var prDate = Convert.ToDateTime(txt_PrDate.Text, CultureInfo.InvariantCulture);
+            var unitCode = ddl_Unit.Text.Trim();
+
+            var info = GetProductInfo(productCode, unitCode, prDate);
+
+            var row = grd_PrDt1.Rows[grd_PrDt1.EditIndex];
+
+            var lbl_LastPrice = row.FindControl("lbl_LastPrice") as Label;
+            var lbl_LastVendor = row.FindControl("lbl_LastVendor") as Label;
+
+            lbl_LastPrice.Text = FormatAmt(info.LastPrice);
+            lbl_LastVendor.Text = info.LastVendorCode + " : " + info.LastVendorName;
         }
+
 
         protected void ddl_BuCode_av_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -3888,11 +3838,34 @@ namespace BlueLedger.PL.PC.PR
                         lbl_Restock.ToolTip = lbl_Restock.Text;
 
                         var lbl_LastPrice = e.Row.FindControl("lbl_LastPrice") as Label;
-                        lbl_LastPrice.Text = string.Format(DefaultAmtFmt, drStockSummary["LastPrice"].ToString());
-                        lbl_LastPrice.ToolTip = lbl_LastPrice.Text;
-
                         var lbl_LastVendor = e.Row.FindControl("lbl_LastVendor") as Label;
+
+                        //var lbl_LastPrice = e.Row.FindControl("lbl_LastPrice") as Label;
+                        //lbl_LastPrice.Text = string.Format(DefaultAmtFmt, drStockSummary["LastPrice"].ToString());
+                        //lbl_LastPrice.ToolTip = lbl_LastPrice.Text;
+
+                        //var lbl_LastVendor = e.Row.FindControl("lbl_LastVendor") as Label;
                         lbl_LastVendor.Text = drStockSummary["LastVendor"].ToString();
+                        //lbl_LastVendor.ToolTip = lbl_LastVendor.Text;
+
+                        var lastPrice = DataBinder.Eval(e.Row.DataItem, "LastPrice").ToString();
+                        var lastVendor = DataBinder.Eval(e.Row.DataItem, "VendorProdCode").ToString();
+
+                        if (string.IsNullOrEmpty(lastPrice))
+                            lbl_LastPrice.Text = string.Format(DefaultAmtFmt, drStockSummary["LastPrice"].ToString());
+                        else
+                            lbl_LastPrice.Text = FormatAmt(Convert.ToDecimal(lastPrice));
+
+                        //if (string.IsNullOrEmpty(lastVendor))
+                        //    lbl_LastVendor.Text = drStockSummary["LastVendor"].ToString();
+                        //else
+                        //{
+                        //    var dt = prDt.DbExecuteQuery(string.Format("SELECT CONCAT(VendorCode,' : ', [Name]) as Vendor FROM AP.Vendor WHERE VendorCode=N'{0}'", lastVendor), null, hf_ConnStr.Value);
+
+                        //    lbl_LastVendor.Text = dt.Rows.Count == 0 ? "" : dt.Rows[0][0].ToString();
+                        //}
+
+                        lbl_LastPrice.ToolTip = lbl_LastPrice.Text;
                         lbl_LastVendor.ToolTip = lbl_LastVendor.Text;
                     }
                 }
@@ -4062,19 +4035,24 @@ namespace BlueLedger.PL.PC.PR
         {
             bool isCreateStep = wfDt.GetAllowCreate(wfId, wfStep, hf_ConnStr.Value);
 
-
             var drUpdating = dsPR.Tables[prDt.TableName].Rows[grd_PrDt1.Rows[grd_PrDt1.EditIndex].DataItemIndex];
+
 
             var ddl_Vendor_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_Vendor_av") as ASPxComboBox;
             var ddl_BuCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_BuCode") as ASPxComboBox;
             var ddl_BuCode_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_BuCode_av") as ASPxComboBox;
             var ddl_LocationCode_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_LocationCode_av") as ASPxComboBox;
             var ddl_ProductCode_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_ProductCode_av") as ASPxComboBox;
+
+            var row = grd_PrDt1.Rows[grd_PrDt1.EditIndex];
+
+            var lbl_LastPrice = row.FindControl("lbl_LastPrice") as Label;
+            var lbl_LastVendor = row.FindControl("lbl_LastVendor") as Label;
+
+
             DataRow drWFDt = dsWF.Tables["APPwfdt"].Rows[0];
 
-            // Added on: 10/11/2017, By: Fon
             string locationCode = string.Empty;
-            // End Added.
 
             var isAllocateVendor = Convert.ToBoolean(drWFDt["IsAllocateVendor"]);
 
@@ -4285,14 +4263,11 @@ namespace BlueLedger.PL.PC.PR
                 drUpdating["ProductCode"] = ddl_ProductCode.Value.ToString().Split(' ')[0].Trim();
 
                 var ddl_LocationCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_LocationCode") as ASPxComboBox;
+
                 drUpdating["LocationCode"] = ddl_LocationCode.Value.ToString();
                 locationCode = ddl_LocationCode.Value.ToString();
 
-                //var txt_DescEn = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_DescEn") as TextBox;
-                //drUpdating["Descen"] = txt_DescEn.Text;
 
-                //var txt_DescLL = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_DescLL") as TextBox;
-                //drUpdating["Descll"] = txt_DescLL.Text;
                 drUpdating["Descen"] = product.GetName(ddl_ProductCode.Text.Split(':')[0].Trim(), bu.GetConnectionString(ddl_BuCode.Value.ToString()));
                 drUpdating["Descll"] = product.GetName2(ddl_ProductCode.Text.Split(':')[0].Trim(), bu.GetConnectionString(ddl_BuCode.Value.ToString()));
 
@@ -4411,6 +4386,11 @@ namespace BlueLedger.PL.PC.PR
                 drUpdating["DiscAmt"] = RoundAmt(Convert.ToDecimal(drUpdating["CurrDiscAmt"]) * currRate);
                 drUpdating["TaxAmt"] = RoundAmt(Convert.ToDecimal(drUpdating["CurrTaxAmt"]) * currRate);
                 drUpdating["TotalAmt"] = RoundAmt(Convert.ToDecimal(drUpdating["CurrTotalAmt"]) * currRate);
+
+                // Last Price
+                drUpdating["LastPrice"] = string.IsNullOrEmpty(lbl_LastPrice.Text) ? 0 : Convert.ToDecimal(lbl_LastPrice.Text);
+                // Last Vendor
+                drUpdating["VendorProdCode"] = string.IsNullOrEmpty(lbl_LastVendor.Text) ? "" : lbl_LastVendor.Text.Split(':').Select(x => x.Trim()).First();
 
                 // End Modified
                 #endregion
@@ -4952,6 +4932,35 @@ namespace BlueLedger.PL.PC.PR
                     bu.GetConnectionString(buCode));
                 ddl_Unit.DataBind();
             }
+        }
+
+        protected void ddl_Unit_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var ddl = sender as ASPxComboBox;
+
+            var row = ddl.NamingContainer;
+
+            var ddl_ProductCode = row.FindControl("ddl_ProductCode") as ASPxComboBox;
+            var lbl_LastPrice = row.FindControl("lbl_LastPrice") as Label;
+            var lbl_LastVendor = row.FindControl("lbl_LastVendor") as Label;
+
+
+
+
+            // Get Product Information
+            var items = txt_PrDate.Text.Split('/');
+            var yyyy = Convert.ToInt32(items[2]);
+            var mm = Convert.ToInt32(items[1]);
+            var dd = Convert.ToInt32(items[0]);
+            var prDate = new DateTime(yyyy, mm, dd);
+
+            var productCode = ddl_ProductCode.Text.Split(' ').Select(x => x.Trim()).FirstOrDefault();
+            var unitCode = ddl.Text.Trim();
+
+            var info = GetProductInfo(productCode, unitCode, prDate);
+
+            lbl_LastPrice.Text = FormatAmt(info.LastPrice);
+            lbl_LastVendor.Text = info.LastVendorCode + " : " + info.LastVendorName;
         }
 
         protected void ddl_Unit_av_Load(object sender, EventArgs e)
@@ -6307,6 +6316,93 @@ WHERE
         {
             Response.Redirect("~/PC/PR/PrList.aspx");
         }
+
+        protected string FormatQty(object value)
+        {
+            var number = string.IsNullOrEmpty(value.ToString()) ? 0m : Convert.ToDecimal(value);
+
+            return number.ToString(string.Format("N{0}", DefaultQtyDigit));
+        }
+
+        protected string FormatAmt(object value)
+        {
+            var number = string.IsNullOrEmpty(value.ToString()) ? 0m : Convert.ToDecimal(value);
+
+            return number.ToString(string.Format("N{0}", DefaultAmtDigit));
+        }
+
+        private ProductInfo GetProductInfo(string productCode, string unitCode, DateTime date)
+        {
+            var info = new ProductInfo();
+
+            info.ProductCode = productCode;
+            info.UnitCode = unitCode;
+
+            if (string.IsNullOrEmpty(productCode) || string.IsNullOrEmpty(unitCode))
+                return info;
+
+
+            var query = @"
+SELECT 
+	TOP(1)
+	RecDate,
+	rec.RecNo,
+	rec.VendorCode,
+	v.[Name] as VendorName,
+	Price
+FROM 
+	PC.REC
+	JOIN PC.RECDt ON rec.RecNo=recdt.RecNo
+	LEFT JOIN AP.Vendor v ON v.VendorCode=rec.VendorCode
+WHERE
+	rec.DocStatus = 'Committed'
+	AND RecDate <= @Date
+	AND ProductCode = @ProductCode
+	AND RcvUnit =@UnitCode
+ORDER BY
+	RecDate DESC,
+	RecNo DESC
+";
+            var parameters = new Blue.DAL.DbParameter[]
+            {
+                new Blue.DAL.DbParameter("@Date", date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
+                new Blue.DAL.DbParameter("@ProductCode", productCode),
+                new Blue.DAL.DbParameter("@UnitCode", unitCode)
+            };
+            var dt = prDt.DbExecuteQuery(query, parameters, hf_ConnStr.Value);
+
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                var dr = dt.Rows[0];
+
+                info.LastRecDate = Convert.ToDateTime(dr["RecDate"]);
+                info.LastRecNo = dr["RecNo"].ToString();
+                info.LastVendorCode = dr["VendorCode"].ToString();
+                info.LastVendorName = dr["VendorName"].ToString();
+                info.LastPrice = Convert.ToDecimal(dr["Price"]);
+            }
+
+
+            return info;
+        }
+
+        public class ProductInfo
+        {
+            public ProductInfo()
+            {
+                LastPrice = 0;
+            }
+
+            public string ProductCode { get; set; }
+            public string UnitCode { get; set; }
+            public DateTime LastRecDate { get; set; }
+            public string LastRecNo { get; set; }
+            public string LastVendorCode { get; set; }
+            public string LastVendorName { get; set; }
+            public decimal LastPrice { get; set; }
+        }
+
+
 
     }
 }

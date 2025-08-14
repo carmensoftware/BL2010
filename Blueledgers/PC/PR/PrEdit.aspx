@@ -388,53 +388,6 @@
                                     </div>
                                 </asp:Panel>
                                 <asp:Panel ID="p_AllocateVendor" runat="server">
-                                    <%--<div style="width: 100%;">
-                                        <div class="<%= HiddenClassName %>" style="display: inline-block; padding-right: 5px; height: 28px;">
-                                            <asp:Label ID="lbl_BU_HD_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_BU_HD_av %>" Width="80px"></asp:Label>
-                                        </div>
-                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
-                                            <asp:Label ID="lbl_Vendor_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_Vendor_HDG_av %>" Width="220px"></asp:Label>
-                                        </div>
-                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
-                                            <asp:Label ID="lbl_Store_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_Store_HDG_av %>" Width="200px"></asp:Label>
-                                        </div>
-                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
-                                            <asp:Label ID="lbl_SKU_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_SKU_HDG_av %>" Width="100px"></asp:Label>
-                                        </div>
-                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
-                                            <asp:Label ID="lbl_DescEn_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_DescEn_HDG_av %>" Width="160px"></asp:Label>
-                                        </div>
-                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
-                                            <asp:Label ID="lbl_Descll_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_Descll_HDG_av %>" Width="160px"></asp:Label>
-                                        </div>
-                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
-                                            <asp:Label ID="lbl_Unit_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_Unit_HDG_av %>" Width="80px"></asp:Label>
-                                        </div>
-                                        <div style="display: inline-block; padding-right: 5px; height: 28px; text-align: right;">
-                                            <asp:Label ID="lbl_ReqQty_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_QtyReq_HDG_av %>" Width="80px"></asp:Label>
-                                        </div>
-                                        <div style="display: inline-block; padding-right: 5px; height: 28px; text-align: right;">
-                                            <asp:Label ID="lbl_ApprQty_HDG_av" runat="server" Text="Qty Appr." Width="80px"></asp:Label>
-                                        </div>
-                                        <div style="display: inline-block; padding-right: 5px; height: 28px; text-align: right;">
-                                            <asp:Label ID="lbl_FOC_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_FOC_HDG_av %>" Width="80px"></asp:Label>
-                                        </div>
-                                        <div style="display: inline-block; padding-right: 5px; text-align: right;">
-                                            <asp:Label ID="lbl_Price_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_Price_HDG_av %>" Width="100px"></asp:Label>
-                                        </div>
-                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
-                                            <asp:Label ID="lbl_CurrCode_HDG_av" runat="server" Text="Currency" Width="80px"></asp:Label>
-                                        </div>
-                                        <div style="display: inline-block; padding-right: 5px; height: 28px; text-align: right;">
-                                            <asp:Label ID="lbl_CurrRate_HDG_av" runat="server" Text="Curr. Rate" Width="80px"></asp:Label>
-                                        </div>
-                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
-                                            <asp:Label ID="lbl_DeliPoint_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_DeliPotin_HDG_av %>" Width="220px"></asp:Label>
-                                        </div>
-                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
-                                            <asp:Label ID="lbl_DeliDate_HDG_av" runat="server" Text="<%$ Resources:PC_PR_PrEdit, lbl_DeliDate_HDG_av %>" Width="100px"></asp:Label>
-                                        </div>
-                                    </div>--%>
                                     <table style="width: 100%;">
                                         <tr>
                                             <td style="padding-left: 3px; padding-right: 3px;" class="<%= HiddenClassName %>">
@@ -534,54 +487,7 @@
                                         <asp:Label ID="lbl_CurrRate" runat="server" SkinID="LBL_NR_GRD" Width="80px"></asp:Label>
                                     </div>
                                 </asp:Panel>
-                                <asp:Panel ID="p_AllocateVendor" runat="server">
-                                    <%--<div style="width: 100%;">
-                                        <div class="<%= HiddenClassName %>" style="display: inline-block; padding-right: 5px; height: 28px;">
-                                            <asp:Label ID="lbl_BuCode_av" runat="server" Width="80px"></asp:Label>
-                                        </div>
-                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
-                                            <asp:Label ID="lbl_Vendor_av" runat="server" Width="220px" SkinID="LBL_NR_GRD"></asp:Label>
-                                        </div>
-                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
-                                            <asp:Label ID="lbl_LocationCode_av" runat="server" Width="200px" SkinID="LBL_NR_GRD"></asp:Label>
-                                        </div>
-                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
-                                            <asp:Label ID="lbl_SKU_av" runat="server" Width="100px" SkinID="LBL_NR_GRD"></asp:Label>
-                                        </div>
-                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
-                                            <asp:Label ID="lbl_DescEN_av" runat="server" Width="160px" SkinID="LBL_NR_GRD"></asp:Label>
-                                        </div>
-                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
-                                            <asp:Label ID="lbl_DescLL_av" runat="server" Width="160px" SkinID="LBL_NR_GRD"></asp:Label>
-                                        </div>
-                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
-                                            <asp:Label ID="lbl_OrderUnit_av" runat="server" Width="80px" SkinID="LBL_NR_GRD"></asp:Label>
-                                        </div>
-                                        <div style="display: inline-block; padding-right: 5px; height: 28px; text-align: right;">
-                                            <asp:Label ID="lbl_ReqQty_av" runat="server" Width="80px" SkinID="LBL_NR_GRD"></asp:Label>
-                                        </div>
-                                        <div style="display: inline-block; padding-right: 5px; height: 28px; text-align: right;">
-                                            <asp:Label ID="lbl_ApprQty_av" runat="server" Width="80px" SkinID="LBL_NR_GRD"></asp:Label>
-                                        </div>
-                                        <div style="display: inline-block; padding-right: 5px; height: 28px; text-align: right;">
-                                            <asp:Label ID="lbl_FOC_av" runat="server" Width="80px" SkinID="LBL_NR_GRD"></asp:Label>
-                                        </div>
-                                        <div style="display: inline-block; padding-right: 5px; height: 28px; text-align: right;">
-                                            <asp:Label ID="lbl_Price_av" runat="server" Width="100px" SkinID="LBL_NR_GRD"></asp:Label>
-                                        </div>
-                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
-                                            <asp:Label ID="lbl_CurrCode_av" runat="server" Width="80px" SkinID="LBL_NR_GRD"></asp:Label>
-                                        </div>
-                                        <div style="display: inline-block; padding-right: 5px; height: 28px; text-align: right;">
-                                            <asp:Label ID="lbl_CurrRate_av" runat="server" Width="80px" SkinID="LBL_NR_GRD"></asp:Label>
-                                        </div>
-                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
-                                            <asp:Label ID="lbl_DeliPoint_av" runat="server" Width="220px" SkinID="LBL_NR_GRD"></asp:Label>
-                                        </div>
-                                        <div style="display: inline-block; padding-right: 5px; height: 28px;">
-                                            <asp:Label ID="lbl_DeliDate_av" runat="server" Width="100px" SkinID="LBL_NR_GRD"></asp:Label>
-                                        </div>
-                                    </div>--%>
+                                <asp:Panel ID="p_AllocateVendor" runat="server">                                    
                                     <table style="width: 100%;">
                                         <tr>
                                             <td class="<%= HiddenClassName %>">
@@ -674,8 +580,8 @@
                                     </div>
                                     <!--Unit-->
                                     <div style="display: inline-block;">
-                                        <dx:ASPxComboBox ID="ddl_Unit" runat="server" Width="80px" AutoPostBack="false" EnableCallbackMode="true" CallbackPageSize="10" IncrementalFilteringMode="Contains"
-                                            ValueField="OrderUnit" ValueType="System.String" TextField="OrderUnit" OnLoad="ddl_Unit_Load">
+                                        <dx:ASPxComboBox ID="ddl_Unit" runat="server" Width="80px" AutoPostBack="true" EnableCallbackMode="true" CallbackPageSize="10" IncrementalFilteringMode="Contains"
+                                            ValueField="OrderUnit" ValueType="System.String" TextField="OrderUnit" OnLoad="ddl_Unit_Load" OnSelectedIndexChanged="ddl_Unit_SelectedIndexChanged">
                                         </dx:ASPxComboBox>
                                         <asp:RequiredFieldValidator ID="Req_Unit" runat="server" ErrorMessage="*" ValidationGroup="grd_Group_av" ControlToValidate="ddl_Unit" Display="Dynamic">                                                                    
                                         </asp:RequiredFieldValidator>
