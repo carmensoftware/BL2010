@@ -424,6 +424,18 @@ namespace BlueLedger.PL.IN.STOREREQ
                 }
 
 
+                var status = lbl_Status.Text.Trim();
+
+                if (status.StartsWith("C"))
+                {
+                    var dtno = DataBinder.Eval(e.Row.DataItem, "RefId").ToString();
+                    var query = string.Format("SELECT TOP(1) Amount FROM [IN].Inventory WHERE DtNo={0} AND [Type] IN ('SR','TR')", dtno );
+                    var dtCost = bu.DbExecuteQuery(query, null, LoginInfo.ConnStr);
+
+                    lastCost = dtCost.Rows.Count == 0 ? lastCost : Convert.ToDecimal(dtCost.Rows[0][0]);
+                }
+
+
                 // Check Box
                 var chkItem = e.Row.FindControl("chk_Item") as CheckBox;
                 if (chkItem != null)
@@ -446,17 +458,6 @@ namespace BlueLedger.PL.IN.STOREREQ
                      }
 
                 }
-
-                //// Find Control Image Button
-                //var imgBtn = e.Row.FindControl("Img_Btn") as ImageButton;
-
-                ////set CommandArgument For ImageButton
-                //if (e.Row.FindControl("Img_Btn") != null)
-                //{
-                //    if (imgBtn != null)
-                //        imgBtn.CommandArgument = index.ToString();
-                //    index = index + 1;
-                //}
 
                 // ----------------------------------------------------------------------------------------------------
                 // Main Information
@@ -519,6 +520,8 @@ namespace BlueLedger.PL.IN.STOREREQ
 
                     lblQtyAllocated.Visible = WfStep == WfStepCount;
                 }
+
+
 
                 var lblUnitCost = e.Row.FindControl("lbl_UnitCost") as Label;
                 if (lblUnitCost != null)
