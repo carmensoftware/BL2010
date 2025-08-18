@@ -229,7 +229,7 @@
                                         <asp:Label ID="Label16" runat="server" Text="Sub-Domain" />
                                     </td>
                                     <td>
-                                        <asp:TextBox ID="txt_SubDomain" runat="server"  Width="300"/>
+                                        <asp:TextBox ID="txt_SubDomain" runat="server" Width="300" />
                                     </td>
                                 </tr>
                                 <tr>
@@ -701,6 +701,14 @@
                                 </td>
                                 <td>
                                     <asp:TextBox ID="txt_SystemSvcRate" runat="server" Width="120" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <asp:Label ID="Label25" runat="server" Text="Decimal Digit for Price" />
+                                </td>
+                                <td>
+                                    <asp:TextBox ID="txt_SystemPrice" runat="server" Width="120" />
                                 </td>
                             </tr>
                             <tr>

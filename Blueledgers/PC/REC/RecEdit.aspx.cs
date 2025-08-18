@@ -214,6 +214,7 @@ namespace BlueLedger.PL.IN.REC
 
 
             var currency = config.GetValue("APP", "BU", "DefaultCurrency", hf_ConnStr.Value);
+            var digitPrice = config.GetValue("APP", "Default", "DigitPrice", hf_ConnStr.Value);
             var digitAmt = config.GetValue("APP", "Default", "DigitAmt", hf_ConnStr.Value);
             var digitQty = config.GetValue("APP", "Default", "DigitQty", hf_ConnStr.Value);
             var taxRate = config.GetValue("APP", "Default", "TaxRate", hf_ConnStr.Value);
@@ -222,6 +223,7 @@ namespace BlueLedger.PL.IN.REC
             _default = new DefaultValues
             {
                 Currency = currency,
+                DigitPrice = string.IsNullOrEmpty(digitPrice) ? 4 : Convert.ToInt32(digitAmt),
                 DigitAmt = string.IsNullOrEmpty(digitAmt) ? 2 : Convert.ToInt32(digitAmt),
                 DigitQty = string.IsNullOrEmpty(digitQty) ? 2 : Convert.ToInt32(digitQty),
                 TaxRate = string.IsNullOrEmpty(taxRate) ? 0 : Convert.ToDecimal(taxRate),
@@ -735,7 +737,7 @@ namespace BlueLedger.PL.IN.REC
                 {
                     var se_PriceEdit = e.Row.FindControl("se_PriceEdit") as ASPxSpinEdit;
 
-                    se_PriceEdit.DecimalPlaces = _default.DigitAmt;
+                    se_PriceEdit.DecimalPlaces = _default.DigitPrice;
 
                     if (priceUpdate == 0)
                     {
@@ -3761,6 +3763,7 @@ namespace BlueLedger.PL.IN.REC
         public class DefaultValues
         {
             public string Currency { get; set; }
+            public int DigitPrice { get; set; }
             public int DigitAmt { get; set; }
             public int DigitQty { get; set; }
             public decimal TaxRate { get; set; }

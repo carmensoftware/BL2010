@@ -2294,56 +2294,56 @@ WHERE
             public decimal TaxAmt { get; set; }
         }
 
-        public class TaxCalculation
-        {
-            private decimal taxAmt { get; set; }
-            private decimal netAmt { get; set; }
-            private decimal totalAmt { get; set; }
+        //public class TaxCalculation
+        //{
+        //    private decimal taxAmt { get; set; }
+        //    private decimal netAmt { get; set; }
+        //    private decimal totalAmt { get; set; }
 
-            public TaxCalculation(decimal qty, decimal price, string taxType, decimal taxRate, int digitAmt = 2)
-            {
-                Qty = qty;
-                Price = price;
-                TaxType = taxType;
-                TaxRate = taxRate;
+        //    public TaxCalculation(decimal qty, decimal price, string taxType, decimal taxRate, int digitAmt = 2)
+        //    {
+        //        Qty = qty;
+        //        Price = price;
+        //        TaxType = taxType;
+        //        TaxRate = taxRate;
 
-                var amount = Math.Round(qty * price, digitAmt, MidpointRounding.AwayFromZero);
+        //        var amount = Math.Round(qty * price, digitAmt, MidpointRounding.AwayFromZero);
 
-                taxType = taxType.ToLower();
+        //        taxType = taxType.ToLower();
 
-                if (taxType.StartsWith("a"))
-                {
-                    netAmt = amount;
-                    taxAmt = Math.Round(amount * (taxRate / 100), digitAmt, MidpointRounding.AwayFromZero);
-                    totalAmt = netAmt + taxAmt;
-                }
-                else if (taxType.StartsWith("i"))
-                {
-                    totalAmt = amount;
-                    netAmt = Math.Round(amount * (100 / 107), digitAmt, MidpointRounding.AwayFromZero);
-                    taxAmt = totalAmt - netAmt;
-                }
-                else
-                {
-                    netAmt = amount;
-                    taxAmt = 0;
-                    totalAmt = amount;
-                }
+        //        if (taxType.StartsWith("a"))
+        //        {
+        //            netAmt = amount;
+        //            taxAmt = Math.Round(amount * (taxRate / 100), digitAmt, MidpointRounding.AwayFromZero);
+        //            totalAmt = netAmt + taxAmt;
+        //        }
+        //        else if (taxType.StartsWith("i"))
+        //        {
+        //            totalAmt = amount;
+        //            netAmt = Math.Round(amount * (100 / 107), digitAmt, MidpointRounding.AwayFromZero);
+        //            taxAmt = totalAmt - netAmt;
+        //        }
+        //        else
+        //        {
+        //            netAmt = amount;
+        //            taxAmt = 0;
+        //            totalAmt = amount;
+        //        }
 
 
 
-            }
+        //    }
 
-            public decimal Qty { get; set; }
-            public decimal Price { get; set; }
-            public string TaxType { get; set; }
-            public decimal TaxRate { get; set; }
+        //    public decimal Qty { get; set; }
+        //    public decimal Price { get; set; }
+        //    public string TaxType { get; set; }
+        //    public decimal TaxRate { get; set; }
 
-            public decimal TaxAmt { get { return taxAmt; } }
-            public decimal NetAmt { get { return netAmt; } }
-            public decimal TotalAmt { get { return totalAmt; } }
+        //    public decimal TaxAmt { get { return taxAmt; } }
+        //    public decimal NetAmt { get { return netAmt; } }
+        //    public decimal TotalAmt { get { return totalAmt; } }
 
-        }
+        //}
 
 
     }

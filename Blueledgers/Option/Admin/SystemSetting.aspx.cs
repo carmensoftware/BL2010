@@ -951,6 +951,7 @@ namespace BlueLedger.PL.Option.Admin
             txt_SystemCurrency.Enabled = isEdit;
             txt_SystemTaxRate.Enabled = isEdit;
             txt_SystemSvcRate.Enabled = isEdit;
+            txt_SystemPrice.Enabled = isEdit;
             txt_SystemDigitAmt.Enabled = false;
             txt_SystemDigitQty.Enabled = false;
             txt_SystemCost.Enabled = false;
@@ -965,6 +966,7 @@ namespace BlueLedger.PL.Option.Admin
             string taxRate = config.GetValue("APP", "Default", "TaxRate", LoginInfo.ConnStr);
             string svcRate = config.GetValue("APP", "Default", "SvcRate", LoginInfo.ConnStr);
 
+            string digitPrice = config.GetValue("APP", "Default", "DigitPrice", LoginInfo.ConnStr);
             string digitAmt = config.GetValue("APP", "Default", "DigitAmt", LoginInfo.ConnStr);
             string digitQty = config.GetValue("APP", "Default", "DigitQty", LoginInfo.ConnStr);
 
@@ -976,6 +978,7 @@ namespace BlueLedger.PL.Option.Admin
             txt_SystemCurrency.Text = currency;
             txt_SystemTaxRate.Text = taxRate;
             txt_SystemSvcRate.Text = svcRate;
+            txt_SystemPrice.Text = string.IsNullOrEmpty(digitPrice) ? "4" : digitPrice;
             txt_SystemDigitAmt.Text = digitAmt;
             txt_SystemDigitQty.Text = digitQty;
 
@@ -1008,6 +1011,13 @@ namespace BlueLedger.PL.Option.Admin
                 return;
             }
 
+            if (!Decimal.TryParse(txt_SystemPrice.Text, out value))
+            {
+                lbl_Alert.Text = "Price digit is invalid value.";
+                pop_Alert.ShowOnPageLoad = true;
+                return;
+            }
+
 
             string sql = "";
 
@@ -1036,6 +1046,19 @@ namespace BlueLedger.PL.Option.Admin
                     END";
 
             bu.DbExecuteQuery(string.Format(sql, txt_SystemSvcRate.Text, LoginInfo.LoginName), null, LoginInfo.ConnStr);
+
+            // Price
+            sql = @"IF NOT EXISTS (SELECT * FROM APP.Config WHERE [Module]='APP' AND [SubModule]='Default' AND [Key]='Price')
+                    BEGIN
+                        INSERT INTO APP.Config ([Module],[SubModule],[Key], [Value], [UpdatedDate], [UpdatedBy])
+                        VALUES ('APP','Default', 'DigitPrice', '{0}', GETDATE(), '{1}')
+                    END
+                    ELSE
+                    BEGIN
+                        UPDATE APP.Config SET Value = '{0}', UpdatedBy= N'{1}' WHERE [Module]='APP' AND [SubModule]='Default' AND [Key]='Price'
+                    END";
+
+            bu.DbExecuteQuery(string.Format(sql, txt_SystemPrice.Text, LoginInfo.LoginName), null, LoginInfo.ConnStr);
 
 
             // Enable edit commit
