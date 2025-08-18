@@ -935,7 +935,7 @@ WHERE
                     var se = e.Row.FindControl("se_CnQty") as ASPxSpinEdit;
                     var maxValue = rcvUnit == cnUnit ? Convert.ToDecimal(recQty) : inventoryQty;
 
-                    se.DecimalPlaces =  _default.DigitQty;
+                    se.DecimalPlaces = _default.DigitQty;
                     se.MaxValue = maxValue;
 
                     se.Value = DataBinder.Eval(dataItem, "CnQty");
@@ -986,7 +986,7 @@ WHERE
                     var se = e.Row.FindControl("se_CnCurrTaxAmt") as ASPxSpinEdit;
 
                     se.Value = DataBinder.Eval(dataItem, "CnCurrTaxAmt");
-                    se.DecimalPlaces =  _default.DigitAmt;
+                    se.DecimalPlaces = _default.DigitAmt;
                     se.Visible = cnType != "N";
                     se.ReadOnly = taxAdj == false;
 
@@ -999,7 +999,7 @@ WHERE
                     var se = e.Row.FindControl("se_CnCurrTotalAmt") as ASPxSpinEdit;
 
                     se.Value = DataBinder.Eval(dataItem, "CnCurrTotalAmt");
-                    se.DecimalPlaces =  _default.DigitAmt;
+                    se.DecimalPlaces = _default.DigitAmt;
                     se.Visible = cnType != "N";
 
                 }
@@ -1496,15 +1496,15 @@ WHERE
                 var currNetAmt = dr["CurrNetAmt"].ToString();
                 var currTaxAmt = dr["CurrTaxAmt"].ToString();
                 var currTotalAmt = dr["CurrTotalAmt"].ToString();
-                
+
                 //var netAmt = dr["NetAmt"].ToString();
                 //var taxAmt = dr["TaxAmt"].ToString();
                 //var totalAmt = dr["TotalAmt"].ToString();
                 var netAmt = RoundAmt(Convert.ToDecimal(currNetAmt) * Convert.ToDecimal(currencyRate));
                 var taxAmt = RoundAmt(Convert.ToDecimal(currTaxAmt) * Convert.ToDecimal(currencyRate));
                 var totalAmt = RoundAmt(Convert.ToDecimal(currTotalAmt) * Convert.ToDecimal(currencyRate));
-                
-                
+
+
                 var comment = dr["Comment"].ToString();
                 var poNo = dr["RecNo"].ToString();
                 var poDtNo = string.IsNullOrEmpty(dr["PoDtNo"].ToString()) ? "NULL" : dr["PoDtNo"].ToString();
@@ -1712,7 +1712,8 @@ WHERE
             var se_CnCurrNetAmt = control.NamingContainer.FindControl("se_CnCurrNetAmt") as ASPxSpinEdit;
             var se_CnCurrTaxAmt = control.NamingContainer.FindControl("se_CnCurrTaxAmt") as ASPxSpinEdit;
             var se_CnCurrTotalAmt = control.NamingContainer.FindControl("se_CnCurrTotalAmt") as ASPxSpinEdit;
-            // -------------------------
+            
+            // ----------------------------------------------------------------------------------------------------
 
 
             var rcvUnit = hf_RcvUnit.Value.ToString();
@@ -1741,6 +1742,7 @@ WHERE
             se_CnCurrTaxAmt.Number = cnTaxAmt;
             se_CnCurrTotalAmt.Number = cnNetAmt + cnTaxAmt;
         }
+
 
         //private void CnQtyChanged(object sender)
         //{
@@ -2190,8 +2192,10 @@ WHERE
             }
             else
             {
-                taxAmt = (amt * taxRate) / (100 - taxRate);
-                netAmt = amt - taxAmt;
+                netAmt = RoundAmt( amt * 100 / (taxRate + 100));
+                taxAmt = amt - netAmt;
+                //taxAmt = (amt * taxRate) / (100 - taxRate);
+                //netAmt = amt - taxAmt;
             }
 
             return new TaxNetAmt { NetAmt = netAmt, TaxAmt = taxAmt };
@@ -2290,6 +2294,56 @@ WHERE
             public decimal TaxAmt { get; set; }
         }
 
+        public class TaxCalculation
+        {
+            private decimal taxAmt { get; set; }
+            private decimal netAmt { get; set; }
+            private decimal totalAmt { get; set; }
+
+            public TaxCalculation(decimal qty, decimal price, string taxType, decimal taxRate, int digitAmt = 2)
+            {
+                Qty = qty;
+                Price = price;
+                TaxType = taxType;
+                TaxRate = taxRate;
+
+                var amount = Math.Round(qty * price, digitAmt, MidpointRounding.AwayFromZero);
+
+                taxType = taxType.ToLower();
+
+                if (taxType.StartsWith("a"))
+                {
+                    netAmt = amount;
+                    taxAmt = Math.Round(amount * (taxRate / 100), digitAmt, MidpointRounding.AwayFromZero);
+                    totalAmt = netAmt + taxAmt;
+                }
+                else if (taxType.StartsWith("i"))
+                {
+                    totalAmt = amount;
+                    netAmt = Math.Round(amount * (100 / 107), digitAmt, MidpointRounding.AwayFromZero);
+                    taxAmt = totalAmt - netAmt;
+                }
+                else
+                {
+                    netAmt = amount;
+                    taxAmt = 0;
+                    totalAmt = amount;
+                }
+
+
+
+            }
+
+            public decimal Qty { get; set; }
+            public decimal Price { get; set; }
+            public string TaxType { get; set; }
+            public decimal TaxRate { get; set; }
+
+            public decimal TaxAmt { get { return taxAmt; } }
+            public decimal NetAmt { get { return netAmt; } }
+            public decimal TotalAmt { get { return totalAmt; } }
+
+        }
 
 
     }
