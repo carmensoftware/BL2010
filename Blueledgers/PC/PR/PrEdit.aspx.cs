@@ -4264,9 +4264,11 @@ namespace BlueLedger.PL.PC.PR
                 drUpdating["LocationCode"] = ddl_LocationCode.Value.ToString();
                 locationCode = ddl_LocationCode.Value.ToString();
 
+                drUpdating["Descen"] = "";
+                drUpdating["Descll"] = "";
 
-                drUpdating["Descen"] = product.GetName(ddl_ProductCode.Text.Split(':')[0].Trim(), bu.GetConnectionString(ddl_BuCode.Value.ToString()));
-                drUpdating["Descll"] = product.GetName2(ddl_ProductCode.Text.Split(':')[0].Trim(), bu.GetConnectionString(ddl_BuCode.Value.ToString()));
+                //drUpdating["Descen"] = product.GetName(ddl_ProductCode.Text.Split(':')[0].Trim(), bu.GetConnectionString(ddl_BuCode.Value.ToString()));
+                //drUpdating["Descll"] = product.GetName2(ddl_ProductCode.Text.Split(':')[0].Trim(), bu.GetConnectionString(ddl_BuCode.Value.ToString()));
 
 
                 //TextBox txt_Unit = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_Unit") as TextBox;
@@ -4362,6 +4364,18 @@ namespace BlueLedger.PL.PC.PR
                 // Because they don't have txt_Price in Issue panel.
                 decimal qty = 0, price = 0, discRate = 0, currRate = 0;
 
+                var lastPrice = string.IsNullOrEmpty(lbl_LastPrice.Text) ? 0m : Convert.ToDecimal(lbl_LastPrice.Text);
+
+                // Last Price
+                drUpdating["LastPrice"] = lastPrice;
+                // Last Vendor
+                drUpdating["VendorProdCode"] = string.IsNullOrEmpty(lbl_LastVendor.Text) ? "" : lbl_LastVendor.Text.Split(':').Select(x => x.Trim()).First();
+
+                if (wfStep == 1)
+                {
+                    drUpdating["Price"] = lastPrice;
+                }
+
                 decimal.TryParse(drUpdating["ApprQty"].ToString(), out qty);
                 decimal.TryParse(drUpdating["Price"].ToString(), out price);
                 decimal.TryParse(drUpdating["DiscPercent"].ToString(), out discRate);
@@ -4384,10 +4398,6 @@ namespace BlueLedger.PL.PC.PR
                 drUpdating["TaxAmt"] = RoundAmt(Convert.ToDecimal(drUpdating["CurrTaxAmt"]) * currRate);
                 drUpdating["TotalAmt"] = RoundAmt(Convert.ToDecimal(drUpdating["CurrTotalAmt"]) * currRate);
 
-                // Last Price
-                drUpdating["LastPrice"] = string.IsNullOrEmpty(lbl_LastPrice.Text) ? 0 : Convert.ToDecimal(lbl_LastPrice.Text);
-                // Last Vendor
-                drUpdating["VendorProdCode"] = string.IsNullOrEmpty(lbl_LastVendor.Text) ? "" : lbl_LastVendor.Text.Split(':').Select(x => x.Trim()).First();
 
                 // End Modified
                 #endregion
@@ -6399,7 +6409,56 @@ ORDER BY
             public decimal LastPrice { get; set; }
         }
 
+        public class TaxCalculation
+        {
+            private decimal taxAmt { get; set; }
+            private decimal netAmt { get; set; }
+            private decimal totalAmt { get; set; }
 
+            public TaxCalculation(decimal qty, decimal price, string taxType, decimal taxRate, int digitAmt = 2)
+            {
+                Qty = qty;
+                Price = price;
+                TaxType = taxType;
+                TaxRate = taxRate;
+
+                var amount = Math.Round(qty * price, digitAmt, MidpointRounding.AwayFromZero);
+
+                taxType = taxType.ToLower();
+
+                if (taxType.StartsWith("a"))
+                {
+                    netAmt = amount;
+                    taxAmt = Math.Round(amount * (taxRate / 100), digitAmt, MidpointRounding.AwayFromZero);
+                    totalAmt = netAmt + taxAmt;
+                }
+                else if (taxType.StartsWith("i"))
+                {
+                    totalAmt = amount;
+                    netAmt = Math.Round(amount * (100 / 107), digitAmt, MidpointRounding.AwayFromZero);
+                    taxAmt = totalAmt - netAmt;
+                }
+                else
+                {
+                    netAmt = amount;
+                    taxAmt = 0;
+                    totalAmt = amount;
+                }
+
+
+
+            }
+
+            public decimal Qty { get; set; }
+            public decimal Price { get; set; }
+            public string TaxType { get; set; }
+            public decimal TaxRate { get; set; }
+
+            public decimal TaxAmt { get { return taxAmt; } }
+            public decimal NetAmt { get { return netAmt; } }
+            public decimal TotalAmt { get { return totalAmt; } }
+
+        }
 
     }
 }
