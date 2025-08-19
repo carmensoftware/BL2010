@@ -4365,14 +4365,16 @@ namespace BlueLedger.PL.PC.PR
                 decimal qty = 0, price = 0, discRate = 0, currRate = 0;
 
                 var lastPrice = string.IsNullOrEmpty(lbl_LastPrice.Text) ? 0m : Convert.ToDecimal(lbl_LastPrice.Text);
+                var lastVendorCode = string.IsNullOrEmpty(lbl_LastVendor.Text) ? "" : lbl_LastVendor.Text.Split(':').Select(x => x.Trim()).First();
 
                 // Last Price
                 drUpdating["LastPrice"] = lastPrice;
                 // Last Vendor
-                drUpdating["VendorProdCode"] = string.IsNullOrEmpty(lbl_LastVendor.Text) ? "" : lbl_LastVendor.Text.Split(':').Select(x => x.Trim()).First();
+                drUpdating["VendorProdCode"] = lastVendorCode;
 
                 if (wfStep == 1)
                 {
+                    drUpdating["VendorCode"] = lastVendorCode; 
                     drUpdating["Price"] = lastPrice;
                 }
 
