@@ -144,7 +144,7 @@ namespace BlueLedger.PL.Option.Admin.WF
                 {
                     Text = x.Field<string>("RoleDesc"),
                     Value = x.Field<string>("RoleName"),
-                    Selected = selectRoles.Contains(x.Field<string>("RoleName"))
+                    Selected = selectRoles.Contains(x.Field<string>("RoleName").Trim())
                 }).ToArray();
 
             cbl_Role.Items.Clear();
@@ -157,7 +157,7 @@ namespace BlueLedger.PL.Option.Admin.WF
                 {
                     Text = string.Format("{0} : {1}", x.Field<string>("LoginName"), x.Field<string>("FullName")),
                     Value = x.Field<string>("LoginName"),
-                    Selected = selectUsers.Contains(x.Field<string>("LoginName"))
+                    Selected = selectUsers.Contains(x.Field<string>("LoginName").Trim())
                 }).ToArray();
 
             cbl_User.Items.Clear();
@@ -558,7 +558,7 @@ namespace BlueLedger.PL.Option.Admin.WF
                     result.Add(user.Remove(0, 1));
             }
 
-            return result;
+            return result.Select(x=>x.Trim()).ToArray();
         }
 
         private IEnumerable<string> GetFieldNames(string text)
