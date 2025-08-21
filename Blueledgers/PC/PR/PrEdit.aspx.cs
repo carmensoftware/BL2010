@@ -4374,7 +4374,7 @@ namespace BlueLedger.PL.PC.PR
 
                 if (wfStep == 1)
                 {
-                    drUpdating["VendorCode"] = lastVendorCode; 
+                    //drUpdating["VendorCode"] = lastVendorCode; 
                     drUpdating["Price"] = lastPrice;
                 }
 
