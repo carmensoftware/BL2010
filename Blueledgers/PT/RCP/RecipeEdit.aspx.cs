@@ -936,7 +936,7 @@ ORDER BY
 
         private decimal GetTotalCost(decimal qty, decimal unitRate, decimal baseCost)
         {
-            return RoundAmt(RoundAmt(qty / unitRate) * baseCost);
+            return unitRate==0 ? 0m : RoundAmt(RoundAmt(qty / unitRate) * baseCost);
         }
 
         private decimal GetSpoilCost(decimal totalCost, decimal spoilRate)
