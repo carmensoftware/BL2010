@@ -136,6 +136,16 @@ namespace BlueLedger.PL.PC.PR
 
         #endregion
 
+        private bool IsApplyLastPrice
+        {
+            get
+            {
+                var value = config.GetConfigValue("PC", "PR", "ApplyLastPrice", hf_ConnStr.Value).ToLower();
+                return value == "1" || value == "true";
+            }
+        }
+
+
         #region "Page load"
 
         /// <summary>
@@ -2053,28 +2063,55 @@ namespace BlueLedger.PL.PC.PR
                         lbl_Restock.ToolTip = lbl_Restock.Text;
 
                         var lbl_LastPrice = e.Row.FindControl("lbl_LastPrice") as Label;
-                        //lbl_LastPrice.Text = string.Format(DefaultAmtFmt, drStockSummary["LastPrice"].ToString());
-
                         var lbl_LastVendor = e.Row.FindControl("lbl_LastVendor") as Label;
-                        //lbl_LastVendor.Text = drStockSummary["LastVendor"].ToString();
 
-                        var lastPrice = DataBinder.Eval(e.Row.DataItem, "LastPrice").ToString();
-                        var lastVendor = DataBinder.Eval(e.Row.DataItem, "VendorProdCode").ToString();
-
-                        lbl_LastPrice.Text = string.IsNullOrEmpty(lastPrice) ? "0" : string.Format(DefaultAmtFmt, lastPrice);
-
-                        if (!string.IsNullOrEmpty(lastVendor))
+                        if (IsApplyLastPrice)
                         {
-                            var dt = prDt.DbExecuteQuery(string.Format("SELECT CONcAT(VendorCode,' : ', [Name]) as Vendor FROM AP.Vendor WHERE VendorCode=N'{0}'", lastVendor), null, hf_ConnStr.Value);
+                            var lastPrice = DataBinder.Eval(e.Row.DataItem, "LastPrice").ToString();
+                            var lastVendor = DataBinder.Eval(e.Row.DataItem, "VendorProdCode").ToString();
 
-                            lbl_LastVendor.Text = dt.Rows.Count == 0 ? "" : dt.Rows[0][0].ToString();
+                            lbl_LastPrice.Text = string.IsNullOrEmpty(lastPrice) ? "0" : string.Format(DefaultAmtFmt, lastPrice);
+
+                            if (!string.IsNullOrEmpty(lastVendor))
+                            {
+                                var dt = prDt.DbExecuteQuery(string.Format("SELECT CONCAT(VendorCode,' : ', [Name]) as Vendor FROM AP.Vendor WHERE VendorCode=N'{0}'", lastVendor), null, hf_ConnStr.Value);
+
+                                lbl_LastVendor.Text = dt.Rows.Count == 0 ? "" : dt.Rows[0][0].ToString();
+                            }
+
                         }
                         else
-                            lbl_LastVendor.Text = "";
-
+                        {
+                            lbl_LastPrice.Text = string.Format(DefaultAmtFmt, drStockSummary["LastPrice"].ToString());
+                            lbl_LastVendor.Text = drStockSummary["LastVendor"].ToString();
+                        }
 
                         lbl_LastPrice.ToolTip = lbl_LastPrice.Text;
                         lbl_LastVendor.ToolTip = lbl_LastVendor.Text;
+
+                        //var lbl_LastPrice = e.Row.FindControl("lbl_LastPrice") as Label;
+                        ////lbl_LastPrice.Text = string.Format(DefaultAmtFmt, drStockSummary["LastPrice"].ToString());
+
+                        //var lbl_LastVendor = e.Row.FindControl("lbl_LastVendor") as Label;
+                        ////lbl_LastVendor.Text = drStockSummary["LastVendor"].ToString();
+
+                        //var lastPrice = DataBinder.Eval(e.Row.DataItem, "LastPrice").ToString();
+                        //var lastVendor = DataBinder.Eval(e.Row.DataItem, "VendorProdCode").ToString();
+
+                        //lbl_LastPrice.Text = string.IsNullOrEmpty(lastPrice) ? "0" : string.Format(DefaultAmtFmt, lastPrice);
+
+                        //if (!string.IsNullOrEmpty(lastVendor))
+                        //{
+                        //    var dt = prDt.DbExecuteQuery(string.Format("SELECT CONcAT(VendorCode,' : ', [Name]) as Vendor FROM AP.Vendor WHERE VendorCode=N'{0}'", lastVendor), null, hf_ConnStr.Value);
+
+                        //    lbl_LastVendor.Text = dt.Rows.Count == 0 ? "" : dt.Rows[0][0].ToString();
+                        //}
+                        //else
+                        //    lbl_LastVendor.Text = "";
+
+
+                        //lbl_LastPrice.ToolTip = lbl_LastPrice.Text;
+                        //lbl_LastVendor.ToolTip = lbl_LastVendor.Text;
                     }
                 }
 

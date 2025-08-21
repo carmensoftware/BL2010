@@ -144,6 +144,16 @@ namespace BlueLedger.PL.PC.PR
 
         private string LimitDetail
         { get { return conf.GetValue("PC", "PR", "LimitDetail", hf_ConnStr.Value); } }
+
+
+        private bool IsApplyLastPrice
+        {
+            get
+            {
+                var value = conf.GetConfigValue("PC", "PR", "ApplyLastPrice", hf_ConnStr.Value).ToLower();
+                return value == "1" || value == "true";
+            }
+        }
         // End Aded.
 
         #endregion
@@ -3837,29 +3847,31 @@ namespace BlueLedger.PL.PC.PR
                         lbl_Restock.Text = string.Format(DefaultQtyFmt, drStockSummary["Restock"].ToString());
                         lbl_Restock.ToolTip = lbl_Restock.Text;
 
+
                         var lbl_LastPrice = e.Row.FindControl("lbl_LastPrice") as Label;
                         var lbl_LastVendor = e.Row.FindControl("lbl_LastVendor") as Label;
 
-                        //var lbl_LastPrice = e.Row.FindControl("lbl_LastPrice") as Label;
-                        //lbl_LastPrice.Text = string.Format(DefaultAmtFmt, drStockSummary["LastPrice"].ToString());
-                        //lbl_LastPrice.ToolTip = lbl_LastPrice.Text;
+                        if (IsApplyLastPrice)
+                        {
+                            var lastPrice = DataBinder.Eval(e.Row.DataItem, "LastPrice").ToString();
+                            var lastVendor = DataBinder.Eval(e.Row.DataItem, "VendorProdCode").ToString();
 
-                        //var lbl_LastVendor = e.Row.FindControl("lbl_LastVendor") as Label;
-                        //lbl_LastVendor.Text = drStockSummary["LastVendor"].ToString();
-                        //lbl_LastVendor.ToolTip = lbl_LastVendor.Text;
+                            lbl_LastPrice.Text = string.IsNullOrEmpty(lastPrice) ? "0" : FormatAmt(Convert.ToDecimal(lastPrice));
 
-                        var lastPrice = DataBinder.Eval(e.Row.DataItem, "LastPrice").ToString();
-                        var lastVendor = DataBinder.Eval(e.Row.DataItem, "VendorProdCode").ToString();
+                            if (string.IsNullOrEmpty(lastVendor))
+                                lbl_LastVendor.Text = "";
+                            else
+                            {
+                                var dt = prDt.DbExecuteQuery(string.Format("SELECT CONCAT(VendorCode,' : ', [Name]) as Vendor FROM AP.Vendor WHERE VendorCode=N'{0}'", lastVendor), null, hf_ConnStr.Value);
 
-                        lbl_LastPrice.Text = string.IsNullOrEmpty(lastPrice) ? "0" : FormatAmt(Convert.ToDecimal(lastPrice));
+                                lbl_LastVendor.Text = dt.Rows.Count == 0 ? "" : dt.Rows[0][0].ToString();
+                            }
 
-                        if (string.IsNullOrEmpty(lastVendor))
-                            lbl_LastVendor.Text = "";
+                        }
                         else
                         {
-                            var dt = prDt.DbExecuteQuery(string.Format("SELECT CONCAT(VendorCode,' : ', [Name]) as Vendor FROM AP.Vendor WHERE VendorCode=N'{0}'", lastVendor), null, hf_ConnStr.Value);
-
-                            lbl_LastVendor.Text = dt.Rows.Count == 0 ? "" : dt.Rows[0][0].ToString();
+                            lbl_LastPrice.Text = string.Format(DefaultAmtFmt, drStockSummary["LastPrice"].ToString());
+                            lbl_LastVendor.Text = drStockSummary["LastVendor"].ToString();
                         }
 
                         lbl_LastPrice.ToolTip = lbl_LastPrice.Text;
@@ -4367,15 +4379,19 @@ namespace BlueLedger.PL.PC.PR
                 var lastPrice = string.IsNullOrEmpty(lbl_LastPrice.Text) ? 0m : Convert.ToDecimal(lbl_LastPrice.Text);
                 var lastVendorCode = string.IsNullOrEmpty(lbl_LastVendor.Text) ? "" : lbl_LastVendor.Text.Split(':').Select(x => x.Trim()).First();
 
-                // Last Price
-                drUpdating["LastPrice"] = lastPrice;
-                // Last Vendor
-                drUpdating["VendorProdCode"] = lastVendorCode;
 
-                if (wfStep == 1)
+                if (IsApplyLastPrice)
                 {
-                    //drUpdating["VendorCode"] = lastVendorCode; 
-                    drUpdating["Price"] = lastPrice;
+                    // Last Price
+                    drUpdating["LastPrice"] = lastPrice;
+                    // Last Vendor
+                    drUpdating["VendorProdCode"] = lastVendorCode;
+
+                    if (wfStep == 1)
+                    {
+                        //drUpdating["VendorCode"] = lastVendorCode; 
+                        drUpdating["Price"] = lastPrice;
+                    }
                 }
 
                 decimal.TryParse(drUpdating["ApprQty"].ToString(), out qty);
