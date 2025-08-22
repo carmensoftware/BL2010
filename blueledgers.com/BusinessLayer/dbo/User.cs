@@ -47,7 +47,7 @@ namespace Blue.BL.dbo
           
             2026-01-31 = bayvillaskohphangan = 1+5+1 = 7
             2026-01-31 = hotellotussukhumvit = 15+2 = 17 + 2 = 19
-            2026-01-31 = verandaresortautograph = 3+10 = 13
+            2026-01-31 = verandaresortautograph = 3+10+1 = 14
             2026-01-31 = urbanalangsuanbkk = 7
             2026-01-31 = legacysuites = 22
           
@@ -155,11 +155,11 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser = 120;
+        private int licenseActiveUser = 140;
 
         public DateTime GetLicenseExpiredDate()
         {
-            return new DateTime(2025, 11, 30);
+            return new DateTime(2026, 1, 31);
         }
 
         private DateTime licenseExpiredDate { get { return GetLicenseExpiredDate(); } }
