@@ -599,7 +599,7 @@ namespace BlueLedger.PL.Option.Admin.Security.User
             //string passwordRegex = @"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$";
             string passwordRegex = @"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&]).{" + length.ToString() + @",}$";
 
-            return Regex.IsMatch(password, passwordRegex);
+            return Regex.IsMatch(@password, passwordRegex);
         }
 
         private string CheckPassword(string password, string passwordConfirm)
@@ -625,7 +625,8 @@ namespace BlueLedger.PL.Option.Admin.Security.User
             // length
             if (pwd.Length < length)
             {
-                return string.Format("The password you entered does not meet the required length.<br/><small>*Minimum {0} characters.</small>", length);
+                //return string.Format("The password you entered does not meet the required length.<br/><small>*Minimum {0} characters.</small>", length);
+                return string.Format("Password must at least {0} digits", length);
             }
 
             // Complexity
