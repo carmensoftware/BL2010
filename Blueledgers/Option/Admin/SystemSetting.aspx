@@ -752,6 +752,9 @@
                         <div>
                             <dx:ASPxCheckBox ID="chk_UseDeliveryDateForNonMarketList" runat="server" Text="Use Delivery date for Non-Market List" />
                         </div>
+                        <div>
+                            <dx:ASPxCheckBox ID="chk_UseLastPriceForNewPr" runat="server" Text="Use Last Receiving price for New PR" />
+                        </div>
                         <br />
                         <div style="text-align: right; margin-right: 40px;">
                             <asp:Button ID="btn_SaveSystem" runat="server" Text="Save" OnClick="btn_SaveSystem_Click" Visible="false" />

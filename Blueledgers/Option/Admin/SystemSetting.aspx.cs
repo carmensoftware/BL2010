@@ -957,6 +957,7 @@ namespace BlueLedger.PL.Option.Admin
             txt_SystemCost.Enabled = false;
             chk_EnableEditCommit.Enabled = isEdit;
             chk_UseDeliveryDateForNonMarketList.Enabled = isEdit;
+            chk_UseLastPriceForNewPr.Enabled = isEdit;
         }
 
         private void GetConfig_System()
@@ -973,6 +974,7 @@ namespace BlueLedger.PL.Option.Admin
             string cost = config.GetValue("IN", "SYS", "COST", LoginInfo.ConnStr);
             string enableEditCommit = config.GetValue("APP", "SYS", "EnableEditCommit", LoginInfo.ConnStr).Trim();
             string useDelivereyDateForNonMarketList = config.GetValue("PC", "PR", "UseDeliveryDateForNonMarketList", LoginInfo.ConnStr).Trim();
+            string useLastPriceForNewPr = config.GetValue("PC", "PR", "ApplyLastPrice", LoginInfo.ConnStr).Trim();
 
 
             txt_SystemCurrency.Text = currency;
@@ -985,6 +987,7 @@ namespace BlueLedger.PL.Option.Admin
             txt_SystemCost.Text = cost.ToUpper() == "FIFO" ? "FIFO" : "Average";
             chk_EnableEditCommit.Checked = enableEditCommit == "1";
             chk_UseDeliveryDateForNonMarketList.Checked = useDelivereyDateForNonMarketList.ToLower() == "true" || useDelivereyDateForNonMarketList == "1";
+            chk_UseLastPriceForNewPr.Checked = useLastPriceForNewPr.ToLower() == "true" || useLastPriceForNewPr == "1";
         }
 
         protected void btn_EditSystem_Click(object sender, EventArgs e)
@@ -1086,6 +1089,21 @@ namespace BlueLedger.PL.Option.Admin
                     END";
 
             bu.DbExecuteQuery(string.Format(sql, chk_UseDeliveryDateForNonMarketList.Checked ? "1" : "0", LoginInfo.LoginName), null, LoginInfo.ConnStr);
+
+            // Use Last price for new PR
+            sql = @"IF NOT EXISTS (SELECT * FROM APP.Config WHERE [Module]='PC' AND [SubModule]='PR' AND [Key]='ApplyLastPrice')
+                    BEGIN
+                        INSERT INTO APP.Config ([Module],[SubModule],[Key], [Value], [UpdatedDate], [UpdatedBy])
+                        VALUES ('PC','PR', 'ApplyLastPrice', '{0}', GETDATE(), '{1}')
+                    END
+                    ELSE
+                    BEGIN
+                        UPDATE APP.Config SET Value = '{0}', UpdatedBy= N'{1}' WHERE [Module]='PC' AND [SubModule]='PR' AND [Key]='ApplyLastPrice'
+                    END";
+
+            bu.DbExecuteQuery(string.Format(sql, chk_UseLastPriceForNewPr.Checked ? "1" : "0", LoginInfo.LoginName), null, LoginInfo.ConnStr);
+
+
 
             SetMode_System(false);
             GetConfig_System();
