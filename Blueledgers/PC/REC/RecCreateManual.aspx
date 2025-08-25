@@ -1107,7 +1107,7 @@
                                                                             <asp:Label ID="lbl_TaxType_Edit_Nm" runat="server" SkinID="LBL_HD_GRD" Text="<%$ Resources:PC_REC_RecEdit, lbl_TaxType_Edit_Nm %>"></asp:Label>
                                                                         </td>
                                                                         <td>
-                                                                            <asp:DropDownList ID="ddl_TaxType" runat="server" OnSelectedIndexChanged="ddl_TaxType_SelectedIndexChanged" AutoPostBack="True">
+                                                                            <asp:DropDownList ID="ddl_TaxType" runat="server" OnSelectedIndexChanged="ddl_TaxType_SelectedIndexChanged" AutoPostBack="true">
                                                                                 <asp:ListItem Value="A" Text="Added"></asp:ListItem>
                                                                                 <asp:ListItem Value="I" Text="Included"></asp:ListItem>
                                                                                 <asp:ListItem Value="N" Text="None"></asp:ListItem>
