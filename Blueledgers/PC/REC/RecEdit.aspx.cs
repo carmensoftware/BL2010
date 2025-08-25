@@ -223,7 +223,7 @@ namespace BlueLedger.PL.IN.REC
             _default = new DefaultValues
             {
                 Currency = currency,
-                DigitPrice = string.IsNullOrEmpty(digitPrice) ? 4 : Convert.ToInt32(digitAmt),
+                DigitPrice = string.IsNullOrEmpty(digitPrice) ? 3 : Convert.ToInt32(digitAmt),
                 DigitAmt = string.IsNullOrEmpty(digitAmt) ? 2 : Convert.ToInt32(digitAmt),
                 DigitQty = string.IsNullOrEmpty(digitQty) ? 2 : Convert.ToInt32(digitQty),
                 TaxRate = string.IsNullOrEmpty(taxRate) ? 0 : Convert.ToDecimal(taxRate),
@@ -726,7 +726,7 @@ namespace BlueLedger.PL.IN.REC
                 if (e.Row.FindControl("lbl_Price") != null)
                 {
                     var lbl_Price = e.Row.FindControl("lbl_Price") as Label;
-                    lbl_Price.Text = String.Format("{0:N4}",
+                    lbl_Price.Text = String.Format(DefaultPriceFmt,
                         (DataBinder.Eval(e.Row.DataItem, "Price") == DBNull.Value
                             ? 0
                             : Convert.ToDecimal(DataBinder.Eval(e.Row.DataItem, "Price").ToString())));
@@ -3757,6 +3757,11 @@ namespace BlueLedger.PL.IN.REC
         protected void btn_acceptWarn_Click(object sender, EventArgs e)
         {
             pop_Warning.ShowOnPageLoad = false;
+        }
+
+        public string DefaultPriceFmt
+        {
+            get { return "{0:N" + _default.DigitPrice.ToString() + "}"; }
         }
 
 

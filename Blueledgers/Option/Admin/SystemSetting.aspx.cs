@@ -978,7 +978,7 @@ namespace BlueLedger.PL.Option.Admin
             txt_SystemCurrency.Text = currency;
             txt_SystemTaxRate.Text = taxRate;
             txt_SystemSvcRate.Text = svcRate;
-            txt_SystemPrice.Text = string.IsNullOrEmpty(digitPrice) ? "4" : digitPrice;
+            txt_SystemPrice.Text = string.IsNullOrEmpty(digitPrice) ? "3" : digitPrice;
             txt_SystemDigitAmt.Text = digitAmt;
             txt_SystemDigitQty.Text = digitQty;
 

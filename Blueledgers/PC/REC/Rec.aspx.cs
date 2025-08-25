@@ -60,9 +60,21 @@ namespace BlueLedger.PL.IN.REC
         // End Added.
         #endregion
 
+        protected int _DigitPrice
+        {
+            get { return (Int32)ViewState["_DigitPrice"]; }
+            set { ViewState["_DigitPrice"] = value; }
+
+        }
+
         protected void Page_Init(object sender, EventArgs e)
         {
             hf_ConnStr.Value = bu.GetConnectionString(Request.Params["BuCode"]);
+
+            var digitPrice = config.GetValue("APP", "Default", "DigitPrice", hf_ConnStr.Value);
+            
+            _DigitPrice = string.IsNullOrEmpty(digitPrice) ? 3 : Convert.ToInt32(digitPrice);
+
         }
 
         /// <summary>
@@ -199,7 +211,7 @@ namespace BlueLedger.PL.IN.REC
 
                 lbl_ExRateAudit.Text = drRec["CurrencyRate"].ToString();
                 lbl_CommitDate.Text = (drRec["CommitDate"] != DBNull.Value)
-                    ? Convert.ToDateTime(drRec["CommitDate"]).ToString("dd/MM/yyyy") 
+                    ? Convert.ToDateTime(drRec["CommitDate"]).ToString("dd/MM/yyyy")
                     : string.Empty;
 
                 lbl_Desc.Text = drRec["Description"].ToString();
@@ -367,7 +379,7 @@ namespace BlueLedger.PL.IN.REC
                 if (e.Row.FindControl("lbl_Price") != null)
                 {
                     var lbl_Price = e.Row.FindControl("lbl_Price") as Label;
-                    lbl_Price.Text = String.Format(DefaultAmtFmt,
+                    lbl_Price.Text = String.Format(DefaultPriceFmt,
                         (DataBinder.Eval(e.Row.DataItem, "Price") == DBNull.Value
                             ? 0
                             : DataBinder.Eval(e.Row.DataItem, "Price")));
@@ -1326,6 +1338,12 @@ namespace BlueLedger.PL.IN.REC
             bu.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
 
         }
+
+        public string DefaultPriceFmt
+        {
+            get { return "{0:N" + _DigitPrice.ToString() + "}"; }
+        }
+
 
     }
 }

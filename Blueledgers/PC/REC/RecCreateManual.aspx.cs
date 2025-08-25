@@ -208,6 +208,7 @@ namespace BlueLedger.PL.IN.REC
             var currency = config.GetValue("APP", "BU", "DefaultCurrency", hf_ConnStr.Value);
             var digitAmt = config.GetValue("APP", "Default", "DigitAmt", hf_ConnStr.Value);
             var digitQty = config.GetValue("APP", "Default", "DigitQty", hf_ConnStr.Value);
+            var digitPrice = config.GetValue("APP", "Default", "DigitPrice", hf_ConnStr.Value);
             var taxRate = config.GetValue("APP", "Default", "TaxRate", hf_ConnStr.Value);
             var costMethod = config.GetValue("IN", "SYS", "COST", hf_ConnStr.Value);
 
@@ -216,6 +217,7 @@ namespace BlueLedger.PL.IN.REC
                 Currency = currency,
                 DigitAmt = string.IsNullOrEmpty(digitAmt) ? 2 : Convert.ToInt32(digitAmt),
                 DigitQty = string.IsNullOrEmpty(digitQty) ? 2 : Convert.ToInt32(digitQty),
+                DigitPrice = string.IsNullOrEmpty(digitPrice) ? 3 : Convert.ToInt32(digitPrice),
                 TaxRate = string.IsNullOrEmpty(taxRate) ? 0 : Convert.ToDecimal(taxRate),
                 CostMethod = costMethod.ToUpper()
             };
@@ -1786,7 +1788,7 @@ as st where st.[rn] between @startIndex and @endIndex";
 
             if (lblPrice != null)
             {
-                lblPrice.Text = String.Format(DefaultAmtFmt, price);
+                lblPrice.Text = String.Format(DefaultPriceFmt, price);
                 lblPrice.ToolTip = lblPrice.Text;
             }
 
@@ -1796,10 +1798,10 @@ as st where st.[rn] between @startIndex and @endIndex";
             if (sePriceEdit != null)
             {
                 sePriceEdit.Text = PriceUpdate == 0
-                    ? string.Format(DefaultAmtFmt, price)
-                    : string.Format(DefaultAmtFmt, PriceUpdate);
+                    ? string.Format(DefaultPriceFmt, price)
+                    : string.Format(DefaultPriceFmt, PriceUpdate);
 
-                sePriceEdit.DecimalPlaces = _default.DigitAmt;
+                sePriceEdit.DecimalPlaces = _default.DigitPrice;
             }
 
             #endregion
@@ -3749,9 +3751,15 @@ as st where st.[rn] between @startIndex and @endIndex";
 
         }
 
+        public string DefaultPriceFmt
+        {
+            get { return "{0:N" + _default.DigitPrice.ToString() + "}"; }
+        }
+
         public class DefaultValues
         {
             public string Currency { get; set; }
+            public int DigitPrice { get; set; }
             public int DigitAmt { get; set; }
             public int DigitQty { get; set; }
             public decimal TaxRate { get; set; }
