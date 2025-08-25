@@ -516,6 +516,7 @@ namespace BlueLedger.PL.IN.REC
             var ddl_NetDrAcc = (ASPxComboBox)o.FindControl("ddl_NetDrAcc");
             var ddl_TaxDrAcc = (ASPxComboBox)o.FindControl("ddl_TaxDrAcc");
 
+            var chk_TaxAdj = o.FindControl("chk_TaxAdj") as CheckBox;
             var ddl_TaxType = (DropDownList)o.FindControl("ddl_TaxType");
             var txt_TaxRate = (TextBox)o.FindControl("txt_TaxRate");
 
@@ -551,17 +552,14 @@ namespace BlueLedger.PL.IN.REC
                 if (string.IsNullOrEmpty(taxType))
                     taxType = "N";
 
-                ddl_TaxType.SelectedValue = taxType;
-                txt_TaxRate.Text = Product.GetTaxRate(productCode, hf_ConnStr.Value).ToString();
+                if (!chk_TaxAdj.Checked)
+                {
+                    ddl_TaxType.SelectedValue = taxType;
+                    txt_TaxRate.Text = Product.GetTaxRate(productCode, hf_ConnStr.Value).ToString();
+                }
 
 
                 string buCode = Request.Params["BuCode"].ToString();
-                // Set account code from [ADMIN].AccountMapp
-                //txt_NetDrAcc.Text = AccountMapp.GetA3Code(buCode, ddlLocationStamp.Value.ToString(), ddlProduct.Value.ToString(), hf_ConnStr.Value);
-                //txt_TaxDrAcc.Text = Product.GetTaxAccCode(ddlProduct.Value.ToString(), hf_ConnStr.Value);
-
-                //ddl_NetDrAcc.Text = AccountMapp.GetA3Code(buCode, ddlLocationStamp.Value.ToString(), ddlProduct.Value.ToString(), hf_ConnStr.Value);
-                //ddl_TaxDrAcc.Text = Product.GetTaxAccCode(ddlProduct.Value.ToString(), hf_ConnStr.Value);
             }
         }
 
@@ -665,41 +663,10 @@ namespace BlueLedger.PL.IN.REC
 
         protected void ddl_TaxType_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // Modified on: 23/08/2017, By: Fon
-            #region comment
-            //var ddlTaxType = grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("ddl_TaxType") as DropDownList;
-            //var chkTaxAdj = grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("chk_TaxAdj") as CheckBox;
-            //var txtNetAmt = grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("txt_NetAmt") as TextBox;
-            //var txtTaxAmt = grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("txt_TaxAmt") as TextBox;
-
-
-            //if (chkTaxAdj != null && chkTaxAdj.Checked)
-            //{
-            //    txtTaxAmt.Enabled = true;
-            //    txtNetAmt.Enabled = true;
-            //}
-            //else
-            //{
-            //    txtTaxAmt.Enabled = false;
-            //    txtNetAmt.Enabled = false;
-
-            //    //CalculateCost(grd_RecEdit.EditIndex, "TaxType");
-            //    CalculateCost(grd_RecEdit.EditIndex);
-            //}
-
-            //if (ddlTaxType.SelectedValue.ToUpper().ToString() == "N")
-            //{
-            //    txtTaxAmt.Enabled = false;
-            //    txtNetAmt.Enabled = false;
-            //    txtTaxAmt.Enabled = false;
-
-            //    //CalculateCost(grd_RecEdit.EditIndex, "TaxType");
-            //    CalculateCost(grd_RecEdit.EditIndex);
-            //}
-            #endregion
-
             DropDownList ddl_TaxType = (DropDownList)sender;
+
             TextBox txt_TaxRate = (TextBox)grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("txt_TaxRate");
+
             TextBox txt_CurrTaxAmt = (TextBox)grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("txt_CurrTaxAmt");
             TextBox txt_TaxAmt = (TextBox)grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("txt_TaxAmt");
 
@@ -708,10 +675,6 @@ namespace BlueLedger.PL.IN.REC
             {
                 txt_TaxRate.Enabled = true;
                 txt_CurrTaxAmt.Enabled = true;
-
-                // Comment on: 01/02/2018, By: Fon, For: Following from P' Oat guide.
-                //txt_TaxAmt.Enabled = true;
-                // End Comment.
             }
 
             if (ddl_TaxType.SelectedItem.Value.ToUpper() == "N")
@@ -723,6 +686,16 @@ namespace BlueLedger.PL.IN.REC
                     txt_CurrTaxAmt.Enabled = false;
                     txt_TaxAmt.Enabled = false;
                 }
+            }
+            else
+            {
+                var taxRate = string.IsNullOrEmpty(txt_TaxRate.Text.Trim()) ? 0m : Convert.ToDecimal(txt_TaxRate.Text.Trim());
+
+                if (taxRate == 0m)
+                {
+                    txt_TaxRate.Text = _default.TaxRate.ToString();
+                }
+
             }
 
             CalculateCost(grd_RecEdit.EditIndex);
@@ -1470,6 +1443,7 @@ as st where st.[rn] between @startIndex and @endIndex";
 
             var o = grd_RecEdit.Rows[grd_RecEdit.EditIndex];
             var drUpdating = DsRecEdit.Tables[RecDt.TableName].Rows[grd_RecEdit.EditIndex];
+
             var ddlTaxType = o.FindControl("ddl_TaxType") as DropDownList;
 
             var txtTaxAmt = o.FindControl("txt_TaxAmt") as TextBox;
@@ -1503,7 +1477,6 @@ as st where st.[rn] between @startIndex and @endIndex";
 
             if (ddlLocationStamp != null)
                 drUpdating["LocationCode"] = ddlLocationStamp.Value.ToString();
-
 
             var lblOrderQty = grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("lbl_OrderQty") as Label;
 
@@ -1560,11 +1533,24 @@ as st where st.[rn] between @startIndex and @endIndex";
                 drUpdating["DiccountAmt"] = RoundAmt(DiscountUpdateAmt * recQty);
             }
 
+            var taxType = ddlTaxType.SelectedItem.Value;
+
             drUpdating["TaxAdj"] = chkTaxAdj.Checked;
-            drUpdating["TaxType"] = ddlTaxType.SelectedItem.Value;
+            drUpdating["TaxType"] = taxType;
+
             decimal taxRate;
             decimal.TryParse(txtTaxRate.Text, out taxRate);
-            drUpdating["TaxRate"] = taxRate;
+            drUpdating["TaxRate"] = taxType == "N" ? 0m : taxRate;
+
+
+            if (taxType != "N" && taxRate == 0m)
+            {
+                lbl_WarningMessage.Text = "Please set tax rate.";
+                pop_Warning.ShowOnPageLoad = true;
+
+                return;
+            }
+
             decimal netAmt;
             decimal.TryParse(txtNetAmt.Text, out netAmt);
             drUpdating["NetAmt"] = netAmt;
@@ -3016,6 +3002,7 @@ as st where st.[rn] between @startIndex and @endIndex";
                 {
                     DropDownList ddl_TaxType = (DropDownList)grd_RecEdit.Rows[editIndex].FindControl("ddl_TaxType");
                     TextBox txt_TaxRate = (TextBox)grd_RecEdit.Rows[editIndex].FindControl("txt_TaxRate");
+
                     decimal.TryParse(txt_TaxRate.Text, out taxRate);
                     taxType = ddl_TaxType.SelectedItem.Value.ToUpper();
                 }
@@ -3119,7 +3106,7 @@ as st where st.[rn] between @startIndex and @endIndex";
 
         private void SaveAndCommit(string strAction)
         {
-           
+
             Page.Validate();
 
             if (Page.IsValid)
@@ -3129,7 +3116,7 @@ as st where st.[rn] between @startIndex and @endIndex";
 
                 //var OpenPeriod = period.GetLatestOpenEndDate(LoginInfo.ConnStr);
                 //var InvCommittedDate = de_RecDate.Date.Date <= OpenPeriod.Date ? OpenPeriod : DateTime.Now;
-               
+
                 var deliPoint = cmb_DeliPoint.Value.ToString().Split(':')[0];
                 var currencyRate = Convert.ToDecimal(txt_ExRateAu.Text);
                 bool isAVCO = config.GetValue("IN", "SYS", "COST", hf_ConnStr.Value).ToUpper() == "AVCO";
@@ -3432,12 +3419,12 @@ as st where st.[rn] between @startIndex and @endIndex";
 
                     // ------------------------------
 
-                    Rec.DbExecuteQuery("UPDATE PC.RecDt SET [Status]='Received' WHERE RecNo=@DocNo", new Blue.DAL.DbParameter[]{ new Blue.DAL.DbParameter("@DocNo", recNo)}, LoginInfo.ConnStr);
+                    Rec.DbExecuteQuery("UPDATE PC.RecDt SET [Status]='Received' WHERE RecNo=@DocNo", new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@DocNo", recNo) }, LoginInfo.ConnStr);
 
 
                     if (strAction == "Committed")
                     {
-                        Rec.DbExecuteQuery("EXEC PC.RecCommit @DocNo", new Blue.DAL.DbParameter[]{ new Blue.DAL.DbParameter("@DocNo", recNo)}, LoginInfo.ConnStr);
+                        Rec.DbExecuteQuery("EXEC PC.RecCommit @DocNo", new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@DocNo", recNo) }, LoginInfo.ConnStr);
 
                         _transLog.Save("PC", "REC", recNo, "COMMIT", string.Empty, LoginInfo.LoginName, hf_ConnStr.Value);
                     }
