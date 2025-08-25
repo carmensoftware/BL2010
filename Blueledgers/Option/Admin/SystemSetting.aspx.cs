@@ -1048,14 +1048,14 @@ namespace BlueLedger.PL.Option.Admin
             bu.DbExecuteQuery(string.Format(sql, txt_SystemSvcRate.Text, LoginInfo.LoginName), null, LoginInfo.ConnStr);
 
             // Price
-            sql = @"IF NOT EXISTS (SELECT * FROM APP.Config WHERE [Module]='APP' AND [SubModule]='Default' AND [Key]='Price')
+            sql = @"IF NOT EXISTS (SELECT * FROM APP.Config WHERE [Module]='APP' AND [SubModule]='Default' AND [Key]='DigitPrice')
                     BEGIN
                         INSERT INTO APP.Config ([Module],[SubModule],[Key], [Value], [UpdatedDate], [UpdatedBy])
                         VALUES ('APP','Default', 'DigitPrice', '{0}', GETDATE(), '{1}')
                     END
                     ELSE
                     BEGIN
-                        UPDATE APP.Config SET Value = '{0}', UpdatedBy= N'{1}' WHERE [Module]='APP' AND [SubModule]='Default' AND [Key]='Price'
+                        UPDATE APP.Config SET Value = '{0}', UpdatedBy= N'{1}' WHERE [Module]='APP' AND [SubModule]='Default' AND [Key]='DigitPrice'
                     END";
 
             bu.DbExecuteQuery(string.Format(sql, txt_SystemPrice.Text, LoginInfo.LoginName), null, LoginInfo.ConnStr);
