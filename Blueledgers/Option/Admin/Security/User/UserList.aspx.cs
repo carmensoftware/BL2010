@@ -966,7 +966,7 @@ ORDER BY
             ddl_Department.Items.AddRange(depItems);
 
             // Roles
-            var userRole = sql.ExecuteQuery("SELECT RoleName FROM [ADMIN].UserRole WHERE LoginName=@LoginName", new SqlParameter[] { new SqlParameter("@LoginName", loginName) });
+            var userRole = sql.ExecuteQuery("SELECT RoleName FROM [ADMIN].UserRole WHERE LoginName=@LoginName AND IsActive=1", new SqlParameter[] { new SqlParameter("@LoginName", loginName) });
             var roles = userRole != null && userRole.Rows.Count > 0 ? userRole.AsEnumerable().Select(x => x.Field<string>("RoleName").Trim()).ToArray() : new string[0];
 
             var dtRole = sql.ExecuteQuery("SELECT RoleName as [Value], RoleDesc as [Text] FROM [ADMIN].Role WHERE IsActive=1 ORDER BY RoleDesc");
