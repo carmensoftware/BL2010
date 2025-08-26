@@ -613,11 +613,14 @@ namespace BlueLedger.PL.IN.STK
                     {
                         lbl_Warning.Text = "Please select <b>Type</b> for create item.";
                         pop_Warning.ShowOnPageLoad = true;
+                        return;
                     }
+
                     if (grd_StkOutEdit1.Rows.Count == 0)
                     {
                         lbl_Warning.Text = "Please clicks <b>Create</b> button to add item.";
                         pop_Warning.ShowOnPageLoad = true;
+                        return;
                     }
 
                     hf_IsCommit.Value = "0";
