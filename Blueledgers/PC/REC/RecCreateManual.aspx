@@ -1244,6 +1244,7 @@
                     </asp:UpdatePanel>
                 </div>
             </div>
+            
             <dx:ASPxPopupControl ID="pop_Warning" ClientInstanceName="pop_Warning" runat="server" Width="300px" CloseAction="CloseButton" HeaderText="<%$ Resources:PC_REC_RecEdit, Warning %>"
                 Modal="True" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowCloseButton="False">
                 <ContentStyle VerticalAlign="Top">
@@ -1253,7 +1254,7 @@
                         <table border="0" cellpadding="5" cellspacing="0" width="100%">
                             <tr>
                                 <td align="center" colspan="2" height="50px">
-                                    <asp:Label ID="lbl_WarningOth" runat="server" SkinID="LBL_NR"></asp:Label>
+                                    <asp:Label ID="lbl_Warning" runat="server" SkinID="LBL_NR"></asp:Label>
                                 </td>
                             </tr>
                             <tr align="center">
@@ -1274,7 +1275,7 @@
                         <table border="0" cellpadding="5" cellspacing="0" width="100%">
                             <tr>
                                 <td align="center" colspan="2" height="50px">
-                                    <asp:Label ID="lbl_WarningMessage" runat="server" Text="<%$ Resources:PC_REC_RecEdit, WarningMessage %>" SkinID="LBL_NR"></asp:Label>
+                                    <asp:Label ID="lbl_WarningPeriod" runat="server" Text="<%$ Resources:PC_REC_RecEdit, WarningMessage %>" SkinID="LBL_NR"></asp:Label>
                                 </td>
                             </tr>
                             <tr align="center">

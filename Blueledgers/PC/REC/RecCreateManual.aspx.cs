@@ -309,7 +309,8 @@ namespace BlueLedger.PL.IN.REC
 
             if (errorMessage != string.Empty)
             {
-                lbl_WarningOth.Text = errorMessage;
+                
+                lbl_Warning.Text = errorMessage;
                 pop_Warning.ShowOnPageLoad = true;
             }
             else
@@ -323,7 +324,7 @@ namespace BlueLedger.PL.IN.REC
 
             if (errorMessage != string.Empty)
             {
-                lbl_WarningOth.Text = errorMessage;
+                lbl_Warning.Text = errorMessage;
                 pop_Warning.ShowOnPageLoad = true;
             }
             else
@@ -1545,7 +1546,7 @@ as st where st.[rn] between @startIndex and @endIndex";
 
             if (taxType != "N" && taxRate == 0m)
             {
-                lbl_WarningMessage.Text = "Please set tax rate.";
+                lbl_Warning.Text = "Please set tax rate.";
                 pop_Warning.ShowOnPageLoad = true;
 
                 return;
