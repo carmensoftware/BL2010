@@ -35,6 +35,8 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "blueledgers3", "http://loca
 		SlnRelativePath = "blueledgers\"
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LicenseCreator", "LicenseCreator\LicenseCreator.csproj", "{699DB935-D28B-4C31-9413-00FB182719E9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|.NET = Debug|.NET
@@ -110,6 +112,18 @@ Global
 		{01D0AD97-08D8-4097-8790-C7F2758B69AA}.Release|Mixed Platforms.ActiveCfg = Debug|Any CPU
 		{01D0AD97-08D8-4097-8790-C7F2758B69AA}.Release|Mixed Platforms.Build.0 = Debug|Any CPU
 		{01D0AD97-08D8-4097-8790-C7F2758B69AA}.Release|x86.ActiveCfg = Debug|Any CPU
+		{699DB935-D28B-4C31-9413-00FB182719E9}.Debug|.NET.ActiveCfg = Debug|x86
+		{699DB935-D28B-4C31-9413-00FB182719E9}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{699DB935-D28B-4C31-9413-00FB182719E9}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{699DB935-D28B-4C31-9413-00FB182719E9}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{699DB935-D28B-4C31-9413-00FB182719E9}.Debug|x86.ActiveCfg = Debug|x86
+		{699DB935-D28B-4C31-9413-00FB182719E9}.Debug|x86.Build.0 = Debug|x86
+		{699DB935-D28B-4C31-9413-00FB182719E9}.Release|.NET.ActiveCfg = Release|x86
+		{699DB935-D28B-4C31-9413-00FB182719E9}.Release|Any CPU.ActiveCfg = Release|x86
+		{699DB935-D28B-4C31-9413-00FB182719E9}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{699DB935-D28B-4C31-9413-00FB182719E9}.Release|Mixed Platforms.Build.0 = Release|x86
+		{699DB935-D28B-4C31-9413-00FB182719E9}.Release|x86.ActiveCfg = Release|x86
+		{699DB935-D28B-4C31-9413-00FB182719E9}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
