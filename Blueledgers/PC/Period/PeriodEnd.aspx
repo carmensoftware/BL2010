@@ -4,7 +4,7 @@
 <%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxPopupControl" TagPrefix="dx" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="cph_Main" runat="Server">
     <!-- Main Bar -->
-    <div style="background-color: #4d4d4d; height: 17px;">
+    <div style="background-color: #4d4d4d; height: 22px;">
         <div style="display: inline-block; margin-left: 10px;">
             <asp:Image ID="Image1" runat="server" ImageUrl="~/App_Themes/Default/Images/master/icon/icon_purchase.png" />
         </div>
@@ -12,12 +12,13 @@
             <asp:Label ID="lbl_Title" runat="server" SkinID="LBL_HD_WHITE" Text="<%$ Resources:PC_Period_PeriodEnd, lbl_Title %>"></asp:Label>
         </div>
     </div>
+    <!-- -->
+    <div style="margin: 10px; text-align: right;">
+        <asp:Label ID="Label1" runat="server" Font-Bold="true" Text="<%$ Resources:PC_Period_PeriodEnd, lbl_Message1 %>" SkinID="LBL_NR" />
+        <asp:Label ID="lbl_EndDate" runat="server" SkinID="LBL_NR" />
+        <asp:Button ID="btn_ClosePeriod" runat="server" Style="margin-left: 10px;" Text="Closed Period" OnClick="btn_ClosePeriod_Click" />
+    </div>
     <div style="width: 100%;">
-        <div style="margin: 10px; text-align: right;">
-            <asp:Label ID="Label1" runat="server" Text="<%$ Resources:PC_Period_PeriodEnd, lbl_Message1 %>" SkinID="LBL_NR" />
-            <asp:Label ID="lbl_EndDate" runat="server" SkinID="LBL_NR" />
-            <asp:Button ID="btn_ClosePeriod" runat="server" Style="margin-left: 10px;" Text="Closed Period" OnClick="btn_ClosePeriod_Click" />
-        </div>
         <div style="margin: 10px;">
             <b>Pending Receiving</b>
             <asp:GridView ID="gvRec" runat="server" Width="100%" AutoGenerateColumns="false" GridLines="Horizontal" Font-Size="Small" AllowPaging="true" PageSize="20"
@@ -61,6 +62,29 @@
                             <%# FormatNumber(Convert.ToDecimal(Eval("TotalAmt"))) %>
                         </ItemTemplate>
                     </asp:TemplateField>
+                </Columns>
+            </asp:GridView>
+        </div>
+        <div style="margin: 10px;">
+            <b>Pending Stock Out</b>
+            <asp:GridView ID="gvSO" runat="server" Width="100%" AutoGenerateColumns="false" GridLines="Horizontal" Font-Size="Small" AllowPaging="true" PageSize="20"
+                OnPageIndexChanging="gvSO_PageIndexChanging">
+                <HeaderStyle BorderStyle="None" BackColor="Gray" ForeColor="White" HorizontalAlign="Left" />
+                <Columns>
+                    <asp:TemplateField HeaderText="Document No.">
+                        <ItemTemplate>
+                            <a href="../../IN/STK/StkOutDt.aspx?BuCode=<%# LoginInfo.BuInfo.BuCode %>&ID=<%# Eval("RefId").ToString()%>" target="_blank">
+                                <%# Eval("RefId").ToString()%>
+                            </a>
+                        </ItemTemplate>
+                    </asp:TemplateField>
+                    <asp:TemplateField HeaderText="Date">
+                        <ItemTemplate>
+                            <%# DateTime.Parse(Eval("DocDate").ToString()).ToString("dd/MM/yyyy") %>
+                        </ItemTemplate>
+                    </asp:TemplateField>
+                    <asp:BoundField DataField="Description" HeaderText="Description" />
+                    <asp:BoundField DataField="Status" HeaderText="Status" />
                 </Columns>
             </asp:GridView>
         </div>

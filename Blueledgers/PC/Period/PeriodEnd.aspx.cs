@@ -21,21 +21,20 @@ namespace BlueLedger.PL.PC
 
         protected override void Page_Load(object sender, EventArgs e)
         {
-            //if (!IsPostBack)
-            //{
-            //    Page_Retrieve();
-            //}
-            //else
-            //{
-            //    //dsPeriod = (DataSet)Session["dsPeriod"];
-            //    startPeriodDate = (DateTime)ViewState["startPeriodDate"];
-            //    endPeriodDate = (DateTime)ViewState["endPeriodDate"];
-            //}
-
             base.Page_Load(sender, e);
 
+            Page_Setting();
+
+            Control_HeaderMenuBar();
+        }
+
+        private void Page_Setting()
+        {
             startPeriodDate = period.GetLatestOpenStartDate(LoginInfo.ConnStr);
             endPeriodDate = period.GetLatestOpenEndDate(LoginInfo.ConnStr);
+
+            lbl_EndDate.Text = string.Format("{0} to {1}", startPeriodDate.ToString("dd/MM/yyyy"), endPeriodDate.ToString("dd/MM/yyyy"));
+
 
             gvRec.DataSource = GetPendingReceiving();
             gvRec.DataBind();
@@ -43,9 +42,9 @@ namespace BlueLedger.PL.PC
             gvEop.DataSource = GetPendingEop();
             gvEop.DataBind();
 
-            lbl_EndDate.Text = endPeriodDate.ToShortDateString();
+            gvSO.DataSource = GetPendingStockOut();
+            gvSO.DataBind();
 
-            Control_HeaderMenuBar();
         }
 
         protected void Control_HeaderMenuBar()
@@ -63,6 +62,15 @@ namespace BlueLedger.PL.PC
             gv.DataBind();
         }
 
+        protected void gvSO_PageIndexChanging(object sender, GridViewPageEventArgs e)
+        {
+            var gv = sender as GridView;
+
+            gv.PageIndex = e.NewPageIndex;
+            gv.DataSource = GetPendingStockOut();
+            gv.DataBind();
+        }
+
         protected void gvEop_PageIndexChanging(object sender, GridViewPageEventArgs e)
         {
             gvEop.PageIndex = e.NewPageIndex;
@@ -72,43 +80,25 @@ namespace BlueLedger.PL.PC
 
         protected void btn_ClosePeriod_Click(object sender, EventArgs e)
         {
-            
-            if (GetPendingReceiving().Rows.Count > 0 || GetPendingEop().Rows.Count > 0)
+            var recCount = GetPendingReceiving().Rows.Count;
+            var eopCount = GetPendingEop().Rows.Count;
+            var soCount = GetPendingStockOut().Rows.Count;
+
+            var pendingCount = recCount + eopCount + soCount;
+
+            if (pendingCount > 0)
             {
 
-                lbl_Warning.Text = "Some Receiving or Closing Balance transations are not committed. ";
+                lbl_Warning.Text = "Some Receiving/ Stock Out/ Closing Balance still be pending to commit.";
+
                 pop_Warning.ShowOnPageLoad = true;
             }
             else
             {
                 period.PeriodEnd(startPeriodDate, endPeriodDate, LoginInfo.LoginName, LoginInfo.ConnStr);
-                Response.Redirect(Request.RawUrl);    
-                
+
+                Response.Redirect(Request.RawUrl);
             }
-            //if (dsPeriod.Tables[period.TableName].Rows.Count > 0)
-            //{
-            //    var drPeriod = dsPeriod.Tables[period.TableName].Rows[0];
-            //    var result = period.CheckEndDate(DateTime.Parse(drPeriod["EndDate"].ToString()), LoginInfo.ConnStr);
-            //    if (result)
-            //    {
-            //        period.PeriodEnd(DateTime.Parse(drPeriod["StartDate"].ToString()),
-            //            DateTime.Parse(drPeriod["EndDate"].ToString()),
-            //            LoginInfo.LoginName, LoginInfo.ConnStr);
-
-            //        // Added on: 22/09/2017, By: Fon
-            //        ClassLogTool pctool = new ClassLogTool();
-            //        string returnDef = pctool.DefragmentActionLog(3);
-            //        pctool.SaveActionLog("EOP", string.Empty, "Closed Period: " + lbl_EndDate.Text);
-            //        // End Added.
-
-            //        // Display Sucessful Message
-            //        Page_Retrieve();
-            //    }
-            //    else
-            //    {
-            //        pop_Warning.ShowOnPageLoad = true;
-            //    }
-            //}
         }
 
         protected void btn_Warning_Click(object sender, EventArgs e)
@@ -131,7 +121,7 @@ namespace BlueLedger.PL.PC
 			                ON recdt.RecNo = rec.RecNo
 	                WHERE
 		                rec.DocStatus = 'Received'
-		                AND rec.RecDate BETWEEN '{0}' AND '{1}'
+		                AND rec.RecDate BETWEEN @StartDate AND @EndDate
 	                GROUP BY
 		                rec.RecNo
                 )
@@ -153,9 +143,13 @@ namespace BlueLedger.PL.PC
                     JOIN AP.Vendor v
                         ON rec.VendorCode = v.VendorCode";
             //period.
-            sql = string.Format(sql, startPeriodDate.ToString("yyyy-MM-dd"), endPeriodDate.ToString("yyyy-MM-dd"));
+            var parameters = new Blue.DAL.DbParameter[]
+            {
+                new Blue.DAL.DbParameter("@StartDate",startPeriodDate.ToString("yyyy-MM-dd")),
+                new Blue.DAL.DbParameter("@EndDate", endPeriodDate.ToString("yyyy-MM-dd"))
+            };
 
-            return period.DbExecuteQuery(sql, null, LoginInfo.ConnStr);
+            return period.DbExecuteQuery(sql, parameters, LoginInfo.ConnStr);
         }
 
         private DataTable GetPendingEop()
@@ -173,7 +167,8 @@ namespace BlueLedger.PL.PC
                     FROM
 	                    [IN].StoreLocation l
 	                    LEFT JOIN [IN].Eop eop 
-		                    ON eop.StoreId = l.LocationCode AND CAST(eop.EndDate as DATE) = @Date
+		                    ON eop.StoreId = l.LocationCode 
+                            AND CAST(eop.EndDate as DATE) = @EndDate
                     WHERE
 	                    l.EOP = 1
                     )
@@ -184,13 +179,39 @@ namespace BlueLedger.PL.PC
                     WHERE
 	                    DocStatus NOT IN( 'Committed')";
             //period.
-            sql = string.Format(sql, endPeriodDate.ToString("yyyy-MM-dd"));
+            var parameters = new Blue.DAL.DbParameter[]
+            {
+                new Blue.DAL.DbParameter("@EndDate", endPeriodDate.ToString("yyyy-MM-dd"))
+            };
 
-            
-            return period.DbExecuteQuery(@sql, null, LoginInfo.ConnStr);
+
+
+            return period.DbExecuteQuery(@sql, parameters, LoginInfo.ConnStr);
 
         }
 
+        private DataTable GetPendingStockOut()
+        {
+            var sql = @"
+SELECT
+	RefId,
+	CAST(CreateDate AS DATE) as DocDate,
+	[Description],
+	[Status]
+FROM 
+	[IN].StockOut
+WHERE
+	[Status] = 'Saved'
+	AND CAST(CreateDate AS DATE) BETWEEN @StartDate AND @EndDate
+";
+            var parameters = new Blue.DAL.DbParameter[]
+            {
+                new Blue.DAL.DbParameter("@StartDate",startPeriodDate.ToString("yyyy-MM-dd")),
+                new Blue.DAL.DbParameter("@EndDate", endPeriodDate.ToString("yyyy-MM-dd"))
+            };
+
+            return period.DbExecuteQuery(sql, parameters, LoginInfo.ConnStr);
+        }
 
         protected string FormatNumber(decimal number)
         {
