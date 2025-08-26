@@ -13,6 +13,13 @@ namespace Blue.BL.dbo
 
         /*  Customer's license
          
+            2026-08-31 = themarinphuket = 19
+            2026-08-31 = thenappathong = 8+5=13
+            2026-08-31 = celessamui = 25
+            2026-08-31 = surestaytheiconic = 4+7=11
+            2026-08-31 = DIAMOND COTTAGE(on permise) = 15+5=20
+            2026-08-31 = bestwesternclicksathorn11 = 10
+         
          
             2026-07-31 = Nexen = 20
          
@@ -21,11 +28,13 @@ namespace Blue.BL.dbo
             2026-06-30 = maraleina = 23+1 = 24
             2026-06-30 = granddiamondsuites = 6+4 = 10
 
+            2026-06-30 = theyamaphuket = 12
 
             2026-05-31 = ramadadmabangkok = 19
             2026-05-31 = chi = 2
             2026-05-31 = HotelSensai (Chiang Mai) = 3+8 = 11 ปรับเป็น 10 
 
+            2025-05-31 = chatriumniseko = 9
 
             2026-04-30 = indochinephuket = 27
             2025-04-30 = silqandsq = 9+5=14
@@ -44,12 +53,13 @@ namespace Blue.BL.dbo
 
             2026-02-28 = mybeachphuket = 10+? = 13
             2026-02-28 = sorahotels = 9
+            2026-02-28 = firaphuketbeachclub = 5+3=8
           
             2026-01-31 = bayvillaskohphangan = 1+5+1 = 7
             2026-01-31 = hotellotussukhumvit = 15+2 = 17 + 2 = 19
             2026-01-31 = verandaresortautograph = 3+10+1 = 14
             2026-01-31 = urbanalangsuanbkk = 7
-            2026-01-31 = legacysuites = 22
+            2026-01-31 = legacysuites = 15 + 7 = 22
           
           
             2026-01-31 = bwpluscarapace =17
@@ -78,7 +88,7 @@ namespace Blue.BL.dbo
             2025-11-30 = siamese = 24+2 = 26 + 20 + 10 = 56
              
 
-            2024-10-30 = BlumonkeyKrabi = 6
+            2024-10-31 = BlumonkeyKrabi = 6
             2025-10-31 = waltonsuitessukhumvitbangkok = 5
             2025-10-31 = blumonkeybangtaophuket = 6
             2025-10-31 = thebangkokclub = 20
@@ -91,51 +101,29 @@ namespace Blue.BL.dbo
             2025-09-30 = varanahotel = 16
             2025-09-30 = TheSarojin = 3
             2025-09-30 = kckohchang = 17
-            2025-09-30 = theyamaphuket = 12
             2025-09-30 = sunshine-residences = 10+5=15
             2025-09-30 = urbana-sathorn = 6 + 2 = 8
             2025-09-30 = paresaresort = 23
           
+            2025-09-30 = hopinnth = 27 
+            2025-09-30 = palayanagroup = 2+20 = 22
+            2025-09-30 = thekaset = 10
+            2025-09-30 = TWIN_LOTUS (on permise) = 16
+            2025-09-30 = bwsanctuary = 10
+            2025-09-30 = kappasensesubud = 17
+            2025-09-30 = Zeavola = 28
+                    
           
-            2025-08-31 = Diamond Cottage = 15+5=20
-            2025-08-31 = chatriumniseko = 9
-            2025-08-31 = palayanagroup = 2+20 = 22
-            2025-08-31 = surestaytheiconic = 11
-            2025-08-31 = thekaset = 10
-            2025-08-31 = thenappathong = 8+5=13
-            2025-08-31 = surestaytheiconic = 4+7=11
-            2025-08-31 = themarinphuket = 19
-            2025-08-31 = celessamui = 25
-
-            2025-08-31 = bwsanctuary = 10
-            2025-08-31 = kappasensesubud = 17
-            2025-08-31 = Zeavola = 28
-
-
-            2025-08-31 = firaphuketbeachclub = 5+3=8
-            2025-08-31 = bestwesternclicksathorn11 = 10
-
-
+            2025-08-31 = selinaserenityrawai = 8
+          
+          
+            2025-xx-xx = HOPINN (OnPermise) = 27 
             ---------------------------------------------------------------
-
-          
+            --------- Expired -------------
+            ---------------------------------------------------------------
           
             2025-07-31 = BaanSamuiResort = 8
-            2025-07-31 = legacysuites = 15 + 7 = 22
-            2025-07-31 = selinaserenityrawai = 8
           
-            2025-07-31 = hopinnth = 27 
-          
-          
-            2025-07-31 = twinlotus (on permise) = 16
-            2025-07-31 = HOPINN (OnPermise) = 27 
-          
-          
-          
-          
-          
-
-            --------- Expired -------------
 
             2025-02-28 = blumonkeybangsaen = 5
           
@@ -155,11 +143,11 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser = 140;
+        private int licenseActiveUser = 100;
 
         public DateTime GetLicenseExpiredDate()
         {
-            return new DateTime(2026, 1, 31);
+            return new DateTime(2026, 8, 31);
         }
 
         private DateTime licenseExpiredDate { get { return GetLicenseExpiredDate(); } }
