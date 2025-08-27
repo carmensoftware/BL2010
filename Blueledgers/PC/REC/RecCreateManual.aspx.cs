@@ -237,6 +237,9 @@ namespace BlueLedger.PL.IN.REC
             {
                 dsImport = (DataSet)Session["dsImport"];
             }
+
+
+            ddl_Location_Stamp.Enabled = DsRecEdit.Tables[RecDt.TableName].Rows.Count == 0;
         }
 
         #endregion
@@ -1615,9 +1618,15 @@ as st where st.[rn] between @startIndex and @endIndex";
             grd_RecEdit.EditIndex = -1;
             grd_RecEdit.DataBind();
 
+            DsRecEdit.Tables[RecDt.TableName].AcceptChanges();
+
+
             if (grd_RecEdit.Rows.Count < 1)
                 UIControl_BetweenAddItem();
+
+            ddl_Location_Stamp.Enabled = grd_RecEdit.Rows.Count == 0;
         }
+
 
         #region GridDataRow
 
@@ -2571,6 +2580,7 @@ as st where st.[rn] between @startIndex and @endIndex";
                 // Added on: 05/09/2017, By: Fon
                 ddl_Currency.Enabled = false;
                 txt_ExRateAu.Enabled = false;
+                ddl_Location_Stamp.Enabled = false;
             }
         }
 
