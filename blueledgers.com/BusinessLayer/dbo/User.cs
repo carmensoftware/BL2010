@@ -23,12 +23,12 @@ namespace Blue.BL.dbo
          
             2026-07-31 = Nexen = 20
          
-            2026-06-30 = andalanta = 7+1=8
             2026-06-30 = floralcourthotel = 5+6 = 11
             2026-06-30 = maraleina = 23+1 = 24
             2026-06-30 = granddiamondsuites = 6+4 = 10
 
             2026-06-30 = theyamaphuket = 12+2 = 14
+            2026-06-30 = andalanta = 7+1+1=9
 
             2026-05-31 = ramadadmabangkok = 19
             2026-05-31 = chi = 2
@@ -143,7 +143,7 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser = 140;
+        private int licenseActiveUser = 120;
 
         public DateTime GetLicenseExpiredDate()
         {
