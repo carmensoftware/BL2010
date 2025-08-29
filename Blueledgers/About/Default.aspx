@@ -1,19 +1,15 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="Default.aspx.cs" Inherits="License" %>
 
-<%@ Register Assembly="DevExpress.Web.ASPxGridView.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a"
-    Namespace="DevExpress.Web.ASPxGridView" TagPrefix="dx" %>
-<%@ Register Assembly="DevExpress.Web.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a"
-    Namespace="DevExpress.Web.ASPxMenu" TagPrefix="dx" %>
-<%@ Register Assembly="DevExpress.Web.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a"
-    Namespace="DevExpress.Web.ASPxPopupControl" TagPrefix="dx" %>
-<%@ Register Assembly="DevExpress.Web.ASPxEditors.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a"
-    Namespace="DevExpress.Web.ASPxEditors" TagPrefix="dx" %>
-<%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxPopupControl"
+<%@ Register Assembly="DevExpress.Web.ASPxGridView.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Web.ASPxGridView"
     TagPrefix="dx" %>
-<%@ Register Assembly="DevExpress.Web.ASPxGridView.v10.1" Namespace="DevExpress.Web.ASPxGridView"
+<%@ Register Assembly="DevExpress.Web.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Web.ASPxMenu" TagPrefix="dx" %>
+<%@ Register Assembly="DevExpress.Web.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Web.ASPxPopupControl"
     TagPrefix="dx" %>
-<%@ Register Assembly="DevExpress.Web.ASPxEditors.v10.1" Namespace="DevExpress.Web.ASPxEditors"
+<%@ Register Assembly="DevExpress.Web.ASPxEditors.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Web.ASPxEditors"
     TagPrefix="dx" %>
+<%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxPopupControl" TagPrefix="dx" %>
+<%@ Register Assembly="DevExpress.Web.ASPxGridView.v10.1" Namespace="DevExpress.Web.ASPxGridView" TagPrefix="dx" %>
+<%@ Register Assembly="DevExpress.Web.ASPxEditors.v10.1" Namespace="DevExpress.Web.ASPxEditors" TagPrefix="dx" %>
 <!DOCTYPE html>
 <html>
 <head runat="server">
@@ -133,8 +129,7 @@
                     </td>
                     <td>
                         <span runat="server" enableviewstate="False" id="lblCursor" style="cursor: pointer;">
-                            <img id="imgButton" alt="Manage" src="../App_Themes\Default\Images\master\in\Default/icon_over_edit.png"
-                                style="width: 16px; height: 16px;" />
+                            <img id="imgButton" alt="Manage" src="../App_Themes\Default\Images\master\in\Default/icon_over_edit.png" style="width: 16px; height: 16px;" />
                         </span>
                     </td>
                 </tr>
@@ -150,10 +145,8 @@
             <asp:GridView runat="server" ID="grd_Test">
             </asp:GridView>
         </div>
-        <dx:ASPxPopupControl ID="pop_Login" runat="server" ClientInstanceName="pop_Login"
-            EnableViewState="false" PopupElementID="imgButton" EnableHierarchyRecreation="True"
-            PopupHorizontalAlign="LeftSides" PopupVerticalAlign="Below" HeaderText="Authentication"
-            Width="330px" Height="160px">
+        <dx:ASPxPopupControl ID="pop_Login" runat="server" ClientInstanceName="pop_Login" EnableViewState="false" PopupElementID="imgButton" EnableHierarchyRecreation="True"
+            PopupHorizontalAlign="LeftSides" PopupVerticalAlign="Below" HeaderText="Authentication" Width="330px" Height="160px">
             <ContentCollection>
                 <dx:PopupControlContentControl runat="server">
                     <asp:Panel ID="Panel1" runat="server">
@@ -169,10 +162,8 @@
             </ContentCollection>
             <ClientSideEvents CloseUp="function(s, e) { SetImageState(false); }" PopUp="function(s, e) { SetImageState(true); }" />
         </dx:ASPxPopupControl>
-        <dx:ASPxPopupControl ID="pop_Manage" runat="server" ClientInstanceName="pop_Manage"
-            HeaderText="User List" Modal="True" CloseAction="CloseButton" AllowDragging="True"
-            PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" Width="320px"
-            Height="480px">
+        <dx:ASPxPopupControl ID="pop_Manage" runat="server" ClientInstanceName="pop_Manage" HeaderText="User List" Modal="True" CloseAction="CloseButton" AllowDragging="True"
+            PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" Width="320px" Height="480px">
             <ContentCollection>
                 <dx:PopupControlContentControl runat="server">
                     <%--<div>
@@ -181,16 +172,13 @@
                                 Width="30%" />
                         </p>
                     </div>--%>
-                    <dx:ASPxGridView ID="grid_UserList" ClientInstanceName="grid_UserList" EnableRowsCache="false"
-                        KeyFieldName="LoginName" runat="server" AutoGenerateColumns="false" OnPageIndexChanged="grid_UserList_PageIndexChanged"
-                        OnInit="grid_UserList_Init" OnLoad="grid_UserList_Load">
+                    <dx:ASPxGridView ID="grid_UserList" ClientInstanceName="grid_UserList" EnableRowsCache="false" KeyFieldName="LoginName" runat="server" AutoGenerateColumns="false"
+                        OnPageIndexChanged="grid_UserList_PageIndexChanged" OnInit="grid_UserList_Init" OnLoad="grid_UserList_Load">
                         <Columns>
-                            <dx:GridViewDataTextColumn FieldName="IsActived" Caption="Actived" VisibleIndex="0"
-                                UnboundType="Boolean" CellStyle-HorizontalAlign="Center">
+                            <dx:GridViewDataTextColumn FieldName="IsActived" Caption="Actived" VisibleIndex="0" UnboundType="Boolean" CellStyle-HorizontalAlign="Center">
                                 <Settings AllowAutoFilter="False"></Settings>
                                 <DataItemTemplate>
-                                    <dx:ASPxCheckBox ID="cb_IsActive" runat="server" Value='<%# Bind("IsActived") %>'
-                                        AutoPostBack="true" OnCheckedChanged="cb_IsActive_CheckedChanged">
+                                    <dx:ASPxCheckBox ID="cb_IsActive" runat="server" Value='<%# Bind("IsActived") %>' AutoPostBack="true" OnCheckedChanged="cb_IsActive_CheckedChanged">
                                     </dx:ASPxCheckBox>
                                 </DataItemTemplate>
                                 <Settings AllowAutoFilter="False"></Settings>
@@ -218,6 +206,10 @@
             </ContentCollection>
         </dx:ASPxPopupControl>
     </div>
+    <!--Hidden Field -->
+    <asp:HiddenField runat="server" ID="hf_UserActive" />
+    <asp:HiddenField runat="server" ID="hf_UserLicense" />
+    <asp:HiddenField runat="server" ID="hf_ExpiredDate" />
     </form>
 </body>
 </html>

@@ -22,14 +22,23 @@ public partial class License : System.Web.UI.Page
     private DataSet dsAboutUser = new DataSet();
     private string dtSaveUser = "SaveUser";
 
+
     /* BIG NOTE:
      * BasePage = cannot get expiredDate, ActiveUserLicense, ActiveUserCurrent.
      */
     protected void Page_Load(object sender, EventArgs e)
     {
-        lbl_ExpiredDate.Text = _user.GetLicenseExpiredDate().ToShortDateString();
-        lbl_ActiveUserLicense.Text = _user.GetActiveUserLicense().ToString();
-        lbl_ActiveUserCurrent.Text = _user.GetActiveUser().ToString();
+        var userLicense = _user.GetActiveUserLicense();
+        var userActive = _user.GetActiveUser();
+        var expiredDate = _user.GetLicenseExpiredDate();
+
+        hf_UserActive.Value = userActive.ToString();
+        hf_UserLicense.Value = userLicense.ToString();
+        hf_ExpiredDate.Value = expiredDate.ToString("yyyy-MM-dd");
+
+        lbl_ExpiredDate.Text = expiredDate.ToShortDateString();
+        lbl_ActiveUserLicense.Text = userLicense.ToString();
+        lbl_ActiveUserCurrent.Text = userActive.ToString();
 
         if (!IsPostBack)
         {
