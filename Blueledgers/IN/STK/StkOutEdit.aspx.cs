@@ -983,7 +983,7 @@ DECLARE @DocDate DATE = (SELECT CreateDate FROM [IN].StockOut WHERE RefId=@DocNo
 DECLARE @CommittedDate DATETIME = [IN].GetCommittedDate( @DocDate, GETDATE())
 
 ;WITH
-pl AS(
+so AS(
 	SELECT
 		StoreId,
 		SKU,
@@ -998,20 +998,17 @@ pl AS(
 ),
 onhand AS(
 	SELECT
-		i.[Location],
-		i.ProductCode,
-		pl.Qty,
-		SUM([IN]-[OUT]) as Onhand
+		so.StoreId as [Location],
+		so.SKU as ProductCode,
+		so.Qty,
+		ISNULL(SUM([IN]-[OUT]), 0) as Onhand
 	FROM
-		[IN].Inventory i
-		JOIN pl ON pl.StoreId=i.Location AND pl.SKU=i.ProductCode
-	WHERE
-		HdrNo <> @DocNo
-		AND CAST(CommittedDate AS DATE) <= @CommittedDate
+		so
+		LEFT JOIN [IN].Inventory i ON i.Location=so.StoreId AND i.ProductCode=so.SKU AND HdrNo <> @DocNo
 	GROUP BY
-		i.[Location],
-		i.ProductCode,
-		pl.Qty
+		so.StoreId,
+		so.SKU,
+		so.Qty
 )
 SELECT
 	*,
