@@ -83,8 +83,8 @@ namespace BlueLedger.PL.IN.STK
             {
                 DataRow drStockIn = _dtStockIn.Rows[0];
 
-                var dateField = string.IsNullOrEmpty(drStockIn["CommitDate"].ToString()) ? "CreateDate" : "CommitDate";
-                de_DocDate.Date = Convert.ToDateTime(drStockIn[dateField]);
+                //var dateField = string.IsNullOrEmpty(drStockIn["CommitDate"].ToString()) ? "CreateDate" : "CommitDate";
+                de_DocDate.Date = Convert.ToDateTime(drStockIn["CreateDate"]);
                 ddl_Type.Value = drStockIn["Type"].ToString();
                 lbl_Status.Text = drStockIn["Status"].ToString();
                 txt_Desc.Text = drStockIn["Description"].ToString();
