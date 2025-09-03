@@ -890,6 +890,7 @@ namespace BlueLedger.PL.IN.STK
             pop_ConfrimSave.ShowOnPageLoad = false;
 
             var startPeriodDate = period.GetLatestOpenStartDate(LoginInfo.ConnStr);
+            var endPeriodDate = period.GetLatestOpenEndDate(LoginInfo.ConnStr);
             var docDate = Convert.ToDateTime(txt_Date.Text);
 
             // Validate required 
@@ -900,6 +901,16 @@ namespace BlueLedger.PL.IN.STK
 
                 return;
             }
+
+            if (isCommit && docDate > endPeriodDate)
+            {
+                lbl_Warning.Text = string.Format("Stock out is able to commit during the opening period ({0} - {1}).", startPeriodDate.ToString("dd/MM/yyyy"), endPeriodDate.ToString("dd/MM/yyyy"));
+                pop_Warning.ShowOnPageLoad = true;
+
+                return;
+            }
+            
+
 
 
 
@@ -976,7 +987,6 @@ namespace BlueLedger.PL.IN.STK
 
                 if (isCommit)
                 {
-
                     var query = @"
 DECLARE @DocNo nvarchar(20)='{0}'
 DECLARE @DocDate DATE = (SELECT CreateDate FROM [IN].StockOut WHERE RefId=@DocNo)
