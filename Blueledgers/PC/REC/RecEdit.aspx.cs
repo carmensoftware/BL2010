@@ -223,7 +223,7 @@ namespace BlueLedger.PL.IN.REC
             _default = new DefaultValues
             {
                 Currency = currency,
-                DigitPrice = string.IsNullOrEmpty(digitPrice) ? 3 : Convert.ToInt32(digitAmt),
+                DigitPrice = string.IsNullOrEmpty(digitPrice) ? 3 : Convert.ToInt32(digitPrice),
                 DigitAmt = string.IsNullOrEmpty(digitAmt) ? 2 : Convert.ToInt32(digitAmt),
                 DigitQty = string.IsNullOrEmpty(digitQty) ? 2 : Convert.ToInt32(digitQty),
                 TaxRate = string.IsNullOrEmpty(taxRate) ? 0 : Convert.ToDecimal(taxRate),
