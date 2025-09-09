@@ -3328,7 +3328,8 @@ namespace BlueLedger.PL.PC.PR
                 if (e.Row.FindControl("lbl_DescEn") != null)
                 {
                     var lbl_DescEn = e.Row.FindControl("lbl_DescEn") as Label;
-                    lbl_DescEn.Text = DataBinder.Eval(e.Row.DataItem, "Descen").ToString();
+                    //lbl_DescEn.Text = DataBinder.Eval(e.Row.DataItem, "Descen").ToString();
+                    lbl_DescEn.Text = product.GetName(DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString(), buConnStr);
                     lbl_DescEn.ToolTip = lbl_DescEn.Text;
 
                     lbl_DescEn.Visible = !IsExistInField("PC.PrDt.Descen", controlHide);
@@ -3346,7 +3347,8 @@ namespace BlueLedger.PL.PC.PR
                 if (e.Row.FindControl("lbl_DescLL") != null)
                 {
                     var lbl_DescLL = e.Row.FindControl("lbl_DescLL") as Label;
-                    lbl_DescLL.Text = DataBinder.Eval(e.Row.DataItem, "Descll").ToString();
+                    //lbl_DescLL.Text = DataBinder.Eval(e.Row.DataItem, "Descll").ToString();
+                    lbl_DescLL.Text = product.GetName2(DataBinder.Eval(e.Row.DataItem, "ProductCode").ToString(), buConnStr); ;
                     lbl_DescLL.ToolTip = lbl_DescLL.Text;
 
                     lbl_DescLL.Visible = !IsExistInField("PC.PrDt.Descll", controlHide);
