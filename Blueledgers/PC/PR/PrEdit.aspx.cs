@@ -604,7 +604,10 @@ namespace BlueLedger.PL.PC.PR
                     var drLastPrDt = dsPR.Tables[prDt.TableName].Rows[dsPR.Tables[prDt.TableName].Rows.Count - 1];
 
                     drNew["BuCode"] = drLastPrDt["BuCode"].ToString();
-                    drNew["VendorCode"] = drLastPrDt["VendorCode"].ToString();
+                    if (wfStep > 1)
+                    {
+                        drNew["VendorCode"] = drLastPrDt["VendorCode"].ToString();
+                    }
                     drNew["LocationCode"] = drLastPrDt["LocationCode"].ToString();
                     drNew["DeliPoint"] = drLastPrDt["DeliPoint"].ToString();
                     drNew["ReqDate"] = DateTime.Parse(drLastPrDt["ReqDate"].ToString());
@@ -768,7 +771,42 @@ namespace BlueLedger.PL.PC.PR
                         {
                             if (wfDt.GetAllowCreate(wfId, wfStep, LoginInfo.ConnStr))   //if (wfStep == 1)
                             {
-                                upAppr = UpdateApprStatus();
+                                var isApprove = true;
+
+                                var sql = "SELECT MIN(CHARINDEX('_', ApprStatus)) as StartStep FROM PC.PrDt WHERE PrNo=@DocNo";
+                                var dt = prDt.DbExecuteQuery(sql, new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@DocNo", refNo) }, hf_ConnStr.Value);
+
+
+                                if (dt != null && dt.Rows.Count > 0)
+                                {
+                                    var startStep = Convert.ToInt32(dt.Rows[0][0]);
+
+                                    if (startStep > 1)
+                                    {
+                                        isApprove = false;
+
+                                        // Update ApprStatus if this document is sent back from other step
+                                        sql = @"
+DECLARE @WfStep INT = (SELECT StepNo FROM APP.WF WHERE WFId=1)
+DECLARE @LastStep INT = (SELECT MAX(CHARINDEX('_', ApprStatus)) /10 FROM PC.PrDt WHERE PrNo=@DocNo)
+DECLARE @StartRejectStep INT = (SELECT MAX(CHARINDEX('R', ApprStatus)) /10 FROM PC.PrDt WHERE PrNo=@DocNo)
+
+    DECLARE @ApprStatus nvarchar(10) = REPLICATE('A', @LastStep - @StartRejectStep) 
+
+    IF @StartRejectStep > 0
+    BEGIN
+	    SET @ApprStatus = @ApprStatus + REPLICATE('P', @LastStep-@StartRejectStep )
+    END
+    SET @ApprStatus = @ApprStatus + REPLICATE('_', @WfStep - @LastStep)
+
+UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
+";
+                                        wfDt.DbExecuteQuery(sql, new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@DocNo", refNo) }, hf_ConnStr.Value);
+                                    }
+                                }
+
+                                if (isApprove)
+                                    upAppr = UpdateApprStatus();
                             }
                         }
 
@@ -802,8 +840,6 @@ namespace BlueLedger.PL.PC.PR
             }
         }
 
-        //Update Data of Workflow Step 1
-        //private void UpdateApprStatus()
         private object[] UpdateApprStatus()
         {
             object[] obj = new object[2];
@@ -2745,6 +2781,15 @@ namespace BlueLedger.PL.PC.PR
                 p_AllocateVendor.Visible = false;
                 p_AllocateVendor_Expand.Visible = false;
                 chk_Item.Checked = false;
+
+                var apprStatus = DataBinder.Eval(e.Row.DataItem, "ApprStatus").ToString();
+
+                // Hide edit and delete when sendback to 1st step
+                if (lnkb_Edit != null && wfStep == 1 && !apprStatus.StartsWith("_"))
+                {
+                    lnkb_Edit.Visible = false;
+                    lnkb_Delete.Visible = false;
+                }
 
                 // Display Button.
 

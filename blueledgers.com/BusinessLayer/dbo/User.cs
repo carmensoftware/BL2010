@@ -143,7 +143,7 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser = 15;
+        private int licenseActiveUser = 150;
 
         public DateTime GetLicenseExpiredDate()
         {
