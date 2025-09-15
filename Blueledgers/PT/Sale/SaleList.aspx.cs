@@ -1559,6 +1559,7 @@ VALUES (@RefId, @Type, 'Saved', @Description, NULL, @CreateBy, @CreateDate, @Upd
 
             var dateFrom = new DateTime(selectYear, selectMonth, 1);
             var dateTo = dateFrom.AddMonths(1).AddDays(-1);
+
             gv_POS.DataSource = QueryPosData(dateFrom, dateTo);
             gv_POS.DataBind();
 
@@ -2597,22 +2598,38 @@ ORDER BY
         {
             if (items.Count() > 0)
             {
-                var dt = bu.DbExecuteQuery("SELECT ItemCode as Code FROM PT.item", null, LoginInfo.ConnStr);
-                var codes = dt != null && dt.Rows.Count > 0 ? dt.AsEnumerable().Select(x => x.Field<string>("Code")).ToList() : new List<string>();
-                var new_items = items.Select(x => x.Code).Except(codes);
-
-                var sql = new StringBuilder();
-
-                sql.AppendLine("INSERT INTO PT.Item (ItemCode, ItemName)");
-                sql.AppendLine("VALUES");
-                foreach (var item in items.Where(x => new_items.Contains(x.Code)))
+                foreach (var item in items)
                 {
-                    var code = item.Code;
-                    var name1 = string.IsNullOrEmpty(item.Desc1) ? item.Name1 : item.Desc1;
-                    sql.Append(string.Format("('{0}','{1}'),", code, name1.Replace("'", "''")));
+                    var name = string.IsNullOrEmpty(item.Desc1) ? item.Name1 : item.Desc1;
+
+                    var query = "UPDATE PT.Item SET ItemName=@ItemName WHERE ItemCode=@ItemCode";
+                    bu.DbExecuteQuery(query, 
+                        new Blue.DAL.DbParameter[]
+                        {
+                            new Blue.DAL.DbParameter("@ItemCode", item.Code),
+                            new Blue.DAL.DbParameter("@ItemName", name + "x")
+                        }, 
+                        LoginInfo.ConnStr);
+
+
                 }
 
-                bu.DbExecuteQuery(sql.ToString().Trim().TrimEnd(','), null, LoginInfo.ConnStr);
+                //var dt = bu.DbExecuteQuery("SELECT ItemCode as Code FROM PT.item", null, LoginInfo.ConnStr);
+                //var codes = dt != null && dt.Rows.Count > 0 ? dt.AsEnumerable().Select(x => x.Field<string>("Code")).ToList() : new List<string>();
+                //var new_items = items.Select(x => x.Code).Except(codes);
+
+                //var sql = new StringBuilder();
+
+                //sql.AppendLine("INSERT INTO PT.Item (ItemCode, ItemName)");
+                //sql.AppendLine("VALUES");
+                //foreach (var item in items.Where(x => new_items.Contains(x.Code)))
+                //{
+                //    var code = item.Code;
+                //    var name1 = string.IsNullOrEmpty(item.Desc1) ? item.Name1 : item.Desc1;
+                //    sql.Append(string.Format("('{0}','{1}'),", code, name1.Replace("'", "''")));
+                //}
+
+                //bu.DbExecuteQuery(sql.ToString().Trim().TrimEnd(','), null, LoginInfo.ConnStr);
 
             }
         }
@@ -2650,27 +2667,26 @@ ORDER BY
             // update outlet , itemcode
 
 
-            var outlets = sales
-                .Select(x => x.Outlet)
-                .Distinct()
-                .Select(x => new OutletItem
-                {
-                    Code = x,
-                    Desc = x
-                });
+            //var outlets = sales
+            //    .Select(x => x.Outlet)
+            //    .Distinct()
+            //    .Select(x => new OutletItem
+            //    {
+            //        Code = x,
+            //        Desc = x
+            //    });
 
-            UpdateOutlet(outlets);
+            //UpdateOutlet(outlets);
 
-            var items = sales
-                .Select(x => x.ItemCode)
-                .Distinct()
-                .Select(x => new ItemItem
-                {
-                    Code = x,
-                    Desc1 = x
-                });
-
-            UpdateItem(items);
+            //var items = sales
+            //    .Select(x => x.ItemCode)
+            //    .Distinct()
+            //    .Select(x => new ItemItem
+            //    {
+            //        Code = x,
+            //        Desc1 = x
+            //    });
+            //UpdateItem(items);
         }
 
         protected string FormatQty(object sender)
