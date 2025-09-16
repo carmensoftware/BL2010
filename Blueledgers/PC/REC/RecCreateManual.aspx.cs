@@ -312,7 +312,7 @@ namespace BlueLedger.PL.IN.REC
 
             if (errorMessage != string.Empty)
             {
-                
+
                 lbl_Warning.Text = errorMessage;
                 pop_Warning.ShowOnPageLoad = true;
             }
@@ -509,48 +509,57 @@ namespace BlueLedger.PL.IN.REC
 
         protected void ddl_Product_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var o = grd_RecEdit.Rows[grd_RecEdit.EditIndex];
-            var ddlProduct = o.FindControl("ddl_Product") as ASPxComboBox;
-            var lblUnit = o.FindControl("lbl_Unit") as Label;
-            var ddlRcvUnit = o.FindControl("ddl_RcvUnit") as ASPxComboBox;
-            var lblConvertRate = o.FindControl("lbl_ConvertRate") as Label;
-            var ddlLocationStamp = UpdatePanel2.FindControl("ddl_Location_Stamp") as ASPxComboBox;
-            //var txt_NetDrAcc = o.FindControl("txt_NetDrAcc") as TextBox;
-            //var txt_TaxDrAcc = o.FindControl("txt_TaxDrAcc") as TextBox;
-            var ddl_NetDrAcc = (ASPxComboBox)o.FindControl("ddl_NetDrAcc");
-            var ddl_TaxDrAcc = (ASPxComboBox)o.FindControl("ddl_TaxDrAcc");
+            var row = grd_RecEdit.Rows[grd_RecEdit.EditIndex];
 
-            var chk_TaxAdj = o.FindControl("chk_TaxAdj") as CheckBox;
-            var ddl_TaxType = (DropDownList)o.FindControl("ddl_TaxType");
-            var txt_TaxRate = (TextBox)o.FindControl("txt_TaxRate");
+            var ddl_Location_Stamp = UpdatePanel2.FindControl("ddl_Location_Stamp") as ASPxComboBox;
+            var ddl_Product = row.FindControl("ddl_Product") as ASPxComboBox;
 
-            if (ddlProduct != null &&
-                (ddlLocationStamp != null &&
-                 (ddlLocationStamp.Value != null && ddlProduct.Value != null &&
-                  !string.IsNullOrEmpty(ddlProduct.Value.ToString()))))
+            var ddl_RcvUnit = row.FindControl("ddl_RcvUnit") as ASPxComboBox;
+            var lbl_Unit = row.FindControl("lbl_Unit") as Label;
+            var lbl_ConvertRate = row.FindControl("lbl_ConvertRate") as Label;
+
+            var chk_TaxAdj = row.FindControl("chk_TaxAdj") as CheckBox;
+            var ddl_TaxType = (DropDownList)row.FindControl("ddl_TaxType");
+            var txt_TaxRate = (TextBox)row.FindControl("txt_TaxRate");
+
+            var productCode = ddl_Product.Value.ToString().Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+            var location_Stamp = ddl_Location_Stamp.Value.ToString();
+
+            if (!string.IsNullOrEmpty(productCode))
             {
-                var productCode = ddlProduct.Value.ToString().Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
-                //not work >> string produceCode = ddl_Product.SelectedItem.Value.ToString();
-                if (lblUnit != null)
+                if (lbl_Unit != null)
                 {
-                    lblUnit.Text = Product.GetInvenUnit(productCode, hf_ConnStr.Value);
-                    //ddl_RcvUnit.DataSource = LookupUnit(produceCode); //ProdUnit.GetLookUp_OrderUnitByProductCode(produceCode, hf_ConnStr.Value);
-                    if (ddlRcvUnit != null)
-                    {
-                        ddlRcvUnit.DataSource = ProdUnit.GetLookUp_OrderUnitByProductCode(productCode, hf_ConnStr.Value);
-                        ddlRcvUnit.ValueField = "OrderUnit";
-                        ddlRcvUnit.Text = lblUnit.Text;
-                        ddlRcvUnit.DataBind();
-                    }
-                    var drRecDt = DsRecEdit.Tables[RecDt.TableName].Rows[grd_RecEdit.EditIndex];
-                    drRecDt["ProductCode"] = ddlProduct.Value.ToString();
+                    lbl_Unit.Text = Product.GetInvenUnit(productCode, hf_ConnStr.Value);
 
-                    if (lblConvertRate != null)
+                    if (ddl_RcvUnit != null)
                     {
-                        lblConvertRate.Text = ProdUnit.GetConvRate(productCode, lblUnit.Text, hf_ConnStr.Value).ToString();
+                        var rcvUnit = ddl_RcvUnit.Value == null ? "" : ddl_RcvUnit.Value.ToString();
+                        //lbl_Title.Text = rcvUnit;
+
+                        var dtUnits = ProdUnit.GetLookUp_OrderUnitByProductCode(productCode, hf_ConnStr.Value);
+
+                        ddl_RcvUnit.DataSource = dtUnits;
+                        ddl_RcvUnit.ValueField = "OrderUnit";
+                        ddl_RcvUnit.Text = lbl_Unit.Text;
+                        ddl_RcvUnit.DataBind();
+
+                        var item = dtUnits.AsEnumerable().FirstOrDefault(x => x.Field<string>("OrderUnit") == rcvUnit);
+
+                        if (item != null)
+                            ddl_RcvUnit.Value = rcvUnit;
+                    }
+
+                    var drRecDt = DsRecEdit.Tables[RecDt.TableName].Rows[grd_RecEdit.EditIndex];
+
+                    drRecDt["ProductCode"] = ddl_Product.Value.ToString();
+
+                    if (lbl_ConvertRate != null)
+                    {
+                        lbl_ConvertRate.Text = ProdUnit.GetConvRate(productCode, lbl_Unit.Text, hf_ConnStr.Value).ToString();
                     }
                 }
 
+                // Tax Type
                 string taxType = Product.GetTaxType(productCode, hf_ConnStr.Value);
 
                 if (string.IsNullOrEmpty(taxType))
@@ -563,7 +572,7 @@ namespace BlueLedger.PL.IN.REC
                 }
 
 
-                string buCode = Request.Params["BuCode"].ToString();
+                //string buCode = Request.Params["BuCode"].ToString();
             }
         }
 
@@ -602,15 +611,21 @@ namespace BlueLedger.PL.IN.REC
         {
             var ddl_RcvUnit = sender as ASPxComboBox;
 
-            var se_RecQtyEdit = grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("se_RecQtyEdit") as ASPxSpinEdit;
-            var lbl_Receive = grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("lbl_Receive") as Label;
-            var lbl_RcvUnit_Expand = grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("lbl_RcvUnit_Expand") as Label;
-            var lbl_ConvertRate = grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("lbl_ConvertRate") as Label;
-            var lbl_BaseQty = grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("lbl_BaseQty") as Label;
+            var row = grd_RecEdit.Rows[grd_RecEdit.EditIndex];
 
-            string productCode = DsRecEdit.Tables[RecDt.TableName].Rows[grd_RecEdit.EditIndex]["ProductCode"].ToString();
+            var ddl_Product = row.FindControl("ddl_Product") as ASPxComboBox;
+            var se_RecQtyEdit = row.FindControl("se_RecQtyEdit") as ASPxSpinEdit;
 
-            decimal recQty = Convert.ToDecimal(se_RecQtyEdit.Value);
+            var lbl_Receive = row.FindControl("lbl_Receive") as Label;
+            var lbl_RcvUnit_Expand = row.FindControl("lbl_RcvUnit_Expand") as Label;
+            var lbl_ConvertRate = row.FindControl("lbl_ConvertRate") as Label;
+            var lbl_BaseQty = row.FindControl("lbl_BaseQty") as Label;
+
+            //string productCode = DsRecEdit.Tables[RecDt.TableName].Rows[grd_RecEdit.EditIndex]["ProductCode"].ToString();
+            var productCode = ddl_Product.Value.ToString().Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+            var rcvUnit = ddl_RcvUnit.Value.ToString();
+            var recQty = Convert.ToDecimal(se_RecQtyEdit.Value);
+            var convertRate = ProdUnit.GetConvRate(productCode, rcvUnit, hf_ConnStr.Value);
 
             if (lbl_Receive != null)
             {
@@ -624,10 +639,8 @@ namespace BlueLedger.PL.IN.REC
                 lbl_RcvUnit_Expand.ToolTip = lbl_RcvUnit_Expand.Text;
             }
 
-            decimal convertRate = 0;
             if (lbl_ConvertRate != null)
             {
-                convertRate = ProdUnit.GetConvRate(productCode, ddl_RcvUnit.Value.ToString(), hf_ConnStr.Value);
                 lbl_ConvertRate.Text = string.Format(DefaultQtyFmt, convertRate);
                 lbl_ConvertRate.ToolTip = lbl_ConvertRate.Text;
             }

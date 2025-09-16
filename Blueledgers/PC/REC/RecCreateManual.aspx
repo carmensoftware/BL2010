@@ -316,8 +316,7 @@
                                 <asp:Label ID="lbl_TotalExtraCost" runat="server" Text="Extra Cost" SkinID="LBL_HD" />
                             </td>
                             <td>
-                                <dx:ASPxSpinEdit ID="se_TotalExtraCost" runat="server"  NullText="0" SpinButtons-ShowIncrementButtons="False" DecimalPlaces="2"
-                                    ReadOnly="true" />
+                                <dx:ASPxSpinEdit ID="se_TotalExtraCost" runat="server" NullText="0" SpinButtons-ShowIncrementButtons="False" DecimalPlaces="2" ReadOnly="true" />
                             </td>
                             <td>
                                 <asp:Button ID="btn_AllocateExtraCost" runat="server" Text="Allocate" OnClick="btn_AllocateExtraCost_Click" />
@@ -505,9 +504,9 @@
                                                 <tr>
                                                     <td width="18%" style="padding-right: 5px; white-space: nowrap; overflow: hidden;">
                                                         <asp:Label ID="lbl_ProductCode" runat="server" SkinID="LBL_NR_GRD" Width="150px"></asp:Label>
-                                                        <dx:ASPxComboBox ID="ddl_Product" runat="server" AutoPostBack="True" CallbackPageSize="10" OnItemsRequestedByFilterCondition="ddl_ProductCode_OnItemsRequestedByFilterCondition_SQL"
-                                                            OnItemRequestedByValue="ddl_ProductCode_OnItemRequestedByValue_SQL" EnableCallbackMode="true" OnSelectedIndexChanged="ddl_Product_SelectedIndexChanged"
-                                                            TextFormatString="{0} : {1} : {2}" ValueType="System.String" Width="95%" IncrementalFilteringMode="Contains" ValueField="ProductCode">
+                                                        <dx:ASPxComboBox ID="ddl_Product" runat="server" AutoPostBack="True" CallbackPageSize="25" EnableCallbackMode="true" Width="95%" IncrementalFilteringMode="Contains"
+                                                            ValueField="ProductCode" OnItemsRequestedByFilterCondition="ddl_ProductCode_OnItemsRequestedByFilterCondition_SQL" OnItemRequestedByValue="ddl_ProductCode_OnItemRequestedByValue_SQL"
+                                                            OnSelectedIndexChanged="ddl_Product_SelectedIndexChanged" TextFormatString="{0} : {1} : {2}">
                                                             <Columns>
                                                                 <dx:ListBoxColumn Caption="Code" FieldName="ProductCode" Width="85px" />
                                                                 <dx:ListBoxColumn Caption="Name" FieldName="ProductDesc1" Width="280px" />
@@ -523,8 +522,8 @@
                                                         <%--50px--%>
                                                         <asp:RequiredFieldValidator ID="se_RecQtyEditReq" runat="server" ControlToValidate="se_RecQtyEdit" ErrorMessage="*" Visible="false"> 
                                                         </asp:RequiredFieldValidator>
-                                                        <dx:ASPxSpinEdit ID="se_RecQtyEdit" runat="server"  Height="17px" HorizontalAlign="Right" NullText="0"
-                                                            Number="0" Width="90%" OnNumberChanged="se_RecQtyEdit_OnNumberChanged" AutoPostBack="true">
+                                                        <dx:ASPxSpinEdit ID="se_RecQtyEdit" runat="server" Height="17px" HorizontalAlign="Right" NullText="0" Number="0" Width="90%" OnNumberChanged="se_RecQtyEdit_OnNumberChanged"
+                                                            AutoPostBack="true">
                                                             <%--50px--%>
                                                             <SpinButtons ShowIncrementButtons="False">
                                                             </SpinButtons>
@@ -538,17 +537,15 @@
                                                     </td>
                                                     <td width="5%" style="padding-right: 5px;">
                                                         <%--80px--%>
-                                                        <dx:ASPxComboBox ID="ddl_RcvUnit" runat="server" Width="98%" ValueField="OrderUnit" TextField="OrderUnit" AutoPostBack="True" OnSelectedIndexChanged="ddl_RcvUnit_SelectedIndexChanged"
-                                                            OnItemsRequestedByFilterCondition="ddl_RcvUnit_OnItemsRequestedByFilterCondition">
-                                                            <%--<Columns>
-                                                                <dx:ListBoxColumn Caption="Code" FieldName="OrderUnit" />
-                                                            </Columns>--%>
+                                                        <dx:ASPxComboBox ID="ddl_RcvUnit" runat="server" Width="98%" ValueField="OrderUnit" TextField="OrderUnit" AutoPostBack="True" OnSelectedIndexChanged="ddl_RcvUnit_SelectedIndexChanged">
                                                         </dx:ASPxComboBox>
+                                                        <%--<dx:ASPxComboBox ID="ddl_RcvUnit" runat="server" Width="98%" ValueField="OrderUnit" TextField="OrderUnit" AutoPostBack="True" OnSelectedIndexChanged="ddl_RcvUnit_SelectedIndexChanged"
+                                                            OnItemsRequestedByFilterCondition="ddl_RcvUnit_OnItemsRequestedByFilterCondition">
+                                                        </dx:ASPxComboBox>--%>
                                                     </td>
                                                     <td width="7%" align="right" style="padding-right: 5px;">
                                                         <%--50px50px--%>
-                                                        <dx:ASPxSpinEdit ID="se_FocEdit" runat="server"   HorizontalAlign="Right" NullText="0" Number="0" Width="90%"
-                                                            Height="17px">
+                                                        <dx:ASPxSpinEdit ID="se_FocEdit" runat="server" HorizontalAlign="Right" NullText="0" Number="0" Width="90%" Height="17px">
                                                             <SpinButtons ShowIncrementButtons="False">
                                                             </SpinButtons>
                                                         </dx:ASPxSpinEdit>
@@ -557,8 +554,7 @@
                                                         <%--50px--%>
                                                         <asp:RequiredFieldValidator ID="se_PriceEditReq" runat="server" ControlToValidate="se_PriceEdit" ErrorMessage="*" Visible="false"> 
                                                         </asp:RequiredFieldValidator>
-                                                        <dx:ASPxSpinEdit ID="se_PriceEdit" runat="server" AutoPostBack="true"  HorizontalAlign="Right" NullText="0"
-                                                            Number="0" Width="90%" Height="17px" OnNumberChanged="se_PriceEdit_OnNumberChanged">
+                                                        <dx:ASPxSpinEdit ID="se_PriceEdit" runat="server" AutoPostBack="true" HorizontalAlign="Right" NullText="0" Number="0" Width="90%" Height="17px" OnNumberChanged="se_PriceEdit_OnNumberChanged">
                                                             <SpinButtons ShowIncrementButtons="False">
                                                             </SpinButtons>
                                                             <ValidationSettings Display="Dynamic">
@@ -576,8 +572,8 @@
                                                         <%--70px Width="70px"--%>
                                                         <asp:RequiredFieldValidator ID="se_TotalAmtRequired" runat="server" ControlToValidate="se_TotalAmt" ErrorMessage="*" Visible="false"> 
                                                         </asp:RequiredFieldValidator>
-                                                        <dx:ASPxSpinEdit ID="se_TotalAmt" runat="server"  HorizontalAlign="Right" NullText="0" Number="0" Width="90%"
-                                                            Height="17px" OnNumberChanged="se_TotalAmt_OnNumberChanged" AutoPostBack="true">
+                                                        <dx:ASPxSpinEdit ID="se_TotalAmt" runat="server" HorizontalAlign="Right" NullText="0" Number="0" Width="90%" Height="17px" OnNumberChanged="se_TotalAmt_OnNumberChanged"
+                                                            AutoPostBack="true">
                                                             <SpinButtons ShowIncrementButtons="False">
                                                             </SpinButtons>
                                                             <ValidationSettings Display="Dynamic">
@@ -1244,7 +1240,6 @@
                     </asp:UpdatePanel>
                 </div>
             </div>
-            
             <dx:ASPxPopupControl ID="pop_Warning" ClientInstanceName="pop_Warning" runat="server" Width="300px" CloseAction="CloseButton" HeaderText="<%$ Resources:PC_REC_RecEdit, Warning %>"
                 Modal="True" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowCloseButton="False">
                 <ContentStyle VerticalAlign="Top">
