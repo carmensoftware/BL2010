@@ -2602,12 +2602,22 @@ ORDER BY
                 {
                     var name = string.IsNullOrEmpty(item.Desc1) ? item.Name1 : item.Desc1;
 
-                    var query = "UPDATE PT.Item SET ItemName=@ItemName WHERE ItemCode=@ItemCode";
+                    //var query = "UPDATE PT.Item SET ItemName=@ItemName WHERE ItemCode=@ItemCode";
+                    var query = @"
+IF NOT EXISTS (SELECT ItemCode FROM PT.Item WHERE ItemCode=@ItemCode)
+BEGIN
+	INSERT INTO PT.Item (ItemCode, ItemName) VALUES (@ItemCode, @ItemName)
+END
+ELSE
+BEGIN
+	UPDATE PT.Item SET ItemName=@ItemName WHERE ItemCode=@ItemCode
+END
+";
                     bu.DbExecuteQuery(query, 
                         new Blue.DAL.DbParameter[]
                         {
                             new Blue.DAL.DbParameter("@ItemCode", item.Code),
-                            new Blue.DAL.DbParameter("@ItemName", name + "x")
+                            new Blue.DAL.DbParameter("@ItemName", name)
                         }, 
                         LoginInfo.ConnStr);
 
