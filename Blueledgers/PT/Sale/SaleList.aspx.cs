@@ -2660,43 +2660,21 @@ END
             sql.AppendLine("VALUES");
             foreach (var item in sales)
             {
+                var outlet = string.IsNullOrEmpty(item.OutletCode) ? item.Outlet : item.OutletCode;
                 var itemCode = string.IsNullOrEmpty(item.PLU) ? item.ItemCode : item.PLU;
+                var qty = string.IsNullOrEmpty(item.Qty.ToString()) ? item.Quantity : item.Qty;
 
                 sql.AppendFormat("('{0}','{1}','{2}',{3},{4},{5},0),",
                     saleDate,
-                    item.Outlet,
+                    outlet,
                     itemCode,
-                    item.Qty,
+                    qty,
                     item.UnitPrice,
                     item.Total);
             }
             var query = sql.ToString().TrimEnd(',');
 
-            bu.DbExecuteQuery(query, null, LoginInfo.ConnStr);
-
-            // update outlet , itemcode
-
-
-            //var outlets = sales
-            //    .Select(x => x.Outlet)
-            //    .Distinct()
-            //    .Select(x => new OutletItem
-            //    {
-            //        Code = x,
-            //        Desc = x
-            //    });
-
-            //UpdateOutlet(outlets);
-
-            //var items = sales
-            //    .Select(x => x.ItemCode)
-            //    .Distinct()
-            //    .Select(x => new ItemItem
-            //    {
-            //        Code = x,
-            //        Desc1 = x
-            //    });
-            //UpdateItem(items);
+            bu.DbExecuteQuery(query, null, LoginInfo.ConnStr);            
         }
 
         protected string FormatQty(object sender)
@@ -2815,12 +2793,12 @@ WHERE
             // Old
             public string OutletCode { get; set; }
             public string PLU { get; set; }
-            public decimal Quantity { get; set; }
+            public Nullable<decimal> Quantity { get; set; }
 
             // New
             public string Outlet { get; set; }
             public string ItemCode { get; set; }
-            public decimal Qty { get; set; }
+            public Nullable<decimal> Qty { get; set; }
 
             public decimal UnitPrice { get; set; }
             public decimal Total { get; set; }
