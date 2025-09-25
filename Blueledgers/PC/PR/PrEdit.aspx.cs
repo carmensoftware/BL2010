@@ -2787,8 +2787,8 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
                 // Hide edit and delete when sendback to 1st step
                 if (lnkb_Edit != null && wfStep == 1 && !apprStatus.StartsWith("_"))
                 {
-                    lnkb_Edit.Visible = false;
-                    lnkb_Delete.Visible = false;
+                    //lnkb_Edit.Visible = false;
+                    //lnkb_Delete.Visible = false;
                 }
 
                 // Display Button.
