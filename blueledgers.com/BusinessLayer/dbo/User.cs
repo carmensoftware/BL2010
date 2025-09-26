@@ -12,6 +12,9 @@ namespace Blue.BL.dbo
         private readonly Blue.BL.ADMIN.UserStore userStore = new Blue.BL.ADMIN.UserStore();
 
         /*  Customer's license
+            2026-09-30 = siamese = 24+2 = 26 + 20 + 10 = 56 (follow by Cassia Rama9)
+            2026-09-30 = rasahospitality = 73 + 17 = 90
+            2026-09-30 = kckohchang = 17
          
             2026-08-31 = themarinphuket = 19
             2026-08-31 = thenappathong = 8+5=13
@@ -20,6 +23,8 @@ namespace Blue.BL.dbo
             2026-08-31 = DIAMOND COTTAGE(on permise) = 15+5=20
             2026-08-31 = bestwesternclicksathorn11 = 10
          
+            2026-08-31 = palayanagroup = 2+20 = 22
+            2026-08-31 = bwsanctuary = 10
          
             2026-07-31 = Nexen = 20
          
@@ -30,6 +35,9 @@ namespace Blue.BL.dbo
             2026-06-30 = theyamaphuket = 12+2 = 14
             2026-06-30 = andalanta = 7+1+1=9
 
+            2026-06-30 = sunshine-residences = 10+5=15
+
+
             2026-05-31 = ramadadmabangkok = 19
             2026-05-31 = chi = 2
             2026-05-31 = HotelSensai (Chiang Mai) = 3+8 = 11 ปรับเป็น 10 
@@ -37,8 +45,10 @@ namespace Blue.BL.dbo
             2025-05-31 = chatriumniseko = 9
 
             2026-04-30 = indochinephuket = 27
-            2025-04-30 = silqandsq = 9+5=14
-            2025-04-30 = bestwesternratchada = 10        
+            2026-04-30 = silqandsq = 9+5=14
+            2026-04-30 = bestwesternratchada = 10        
+
+            2026-04-30 = paresaresort = 23
 
             2026-03-31 = wyndhamjomtienpattaya = 20 + 2 = 22
             2026-03-31 = silavadeepoolsparesort = 28
@@ -76,6 +86,11 @@ namespace Blue.BL.dbo
 
             2026-01-31 = MysKhaoyai = 12
             2026-01-31 = maduzi = 20
+                  
+            2026-01-31 = TWIN_LOTUS (on permise) = 16
+            2026-01-31 = Zeavola = 28
+         
+         
             ------------------------------------------------------------------
             2025-12-31 = tuibluethepassage = 8
          
@@ -89,7 +104,6 @@ namespace Blue.BL.dbo
             2025-11-30 = korabeachresort = 10 + 22 = 32
 
             2025-11-30 = tinbaron = 18
-            2025-11-30 = siamese = 24+2 = 26 + 20 + 10 = 56
              
 
             2024-10-31 = BlumonkeyKrabi = 6
@@ -100,25 +114,16 @@ namespace Blue.BL.dbo
             2025-10-30 = sztowerthai = 13+4=17
             2025-10-30 = uchijapanese-phuket = 2
              
+            2025-10-31 = thekaset = 10
+            2025-10-31 = varanahotel = 16
+            2025-10-31 = TheSarojin = 3
+            2025-10-31 = kappasensesubud = 17
              
-            2025-09-30 = rasahospitality = 73 + 17 = 90
-            2025-09-30 = varanahotel = 16
-            2025-09-30 = TheSarojin = 3
-            2025-09-30 = kckohchang = 17
-            2025-09-30 = sunshine-residences = 10+5=15
+            ------------------------------------------------------------------
+          
             2025-09-30 = urbana-sathorn = 6 + 2 = 8
-            2025-09-30 = paresaresort = 23
-          
             2025-09-30 = hopinnth = 27 
-            2025-09-30 = palayanagroup = 2+20 = 22
-            2025-09-30 = thekaset = 10
-            2025-09-30 = TWIN_LOTUS (on permise) = 16
-            2025-09-30 = bwsanctuary = 10
-            2025-09-30 = kappasensesubud = 17
-            2025-09-30 = Zeavola = 28
-                    
             2025-09-30 = selinaserenityrawai = 8
-          
           
             2025-xx-xx = HOPINN (OnPermise) = 27 
             ---------------------------------------------------------------
@@ -146,11 +151,11 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser = 800;
+        private int licenseActiveUser = 90;
 
         public DateTime GetLicenseExpiredDate()
         {
-            return new DateTime(2025, 12, 31);
+            return new DateTime(2026, 09, 30);
         }
 
         private DateTime licenseExpiredDate { get { return GetLicenseExpiredDate(); } }
