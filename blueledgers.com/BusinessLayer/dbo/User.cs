@@ -118,12 +118,12 @@ namespace Blue.BL.dbo
             2025-10-31 = varanahotel = 16
             2025-10-31 = TheSarojin = 3
             2025-10-31 = kappasensesubud = 17
+            2025-10-31 = urbana-sathorn = 6 + 2 = 8
+            2025-10-31 = selinaserenityrawai = 8
+            2025-10-31 = hopinnth = 27 
              
             ------------------------------------------------------------------
           
-            2025-09-30 = urbana-sathorn = 6 + 2 = 8
-            2025-09-30 = hopinnth = 27 
-            2025-09-30 = selinaserenityrawai = 8
           
             2025-xx-xx = HOPINN (OnPermise) = 27 
             ---------------------------------------------------------------
@@ -151,11 +151,11 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser = 90;
+        private int licenseActiveUser = 27;
 
         public DateTime GetLicenseExpiredDate()
         {
-            return new DateTime(2026, 09, 30);
+            return new DateTime(2025, 10, 31);
         }
 
         private DateTime licenseExpiredDate { get { return GetLicenseExpiredDate(); } }
