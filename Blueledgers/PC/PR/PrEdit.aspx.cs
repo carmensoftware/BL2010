@@ -1238,25 +1238,31 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
             hf_ProductCode.Value = productCode;
             //hf_ProductCode.Value = ddl_ProductCode.Text.Split(':')[0].Trim();
 
-            // Get Product Information
-            var items = txt_PrDate.Text.Split('/');
-            var yyyy = Convert.ToInt32(items[2]);
-            var mm = Convert.ToInt32(items[1]);
-            var dd = Convert.ToInt32(items[0]);
-            var prDate = new DateTime(yyyy, mm, dd);
 
-            //var prDate = Convert.ToDateTime(txt_PrDate.Text, CultureInfo.InvariantCulture);
-            var unitCode = ddl_Unit.Text.Trim();
+            if (IsApplyLastPrice)
+            {
+                //Get Product Information
+                var items = txt_PrDate.Text.Split('/');
+                var yyyy = Convert.ToInt32(items[2]);
+                var mm = Convert.ToInt32(items[1]);
+                var dd = Convert.ToInt32(items[0]);
+                var prDate = new DateTime(yyyy, mm, dd);
+                //var prDate = Convert.ToDateTime(txt_PrDate.Text, CultureInfo.InvariantCulture);
 
-            var info = GetProductInfo(productCode, unitCode, prDate);
+                var unitCode = ddl_Unit.Text.Trim();
 
-            var row = grd_PrDt1.Rows[grd_PrDt1.EditIndex];
+                var info = GetProductInfo(productCode, unitCode, prDate);
 
-            var lbl_LastPrice = row.FindControl("lbl_LastPrice") as Label;
-            var lbl_LastVendor = row.FindControl("lbl_LastVendor") as Label;
+                var row = grd_PrDt1.Rows[grd_PrDt1.EditIndex];
 
-            lbl_LastPrice.Text = FormatAmt(info.LastPrice);
-            lbl_LastVendor.Text = info.LastVendorCode + " : " + info.LastVendorName;
+                var lbl_LastPrice = row.FindControl("lbl_LastPrice") as Label;
+                var lbl_LastVendor = row.FindControl("lbl_LastVendor") as Label;
+                var hf_LastRecNo = row.FindControl("hf_LastRecNo") as HiddenField;
+
+                lbl_LastPrice.Text = FormatAmt(info.LastPrice);
+                lbl_LastVendor.Text = info.LastVendorCode + " : " + info.LastVendorName;
+                hf_LastRecNo.Value = info.LastRecNo;
+            }
         }
 
 
@@ -3897,9 +3903,11 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
 
                         var lbl_LastPrice = e.Row.FindControl("lbl_LastPrice") as Label;
                         var lbl_LastVendor = e.Row.FindControl("lbl_LastVendor") as Label;
+                        var hf_LastRecNo = e.Row.FindControl("hf_LastRecNo") as HiddenField;
 
                         if (IsApplyLastPrice)
                         {
+                            var lastRecNo = DataBinder.Eval(e.Row.DataItem, "RefNo").ToString();
                             var lastPrice = DataBinder.Eval(e.Row.DataItem, "LastPrice").ToString();
                             var lastVendor = DataBinder.Eval(e.Row.DataItem, "VendorProdCode").ToString();
 
@@ -3913,6 +3921,7 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
 
                                 lbl_LastVendor.Text = dt.Rows.Count == 0 ? "" : dt.Rows[0][0].ToString();
                             }
+                            hf_LastRecNo.Value = lastRecNo;
 
                         }
                         else
@@ -3920,6 +3929,7 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
                             lbl_LastPrice.Text = string.Format(DefaultAmtFmt, drStockSummary["LastPrice"].ToString());
                             lbl_LastVendor.Text = drStockSummary["LastVendor"].ToString();
                         }
+
 
                         lbl_LastPrice.ToolTip = lbl_LastPrice.Text;
                         lbl_LastVendor.ToolTip = lbl_LastVendor.Text;
@@ -4104,6 +4114,7 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
 
             var lbl_LastPrice = row.FindControl("lbl_LastPrice") as Label;
             var lbl_LastVendor = row.FindControl("lbl_LastVendor") as Label;
+            var hf_LastRecNo = row.FindControl("hf_LastRecNo") as HiddenField;
 
 
             DataRow drWFDt = dsWF.Tables["APPwfdt"].Rows[0];
@@ -4426,20 +4437,23 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
                 var lastPrice = string.IsNullOrEmpty(lbl_LastPrice.Text) ? 0m : Convert.ToDecimal(lbl_LastPrice.Text);
                 var lastVendorCode = string.IsNullOrEmpty(lbl_LastVendor.Text) ? "" : lbl_LastVendor.Text.Split(':').Select(x => x.Trim()).First();
 
+                drUpdating["LastPrice"] = lastPrice;
+                // Last Vendor
+                drUpdating["VendorProdCode"] = lastVendorCode;
+                drUpdating["RefNo"] = hf_LastRecNo.Value.ToString();
+
 
                 if (IsApplyLastPrice)
                 {
                     // Last Price
-                    drUpdating["LastPrice"] = lastPrice;
-                    // Last Vendor
-                    drUpdating["VendorProdCode"] = lastVendorCode;
-
                     if (wfStep == 1)
                     {
                         //drUpdating["VendorCode"] = lastVendorCode; 
                         drUpdating["Price"] = lastPrice;
                     }
                 }
+
+
 
                 decimal.TryParse(drUpdating["ApprQty"].ToString(), out qty);
                 decimal.TryParse(drUpdating["Price"].ToString(), out price);
@@ -6428,7 +6442,7 @@ FROM
 	LEFT JOIN AP.Vendor v ON v.VendorCode=rec.VendorCode
 WHERE
 	rec.DocStatus = 'Committed'
-	AND RecDate <= @Date
+	AND CommitDate <= @Date
 	AND ProductCode = @ProductCode
 	AND RcvUnit =@UnitCode
 ORDER BY
