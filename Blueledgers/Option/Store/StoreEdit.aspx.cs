@@ -88,6 +88,7 @@ namespace BlueLedger.PL.Option.Store
                 {
                     return;
                 }
+
             }
 
             Session["dsEditStoreLct"] = dsStoreLct;
@@ -127,6 +128,7 @@ namespace BlueLedger.PL.Option.Store
                 }
             }
             #endregion
+
             #region Mode: EDIT
             else if (Request.Params["MODE"].ToUpper() == "EDIT")
             {
@@ -135,8 +137,8 @@ namespace BlueLedger.PL.Option.Store
                 txt_Code.Text = drEdit["LocationCode"].ToString();
                 txt_Store.Text = drEdit["LocationName"].ToString();
                 ddl_DeptCode.Value = drEdit["DeptCode"].ToString();
-                
-				ddl_DelPoint.Value = drEdit["DeliveryPoint"].ToString();
+
+                ddl_DelPoint.Value = drEdit["DeliveryPoint"].ToString();
                 //ddl_DelPoint.SelectedValue = drEdit["DeliveryPoint"].ToString();
 
 
@@ -154,6 +156,8 @@ namespace BlueLedger.PL.Option.Store
                     ddl_Eop.Text = "Default System";
                 }
                 chk_IsActive.Checked = Convert.ToBoolean(drEdit["IsActive"].ToString());
+
+                ddl_Eop.Enabled = false;
             }
             #endregion
 
@@ -386,10 +390,10 @@ namespace BlueLedger.PL.Option.Store
             {
                 drStoreLct["DeliveryPoint"] = ddl_DelPoint.Value.ToString();
             }
-			
-			//StoreLct["DeliveryPoint"] = ddl_DelPoint.SelectedValue.ToString();
-			//lbl_StoreLocation_Nm.Text = ddl_DelPoint.SelectedValue.ToString();
-			
+
+            //StoreLct["DeliveryPoint"] = ddl_DelPoint.SelectedValue.ToString();
+            //lbl_StoreLocation_Nm.Text = ddl_DelPoint.SelectedValue.ToString();
+
 
             if (ddl_Eop.Value != null)
             {
