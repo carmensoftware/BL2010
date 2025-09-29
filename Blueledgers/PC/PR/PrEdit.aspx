@@ -487,7 +487,7 @@
                                         <asp:Label ID="lbl_CurrRate" runat="server" SkinID="LBL_NR_GRD" Width="80px"></asp:Label>
                                     </div>
                                 </asp:Panel>
-                                <asp:Panel ID="p_AllocateVendor" runat="server">                                    
+                                <asp:Panel ID="p_AllocateVendor" runat="server">
                                     <table style="width: 100%;">
                                         <tr>
                                             <td class="<%= HiddenClassName %>">
@@ -1141,6 +1141,7 @@
                                                 </td>
                                                 <td class="TD_LINE_GRD" style="width: 10%;">
                                                     <asp:Label ID="lbl_LastPrice" runat="server" SkinID="LBL_NR_1"></asp:Label>
+                                                    <asp:HiddenField runat="server" ID="hf_LastRecNo" />
                                                 </td>
                                                 <td class="TD_LINE_GRD" style="width: 10%">
                                                     <asp:Label ID="lbl_LastVendor_Nm" runat="server" Text="<%$ Resources:PC_PR_Pr, lbl_LastVendor_Nm %>" SkinID="LBL_HD_GRD"></asp:Label>
@@ -1607,6 +1608,7 @@
                                                 </td>
                                                 <td class="TD_LINE_GRD" style="width: 10%;">
                                                     <asp:Label ID="lbl_LastPrice" runat="server" SkinID="LBL_NR_1"></asp:Label>
+                                                    <asp:HiddenField runat="server" ID="hf_LastRecNo" />
                                                 </td>
                                                 <td class="TD_LINE_GRD" style="width: 10%">
                                                     <asp:Label ID="lbl_LastVendor_Nm" runat="server" Text="<%$ Resources:PC_PR_Pr, lbl_LastVendor_Nm %>" SkinID="LBL_HD_GRD"></asp:Label>
