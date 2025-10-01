@@ -291,6 +291,11 @@ namespace BlueLedger.PL.PT.Sale
             //BindSaleData(_Date);
 
             pop_SetOutlet.ShowOnPageLoad = false;
+
+            if (cal_Sale.Value != null)
+            {
+                Response.Redirect("SaleList.aspx?date=" + cal_Sale.SelectedDate.ToString("yyyy-MM-dd"));
+            }
         }
 
         // Private method(s)
@@ -397,7 +402,9 @@ ORDER BY
             var outletCode = hf_SetOutletCode.Value;
             var outletName = hf_SetOutletName.Value;
             var itemCode = hf_SetItemCode.Value;
-            var locationCode = ddl_SetOutlet_Location.SelectedValue.ToString();
+            //var locationCode = ddl_SetOutlet_Location.SelectedValue.ToString();
+            var locationCode = ddl_SetOutlet_Location.SelectedItem.Value.ToString();
+
 
             var query = @"
 IF EXISTS(SELECT * FROM PT.Outlet WHERE OutletCode=@OutletCode AND ISNULL(ItemCode,'')=@ItemCode)
