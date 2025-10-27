@@ -1778,6 +1778,9 @@ VALUES (@RefId, @Type, 'Saved', @Description, NULL, @CreateBy, @CreateDate, @Upd
 
             var dt = bu.DbExecuteQuery(string.Format("SELECT * FROM [INTF].[Data] WHERE ID={0}", id), null, LoginInfo.ConnStr);
 
+            txt_DataInfo.Text = "";
+            txt_DataSource.Text = "";
+
             if (dt != null && dt.Rows.Count > 0)
             {
                 var dr = dt.Rows[0];
