@@ -786,6 +786,10 @@
                     &nbsp;&nbsp;
                     <asp:Button runat="server" ID="btn_SelectPeriod" Text="Go" OnClick="btn_SelectPeriod_Click" />
                 </div>
+                <br />
+                <asp:CheckBox runat="server" ID="chk_ShowSource" AutoPostBack="true" OnCheckedChanged="chk_ShowSource_CheckedChanged" Text="Show source" />
+                <br />
+                <br />
                 <asp:GridView ID="gv_POS" runat="server" SkinID="GRD_V2" AutoGenerateColumns="false" Width="100%" ShowFooter="true" OnRowDataBound="gv_POS_RowDataBound">
                     <Columns>
                         <asp:TemplateField>
@@ -805,6 +809,8 @@
                                 <asp:HiddenField runat="server" ID="hf_ID" Value='<%# Eval("ID") %>' />
                                 <asp:HiddenField runat="server" ID="hf_DocDate" Value='<%# Eval("DocDate") %>' />
                                 <asp:Button ID="btn_PostFromPOS" runat="server" Text="Import" OnClick="btn_PostFromPOS_Click" />
+                                &nbsp;&nbsp;&nbsp;
+                                <asp:Button ID="btn_DataSource" runat="server" Text="Source" OnClick="btn_DataSource_Click" Visible="false" />
                             </ItemTemplate>
                         </asp:TemplateField>
                     </Columns>
@@ -937,7 +943,21 @@
             </dx:PopupControlContentControl>
         </ContentCollection>
     </dx:ASPxPopupControl>
-    
+    <dx:ASPxPopupControl ID="pop_DataSource" ClientInstanceName="pop_DataSource" runat="server" Width="480" CloseAction="CloseButton" HeaderText="Source" Modal="False"
+        AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="Middle" PopupHorizontalAlign="WindowCenter" ShowPageScrollbarWhenModal="True" ShowHeader="true"
+        ContentStyle-CssClass="no-padding">
+        <ContentCollection>
+            <dx:PopupControlContentControl ID="PopupControlContentControl1" runat="server">
+                <b>Info</b>
+                <br />
+                <asp:TextBox runat="server" ID="txt_DataInfo" Width="100%" />
+                <br />
+                <b>Data</b>
+                <br />
+                <asp:TextBox runat="server" ID="txt_DataSource" TextMode="MultiLine" Rows="25" Width="100%" />
+            </dx:PopupControlContentControl>
+        </ContentCollection>
+    </dx:ASPxPopupControl>
     <dx:ASPxPopupControl ID="pop_Consumption" ClientInstanceName="pop_Consumptioon" runat="server" Width="960" HeaderText="Product Consumption" ShowHeader="true"
         CloseAction="CloseButton" Modal="True" AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="Above" PopupHorizontalAlign="WindowCenter"
         ShowPageScrollbarWhenModal="True">

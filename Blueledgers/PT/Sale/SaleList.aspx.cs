@@ -1581,18 +1581,6 @@ VALUES (@RefId, @Type, 'Saved', @Description, NULL, @CreateBy, @CreateDate, @Upd
 
             var config = _config.GetValue("PT", "Sale", "POS", LoginInfo.ConnStr);
 
-            if (!string.IsNullOrEmpty(config))
-            {
-                var configs = GetConfigs(config);
-
-                var method = "API";
-
-                configs.TryGetValue("Method", out method);
-
-                isAPI = method == "API";
-            }
-
-
             if (isAPI)
             {
                 // period
@@ -1621,16 +1609,20 @@ VALUES (@RefId, @Type, 'Saved', @Description, NULL, @CreateBy, @CreateDate, @Upd
             }
         }
 
+       
+
         protected void gv_POS_RowDataBound(object sender, GridViewRowEventArgs e)
         {
             if (e.Row.RowType == DataControlRowType.DataRow)
             {
                 var hf_RowId = e.Row.FindControl("hf_RowId") as HiddenField;
                 var btn_PostFromPOS = e.Row.FindControl("btn_PostFromPOS") as Button;
+                var btn_DataSource = e.Row.FindControl("btn_DataSource") as Button;
                 var isShown = hf_RowId.Value == "1";
 
                 btn_PostFromPOS.Visible = isShown;
 
+                btn_DataSource.Visible = chk_ShowSource.Checked;
 
             }
         }
@@ -1762,6 +1754,54 @@ VALUES (@RefId, @Type, 'Saved', @Description, NULL, @CreateBy, @CreateDate, @Upd
             pop_Alert.ShowOnPageLoad = true;
 
         }
+
+        protected void chk_ShowSource_CheckedChanged(object sender, EventArgs e)
+        {
+            var selectMonth = Convert.ToInt32(ddl_Month.Text);
+            var selectYear = Convert.ToInt32(ddl_Year.Text);
+
+            var dateFrom = new DateTime(selectYear, selectMonth, 1);
+            var dateTo = dateFrom.AddMonths(1).AddDays(-1);
+
+            gv_POS.DataSource = QueryPosData(dateFrom, dateTo);
+            gv_POS.DataBind();
+        }
+
+        protected void btn_DataSource_Click(object sender, EventArgs e)
+        {
+            var gvr = (sender as Button).NamingContainer;
+
+            var hf_DocDate = gvr.FindControl("hf_DocDate") as HiddenField;
+            var hf_ID = gvr.FindControl("hf_ID") as HiddenField;
+            var date = Convert.ToDateTime(hf_DocDate.Value);
+            var id = hf_ID.Value;
+
+            var dt = bu.DbExecuteQuery(string.Format("SELECT * FROM [INTF].[Data] WHERE ID={0}", id), null, LoginInfo.ConnStr);
+
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                var dr = dt.Rows[0];
+
+                var info = new StringBuilder();
+
+                info.AppendFormat("\"ID\":\"{0}\",", dr["ID"].ToString());
+                info.AppendFormat("\"DocDate\":\"{0}\",", dr["DocDate"].ToString());
+                info.AppendFormat("\"Provider\":\"{0}\",", dr["Provider"].ToString());
+                info.AppendFormat("\"Type\":\"{0}\",", dr["Type"].ToString());
+                info.AppendFormat("\"Source\":\"{0}\",", dr["Source"].ToString());
+                info.AppendFormat("\"Description\":\"{0}\",", dr["Description"].ToString());
+                info.AppendFormat("\"UpdatedDate\":\"{0}\",", dr["UpdatedDate"].ToString());
+                info.AppendFormat("\"UpdatedBy\":\"{0}\",", dr["UpdatedBy"].ToString());
+
+                txt_DataInfo.Text = "{" + info.ToString() + "}";
+
+                txt_DataSource.Text = dr["Data"].ToString();
+                pop_DataSource.ShowOnPageLoad = true;
+
+            }
+
+        }
+
 
         // Import from API
         protected void ddl_Import_SelectedIndexChanged(object sender, EventArgs e)
