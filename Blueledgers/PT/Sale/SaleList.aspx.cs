@@ -1785,12 +1785,12 @@ VALUES (@RefId, @Type, 'Saved', @Description, NULL, @CreateBy, @CreateDate, @Upd
                 var info = new StringBuilder();
 
                 info.AppendFormat("\"ID\":\"{0}\",", dr["ID"].ToString());
-                info.AppendFormat("\"DocDate\":\"{0}\",", dr["DocDate"].ToString());
+                info.AppendFormat("\"DocDate\":\"{0}\",",Convert.ToDateTime(dr["DocDate"]).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
                 info.AppendFormat("\"Provider\":\"{0}\",", dr["Provider"].ToString());
                 info.AppendFormat("\"Type\":\"{0}\",", dr["Type"].ToString());
                 info.AppendFormat("\"Source\":\"{0}\",", dr["Source"].ToString());
                 info.AppendFormat("\"Description\":\"{0}\",", dr["Description"].ToString());
-                info.AppendFormat("\"UpdatedDate\":\"{0}\",", dr["UpdatedDate"].ToString());
+                info.AppendFormat("\"UpdatedDate\":\"{0}\",", Convert.ToDateTime(dr["UpdatedDate"]).ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
                 info.AppendFormat("\"UpdatedBy\":\"{0}\",", dr["UpdatedBy"].ToString());
 
                 txt_DataInfo.Text = "{" + info.ToString() + "}";
