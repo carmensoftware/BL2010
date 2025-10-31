@@ -85,6 +85,7 @@ namespace Blue.BL.dbo
             2026-01-31 = Zeavola = 28
          
             2026-01-31 = hopinnth = 27 
+            2026-01-31 = peachgroup = 13 
          
             ------------------------------------------------------------------
             2025-12-31 = tuibluethepassage = 8
@@ -101,11 +102,11 @@ namespace Blue.BL.dbo
             2025-11-30 = sztowerthai = 13+4=17
             2025-11-30 = waltonsuitessukhumvitbangkok = 5
             2025-11-30 = kappasensesubud = 17
-            2024-11-30 = BlumonkeyKrabi = 6
+            2025-11-30 = BlumonkeyKrabi = 6
+            2025-11-30 = selinaserenityrawai = 8
             ------------------------------------------------------------------
              
             2025-10-30 = uchijapanese-phuket = 2
-            2025-10-30 = selinaserenityrawai = 8
              
             ---------------------------------------------------------------
             --------- Expired -------------
@@ -131,11 +132,11 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser = 600;
+        private int licenseActiveUser = 800;
 
         public DateTime GetLicenseExpiredDate()
         {
-            return new DateTime(2026, 10, 31);
+            return new DateTime(2025, 11, 30);
         }
 
         private DateTime licenseExpiredDate { get { return GetLicenseExpiredDate(); } }
