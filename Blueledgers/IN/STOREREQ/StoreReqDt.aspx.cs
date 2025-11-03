@@ -375,10 +375,10 @@ namespace BlueLedger.PL.IN.STOREREQ
                 #region "Header"
 
                 var lbl_AllocateQty = (Label)e.Row.FindControl("lbl_Allocate_Nm");
-                if (lbl_AllocateQty != null)
-                {
-                    lbl_AllocateQty.Visible = WfStep == WfStepCount; // last step
-                }
+                //if (lbl_AllocateQty != null)
+                //{
+                //    lbl_AllocateQty.Visible = WfStep == WfStepCount; // last step
+                //}
 
 
                 #endregion
@@ -518,7 +518,7 @@ namespace BlueLedger.PL.IN.STOREREQ
                     lblQtyAllocated.Text = string.Format(DefaultQtyFmt, DataBinder.Eval(e.Row.DataItem, "AllocateQty"));
                     lblQtyAllocated.ToolTip = lblQtyAllocated.Text;
 
-                    lblQtyAllocated.Visible = WfStep == WfStepCount;
+                    //lblQtyAllocated.Visible = WfStep == WfStepCount;
                 }
 
 
