@@ -104,9 +104,9 @@ namespace Blue.BL.dbo
             2025-11-30 = kappasensesubud = 17
             2025-11-30 = BlumonkeyKrabi = 6
             2025-11-30 = selinaserenityrawai = 8
+            2025-11-30 = uchijapanese-phuket = 2
             ------------------------------------------------------------------
              
-            2025-10-30 = uchijapanese-phuket = 2
              
             ---------------------------------------------------------------
             --------- Expired -------------
@@ -132,7 +132,7 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser = 800;
+        private int licenseActiveUser = 2;
 
         public DateTime GetLicenseExpiredDate()
         {
