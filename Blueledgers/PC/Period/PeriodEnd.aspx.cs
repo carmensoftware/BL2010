@@ -171,6 +171,7 @@ namespace BlueLedger.PL.PC
                             AND CAST(eop.EndDate as DATE) = @EndDate
                     WHERE
 	                    l.EOP = 1
+                        AND l.IsActive=1
                     )
                     SELECT
 	                    *

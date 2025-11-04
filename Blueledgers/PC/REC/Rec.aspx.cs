@@ -620,13 +620,20 @@ namespace BlueLedger.PL.IN.REC
                 {
                     var lbl_BaseQty = e.Row.FindControl("lbl_BaseQty") as Label;
 
-                    if (DataBinder.Eval(e.Row.DataItem, "Rate").ToString() != string.Empty)
+                    if (DataBinder.Eval(e.Row.DataItem, "Rate").ToString() == string.Empty)
                     {
                         lbl_BaseQty.Text = String.Format(DefaultQtyFmt, prodUnit.GetQtyAfterChangeUnit(productCode,
                             prodUnit.GetInvenUnit(productCode, hf_ConnStr.Value),
                             DataBinder.Eval(e.Row.DataItem, "UnitCode").ToString(),
                             Convert.ToDecimal(DataBinder.Eval(e.Row.DataItem, "RecQty").ToString()),
                             hf_ConnStr.Value));
+                    }
+                    else
+                    {
+                        var rate = Convert.ToDecimal(DataBinder.Eval(e.Row.DataItem, "Rate"));
+                        var qty = Convert.ToDecimal(DataBinder.Eval(e.Row.DataItem, "RecQty"));
+
+                        lbl_BaseQty.Text = string.Format(DefaultQtyFmt, rate * qty);
                     }
 
                     lbl_BaseQty.ToolTip = lbl_BaseQty.Text;
