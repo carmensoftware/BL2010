@@ -752,8 +752,8 @@
                                                         <dx:ListBoxColumn Caption="Code" FieldName="CurrencyCode" />
                                                     </Columns>
                                                 </dx:ASPxComboBox>--%>
-                                                <dx:ASPxComboBox ID="ddl_CurrCode_av" runat="server" Width="80px" AutoPostBack="true" IncrementalFilteringMode="Contains" ValueField="CurrencyCode" ValueType="System.String" TextField="CurrencyCode"
-                                                    OnInit="ddl_CurrCode_av_OnInit" OnSelectedIndexChanged="ddl_CurrCode_av_SelectedIndexChanged">
+                                                <dx:ASPxComboBox ID="ddl_CurrCode_av" runat="server" Width="80px" AutoPostBack="true" IncrementalFilteringMode="Contains" ValueField="CurrencyCode" ValueType="System.String"
+                                                    TextField="CurrencyCode" OnInit="ddl_CurrCode_av_OnInit" OnSelectedIndexChanged="ddl_CurrCode_av_SelectedIndexChanged">
                                                 </dx:ASPxComboBox>
                                                 <div>
                                                     <asp:RequiredFieldValidator ID="Req_CurrCode_av" runat="server" Width="10px" ErrorMessage="*" ValidationGroup="grd_Group_av" ControlToValidate="ddl_CurrCode_av"
@@ -761,13 +761,16 @@
                                                 </div>
                                             </td>
                                             <td>
-                                                <dx:ASPxComboBox ID="ddl_CurrRate_av" runat="server" Width="80px" AutoPostBack="True" DropDownStyle="DropDown" IncrementalFilteringMode="Contains" ValueField="CurrencyRate"
+                                                <dx:ASPxSpinEdit ID="se_CurrRate_av" Width="80px" runat="server" AutoPostBack="true" NullText="0" DecimalPlaces="5" OnNumberChanged="se_CurrRate_av_NumberChanged">
+                                                <SpinButtons ShowIncrementButtons="false" />
+                                                </dx:ASPxSpinEdit>
+                                                <%--<dx:ASPxComboBox ID="ddl_CurrRate_av" runat="server" Width="80px" AutoPostBack="True" DropDownStyle="DropDown" IncrementalFilteringMode="Contains" ValueField="CurrencyRate"
                                                     TextFormatString="{0:N6}" OnLoad="ddl_CurrRate_av_Load" OnSelectedIndexChanged="ddl_CurrRate_av_SelectedIndexChanged">
                                                     <Columns>
                                                         <dx:ListBoxColumn Caption="Rate" FieldName="CurrencyRate" />
                                                         <dx:ListBoxColumn Caption="Input Date" FieldName="InputDate" />
                                                     </Columns>
-                                                </dx:ASPxComboBox>
+                                                </dx:ASPxComboBox>--%>
                                             </td>
                                         </tr>
                                     </table>

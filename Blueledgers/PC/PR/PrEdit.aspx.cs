@@ -3854,17 +3854,28 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
                     ddl_CurrCode_av.Enabled = IsExistInField("PC.PrDt.CurrencyCode", controlEnable);
                     ddl_CurrCode_av.Value = Convert.ToString(DataBinder.Eval(e.Row.DataItem, "CurrencyCode"));
 
-                    if (e.Row.FindControl("ddl_CurrRate_av") != null)
+                    if (e.Row.FindControl("se_CurrRate_av") != null)
                     {
-                        ASPxComboBox ddl_CurrRate_av = (ASPxComboBox)e.Row.FindControl("ddl_CurrRate_av");
+                        var se_CurrRate_av = (ASPxSpinEdit)e.Row.FindControl("se_CurrRate_av");
                         if (ddl_CurrCode_av.Text != string.Empty)
                         {
-                            ddl_CurrRate_av.DataSource = Get_CurrencyHistory(ddl_CurrCode_av.Value.ToString());
-                            ddl_CurrRate_av.DataBind();
-                            ddl_CurrRate_av.Value = Convert.ToString(DataBinder.Eval(e.Row.DataItem, "CurrencyRate"));
-                            ddl_CurrRate_av.Enabled = IsExistInField("PC.PrDt.CurrencyCode", controlEnable);
+                            se_CurrRate_av.Value = Convert.ToString(DataBinder.Eval(e.Row.DataItem, "CurrencyRate"));
+
+                            se_CurrRate_av.Enabled = IsExistInField("PC.PrDt.CurrencyCode", controlEnable);
                         }
                     }
+
+                    //if (e.Row.FindControl("ddl_CurrRate_av") != null)
+                    //{
+                    //    ASPxComboBox ddl_CurrRate_av = (ASPxComboBox)e.Row.FindControl("ddl_CurrRate_av");
+                    //    if (ddl_CurrCode_av.Text != string.Empty)
+                    //    {
+                    //        ddl_CurrRate_av.DataSource = Get_CurrencyHistory(ddl_CurrCode_av.Value.ToString());
+                    //        ddl_CurrRate_av.DataBind();
+                    //        ddl_CurrRate_av.Value = Convert.ToString(DataBinder.Eval(e.Row.DataItem, "CurrencyRate"));
+                    //        ddl_CurrRate_av.Enabled = IsExistInField("PC.PrDt.CurrencyCode", controlEnable);
+                    //    }
+                    //}
                 }
                 // End Added.
 
@@ -4214,14 +4225,15 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
 
                 // Added on: 08/08/2017, By: Fon
                 ASPxComboBox ddl_CurrCode_av = (ASPxComboBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_CurrCode_av");
-                ASPxComboBox ddl_CurrRate_av = (ASPxComboBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_CurrRate_av");
+                //ASPxComboBox ddl_CurrRate_av = (ASPxComboBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_CurrRate_av");
+                var se_CurrRate_av = (ASPxSpinEdit)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("se_CurrRate_av");
                 TextBox txt_CurrNetAmt_Grd_Av = (TextBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_CurrNetAmt_Grd_Av");
                 TextBox txt_CurrDiscAmt_Grd_Av = (TextBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_CurrDiscAmt_Grd_Av");
                 TextBox txt_CurrTaxAmt_Grd_Av = (TextBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_CurrTaxAmt_Grd_Av");
                 TextBox txt_CurrTotalAmt_Grd_Av = (TextBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_CurrTotalAmt_Grd_Av");
 
                 drUpdating["CurrencyCode"] = ddl_CurrCode_av.Value.ToString().Trim();
-                drUpdating["CurrencyRate"] = ddl_CurrRate_av.Value.ToString();
+                drUpdating["CurrencyRate"] = se_CurrRate_av.Value;
                 drUpdating["CurrNetAmt"] = txt_CurrNetAmt_Grd_Av.Text;
                 drUpdating["CurrTaxAmt"] = txt_CurrTaxAmt_Grd_Av.Text;
                 drUpdating["CurrTotalAmt"] = txt_CurrTotalAmt_Grd_Av.Text;
@@ -5751,51 +5763,50 @@ ORDER BY CurrencyCode", null, hf_ConnStr.Value);
 
         protected void ddl_CurrCode_av_SelectedIndexChanged(object sender, EventArgs e)
         {
-            //ASPxComboBox ddl_CurrCode_av = (ASPxComboBox)sender;
-            //GridViewRow gvr = (GridViewRow)ddl_CurrCode_av.NamingContainer;
-            //ASPxComboBox ddl_CurrRate_av = (ASPxComboBox)gvr.FindControl("ddl_CurrRate_av");
-            //ddl_CurrRate_av.DataSource = Get_CurrencyHistory(ddl_CurrCode_av.Value.ToString());
-            //ddl_CurrRate_av.DataBind();
-            //ddl_CurrRate_av.Value = currency.GetLastCurrencyRate(ddl_CurrCode_av.Value.ToString(), Convert.ToDateTime(txt_PrDate.Text), LoginInfo.ConnStr);
+            //var gvr = (sender as ASPxComboBox).NamingContainer as GridViewRow;
+            //var ddl_CurrRate_av = gvr.FindControl("ddl_CurrRate_av") as ASPxComboBox;
 
-            //CostContent_ValueChanged(grd_PrDt1.EditIndex, true);
-            var gvr = (sender as ASPxComboBox).NamingContainer as GridViewRow;
-            var ddl_CurrRate_av = gvr.FindControl("ddl_CurrRate_av") as ASPxComboBox;
             var code = (sender as ASPxComboBox).Value.ToString();
+            var dt = bu.DbExecuteQuery("SELECT TOP(1) CurrencyRate, InputDate FROM [REF].CurrencyExchange WHERE CurrencyCode=@Code ORDER BY InputDate DESC",
+                    new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@Code", code) },
+                    hf_ConnStr.Value);
 
-            var dt = bu.DbExecuteQuery("SELECT CurrencyRate, InputDate FROM [REF].CurrencyExchange WHERE CurrencyCode=@Code ORDER BY InputDate DESC",
-                new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@Code", code) },
-                hf_ConnStr.Value);
-
-            ddl_CurrRate_av.DataSource = dt;
+            //ddl_CurrRate_av.DataSource = dt;
             //ddl_CurrRate_av.DataBind();
 
-            //ddl_CurrRate_av.DataSource = currency.GetLastCurrencyRate((sender as ASPxComboBox).Value.ToString(), Convert.ToDateTime(txt_PrDate.Text), hf_ConnStr.Value);
+            var se_CurrRate_av = (sender as ASPxComboBox).NamingContainer.FindControl("se_CurrRate_av") as ASPxSpinEdit;
+
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                se_CurrRate_av.Value = dt.Rows[0]["CurrencyRate"];
+            }
+            else
+            {
+                se_CurrRate_av.Value = 1.00000;
+            }
+
+            CalculationItem_av(grd_PrDt1.EditIndex);
+
         }
+
+        protected void se_CurrRate_av_NumberChanged(object sender, EventArgs e)
+        {
+            var rate = Convert.ToDecimal((sender as ASPxSpinEdit).Value);
+
+            //var editIndex = grd_PrDt1.EditIndex;
+            //var ty_av = grd_PrDt1.Rows[editIndex].FindControl("se_CurrRate_av") as ASPxSpinEdit;
+
+            CalculationItem_av(grd_PrDt1.EditIndex);
+        }
+
+
 
         protected void ddl_CurrRate_av_Load(object sender, EventArgs e)
         {
-            //var gvr = (sender as ASPxComboBox).NamingContainer as GridViewRow;
-            //var ddl_CurrCode_av = gvr.FindControl("ddl_CurrCode_av") as ASPxComboBox;
-            //if (ddl_CurrCode_av != null && ddl_CurrCode_av.SelectedIndex > -1)
-            //{
-            //    var ddl_CurrRate_av = gvr.FindControl("ddl_CurrRate_av") as ASPxComboBox;
-            //    ddl_CurrRate_av.DataSource = currency.GetLastCurrencyRate(ddl_CurrCode_av.Value.ToString(), Convert.ToDateTime(txt_PrDate.Text), hf_ConnStr.Value);
-            //}
         }
 
         protected void ddl_CurrRate_av_SelectedIndexChanged(object sender, EventArgs e)
         {
-            //ASPxComboBox ddl_CurrRate_av = (ASPxComboBox)sender;
-            //string rateValue = ddl_CurrRate_av.Value.ToString();
-
-            //GridViewRow gvr = (GridViewRow)ddl_CurrRate_av.NamingContainer;
-            //ASPxComboBox ddl_CurrCode_av = (ASPxComboBox)gvr.FindControl("ddl_CurrCode_av");
-            //ddl_CurrRate_av.DataSource = Get_CurrencyHistory(ddl_CurrCode_av.Value.ToString());
-            //ddl_CurrRate_av.DataBind();
-            //ddl_CurrRate_av.Value = rateValue;
-
-            //CostContent_ValueChanged(grd_PrDt1.EditIndex, true);
         }
 
         protected DataTable Get_CurrencyHistory(string currCode)
@@ -5852,17 +5863,20 @@ ORDER BY CurrencyCode", null, hf_ConnStr.Value);
 
         protected void txt_DiscAmt_Grd_av_TextChanged(object sender, EventArgs e)
         {
+            var row = grd_PrDt1.Rows[grd_PrDt1.EditIndex];
             TextBox txt_DiscAmt_Grd_av = (TextBox)sender;
             TextBox txt_CurrDiscAmt_Grd_Av = (TextBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_CurrDiscAmt_Grd_Av");
-            ASPxComboBox ddl_CurrRate_av = (ASPxComboBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_CurrRate_av");
+            //ASPxComboBox ddl_CurrRate_av = (ASPxComboBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_CurrRate_av");
+            var se_CurrRate_av = row.FindControl("se_CurrRate_av") as ASPxSpinEdit;
+            var currRate = Convert.ToDecimal(se_CurrRate_av.Value);
 
             if (txt_DiscAmt_Grd_av.Text == string.Empty)
             {
                 txt_DiscAmt_Grd_av.Text = string.Format("{0:N}", 0);
             }
 
-            decimal currRate = 0;
-            decimal.TryParse(ddl_CurrRate_av.Text, out currRate);
+            //decimal currRate = 0;
+            //decimal.TryParse(ddl_CurrRate_av.Text, out currRate);
             decimal discAmt = decimal.Parse(txt_DiscAmt_Grd_av.Text);
             txt_CurrDiscAmt_Grd_Av.Text = string.Format(DefaultAmtFmt, discAmt / currRate);
 
@@ -5952,10 +5966,16 @@ ORDER BY CurrencyCode", null, hf_ConnStr.Value);
                     decimal.TryParse(txt_Price_av.Text, out price);
                 }
 
-                if (grd_PrDt1.Rows[grdEditIndex].FindControl("ddl_CurrRate_av") != null)
+                //if (grd_PrDt1.Rows[grdEditIndex].FindControl("ddl_CurrRate_av") != null)
+                //{
+                //    ASPxComboBox ddl_CurrRate_av = (ASPxComboBox)grd_PrDt1.Rows[grdEditIndex].FindControl("ddl_CurrRate_av");
+                //    decimal.TryParse(ddl_CurrRate_av.Text, out currRate);
+                //}
+
+                if (grd_PrDt1.Rows[grdEditIndex].FindControl("se_CurrRate_av") != null)
                 {
-                    ASPxComboBox ddl_CurrRate_av = (ASPxComboBox)grd_PrDt1.Rows[grdEditIndex].FindControl("ddl_CurrRate_av");
-                    decimal.TryParse(ddl_CurrRate_av.Text, out currRate);
+                    var se_CurrRate_av = (ASPxSpinEdit)grd_PrDt1.Rows[grdEditIndex].FindControl("se_CurrRate_av");
+                    decimal.TryParse(se_CurrRate_av.Text, out currRate);
                 }
 
                 if (grd_PrDt1.Rows[grdEditIndex].FindControl("txt_DiscPercent_Grd_Av") != null)
@@ -6070,7 +6090,10 @@ ORDER BY CurrencyCode", null, hf_ConnStr.Value);
             //var txt_ReqQty_av = grd_PrDt1.Rows[grdEditIndex].FindControl("txt_ReqQty_av") as ASPxSpinEdit;
             //var txt_ApprQty_av = grd_PrDt1.Rows[grdEditIndex].FindControl("txt_ApprQty_av") as ASPxSpinEdit;
             //var txt_Price_av = grd_PrDt1.Rows[grdEditIndex].FindControl("txt_Price_av") as ASPxSpinEdit;
-            var ddl_CurrRate_av = grd_PrDt1.Rows[grdEditIndex].FindControl("ddl_CurrRate_av") as ASPxComboBox;
+            //var ddl_CurrRate_av = grd_PrDt1.Rows[grdEditIndex].FindControl("ddl_CurrRate_av") as ASPxComboBox;
+            var se_CurrRate_av = grd_PrDt1.Rows[grdEditIndex].FindControl("se_CurrRate_av") as ASPxSpinEdit;
+
+
             //var txt_DiscPercent_Grd_Av = grd_PrDt1.Rows[grdEditIndex].FindControl("txt_DiscPercent_Grd_Av") as TextBox;
             var txt_CurrDiscAmt_Grd_Av = grd_PrDt1.Rows[grdEditIndex].FindControl("txt_CurrDiscAmt_Grd_Av") as TextBox;
             //var txt_DiscAmt_Grd_Av = grd_PrDt1.Rows[grdEditIndex].FindControl("txt_DiscAmt_Grd_Av") as TextBox;
@@ -6083,7 +6106,8 @@ ORDER BY CurrencyCode", null, hf_ConnStr.Value);
             //decimal reqQty = txt_ReqQty_av == null ? 0 : Convert.ToDecimal(txt_ReqQty_av.Value);
             //decimal qty = txt_ApprQty_av == null ? 0 : Convert.ToDecimal(txt_ApprQty_av.Value);
             //decimal price = txt_Price_av == null ? 0 : Convert.ToDecimal(txt_Price_av.Value);
-            decimal curRate = ddl_CurrRate_av == null ? 0 : Convert.ToDecimal(ddl_CurrRate_av.Value);
+            //decimal curRate = ddl_CurrRate_av == null ? 0 : Convert.ToDecimal(ddl_CurrRate_av.Value);
+            decimal curRate = se_CurrRate_av == null ? 0 : Convert.ToDecimal(se_CurrRate_av.Value);
             decimal curDiscAmt = txt_CurrDiscAmt_Grd_Av == null ? 0 : Convert.ToDecimal(txt_CurrDiscAmt_Grd_Av.Text);
 
             bool isAdjTax = chk_Adj_Grd_Av.Checked;
