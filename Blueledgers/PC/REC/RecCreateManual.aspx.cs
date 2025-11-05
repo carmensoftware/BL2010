@@ -3130,7 +3130,21 @@ as st where st.[rn] between @startIndex and @endIndex";
 
         private void SaveAndCommit(string strAction)
         {
+            var vendorCode = (ddl_Vendor.SelectedItem != null)
+                        ? ddl_Vendor.SelectedItem.Value.ToString()
+                        : ddl_Vendor.Value.ToString();
 
+            var p_Vendor = new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@Code", vendorCode) };
+            var dtVendor = config.DbExecuteQuery("SELECT VendorCode FROM AP.Vendor WHERE VendorCode=@Code", p_Vendor, hf_ConnStr.Value);
+
+            if (dtVendor == null || dtVendor.Rows.Count == 0)
+            {
+                lbl_Warning.Text = "Invalid vendor.";
+                pop_Warning.ShowOnPageLoad = true;
+                pop_ConfirmSave.ShowOnPageLoad = false;
+
+                return;
+            }
             Page.Validate();
 
             if (Page.IsValid)
