@@ -5730,7 +5730,22 @@ WHERE
         protected void ddl_CurrCode_av_OnInit(object sender, EventArgs e)
         {
             var ddl_CurrCode_av = (ASPxComboBox)sender;
-            ddl_CurrCode_av.DataSource = currency.GetLastCurrencyRate(LoginInfo.ConnStr);
+
+            var dt = bu.DbExecuteQuery(@"
+SELECT 
+	CurrencyCode 
+FROM 
+	[REF].Currency 
+WHERE 
+	IsActived=1
+UNION
+SELECT [Value] FROM APP.Config WHERE Module='APP' AND SubModule='BU' AND [Key]='DefaultCurrency'
+
+ORDER BY CurrencyCode", null, hf_ConnStr.Value);
+
+            ddl_CurrCode_av.DataSource = dt;
+
+            //ddl_CurrCode_av.DataSource = currency.GetLastCurrencyRate(LoginInfo.ConnStr);
             ddl_CurrCode_av.DataBind();
         }
 
@@ -5746,7 +5761,16 @@ WHERE
             //CostContent_ValueChanged(grd_PrDt1.EditIndex, true);
             var gvr = (sender as ASPxComboBox).NamingContainer as GridViewRow;
             var ddl_CurrRate_av = gvr.FindControl("ddl_CurrRate_av") as ASPxComboBox;
-            ddl_CurrRate_av.DataSource = currency.GetLastCurrencyRate((sender as ASPxComboBox).Value.ToString(), Convert.ToDateTime(txt_PrDate.Text), hf_ConnStr.Value);
+            var code = (sender as ASPxComboBox).Value.ToString();
+
+            var dt = bu.DbExecuteQuery("SELECT CurrencyRate, InputDate FROM [REF].CurrencyExchange WHERE CurrencyCode=@Code ORDER BY InputDate DESC",
+                new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@Code", code) },
+                hf_ConnStr.Value);
+
+            ddl_CurrRate_av.DataSource = dt;
+            //ddl_CurrRate_av.DataBind();
+
+            //ddl_CurrRate_av.DataSource = currency.GetLastCurrencyRate((sender as ASPxComboBox).Value.ToString(), Convert.ToDateTime(txt_PrDate.Text), hf_ConnStr.Value);
         }
 
         protected void ddl_CurrRate_av_Load(object sender, EventArgs e)

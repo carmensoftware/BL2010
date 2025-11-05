@@ -746,11 +746,14 @@
                                                 </div>
                                             </td>
                                             <td>
-                                                <dx:ASPxComboBox ID="ddl_CurrCode_av" runat="server" Width="80px" AutoPostBack="true" IncrementalFilteringMode="Contains" ValueField="CurrencyCode" ValueType="System.String"
+                                                <%--<dx:ASPxComboBox ID="ddl_CurrCode_av" runat="server" Width="80px" AutoPostBack="true" IncrementalFilteringMode="Contains" ValueField="CurrencyCode" ValueType="System.String"
                                                     TextFormatString="{0}" OnInit="ddl_CurrCode_av_OnInit" OnSelectedIndexChanged="ddl_CurrCode_av_SelectedIndexChanged">
                                                     <Columns>
                                                         <dx:ListBoxColumn Caption="Code" FieldName="CurrencyCode" />
                                                     </Columns>
+                                                </dx:ASPxComboBox>--%>
+                                                <dx:ASPxComboBox ID="ddl_CurrCode_av" runat="server" Width="80px" AutoPostBack="true" IncrementalFilteringMode="Contains" ValueField="CurrencyCode" ValueType="System.String" TextField="CurrencyCode"
+                                                    OnInit="ddl_CurrCode_av_OnInit" OnSelectedIndexChanged="ddl_CurrCode_av_SelectedIndexChanged">
                                                 </dx:ASPxComboBox>
                                                 <div>
                                                     <asp:RequiredFieldValidator ID="Req_CurrCode_av" runat="server" Width="10px" ErrorMessage="*" ValidationGroup="grd_Group_av" ControlToValidate="ddl_CurrCode_av"
