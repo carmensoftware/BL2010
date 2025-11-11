@@ -1310,48 +1310,44 @@ END", date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
 
         protected void btn_View_StockOut_Click(object sender, EventArgs e)
         {
-            var query = @"
-;WITH
-l AS(
-	SELECT 
-		LocationCode, 
-		DocNo 
-	FROM 
-		PT.Sale 
-	WHERE 
-		SaleDate=@SaleDate 
-	GROUP BY 
-		LocationCode, 
-		DocNo
-)
-SELECT
-	l.*,
-	loc.LocationName
-FROM
-	l
-	LEFT JOIN [IN].StoreLocation loc
-		ON loc.LocationCode=l.LocationCode
-ORDER BY
-	DocNo";
-            var p = new DbParameter[] { new DbParameter("@SaleDate", _Date.ToString("yyyy-MM-dd")) };
 
-            var dt = bu.DbExecuteQuery(query, p, LoginInfo.ConnStr);
+            BindStockOutInfo();
 
-            var messages = new List<string>();
+            pop_StockOutInfo.ShowOnPageLoad = true;
 
-            messages.Add("These document(s) had been created.<br />");
+        }
 
-            foreach (DataRow dr in dt.Rows)
+        protected void btn_RePost_Click(object sender, EventArgs e)
+        {
+            var row = (sender as Button).NamingContainer;
+            var hf_DocNo = row.FindControl("hf_DocNo") as HiddenField;
+            var hf_LocationCode = row.FindControl("hf_LocationCode") as HiddenField;
+            var hf_Status = row.FindControl("hf_Status") as HiddenField;
+
+            var docNo = hf_DocNo.Value;
+            var locationCode = hf_LocationCode.Value;
+            var status = hf_Status.Value;
+
+
+            if (status.ToLower() != "saved")
             {
-                var docNo = dr["DocNo"].ToString();
-                var locationCode = dr["LocationCode"].ToString();
-                var locationName = dr["LocationName"].ToString();
+                ShowAlert("This document has already committed.");
 
-                messages.Add(string.Format("{0} - {1} : {2}", docNo, locationCode, locationName));
+                return;
             }
 
-            lbl_Alert.Text = string.Join("<br />", messages);
-            pop_Alert.ShowOnPageLoad = true;
+
+            var error = RepostStockOut(_Date, docNo, locationCode);
+
+            if (string.IsNullOrEmpty(error))
+            {
+                BindStockOutInfo();
+                ShowAlert("Re-post finish.");
+            }
+            else
+            {
+                ShowAlert(error);
+            }
 
         }
 
@@ -1446,7 +1442,7 @@ VALUES (@RefId, @Type, 'Saved', @Description, NULL, @CreateBy, @CreateDate, @Upd
                 p.Add(new Blue.DAL.DbParameter("@Description", "Posted from sale"));
                 //p.Add(new Blue.DAL.DbParameter("@CommitDate", DateTime.Now.ToString("yyyy-MM-dd")));
                 p.Add(new Blue.DAL.DbParameter("@CreateBy", loginName));
-                p.Add(new Blue.DAL.DbParameter("@CreateDate", docDate.ToString("yyyy-MM-dd HH:mm:ss:fff")));
+                p.Add(new Blue.DAL.DbParameter("@CreateDate", docDate.ToString("yyyy-MM-dd")));
                 p.Add(new Blue.DAL.DbParameter("@UpdateBy", loginName));
                 p.Add(new Blue.DAL.DbParameter("@UpdateDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff")));
 
@@ -1475,24 +1471,6 @@ VALUES (@RefId, @Type, 'Saved', @Description, NULL, @CreateBy, @CreateDate, @Upd
 
                     var dt = bu.DbExecuteQuery(query, pdt.ToArray(), LoginInfo.ConnStr);
 
-                    //if (dt.Rows.Count > 0)
-                    //{
-                    //    var docDtNo = dt.Rows[0][0].ToString();
-
-                    //    // Commit
-                    //    var dbParams = new DbParameter[5];
-
-                    //    dbParams[0] = new DbParameter("@DocNo", docNo);
-                    //    dbParams[1] = new DbParameter("@DocDtNo", docDtNo);
-                    //    dbParams[2] = new DbParameter("@LocationCode", locationCode);
-                    //    dbParams[3] = new DbParameter("@ProductCode", sku);
-                    //    dbParams[4] = new DbParameter("@QtyOut", qty.ToString());
-
-                    //    bu.DbExecuteQuery("EXEC [IN].[InsertInventorySO] @DocNo,@DocDtNo,@LocationCode,@ProductCode,@QtyOut", dbParams, LoginInfo.ConnStr);
-
-                    //}
-
-
                 }
 
 
@@ -1506,6 +1484,99 @@ VALUES (@RefId, @Type, 'Saved', @Description, NULL, @CreateBy, @CreateDate, @Upd
 
 
             return listDocNo;
+        }
+
+        private string RepostStockOut(DateTime saleDate, string docNo, string locationCode)
+        {
+            var error = "";
+            var date = saleDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+            var query = "SELECT * FROM [IN].[Period] WHERE @Date BETWEEN StartDate AND EndDate";
+            var dtPeriod = bu.DbExecuteQuery(query, new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@Date", date) }, LoginInfo.ConnStr);
+
+            if (dtPeriod != null && dtPeriod.Rows.Count > 0)
+            {
+                var isClosed = Convert.ToBoolean(dtPeriod.Rows[0][0]) == true;
+
+                if (isClosed)
+                {
+                    error = "Date was in the closed period.";
+
+                    return error;
+                }
+
+            }
+            else
+            {
+                error = "Invalid period date";
+
+                return error;
+            }
+
+
+            query = "SELECT [Status] FROM [IN].StockOut WHERE RefId=@RefId";
+            var dtStatus = bu.DbExecuteQuery(query, new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@RefId", docNo) }, LoginInfo.ConnStr);
+
+            var status = dtStatus.Rows[0][0].ToString();
+
+            if (status == "Committed")
+            {
+                error = string.Format("This document '{0}' has already committed", docNo);
+
+                return error;
+            }
+
+            var data = bu.DbExecuteQuery("EXEC PT.GetConsumptionOfSale @Date", new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@Date", date) }, LoginInfo.ConnStr);
+
+
+
+            bu.DbExecuteQuery("DELETE FROM [IN].StockOutDt WHERE RefId=@refId AND StoreId=@LocationCode",
+                new Blue.DAL.DbParameter[] 
+                { 
+                    new Blue.DAL.DbParameter("@RefId", docNo),
+                    new Blue.DAL.DbParameter("@LocationCode", locationCode) 
+                }, LoginInfo.ConnStr);
+
+            var details = data.Select(string.Format("LocationCode='{0}'", locationCode));
+
+            foreach (var dtl in details)
+            {
+                var sku = dtl["ProductCode"].ToString();
+                var unit = dtl["Unit"].ToString();
+                var qty = Convert.ToDecimal(dtl["Qty"]);
+
+                query = @"INSERT INTO [IN].StockOutDt (RefId, StoreId, SKU, Unit, Qty, UnitCost) OUTPUT Inserted.ID VALUES (@RefId, @StoreId, @SKU, @Unit, @Qty, @UnitCost)";
+
+                var pdt = new List<Blue.DAL.DbParameter>();
+
+                pdt.Add(new Blue.DAL.DbParameter("@RefId", docNo));
+                pdt.Add(new Blue.DAL.DbParameter("@StoreId", locationCode));
+                pdt.Add(new Blue.DAL.DbParameter("@SKU", sku));
+                pdt.Add(new Blue.DAL.DbParameter("@Unit", unit));
+                pdt.Add(new Blue.DAL.DbParameter("@Qty", qty.ToString()));
+                pdt.Add(new Blue.DAL.DbParameter("@UnitCost", "0"));
+
+
+                var dt = bu.DbExecuteQuery(query, pdt.ToArray(), LoginInfo.ConnStr);
+
+            }
+
+
+            bu.DbExecuteQuery("UPDATE [IN].StockOut SET UpdateBy=@UpdateBy, UpdateDate=@UpdateDate WHERE RefId=@refId",
+                new Blue.DAL.DbParameter[] 
+                { 
+                    new Blue.DAL.DbParameter("@RefId", docNo),
+                    new Blue.DAL.DbParameter("@UpdateBy", LoginInfo.LoginName),
+                    new Blue.DAL.DbParameter("@UpdateDate", FormatSqlDateTime(DateTime.Now)) 
+                }, LoginInfo.ConnStr);
+
+
+            return "";
+        }
+
+        private string FormatSqlDateTime(DateTime date)
+        {
+            return date.ToString("yyyy-MM-dd HH:mm:ss:fff", CultureInfo.InvariantCulture);
         }
 
         private void BindConsumption(string locationCode)
@@ -1545,6 +1616,60 @@ VALUES (@RefId, @Type, 'Saved', @Description, NULL, @CreateBy, @CreateDate, @Upd
             }
         }
 
+        private void BindStockOutInfo()
+        {
+            var query = @"
+;WITH
+sale AS(
+	SELECT 
+		DocNo,
+		LocationCode
+	FROM 
+		PT.Sale 
+	WHERE 
+		SaleDate=@SaleDate 
+	GROUP BY 
+		DocNo,
+		LocationCode
+),
+so AS(
+	SELECT
+		sa.DocNo,
+		sa.LocationCode,
+		l.LocationName,
+		t.AdjName,
+		so.[Status],
+		so.[Description],
+		so.CreateDate,
+		so.CreateBy,
+		so.UpdateDate,
+		so.UpdateBy
+	FROM
+		sale sa
+		LEFT JOIN [IN].StockOut so ON so.RefId=sa.DocNo
+		LEFT JOIN [IN].AdjType t ON t.AdjId=so.[Type]
+		LEFT JOIN [IN].StoreLocation l ON l.LocationCode=sa.LocationCode
+)
+SELECT
+	*,
+	CONCAT(LocationCode,' : ', LocationName) as Location
+FROM
+	so
+ORDER BY
+	DocNo,
+	LocationCode
+";
+            var p = new DbParameter[] { new DbParameter("@SaleDate", _Date.ToString("yyyy-MM-dd")) };
+
+            var dt = bu.DbExecuteQuery(query, p, LoginInfo.ConnStr);
+
+
+            gv_StockOut.DataSource = dt;
+            gv_StockOut.DataBind();
+        }
+
+
+        
         private void SaveAdjustType(string code)
         {
             //bu.DbExecuteQuery("SELECT [Value] FROM APP.Config WHERE Module='PT' AND SubModule='SALE' AND [Key]='AdjsutType'", null, LoginInfo.ConnStr);
@@ -1553,6 +1678,8 @@ VALUES (@RefId, @Type, 'Saved', @Description, NULL, @CreateBy, @CreateDate, @Upd
             bu.DbExecuteQuery(string.Format("INSERT INTO APP.Config (Module, SubModule, [Key], [Value], UpdatedDate, UpdatedBy) VALUES('PT','SALE','AdjsutType','{0}',GETDATE(),'{1}')", code, LoginInfo.LoginName), null, LoginInfo.ConnStr);
 
         }
+
+
 
         #endregion
 
@@ -1609,7 +1736,7 @@ VALUES (@RefId, @Type, 'Saved', @Description, NULL, @CreateBy, @CreateDate, @Upd
             }
         }
 
-       
+
 
         protected void gv_POS_RowDataBound(object sender, GridViewRowEventArgs e)
         {
@@ -1788,7 +1915,7 @@ VALUES (@RefId, @Type, 'Saved', @Description, NULL, @CreateBy, @CreateDate, @Upd
                 var info = new StringBuilder();
 
                 info.AppendFormat("\"ID\":\"{0}\",", dr["ID"].ToString());
-                info.AppendFormat("\"DocDate\":\"{0}\",",Convert.ToDateTime(dr["DocDate"]).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+                info.AppendFormat("\"DocDate\":\"{0}\",", Convert.ToDateTime(dr["DocDate"]).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
                 info.AppendFormat("\"Provider\":\"{0}\",", dr["Provider"].ToString());
                 info.AppendFormat("\"Type\":\"{0}\",", dr["Type"].ToString());
                 info.AppendFormat("\"Source\":\"{0}\",", dr["Source"].ToString());
@@ -2663,12 +2790,12 @@ BEGIN
 	UPDATE PT.Item SET ItemName=@ItemName WHERE ItemCode=@ItemCode
 END
 ";
-                    bu.DbExecuteQuery(query, 
+                    bu.DbExecuteQuery(query,
                         new Blue.DAL.DbParameter[]
                         {
                             new Blue.DAL.DbParameter("@ItemCode", item.Code),
                             new Blue.DAL.DbParameter("@ItemName", name)
-                        }, 
+                        },
                         LoginInfo.ConnStr);
 
 
@@ -2724,7 +2851,7 @@ END
             }
             var query = sql.ToString().TrimEnd(',');
 
-            bu.DbExecuteQuery(query, null, LoginInfo.ConnStr);            
+            bu.DbExecuteQuery(query, null, LoginInfo.ConnStr);
         }
 
         protected string FormatQty(object sender)

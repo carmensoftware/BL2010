@@ -1018,4 +1018,46 @@
             </dx:PopupControlContentControl>
         </ContentCollection>
     </dx:ASPxPopupControl>
+    <dx:ASPxPopupControl ID="pop_StockOutInfo" ClientInstanceName="pop_StockOutInfo" runat="server" ShowHeader="true" HeaderText="Stock Out Information" CloseAction="CloseButton"
+        Modal="True" AutoUpdatePosition="True" AllowDragging="True" PopupVerticalAlign="WindowCenter" PopupHorizontalAlign="WindowCenter" ShowPageScrollbarWhenModal="True">
+        <ContentCollection>
+            <dx:PopupControlContentControl ID="PopupControlContentControl11" runat="server">
+                <asp:GridView ID="gv_StockOut" runat="server" SkinID="GRD_V1" Width="640">
+                    <Columns>
+                        <asp:TemplateField HeaderText="Date">
+                            <ItemTemplate>
+                                <%# Convert.ToDateTime(Eval("CreateDate")).ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) %>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:BoundField DataField="DocNo" HeaderText="Document#" />
+                        <asp:BoundField DataField="Location" HeaderText="Location" />
+                        <asp:BoundField DataField="AdjName" HeaderText="Type" />
+                        <asp:BoundField DataField="Status" HeaderText="Status" />
+                        <asp:TemplateField HeaderText="Update">
+                            <ItemTemplate>
+                                <div>
+                                    <%#Eval("UpdateBy") %></div>
+                                <small>
+                                    <%# Convert.ToDateTime(Eval("UpdateDate")).ToString("dd/MM/yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture) %></small>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="#">
+                            <ItemTemplate>
+                                <asp:HiddenField runat="server" ID="hf_DocNo" Value='<%# Eval("DocNo") %>' />
+                                <asp:HiddenField runat="server" ID="hf_LocationCode" Value='<%# Eval("LocationCode") %>' />
+                                <asp:HiddenField runat="server" ID="hf_Status" Value='<%# Eval("Status") %>' />
+                                <asp:Button runat="server" ID="btn_RePost" Text="Re-Post" OnClick="btn_RePost_Click" />
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                    </Columns>
+                </asp:GridView>
+                <br />
+                <br />
+                <br />
+                <div style="width: 100%; text-align: center;">
+                    <asp:Button ID="Button2" runat="server" Width="80" Text="Close" OnClientClick="pop_StockOutInfo.Hide();" />
+                </div>
+            </dx:PopupControlContentControl>
+        </ContentCollection>
+    </dx:ASPxPopupControl>
 </asp:Content>
