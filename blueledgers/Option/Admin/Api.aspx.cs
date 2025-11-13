@@ -5,7 +5,8 @@ using System.Text;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-
+using System.Web.UI.WebControls;
+using System.Linq;
 
 namespace BlueLedger.PL.Option.Admin
 {
@@ -54,55 +55,74 @@ namespace BlueLedger.PL.Option.Admin
             {
                 txt_Result.Text = "";
 
+                var tenants = GetTenants(adminToken);
 
-                var apiTenant = string.Format("api/tenant/adminToken/{0}", adminToken);
 
-                var json = Get(host, apiTenant);
-
-                var o = JObject.Parse(json);
-
-                var data = JArray.Parse(o["Data"].ToString());
-
-                var tenants = new List<Tenant>();
-
-                foreach (var item in data.Children())
+                foreach (var tenant in tenants)
                 {
-                    var t = JObject.Parse(item.ToString());
-
-                    tenants.Add(new Tenant
+                    if (string.IsNullOrEmpty(tenant.Token))
                     {
-                        Code = t["Tenant"].Value<string>(),
-                        Name = t["Description"].Value<string>(),
-                    });
-                }
+                        var code = tenant.Code;
+                        var token = CreateToken(code);
 
-                foreach (var tenant in tenants)
-                {
-                    var accessToken = LoginCarmen(tenant.Code);
-
-                    var endpoint = "api/interfaceBlueLedgers/createSessionToken";
-                    var body = "";
-
-                    var res = Post(host, endpoint, body, accessToken);
-                    var blue = JObject.Parse(res);
-
-                    var directToken = blue["Authorization"].Value<string>();
-
-
-                    tenant.Token = directToken;
-
-                }
-
-                var s = new StringBuilder();
-
-                foreach (var tenant in tenants)
-                {
-                    s.AppendFormat("{0} = {1}", tenant.Name, tenant.Token);
-                    s.AppendLine("");
+                        tenant.Token = token;
+                    }
                 }
 
 
-                txt_Result.Text = s.ToString();
+
+
+                gv_Tenant.DataSource = tenants;
+                gv_Tenant.DataBind();
+
+                //var apiTenant = string.Format("api/tenant/adminToken/{0}", adminToken);
+
+                //var json = Get(host, apiTenant);
+
+                //var o = JObject.Parse(json);
+
+                //var data = JArray.Parse(o["Data"].ToString());
+
+                //var tenants = new List<Tenant>();
+
+                //foreach (var item in data.Children())
+                //{
+                //    var t = JObject.Parse(item.ToString());
+
+                //    tenants.Add(new Tenant
+                //    {
+                //        Code = t["Tenant"].Value<string>(),
+                //        Name = t["Description"].Value<string>(),
+                //    });
+                //}
+
+                //foreach (var tenant in tenants)
+                //{
+                //    //var accessToken = LoginCarmen(tenant.Code);
+
+                //    //var endpoint = "api/interfaceBlueLedgers/createSessionToken";
+                //    //var body = "";
+
+                //    //var res = Post(host, endpoint, body, accessToken);
+                //    //var blue = JObject.Parse(res);
+
+                //    //var directToken = blue["Authorization"].Value<string>();
+
+
+                //    //tenant.Token = directToken;
+
+                //}
+
+                //var s = new StringBuilder();
+
+                //foreach (var tenant in tenants)
+                //{
+                //    s.AppendFormat("{0} = {1}", tenant.Name, tenant.Token);
+                //    s.AppendLine("");
+                //}
+
+
+                //txt_Result.Text = s.ToString();
             }
             catch (Exception ex)
             {
@@ -110,6 +130,84 @@ namespace BlueLedger.PL.Option.Admin
             }
 
         }
+
+        private IEnumerable<Tenant> GetTenants( string adminToken)
+        {
+            var host = txt_CarmenHost.Text.Trim().TrimEnd('/');
+            var apiTenant = string.Format("api/tenant/adminToken/{0}", adminToken);
+
+            var json = Get(host, apiTenant);
+
+            var o = JObject.Parse(json);
+
+            var data = JArray.Parse(o["Data"].ToString());
+
+            var tenants = new List<Tenant>();
+
+            foreach (var item in data.Children())
+            {
+                var t = JObject.Parse(item.ToString());
+
+                tenants.Add(new Tenant
+                {
+                    Code = t["Tenant"].Value<string>(),
+                    Name = t["Description"].Value<string>(),
+                });
+            }
+
+            if (tenants.ToArray().Length > 0)
+            {
+                var code = tenants[0].Code;
+                var accessToken = LoginCarmen(code);
+                var endpoint = "api/interfaceBlueLedgers/getSessionToken";
+
+                var response = Get(host, endpoint, accessToken);
+
+                if (response != null)
+                {
+                    var sessionTokens = JsonConvert.DeserializeObject<IEnumerable<SessionToken>>(response);
+
+                    txt_Result.Text = response;
+
+                    foreach (var session in sessionTokens)
+                    {
+                        var tenantCode = session.Tenant;
+                        var token = session.Authorization.Trim();
+
+                        var tenant = tenants.FirstOrDefault(x => x.Code == tenantCode);
+
+                        if (tenant != null)
+                        {
+                            tenant.Token = token;
+                        }
+                    }
+
+                }
+            }
+
+
+            return tenants;
+        }
+
+
+        private string CreateToken(string code)
+        {
+            var token = "";
+            var host = txt_CarmenHost.Text.Trim().TrimEnd('/');
+
+            var accessToken = LoginCarmen(code);
+
+            var endpoint = "api/interfaceBlueLedgers/createSessionToken";
+            var body = "";
+
+            var res = Post(host, endpoint, body, accessToken);
+            var blue = JObject.Parse(res);
+
+            token = blue["Authorization"].Value<string>();
+
+            return token;
+        }
+
 
         public string Get(string host, string endpoint, string authorization = "")
         {
@@ -142,22 +240,28 @@ namespace BlueLedger.PL.Option.Admin
         {
 
             var response = "";
-
-            using (var client = new WebClient())
+            try
             {
-                if (!string.IsNullOrEmpty(authorization))
-                    client.Headers.Add("Authorization", authorization);
+                using (var client = new WebClient())
+                {
+                    if (!string.IsNullOrEmpty(authorization))
+                        client.Headers.Add("Authorization", authorization);
 
-                client.Headers[HttpRequestHeader.ContentType] = "application/json";
-                client.Headers[HttpRequestHeader.Accept] = "application/json";
+                    client.Headers[HttpRequestHeader.ContentType] = "application/json";
+                    client.Headers[HttpRequestHeader.Accept] = "application/json";
 
-                var url = host.TrimEnd('/') + "/" + endpoint.Trim().TrimStart('/');
+                    var url = host.TrimEnd('/') + "/" + endpoint.Trim().TrimStart('/');
 
-                response = client.UploadString(url, data);
+                    response = client.UploadString(url, data);
 
+                }
+
+                return response;
             }
-
-            return response;
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public string LoginCarmen(string tenant)
@@ -201,7 +305,7 @@ namespace BlueLedger.PL.Option.Admin
         }
 
 
-       
+
 
         public class Login
         {
@@ -218,6 +322,16 @@ namespace BlueLedger.PL.Option.Admin
             public string Code { get; set; }
             public string Name { get; set; }
             public string Token { get; set; }
+        }
+
+
+        public class SessionToken
+        {
+            public string ClientName { get; set; }
+            public string ClientId { get; set; }
+            public string Tenant { get; set; }
+            public string Authorization { get; set; }
+            public DateTime ExpireDate { get; set; }
         }
 
     }

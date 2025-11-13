@@ -1,7 +1,6 @@
 ﻿<%@ Page Language="C#" MasterPageFile="~/Master/In/SkinDefault.master" AutoEventWireup="true" CodeFile="Api.aspx.cs" Inherits="BlueLedger.PL.Option.Admin.Api" %>
 
 <%@ MasterType VirtualPath="~/master/In/SkinDefault.master" %>
-
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
     <%--Flex--%>
     <style>
@@ -83,7 +82,7 @@
     <br />
     <h3>
         Carmen API</h3>
-    <table style="width: 480px;">
+    <table style="width: 640px;">
         <tr>
             <td>
                 <asp:Label ID="Label1" runat="server" Text="Host" />
@@ -91,7 +90,6 @@
             <td>
                 <div class="flex">
                     <asp:TextBox runat="server" ID="txt_CarmenHost" Width="100%" />
-                    &nbsp;
                     <button id="btn_OpenHost" onclick="OpenLink()">
                         Open
                     </button>
@@ -131,8 +129,26 @@
         </tr>
     </table>
     <br />
+    <asp:GridView ID="gv_Tenant" runat="server" Width="800" AutoGenerateColumns="false">
+        <Columns>
+            <%--<asp:TemplateField HeaderText="">
+                <ItemTemplate>
+                    <asp:Label runat="server" ID="lbl_TenantCode" Text='<%# Eval("Code") %>' />
+                </ItemTemplate>
+            </asp:TemplateField>--%>
+            <asp:BoundField DataField="Code" HeaderText="Code" />
+            <asp:BoundField DataField="Name" HeaderText="Name" />
+            <asp:BoundField DataField="Token" HeaderText="Token" />
+            <%--<asp:TemplateField HeaderText="Action">
+                <ItemTemplate>
+                    <asp:Button runat="server" ID="btn_CreateToken" Text="Create" OnClick="btn_CreateToken_Click" />
+                </ItemTemplate>
+            </asp:TemplateField>--%>
+        </Columns>
+    </asp:GridView>
+    <br />
+    <br />
     <asp:TextBox runat="server" ID="txt_Result" TextMode="MultiLine" Rows="10" Width="100%" ReadOnly="True" />
-    
     <script type="text/javascript">
         function OpenLink() {
             var url = document.getElementById('<%= txt_CarmenHost.ClientID %>').value;
