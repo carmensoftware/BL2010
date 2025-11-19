@@ -1631,7 +1631,7 @@ as st where st.[rn] between @startIndex and @endIndex";
             grd_RecEdit.EditIndex = -1;
             grd_RecEdit.DataBind();
 
-            DsRecEdit.Tables[RecDt.TableName].AcceptChanges();
+            //DsRecEdit.Tables[RecDt.TableName].AcceptChanges();
 
 
             if (grd_RecEdit.Rows.Count < 1)

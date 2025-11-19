@@ -87,6 +87,7 @@ namespace Blue.BL.dbo
          
             2026-01-31 = hopinnth = 27 
             2026-01-31 = peachgroup = 13 
+            2026-01-31 = surestayplussukhumvit2 = 10
          
             ------------------------------------------------------------------
             2025-12-31 = tuibluethepassage = 8 + 8 = 16
@@ -132,11 +133,11 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser = 500;
+        private int licenseActiveUser = 100;
 
         public DateTime GetLicenseExpiredDate()
         {
-            return new DateTime(2026, 05, 31);
+            return new DateTime(2026, 01, 31);
         }
 
         private DateTime licenseExpiredDate { get { return GetLicenseExpiredDate(); } }
