@@ -99,7 +99,7 @@ namespace Blue.BL.dbo
             2025-11-30 = korabeachresort = 10 + 22 = 32
             2025-11-30 = tinbaron = 18
             2025-11-30 = thebangkokclub = 20
-            2025-11-30 = urbana-sathorn = 6 + 2 = 8
+            2025-11-30 = urbana-sathorn = 6 + 2 = 8 + 2 = 10
             2025-11-30 = thekaset = 10
             2025-11-30 = sztowerthai = 13+4=17
             2025-11-30 = waltonsuitessukhumvitbangkok = 5
@@ -137,7 +137,7 @@ namespace Blue.BL.dbo
 
         public DateTime GetLicenseExpiredDate()
         {
-            return new DateTime(2026, 01, 31);
+            return new DateTime(2025, 11, 30);
         }
 
         private DateTime licenseExpiredDate { get { return GetLicenseExpiredDate(); } }
