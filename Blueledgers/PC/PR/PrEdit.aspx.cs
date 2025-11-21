@@ -4378,6 +4378,7 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
                 var txt_QtyRequest = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_QtyRequest") as ASPxSpinEdit;
                 decimal reqQty = 0;
                 decimal.TryParse(txt_QtyRequest.Text, out reqQty);
+
                 if (reqQty > 0)
                 {
                     drUpdating["ReqQty"] = reqQty;
@@ -4444,7 +4445,6 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
                 }
 
                 // Because they don't have txt_Price in Issue panel.
-                decimal qty = 0, price = 0, discRate = 0, currRate = 0;
 
                 var lastPrice = string.IsNullOrEmpty(lbl_LastPrice.Text) ? 0m : Convert.ToDecimal(lbl_LastPrice.Text);
                 var lastVendorCode = string.IsNullOrEmpty(lbl_LastVendor.Text) ? "" : lbl_LastVendor.Text.Split(':').Select(x => x.Trim()).First();
@@ -4466,6 +4466,9 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
                 }
 
 
+                decimal qty = 0;
+                decimal price = 0;
+                decimal discRate = 0, currRate = 0;
 
                 decimal.TryParse(drUpdating["ApprQty"].ToString(), out qty);
                 decimal.TryParse(drUpdating["Price"].ToString(), out price);
@@ -4879,24 +4882,17 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
                 else
                 {
                     {
-
-                        var ddl_LocationCode =
-                            grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_LocationCode") as ASPxComboBox;
+                        var ddl_LocationCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_LocationCode") as ASPxComboBox;
                         var LocationCode = ddl_LocationCode.Value.ToString().Split(':');
                         drUpdating["LocationCode"] = LocationCode[0];
 
-                        var ddl_ProductCode =
-                            grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_ProductCode") as ASPxComboBox;
+                        var ddl_ProductCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_ProductCode") as ASPxComboBox;
                         var ProductCode = ddl_ProductCode.Value.ToString().Split(':');
                         drUpdating["ProductCode"] = ProductCode[0];
 
-                        // Modified on: 17/01/2018, By: Fon, For: 
-                        //Issue Local
-                        //drUpdating["TaxAdj"] = false;
                         if (wfDt.GetAllowCreate(wfId, wfStep, hf_ConnStr.Value))
                         {
-                            drUpdating["TaxAdj"] = (product.GetTaxType(ProductCode[0], hf_ConnStr.Value) != "N")
-                                ? true : false;
+                            drUpdating["TaxAdj"] = (product.GetTaxType(ProductCode[0], hf_ConnStr.Value) != "N") ? true : false;
                         }
                         else
                         {
@@ -4904,22 +4900,19 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
                         }
                         // End Modified.
 
-                        var txt_DescEn = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_DescEn") as TextBox;
-                        drUpdating["Descen"] = txt_DescEn.Text;
+                        //var txt_DescEn = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_DescEn") as TextBox;
+                        //drUpdating["Descen"] = txt_DescEn.Text;
 
-                        var txt_DescLL = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_DescLL") as TextBox;
-                        drUpdating["Descll"] = txt_DescLL.Text;
+                        //var txt_DescLL = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_DescLL") as TextBox;
+                        //drUpdating["Descll"] = txt_DescLL.Text;
 
                         //TextBox txt_Unit = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_Unit") as TextBox;
                         var ddl_Unit = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_Unit") as ASPxComboBox;
                         drUpdating["OrderUnit"] = ddl_Unit.Value;
 
-                        drUpdating["TaxType"] = product.GetTaxType(drUpdating["ProductCode"].ToString(),
-                             hf_ConnStr.Value);
-                        drUpdating["TaxRate"] =
-                            product.GetTaxRate(drUpdating["ProductCode"].ToString(), LoginInfo.ConnStr).ToString();
+                        drUpdating["TaxType"] = product.GetTaxType(drUpdating["ProductCode"].ToString(), hf_ConnStr.Value);
+                        drUpdating["TaxRate"] = product.GetTaxRate(drUpdating["ProductCode"].ToString(), LoginInfo.ConnStr).ToString();
 
-                        //ASPxSpinEdit txt_QtyRequest = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_QtyRequest") as ASPxSpinEdit;
                         var txt_QtyRequest = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_QtyRequest") as ASPxSpinEdit;
                         if (txt_QtyRequest != null && decimal.Parse(txt_QtyRequest.Text) != 0)
                         {
@@ -4949,16 +4942,14 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
                             drUpdating["ReqDate"] = DateTime.Parse(dte_Date.Date.ToString("dd/MM/yyyy"));
                         }
 
-                        var ddl_DeliPoint =
-                            grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_DeliPoint") as ASPxComboBox;
+                        var ddl_DeliPoint = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_DeliPoint") as ASPxComboBox;
                         var DeliPoint = ddl_DeliPoint.Value.ToString().Split(':');
                         if (ddl_DeliPoint.Value != null)
                         {
                             drUpdating["DeliPoint"] = int.Parse(DeliPoint[0]);
                         }
 
-                        var txt_Comment_Detail =
-                            grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_Comment_Detail") as TextBox;
+                        var txt_Comment_Detail = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_Comment_Detail") as TextBox;
 
                         drUpdating["Comment"] = (txt_Comment_Detail.Text != null
                             ? txt_Comment_Detail.Text
@@ -4979,6 +4970,35 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
                             decimal.Parse(drUpdating["Price"].ToString()),
                             decimal.Parse(drUpdating["DiscAmt"].ToString()),
                             decimal.Parse(drUpdating["ReqQty"].ToString()));
+
+
+
+                        var row = grd_PrDt1.Rows[grd_PrDt1.EditIndex];
+
+                        var lbl_LastPrice = row.FindControl("lbl_LastPrice") as Label;
+                        var lbl_LastVendor = row.FindControl("lbl_LastVendor") as Label;
+                        var hf_LastRecNo = row.FindControl("hf_LastRecNo") as HiddenField;
+
+
+
+                        var lastPrice = string.IsNullOrEmpty(lbl_LastPrice.Text) ? 0m : Convert.ToDecimal(lbl_LastPrice.Text);
+                        var lastVendorCode = string.IsNullOrEmpty(lbl_LastVendor.Text) ? "" : lbl_LastVendor.Text.Split(':').Select(x => x.Trim()).First();
+
+                        drUpdating["LastPrice"] = lastPrice;
+                        // Last Vendor
+                        drUpdating["VendorProdCode"] = lastVendorCode;
+                        drUpdating["RefNo"] = hf_LastRecNo.Value.ToString();
+
+
+                        if (IsApplyLastPrice)
+                        {
+                            // Last Price
+                            if (wfStep == 1)
+                            {
+                                //drUpdating["VendorCode"] = lastVendorCode; 
+                                drUpdating["Price"] = lastPrice;
+                            }
+                        }
                     }
                 }
                 #endregion
