@@ -331,7 +331,10 @@ namespace BlueLedger.PL.PC.PR
             #endregion // DATA
 
             #region "CONTROLS"
-            var dt = dsPR.Tables[prDt.TableName].AsEnumerable();
+            var dt = dsPR.Tables[prDt.TableName].AsEnumerable()
+                .Where(x=>x.Field<string>("ApprStatus").Contains('R') == false)
+                .ToArray();
+
 
 
             TotalSummary.CurrencyNetAmount = dt.Sum(x => x.Field<decimal>("CurrNetAmt"));
