@@ -190,8 +190,12 @@ namespace BlueLedger.PL.IN
 
         protected void btn_SyncVendor_Click(object sender, EventArgs e)
         {
-            SyncVendor();
-            Response.Redirect(Request.RawUrl);
+            var error = SyncVendor();
+            
+            if (string.IsNullOrEmpty(error))
+            {
+                Response.Redirect(Request.RawUrl);
+            }
         }
 
         protected void btn_Category_Back_Click(object sender, EventArgs e)
@@ -372,27 +376,30 @@ namespace BlueLedger.PL.IN
             gv_Category.DataBind();
         }
 
-        private void SyncVendor()
+        private string SyncVendor()
         {
-            lbl_Error.Text = "";
-            var values = config.GetValue("APP", "INTF", "ACCOUNT", LoginInfo.ConnStr);
-
-            if (!string.IsNullOrEmpty(values))
+            var error = "";
+            
+            try
             {
-                var keys = new KeyValues();
 
-                keys.Text = values;
+                var values = config.GetValue("APP", "INTF", "ACCOUNT", LoginInfo.ConnStr);
 
-                string intfType = keys.Value("type");
-
-                if (intfType.ToLower() == "api")
+                if (!string.IsNullOrEmpty(values))
                 {
-                    var baseUrl = keys.Value("host");
-                    var auth = keys.Value("auth");
-                    var endpoint = keys.Value("vendor");
+                    var keys = new KeyValues();
 
-                    try
+                    keys.Text = values;
+
+                    string intfType = keys.Value("type");
+
+                    if (intfType.ToLower() == "api")
                     {
+                        var baseUrl = keys.Value("host");
+                        var auth = keys.Value("auth");
+                        var endpoint = keys.Value("vendor");
+
+
                         var api = new API(baseUrl, auth);
 
                         var json = api.Get(endpoint);
@@ -455,97 +462,17 @@ namespace BlueLedger.PL.IN
                             command.Connection.Open();
                             command.ExecuteNonQuery();
                         }
-
-
                     }
-                    catch (Exception ex)
-                    {
-                        Response.Write(string.Format("<script>alert(`{0}`);</script>", ex.Message));
-                        lbl_Error.Text = string.Join("; ", ex.Message);
-                    }
-
-
-
-                    //using (var client = new HttpClient())
-                    //{
-                    //    client.BaseAddress = new Uri(baseUrl);
-                    //    client.DefaultRequestHeaders.Accept.Clear();
-                    //    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    //    client.DefaultRequestHeaders.Add("Authorization", auth);
-
-                    //    HttpResponseMessage response = client.GetAsync(keys.Value("vendor")).Result;
-
-                    //    //lbl_Test.Text = baseUrl;
-
-                    //    if (response.IsSuccessStatusCode)
-                    //    {
-                    //        //lbl_Test.Text = "Success";
-
-                    //        var json = response.Content.ReadAsStringAsync().Result;
-                    //        var result = JsonConvert.DeserializeObject<RootData>(json);
-
-
-                    //        var script = new List<string>();
-
-                    //        foreach (DataVendor item in result.Data)
-                    //        {
-                    //            var vnCode = item.VnCode;
-                    //            var vnName = item.VnName.Replace("\'", "\'\'");
-                    //            var vnAdd1 = string.IsNullOrEmpty(item.VnAdd1) ? "" : item.VnAdd1.Replace("\'", "\'\'");
-                    //            var vnAdd2 = string.IsNullOrEmpty(item.VnAdd2) ? "" : item.VnAdd2.Replace("\'", "\'\'");
-                    //            var vnAdd3 = string.IsNullOrEmpty(item.VnAdd3) ? "" : item.VnAdd3.Replace("\'", "\'\'");
-                    //            var vnAdd4 = string.IsNullOrEmpty(item.VnAdd4) ? "" : item.VnAdd4.Replace("\'", "\'\'");
-                    //            var vnTel = string.IsNullOrEmpty(item.VnTel) ? "" : item.VnTel.Replace("\'", "\'\'");
-                    //            var vnFax = string.IsNullOrEmpty(item.VnFax) ? "" : item.VnFax.Replace("\'", "\'\'");
-                    //            var vnCateCode = item.VnCateCode;
-                    //            var vnTaxNo = item.VnTaxNo;
-                    //            var branchNo = item.BranchNo;
-                    //            var vnVat1 = item.VnVat1.Substring(0, 1);
-                    //            var vnTaxR1 = item.VnTaxR1 ?? 0;
-                    //            var vnTerm = item.VnTerm ?? 0;
-                    //            var active = item.Active ? "1" : "0";
-                    //            var lastModified = item.LastModified == null ? null : string.Format("{0:yyyy-MM-dd HH:mm:ss}", item.LastModified);
-
-                    //            var address = string.Format("{0} {1} {2} {3}", vnAdd1, vnAdd2, vnAdd3, vnAdd4).Trim();
-                    //            var userModified = string.IsNullOrEmpty(item.UserModified);
-
-                    //            //using (SqlConnection connection = new SqlConnection(LoginInfo.ConnStr))
-                    //            //{
-                    //            string sql = "EXEC [Tool].[Vendor_InsertOrUpdate] ";
-                    //            sql += string.Format("@VendorCode='{0}',", vnCode);
-                    //            sql += string.Format("@CategoryCode='{0}',", vnCateCode);
-                    //            sql += string.Format("@VendorName=N'{0}',", vnName);
-                    //            sql += string.Format("@Address=N'{0}',", address);
-                    //            sql += string.Format("@Tel=N'{0}',", vnTel);
-                    //            sql += string.Format("@Fax=N'{0}',", vnFax);
-                    //            sql += string.Format("@TaxId=N'{0}',", vnTaxNo);
-                    //            sql += string.Format("@BranchId=N'{0}',", branchNo);
-                    //            sql += string.Format("@TaxType='{0}',", vnVat1);
-                    //            sql += string.Format("@TaxRate='{0}',", vnTaxR1);
-                    //            sql += string.Format("@CreditTerm='{0}',", vnTerm);
-                    //            sql += string.Format("@IsActive='{0}',", active);
-                    //            sql += string.Format("@UpdatedBy='{0}',", userModified);
-                    //            sql += string.Format("@UpdatedDate='{0}'", lastModified);
-
-
-                    //            script.Add(sql);
-                    //        }
-
-
-                    //        //lbl_Test.Text = string.Join("; <br />", script);
-
-
-                    //        using (SqlConnection connection = new SqlConnection(LoginInfo.ConnStr))
-                    //        {
-                    //            SqlCommand command = new SqlCommand(string.Join("; ", script), connection);
-                    //            command.Connection.Open();
-                    //            command.ExecuteNonQuery();
-                    //        }
-                    //    }
-                    //}
 
                 }
             }
+            catch (Exception ex)
+            {
+                error = ex.Message;
+                Response.Write(string.Format("<script>console.log(`{0}`);</script>", error));
+            }
+
+            return error;
         }
 
         public class RootData

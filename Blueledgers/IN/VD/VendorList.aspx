@@ -118,7 +118,7 @@
     <br />
     <asp:Button runat="server" ID="btn_SyncVendor" Text="Update Vendor from Carmen" OnClick="btn_SyncVendor_Click" Visible="false" />
     <div>
-        <asp:Label runat="server" ID="lbl_Error" ForeColor="Red" Text="" />
+        <asp:Label runat="server" ID="lbl_Error" ForeColor="Red" Font-Size="Large" Text="" />
     </div>
     </
 </asp:Content>
