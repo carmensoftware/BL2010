@@ -316,69 +316,104 @@ namespace BlueLedger.PL.UserControls
                 pop_ReqVendor.ShowOnPageLoad = true;
                 Lb_WarningInfo.Text = @"Please select item to Approve";
             }
-            else
-            {
-                pop_ConfirmApprove.ShowOnPageLoad = true;
-            }
+
+            pop_ConfirmApprove.ShowOnPageLoad = false;
+
 
             var dtWf = _workFlow.DbExecuteQuery("SELECT StepNo FROM APP.WF WHERE WFId=2", null, LoginInfo.ConnStr);
-
             var lastStep = dtWf != null && dtWf.Rows.Count > 0 ? Convert.ToInt32(dtWf.Rows[0][0]) : 0;
 
-            if (TableSchema == "StoreRequisition" && WfStep == lastStep) // Check Period Date for CommittedDate (Before Issue)
+            if (WfStep == lastStep) // Check Period Date for CommittedDate (Before Issue)
             {
-                DateTime OpenPeriod = period.GetLatestOpenEndDate(LoginInfo.ConnStr).AddHours(23).AddMinutes(57);
-                DateTime InvCommittedDate;
-                DateTime DocDate = DateTime.Parse(Ds.Tables[TableSchema].Rows[0]["DeliveryDate"].ToString());
+                var startOfOpeningPeriod = DateTime.Today.Date;
+                var endOfOpeningPeriod = DateTime.Today.Date;
 
-                if (DateTime.Today > OpenPeriod)  // Over than open period (DateTime)
+                var dtPeriod = _workFlow.DbExecuteQuery("SELECT TOP(1) StartDate, EndDate FROM [IN].[Period] WHERE IsClose=0 ORDER BY [StartDate]", null, LoginInfo.ConnStr);
+
+
+                if (dtPeriod != null && dtPeriod.Rows.Count > 0)
                 {
-                    if (DocDate.Date <= OpenPeriod.Date)
-                        InvCommittedDate = OpenPeriod;
-                    else
-                        InvCommittedDate = DateTime.Today;
-                }
-                else // In period
-                    InvCommittedDate = DateTime.Today;
+                    startOfOpeningPeriod = Convert.ToDateTime(dtPeriod.Rows[0]["StartDate"]).Date;
+                    endOfOpeningPeriod = Convert.ToDateTime(dtPeriod.Rows[0]["EndDate"]).Date;
 
-                if (DateTime.Today > OpenPeriod && DocDate.Date > OpenPeriod.Date)
-                {
-                    pop_ConfirmApprove.ShowOnPageLoad = false;
-                    pop_Warning.ShowOnPageLoad = true;
-                    lbl_Warning.Text = "This document is not allowed to issue.<br><br>The document is created out of opening period. (@" + DocDate.Date.ToShortDateString() + ") <br><br>Please closing period before issue this document.";
-                }
-
-                // Check partial issue
-                bool allowPartial = true;
-                DataTable dt = Ds.Tables[TableDtSchema];
-
-                if (!allowPartial)
-                {
-                    // check all detail must be selected
-                    bool selectedAll = true;
-
-                    var grdDt = Parent.FindControl(ControlID) as GridView;
-
-                    if (grdDt != null)
-                        foreach (GridViewRow grdRow in grdDt.Rows)
-                        {
-                            var chkItem = grdRow.FindControl("chk_Item") as CheckBox;
-
-                            if (!chkItem.Checked && !dt.Rows[grdRow.RowIndex]["ApprStatus"].ToString().Contains('R'))
-                            {
-                                selectedAll = false;
-                                break;
-                            }
-                        }
-
-                    if (!selectedAll)
+                    if (DateTime.Today.Date > endOfOpeningPeriod)
                     {
-                        pop_ConfirmApprove.ShowOnPageLoad = false;
+                        var message = "<b>Period is opening from {0} to {1}</b>.<br/><br/>";
+
+                        message += "Issue is able to process only in the opening period.<br/>";
+                        message += "Please closed period before issued this document.<br/>";
+ 
+                        lbl_Warning.Text = string.Format(message, startOfOpeningPeriod.ToString("dd/MM/yyyy"), endOfOpeningPeriod.ToString("dd/MM/yyyy"));
                         pop_Warning.ShowOnPageLoad = true;
-                        lbl_Warning.Text = "This document is not allowed partial issue. Please select all items.";
+                        
+                        return;
                     }
 
                 }
+                else
+                {
+                    lbl_Warning.Text = "Period not set.";
+                    pop_Warning.ShowOnPageLoad = true;
+                }
+
+
+
+                pop_ConfirmApprove.ShowOnPageLoad = true;
+
+                //if (TableSchema == "StoreRequisition" && WfStep == 3) // Check Period Date for CommittedDate (Before Issue)
+                //{
+                //    DateTime OpenPeriod = period.GetLatestOpenEndDate(LoginInfo.ConnStr).AddHours(23).AddMinutes(57);
+                //    DateTime InvCommittedDate;
+                //    DateTime DocDate = DateTime.Parse(Ds.Tables[TableSchema].Rows[0]["DeliveryDate"].ToString());
+
+                //    if (DateTime.Today > OpenPeriod)  // Over than open period (DateTime)
+                //    {
+                //        if (DocDate.Date <= OpenPeriod.Date)
+                //            InvCommittedDate = OpenPeriod;
+                //        else
+                //            InvCommittedDate = DateTime.Today;
+                //    }
+                //    else // In period
+                //        InvCommittedDate = DateTime.Today;
+
+                //    if (DateTime.Today > OpenPeriod && DocDate.Date > OpenPeriod.Date)
+                //    {
+                //        pop_ConfirmApprove.ShowOnPageLoad = false;
+                //        pop_Warning.ShowOnPageLoad = true;
+                //        lbl_Warning.Text = "This document is not allowed to issue.<br><br>The document is created out of opening period. (@" + DocDate.Date.ToShortDateString() + ") <br><br>Please closing period before issue this document.";
+                //    }
+
+                //    // Check partial issue
+                //    bool allowPartial = true;
+                //    DataTable dt = Ds.Tables[TableDtSchema];
+
+                //    if (!allowPartial)
+                //    {
+                //        // check all detail must be selected
+                //        bool selectedAll = true;
+
+                //        var grdDt = Parent.FindControl(ControlID) as GridView;
+
+                //        if (grdDt != null)
+                //            foreach (GridViewRow grdRow in grdDt.Rows)
+                //            {
+                //                var chkItem = grdRow.FindControl("chk_Item") as CheckBox;
+
+                //                if (!chkItem.Checked && !dt.Rows[grdRow.RowIndex]["ApprStatus"].ToString().Contains('R'))
+                //                {
+                //                    selectedAll = false;
+                //                    break;
+                //                }
+                //            }
+
+                //        if (!selectedAll)
+                //        {
+                //            pop_ConfirmApprove.ShowOnPageLoad = false;
+                //            pop_Warning.ShowOnPageLoad = true;
+                //            lbl_Warning.Text = "This document is not allowed partial issue. Please select all items.";
+                //        }
+
+                //    }
 
 
             }
@@ -458,17 +493,11 @@ namespace BlueLedger.PL.UserControls
                     // Check Onhand
                     if (WfStep < wfStepCount) continue;
 
-                    var get = _prDt.GetStockSummary(Ds, dtSchema[j]["ProductCode"].ToString(), Ds.Tables[TableSchema].Rows[0]["LocationCode"].ToString(), sDate, ConnStr);
-
-                    var onHand = 0m;
-
-                    if (Ds.Tables[_prDt.TableName].Rows.Count > 0)
-                    {
-
-                        onHand = decimal.Parse(Ds.Tables[_prDt.TableName].Rows[0]["OnHand"].ToString() == string.Empty
-                            ? "0"
-                            : Ds.Tables[_prDt.TableName].Rows[0]["OnHand"].ToString());
-                    }
+                    var get = _prDt.GetStockSummary(Ds, dtSchema[j]["ProductCode"].ToString()
+                        , Ds.Tables[TableSchema].Rows[0]["LocationCode"].ToString(), sDate, ConnStr);
+                    var onHand = decimal.Parse(Ds.Tables[_prDt.TableName].Rows[0]["OnHand"].ToString() == string.Empty
+                        ? "0"
+                        : Ds.Tables[_prDt.TableName].Rows[0]["OnHand"].ToString());
 
                     // Check null Approve qty
                     if (string.IsNullOrEmpty(dtSchema[j]["allocateQty"].ToString()))
@@ -984,7 +1013,7 @@ namespace BlueLedger.PL.UserControls
 
                 string sql = @"SELECT ISNULL(u.Email, '') email, RefId, RequestCode, LocationCode, [Description], CreateDate
                             FROM [IN].StoreRequisition sr
-                            LEFT JOIN [Admin].vUser u ON u.LoginName = sr.CreateBy
+                            LEFT JOIN [Admin].vUser u ON u.LoginName COLLATE DATABASE_DEFAULT = sr.CreateBy COLLATE DATABASE_DEFAULT
                             WHERE RefId = '{0}'";
 
                 DataTable dt = config.DbExecuteQuery(string.Format(sql, refId), null, LoginInfo.ConnStr);

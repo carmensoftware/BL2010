@@ -19,14 +19,14 @@
         </td>
     </tr>
 </table>
-<dx:ASPxPopupControl ID="pop_ReqVendor" runat="server" HeaderText="Warning" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter">
+<dx:ASPxPopupControl ID="pop_ReqVendor" runat="server" HeaderText="Warning" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowPageScrollbarWhenModal="True">
     <ContentCollection>
         <dx:PopupControlContentControl ID="PopupControlContentControl5" runat="server">
             <asp:Label ID="Lb_WarningInfo" runat="server" Text="Vendor are require."></asp:Label>
         </dx:PopupControlContentControl>
     </ContentCollection>
 </dx:ASPxPopupControl>
-<dx:ASPxPopupControl ID="pop_ConfirmApprove" runat="server" HeaderText="Warning" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter">
+<dx:ASPxPopupControl ID="pop_ConfirmApprove" runat="server" HeaderText="Warning" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowPageScrollbarWhenModal="True">
     <ContentCollection>
         <dx:PopupControlContentControl ID="PopupControlContentControl1" runat="server">
             <table border="0" cellpadding="5" cellspacing="0" width="100%">
@@ -49,7 +49,7 @@
         </dx:PopupControlContentControl>
     </ContentCollection>
 </dx:ASPxPopupControl>
-<dx:ASPxPopupControl ID="pop_WarningApprQty" runat="server" HeaderText="Warning" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter">
+<dx:ASPxPopupControl ID="pop_WarningApprQty" runat="server" HeaderText="Warning" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowPageScrollbarWhenModal="True">
     <ContentCollection>
         <dx:PopupControlContentControl ID="PopupControlContentControl10" runat="server">
             <table border="0" cellpadding="5" cellspacing="0" width="100%">
@@ -73,7 +73,7 @@
     </ContentCollection>
 </dx:ASPxPopupControl>
 <dx:ASPxPopupControl ID="pop_Approve" runat="server" HeaderText="Information" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" CloseAction="CloseButton"
-    Modal="True" ShowCloseButton="False">
+    Modal="True" ShowCloseButton="False" ShowPageScrollbarWhenModal="True">
     <ContentCollection>
         <dx:PopupControlContentControl ID="PopupControlContentControl6" runat="server">
             <asp:Label ID="lbl_Approve_Chk" runat="server"></asp:Label>
@@ -91,7 +91,7 @@
     </ContentCollection>
 </dx:ASPxPopupControl>
 <dx:ASPxPopupControl ID="pop_Warning" runat="server" HeaderText="Warning" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" CloseAction="CloseButton"
-    Modal="True" ShowCloseButton="False" Width="480px">
+    Modal="True" ShowCloseButton="False" Width="480px" ShowPageScrollbarWhenModal="True">
     <ContentCollection>
         <dx:PopupControlContentControl ID="PopupControlContentControl11" runat="server">
             <div style="float: left; width: 90%; text-align: center;">
@@ -110,7 +110,7 @@
     </ContentCollection>
 </dx:ASPxPopupControl>
 <dx:ASPxPopupControl ID="pop_ConfirmReject" runat="server" CloseAction="CloseButton" HeaderText="Reject" Modal="True" ShowCloseButton="False" PopupHorizontalAlign="WindowCenter"
-    PopupVerticalAlign="WindowCenter" Width="420px">
+    PopupVerticalAlign="WindowCenter" Width="420px" ShowPageScrollbarWhenModal="True">
     <ContentCollection>
         <dx:PopupControlContentControl ID="PopupControlContentControl7" runat="server">
             <div>
@@ -134,7 +134,7 @@
     </ContentCollection>
 </dx:ASPxPopupControl>
 <dx:ASPxPopupControl ID="pop_Reject" runat="server" HeaderText="Remark" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ClientInstanceName="pop_Reject"
-    CloseAction="CloseButton" Modal="True">
+    CloseAction="CloseButton" Modal="True" ShowPageScrollbarWhenModal="True">
     <ContentCollection>
         <dx:PopupControlContentControl ID="PopupControlContentControl2" runat="server">
             <table border="0" cellpadding="3" cellspacing="1" style="width: 100%;">
@@ -181,7 +181,7 @@
     </ContentCollection>
 </dx:ASPxPopupControl>
 <dx:ASPxPopupControl ID="pop_SendBack" runat="server" HeaderText="Warning" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ClientInstanceName="pop_SendBack"
-    CloseAction="CloseButton" Modal="True">
+    CloseAction="CloseButton" Modal="True" ShowPageScrollbarWhenModal="True">
     <ContentCollection>
         <dx:PopupControlContentControl ID="PopupControlContentControl3" runat="server">
             <table border="0" cellpadding="3" cellspacing="1" style="width: 100%;">
@@ -230,7 +230,7 @@
     </ContentCollection>
 </dx:ASPxPopupControl>
 <dx:ASPxPopupControl ID="pop_ConfirmSendback" runat="server" HeaderText="Warning" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter"
-    Width="360px">
+    Width="360px" ShowPageScrollbarWhenModal="True">
     <ContentCollection>
         <dx:PopupControlContentControl ID="PopupControlContentControl4" runat="server">
             <table border="0" cellpadding="5" cellspacing="0" width="100%">
@@ -255,7 +255,7 @@
     </ContentCollection>
 </dx:ASPxPopupControl>
 <dx:ASPxPopupControl ID="pop_RejectSuccess" runat="server" HeaderText="Information" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter"
-    CloseAction="CloseButton" Modal="True" ShowCloseButton="False">
+    CloseAction="CloseButton" Modal="True" ShowCloseButton="False" ShowPageScrollbarWhenModal="True">
     <ContentCollection>
         <dx:PopupControlContentControl ID="PopupControlContentControl8" runat="server">
             <table border="0" cellpadding="5" cellspacing="0" width="100%">
@@ -277,7 +277,7 @@
     </ContentCollection>
 </dx:ASPxPopupControl>
 <dx:ASPxPopupControl ID="pop_SendBackSuccess" runat="server" HeaderText="Information" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter"
-    CloseAction="CloseButton" Modal="True" ShowCloseButton="False">
+    CloseAction="CloseButton" Modal="True" ShowCloseButton="False" ShowPageScrollbarWhenModal="True">
     <ContentCollection>
         <dx:PopupControlContentControl ID="PopupControlContentControl9" runat="server">
             <table border="0" cellpadding="5" cellspacing="0" width="100%">
