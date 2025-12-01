@@ -38,6 +38,7 @@ namespace Blue.BL.dbo
             2026-08-31 = bwsanctuary = 10
          
             2026-07-31 = Nexen = 20
+            2026-07-31 = uchijapanese-phuket = 2
          
             2026-06-30 = floralcourthotel = 5+6 = 11
             2026-06-30 = maraleina = 23+1 = 24
@@ -97,6 +98,7 @@ namespace Blue.BL.dbo
             2026-01-31 = peachgroup = 13 
             2026-01-31 = surestayplussukhumvit2 = 10
             2026-01-31 = selinaserenityrawai = 8
+            2026-01-31 = namakaresortkamala = 15
          
             ------------------------------------------------------------------
             2025-12-31 = tuibluethepassage = 8 + 8 = 16
@@ -108,9 +110,7 @@ namespace Blue.BL.dbo
             2025-12-31 = kappasensesubud = 17
          
             ------------------------------------------------------------------
-            2025-11-30 = namakaresortkamala = 15
             2025-11-30 = tinbaron = 18
-            2025-11-30 = uchijapanese-phuket = 2
             ------------------------------------------------------------------
              
              
@@ -137,11 +137,11 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser =320;
+        private int licenseActiveUser =150;
 
         public DateTime GetLicenseExpiredDate()
         {
-            return new DateTime(2026, 11, 30);
+            return new DateTime(2026, 01, 31);
         }
 
         private DateTime licenseExpiredDate { get { return GetLicenseExpiredDate(); } }
