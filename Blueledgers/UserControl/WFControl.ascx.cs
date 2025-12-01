@@ -321,7 +321,11 @@ namespace BlueLedger.PL.UserControls
                 pop_ConfirmApprove.ShowOnPageLoad = true;
             }
 
-            if (TableSchema == "StoreRequisition" && WfStep == 3) // Check Period Date for CommittedDate (Before Issue)
+            var dtWf = _workFlow.DbExecuteQuery("SELECT StepNo FROM APP.WF WHERE WFId=2", null, LoginInfo.ConnStr);
+
+            var lastStep = dtWf != null && dtWf.Rows.Count > 0 ? Convert.ToInt32(dtWf.Rows[0][0]) : 0;
+
+            if (TableSchema == "StoreRequisition" && WfStep == lastStep) // Check Period Date for CommittedDate (Before Issue)
             {
                 DateTime OpenPeriod = period.GetLatestOpenEndDate(LoginInfo.ConnStr).AddHours(23).AddMinutes(57);
                 DateTime InvCommittedDate;
