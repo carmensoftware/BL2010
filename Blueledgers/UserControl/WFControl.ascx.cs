@@ -358,7 +358,6 @@ namespace BlueLedger.PL.UserControls
 
 
 
-                pop_ConfirmApprove.ShowOnPageLoad = true;
 
                 //if (TableSchema == "StoreRequisition" && WfStep == 3) // Check Period Date for CommittedDate (Before Issue)
                 //{
@@ -417,6 +416,9 @@ namespace BlueLedger.PL.UserControls
 
 
             }
+
+            pop_ConfirmApprove.ShowOnPageLoad = true;
+
 
 
         }
