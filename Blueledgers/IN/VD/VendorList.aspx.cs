@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Web.UI.WebControls;
+using System.Text;
 
 namespace BlueLedger.PL.IN
 {
@@ -191,7 +192,7 @@ namespace BlueLedger.PL.IN
         protected void btn_SyncVendor_Click(object sender, EventArgs e)
         {
             var error = SyncVendor();
-            
+
             if (string.IsNullOrEmpty(error))
             {
                 Response.Redirect(Request.RawUrl);
@@ -379,7 +380,7 @@ namespace BlueLedger.PL.IN
         private string SyncVendor()
         {
             var error = "";
-            
+
             try
             {
 
@@ -405,63 +406,129 @@ namespace BlueLedger.PL.IN
                         var json = api.Get(endpoint);
                         var result = JsonConvert.DeserializeObject<RootData>(json);
 
+                        var errors = new StringBuilder();
 
-                        var script = new List<string>();
-
-                        foreach (DataVendor item in result.Data)
+                        foreach (var item in result.Data)
                         {
-                            var vnCode = item.VnCode;
-                            var vnName = item.VnName.Replace("\'", "\'\'");
-                            var vnAdd1 = string.IsNullOrEmpty(item.VnAdd1) ? "" : item.VnAdd1.Replace("\'", "\'\'");
-                            var vnAdd2 = string.IsNullOrEmpty(item.VnAdd2) ? "" : item.VnAdd2.Replace("\'", "\'\'");
-                            var vnAdd3 = string.IsNullOrEmpty(item.VnAdd3) ? "" : item.VnAdd3.Replace("\'", "\'\'");
-                            var vnAdd4 = string.IsNullOrEmpty(item.VnAdd4) ? "" : item.VnAdd4.Replace("\'", "\'\'");
-                            var vnTel = string.IsNullOrEmpty(item.VnTel) ? "" : item.VnTel.Replace("\'", "\'\'");
-                            var vnFax = string.IsNullOrEmpty(item.VnFax) ? "" : item.VnFax.Replace("\'", "\'\'");
-                            var vnCateCode = item.VnCateCode;
-                            //var vnTaxNo = item.VnTaxNo;
-                            var vnTaxNo = string.IsNullOrEmpty(item.VnTaxNo) ? "" : item.VnTaxNo.Replace("\'", "\'\'");
-                            var branchNo = item.BranchNo;
-                            var vnVat1 = item.VnVat1.Substring(0, 1);
-                            var vnTaxR1 = item.VnTaxR1 ?? 0;
-                            var vnTerm = item.VnTerm ?? 0;
-                            var active = item.Active ? "1" : "0";
-                            var lastModified = item.LastModified == null ? null : string.Format("{0:yyyy-MM-dd HH:mm:ss}", item.LastModified);
+                            var sql = @"
+EXEC [Tool].[Vendor_InsertOrUpdate] 
+@VendorCode,
+@CategoryCode,
+@VendorName,
+@Address,
+@Tel,
+@Fax,
+@TaxId,
+@BranchId,
+@TaxType,
+@TaxRate,
+@CreditTerm,
+@IsActive,
+@UpdatedBy,
+@UpdatedDate";
+                            var address = new StringBuilder();
 
-                            var address = string.Format("{0} {1} {2} {3}", vnAdd1, vnAdd2, vnAdd3, vnAdd4).Trim();
-                            var userModified = string.IsNullOrEmpty(item.UserModified);
+                            address.Append(item.VnAdd1 + " ");
+                            address.Append(item.VnAdd2 + " ");
+                            address.Append(item.VnAdd3 + " ");
+                            address.Append(item.VnAdd4 + " ");
+                            try
+                            {
 
-                            //using (SqlConnection connection = new SqlConnection(LoginInfo.ConnStr))
-                            //{
-                            string sql = "EXEC [Tool].[Vendor_InsertOrUpdate] ";
-                            sql += string.Format("@VendorCode=N'{0}',", vnCode);
-                            sql += string.Format("@CategoryCode=N'{0}',", vnCateCode);
-                            sql += string.Format("@VendorName=N'{0}',", vnName);
-                            sql += string.Format("@Address=N'{0}',", address);
-                            sql += string.Format("@Tel=N'{0}',", vnTel);
-                            sql += string.Format("@Fax=N'{0}',", vnFax);
-                            sql += string.Format("@TaxId=N'{0}',", vnTaxNo);
-                            sql += string.Format("@BranchId=N'{0}',", branchNo);
-                            sql += string.Format("@TaxType='{0}',", vnVat1);
-                            sql += string.Format("@TaxRate='{0}',", vnTaxR1);
-                            sql += string.Format("@CreditTerm='{0}',", vnTerm);
-                            sql += string.Format("@IsActive='{0}',", active);
-                            sql += string.Format("@UpdatedBy='{0}',", userModified);
-                            sql += string.Format("@UpdatedDate='{0}'", lastModified);
+                                using (SqlConnection connection = new SqlConnection(LoginInfo.ConnStr))
+                                {
+                                    SqlCommand command = new SqlCommand(sql, connection);
+                                    command.Parameters.AddWithValue("@VendorCode", item.VnCode);
+                                    command.Parameters.AddWithValue("@CategoryCode", item.VnCateCode);
+                                    command.Parameters.AddWithValue("@VendorName", item.VnName);
+                                    command.Parameters.AddWithValue("@Address", address.ToString().Trim());
+                                    command.Parameters.AddWithValue("@Tel", item.VnTel);
+                                    command.Parameters.AddWithValue("@Fax", item.VnFax);
+                                    command.Parameters.AddWithValue("@TaxId", item.VnTaxNo);
+                                    command.Parameters.AddWithValue("@BranchId", item.BranchNo);
+                                    command.Parameters.AddWithValue("@TaxType", item.VnVat1.Substring(0, 1));
+                                    command.Parameters.AddWithValue("@TaxRate", item.VnTaxR1 ?? 0);
+                                    command.Parameters.AddWithValue("@CreditTerm", item.VnTerm);
+                                    command.Parameters.AddWithValue("@IsActive", item.Active);
+                                    command.Parameters.AddWithValue("@UpdatedBy", item.UserModified);
+                                    command.Parameters.AddWithValue("@UpdatedDate", item.LastModified);
 
-
-                            script.Add(sql);
+                                    command.Connection.Open();
+                                    command.ExecuteNonQuery();
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                errors.AppendLine(item.VnCode + " = " + ex.Message);
+                            }
                         }
 
-                        //lbl_Title.Text = string.Join("; ", script);
 
-
-                        using (SqlConnection connection = new SqlConnection(LoginInfo.ConnStr))
+                        if (!string.IsNullOrEmpty( errors.ToString()))
                         {
-                            SqlCommand command = new SqlCommand(string.Join("; ", script), connection);
-                            command.Connection.Open();
-                            command.ExecuteNonQuery();
+                            lbl_Error.Text = errors.ToString();
                         }
+
+                        //var script = new List<string>();
+                        //var script = new StringBuilder();
+
+                        //foreach (DataVendor item in result.Data)
+                        //{
+                        //    var vnCode = item.VnCode;
+                        //    var vnName = item.VnName.Replace("\'", "\'\'");
+                        //    var vnAdd1 = string.IsNullOrEmpty(item.VnAdd1) ? "" : item.VnAdd1.Replace("\'", "\'\'");
+                        //    var vnAdd2 = string.IsNullOrEmpty(item.VnAdd2) ? "" : item.VnAdd2.Replace("\'", "\'\'");
+                        //    var vnAdd3 = string.IsNullOrEmpty(item.VnAdd3) ? "" : item.VnAdd3.Replace("\'", "\'\'");
+                        //    var vnAdd4 = string.IsNullOrEmpty(item.VnAdd4) ? "" : item.VnAdd4.Replace("\'", "\'\'");
+                        //    var vnTel = string.IsNullOrEmpty(item.VnTel) ? "" : item.VnTel.Replace("\'", "\'\'");
+                        //    var vnFax = string.IsNullOrEmpty(item.VnFax) ? "" : item.VnFax.Replace("\'", "\'\'");
+                        //    var vnCateCode = item.VnCateCode;
+                        //    //var vnTaxNo = item.VnTaxNo;
+                        //    var vnTaxNo = string.IsNullOrEmpty(item.VnTaxNo) ? "" : item.VnTaxNo.Replace("\'", "\'\'");
+                        //    var branchNo = item.BranchNo;
+                        //    var vnVat1 = item.VnVat1.Substring(0, 1);
+                        //    var vnTaxR1 = item.VnTaxR1 ?? 0;
+                        //    var vnTerm = item.VnTerm ?? 0;
+                        //    var active = item.Active ? "1" : "0";
+                        //    var lastModified = item.LastModified == null ? null : string.Format("{0:yyyy-MM-dd HH:mm:ss}", item.LastModified);
+
+                        //    var address = string.Format("{0} {1} {2} {3}", vnAdd1, vnAdd2, vnAdd3, vnAdd4).Trim();
+                        //    var userModified = string.IsNullOrEmpty(item.UserModified);
+
+                        //    //using (SqlConnection connection = new SqlConnection(LoginInfo.ConnStr))
+                        //    //{
+                        //    string sql = "EXEC [Tool].[Vendor_InsertOrUpdate] ";
+                        //    sql += string.Format("@VendorCode=N'{0}',", vnCode);
+                        //    sql += string.Format("@CategoryCode=N'{0}',", vnCateCode);
+                        //    sql += string.Format("@VendorName=N'{0}',", vnName);
+                        //    sql += string.Format("@Address=N'{0}',", address);
+                        //    sql += string.Format("@Tel=N'{0}',", vnTel);
+                        //    sql += string.Format("@Fax=N'{0}',", vnFax);
+                        //    sql += string.Format("@TaxId=N'{0}',", vnTaxNo);
+                        //    sql += string.Format("@BranchId=N'{0}',", branchNo);
+                        //    sql += string.Format("@TaxType='{0}',", vnVat1);
+                        //    sql += string.Format("@TaxRate='{0}',", vnTaxR1);
+                        //    sql += string.Format("@CreditTerm='{0}',", vnTerm);
+                        //    sql += string.Format("@IsActive='{0}',", active);
+                        //    sql += string.Format("@UpdatedBy='{0}',", userModified);
+                        //    sql += string.Format("@UpdatedDate='{0}'", lastModified);
+
+
+                        //    script.AppendLine(sql);
+
+                        //}
+
+                        ////lbl_Title.Text = string.Join("; ", script);
+
+                        //lbl_Error.Text = script.ToString();
+
+
+                        //using (SqlConnection connection = new SqlConnection(LoginInfo.ConnStr))
+                        //{
+                        //    SqlCommand command = new SqlCommand(string.Join("; ", script), connection);
+                        //    command.Connection.Open();
+                        //    command.ExecuteNonQuery();
+                        //}
                     }
 
                 }
