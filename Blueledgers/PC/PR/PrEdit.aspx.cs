@@ -4137,6 +4137,26 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
             if (isAllocateVendor)
             {
                 #region IsAllocateVendor
+
+                // Check required
+                var ddl_Unit_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_Unit_av") as ASPxComboBox;
+
+
+                if (ddl_Unit_av.Value == null)
+                {
+                    ShowAlert("Order unit is required.");
+
+
+
+                    return;
+                }
+
+                // ------------------------------------
+                
+                
+                var orderUnit = ddl_Unit_av.Value.ToString();
+
+
                 // Allocate Vendor.                
                 if (ddl_Vendor_av.Value != null)
                 {
@@ -4194,8 +4214,7 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
                     drUpdating["FOCQty"] = 0;
                 }
 
-                var ddl_Unit_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_Unit_av") as ASPxComboBox;
-                drUpdating["OrderUnit"] = ddl_Unit_av.Value;
+                drUpdating["OrderUnit"] = orderUnit;
 
                 var txt_NetAmt_Grd_Av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_NetAmt_Grd_Av") as TextBox;
                 drUpdating["NetAmt"] = txt_NetAmt_Grd_Av.Text;
@@ -4237,6 +4256,9 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
                 drUpdating["CurrNetAmt"] = txt_CurrNetAmt_Grd_Av.Text;
                 drUpdating["CurrTaxAmt"] = txt_CurrTaxAmt_Grd_Av.Text;
                 drUpdating["CurrTotalAmt"] = txt_CurrTotalAmt_Grd_Av.Text;
+                drUpdating["Descen"] = "";
+                drUpdating["Descll"] = "";
+
                 // End Added.
 
 
@@ -6539,6 +6561,21 @@ ORDER BY
 
             return info;
         }
+
+
+
+
+        private void ShowAlert(string text, string caption="")
+        {
+            lbl_PopupAlert.Text = text;
+
+            pop_Alert.HeaderText = string.IsNullOrEmpty(caption) ? "Warning" : caption;
+            pop_Alert.ShowOnPageLoad = true;
+        }
+
+
+
+        // Classes
 
         public class ProductInfo
         {

@@ -189,15 +189,20 @@ public partial class UserControl_Password : System.Web.UI.UserControl
 
         string passwordEncrypt = GetEncryptPassword(password);
 
-        string sql = string.Empty;
-        sql = "UPDATE dbo.[User] ";
-        sql += " SET Password='{0}',";
-        sql += "    LastUpdatedPassword='{1}'";
-        sql += " WHERE LoginName='{2}'";
+        //string sql = string.Empty;
+        //sql = "UPDATE dbo.[User] ";
+        //sql += " SET Password=@Password,";
+        //sql += "    LastUpdatedPassword=GETDATE()";
+        //sql += " WHERE LoginName=@LoginName";
+        //sql = string.Format(sql, @passwordEncrypt, DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"), @loginName);
 
-        sql = string.Format(sql, @passwordEncrypt, DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"), @loginName);
+        var sql = "UPDATE [dbo].[User] SET [Password]=@Password, LastUpdatedPassword=GETDATE() WHERE LoginName=@LoginName";
 
-        _bu.DbExecuteQuery(@sql, null, sysConnStr);
+        _bu.DbExecuteQuery(sql, new Blue.DAL.DbParameter[]
+        {
+            new Blue.DAL.DbParameter("@Password", passwordEncrypt),
+            new Blue.DAL.DbParameter("@LoginName", loginName)
+        }, sysConnStr);
     }
 
 
