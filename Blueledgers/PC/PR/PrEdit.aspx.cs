@@ -520,127 +520,234 @@ namespace BlueLedger.PL.PC.PR
         //Create Pr Detail.
         protected void CreateDetail()
         {
-
-            int limitDetails = 0;
-            if (LimitDetail != string.Empty)
-            { limitDetails = Convert.ToInt32(LimitDetail); }
-
-            // < : create new detail, = : cannot
-            if (LimitDetail == string.Empty
-                || grd_PrDt1.Rows.Count < limitDetails
-                || limitDetails == 0)
+            txt_PrDate.Enabled = false;
+            //if (ddl_PrType.SelectedValue == null)
+            if (ddl_PrType.Value == null)
             {
-                #region Unlimit or Under-limit
-                txt_PrDate.Enabled = false;
-                //if (ddl_PrType.SelectedValue == null)
-                if (ddl_PrType.Value == null)
-                {
-                    pop_AlertProdCateType.ShowOnPageLoad = true;
-                    return;
-                }
-
-                dsPR = (DataSet)Session["dsPR"];
-                for (var i = dsPR.Tables[prDt.TableName].Rows.Count; i > 0; i--)
-                {
-                    var item = dsPR.Tables[prDt.TableName].Rows[i - 1];
-                    if (string.IsNullOrEmpty(item["ProductCode"].ToString()))
-                    {
-                        item.Delete();
-                    }
-                }
-
-
-                // Enable Pr Type
-                //ddl_PrType.Enabled = false;
-
-                // Disable Save and Back button when click Save or Back.
-                menu_CmdBar.Items.FindByName("Save").Visible = false;
-                menu_CmdBar.Items.FindByName("Commit").Visible = false;
-                menu_CmdBar.Items.FindByName("Back").Visible = true;
-
-                // Disable Create and Delete Button When click Create or Delete. 
-                menu_GrdBar.Items.FindByName("Create").Visible = false;
-                menu_GrdBar.Items.FindByName("Delete").Visible = false;
-
-                // Add new prdt row
-                var drNew = dsPR.Tables[prDt.TableName].NewRow();
-
-                drNew["PRNo"] = string.Empty;
-                //drNew["PRDtNo"]         = dsPR.Tables[prDt.TableName].Rows.Count + 1;
-                drNew["PRDtNo"] = (dsPR.Tables[prDt.TableName].Rows.Count == 0
-                    ? 1
-                    : int.Parse(
-                        dsPR.Tables[prDt.TableName].Rows[dsPR.Tables[prDt.TableName].Rows.Count - 1]["PRDtNo"].ToString()) +
-                      1);
-                drNew["ProductCode"] = string.Empty;
-                drNew["ReqQty"] = 0;
-                drNew["ReqDate"] = DateTime.Now.AddDays(1);
-                drNew["OrderQty"] = 0;
-                drNew["ApprQty"] = 0;
-                drNew["FOCQty"] = 0;
-                drNew["RcvQty"] = 0;
-                drNew["DiscPercent"] = 0;
-                drNew["DiscAmt"] = 0;
-                drNew["TaxAmt"] = 0;
-                drNew["NetAmt"] = 0;
-                drNew["TotalAmt"] = 0;
-                drNew["TaxRate"] = 0;
-                drNew["TaxAdj"] = false;
-                drNew["Price"] = 0;
-                drNew["ApprStatus"] = workFlow.GetDtApprStatus("PC", "PR", hf_ConnStr.Value);
-
-                // Added on: 01/09/2017, By: Fon
-                drNew["CurrNetAmt"] = 0;
-                drNew["CurrDiscAmt"] = 0;
-                drNew["CurrTaxAmt"] = 0;
-                drNew["CurrTotalAmt"] = 0;
-                drNew["CurrencyCode"] = baseCurrency;
-                drNew["CurrencyRate"] = 1;
-                // End Added.
-
-                //Default New Line.
-                if (dsPR.Tables[prDt.TableName].Rows.Count > 0) // copy from previous record.
-                {
-                    var drLastPrDt = dsPR.Tables[prDt.TableName].Rows[dsPR.Tables[prDt.TableName].Rows.Count - 1];
-
-                    drNew["BuCode"] = drLastPrDt["BuCode"].ToString();
-                    if (wfStep > 1)
-                    {
-                        drNew["VendorCode"] = drLastPrDt["VendorCode"].ToString();
-                    }
-                    drNew["LocationCode"] = drLastPrDt["LocationCode"].ToString();
-                    drNew["DeliPoint"] = drLastPrDt["DeliPoint"].ToString();
-                    drNew["ReqDate"] = DateTime.Parse(drLastPrDt["ReqDate"].ToString());
-                }
-                else // first record
-                {
-                    if (LoginInfo.BuInfo.IsHQ)
-                    {
-                        drNew["BuCode"] = string.Empty;
-                    }
-                    else
-                    {
-                        drNew["BuCode"] = LoginInfo.BuInfo.BuCode;
-                    }
-                }
-
-                dsPR.Tables[prDt.TableName].Rows.Add(drNew);
-
-                // Gridview New Expand.
-                grd_PrDt1.DataSource = dsPR.Tables[prDt.TableName];
-                grd_PrDt1.EditIndex = dsPR.Tables[prDt.TableName].Rows.Count - 1;
-                grd_PrDt1.DataBind();
-
-                PRDtEditMode = "NEW";
-                Session["dsPR"] = dsPR;
-                #endregion
+                pop_AlertProdCateType.ShowOnPageLoad = true;
+                return;
             }
-            else
+
+            dsPR = (DataSet)Session["dsPR"];
+            for (var i = dsPR.Tables[prDt.TableName].Rows.Count; i > 0; i--)
             {
-                lbl_PopupAlert.Text = string.Format("Purchase Request is limited {0} detail(s).", limitDetails);
-                pop_Alert.HeaderText = "Warning (Purchase Request limit)";
-                pop_Alert.ShowOnPageLoad = true;
+                var item = dsPR.Tables[prDt.TableName].Rows[i - 1];
+                if (string.IsNullOrEmpty(item["ProductCode"].ToString()))
+                {
+                    item.Delete();
+                }
             }
+
+
+            // Enable Pr Type
+            //ddl_PrType.Enabled = false;
+
+            // Disable Save and Back button when click Save or Back.
+            menu_CmdBar.Items.FindByName("Save").Visible = false;
+            menu_CmdBar.Items.FindByName("Commit").Visible = false;
+            menu_CmdBar.Items.FindByName("Back").Visible = true;
+
+            // Disable Create and Delete Button When click Create or Delete. 
+            menu_GrdBar.Items.FindByName("Create").Visible = false;
+            menu_GrdBar.Items.FindByName("Delete").Visible = false;
+
+            // Add new prdt row
+            var drNew = dsPR.Tables[prDt.TableName].NewRow();
+
+            drNew["PRNo"] = string.Empty;
+            //drNew["PRDtNo"]         = dsPR.Tables[prDt.TableName].Rows.Count + 1;
+            drNew["PRDtNo"] = (dsPR.Tables[prDt.TableName].Rows.Count == 0
+                ? 1
+                : int.Parse(
+                    dsPR.Tables[prDt.TableName].Rows[dsPR.Tables[prDt.TableName].Rows.Count - 1]["PRDtNo"].ToString()) +
+                  1);
+            drNew["ProductCode"] = string.Empty;
+            drNew["ReqQty"] = 0;
+            drNew["ReqDate"] = DateTime.Now.AddDays(1);
+            drNew["OrderQty"] = 0;
+            drNew["ApprQty"] = 0;
+            drNew["FOCQty"] = 0;
+            drNew["RcvQty"] = 0;
+            drNew["DiscPercent"] = 0;
+            drNew["DiscAmt"] = 0;
+            drNew["TaxAmt"] = 0;
+            drNew["NetAmt"] = 0;
+            drNew["TotalAmt"] = 0;
+            drNew["TaxRate"] = 0;
+            drNew["TaxAdj"] = false;
+            drNew["Price"] = 0;
+            var apprStatus = workFlow.GetDtApprStatus("PC", "PR", hf_ConnStr.Value);
+            drNew["ApprStatus"] = apprStatus;
+            lbl_Title_Nm.Text = apprStatus;
+
+            // Added on: 01/09/2017, By: Fon
+            drNew["CurrNetAmt"] = 0;
+            drNew["CurrDiscAmt"] = 0;
+            drNew["CurrTaxAmt"] = 0;
+            drNew["CurrTotalAmt"] = 0;
+            drNew["CurrencyCode"] = baseCurrency;
+            drNew["CurrencyRate"] = 1;
+            // End Added.
+
+            //Default New Line.
+            if (dsPR.Tables[prDt.TableName].Rows.Count > 0) // copy from previous record.
+            {
+                var drLastPrDt = dsPR.Tables[prDt.TableName].Rows[dsPR.Tables[prDt.TableName].Rows.Count - 1];
+
+                drNew["BuCode"] = drLastPrDt["BuCode"].ToString();
+                if (wfStep > 1)
+                {
+                    drNew["VendorCode"] = drLastPrDt["VendorCode"].ToString();
+                }
+                drNew["LocationCode"] = drLastPrDt["LocationCode"].ToString();
+                drNew["DeliPoint"] = drLastPrDt["DeliPoint"].ToString();
+                drNew["ReqDate"] = DateTime.Parse(drLastPrDt["ReqDate"].ToString());
+            }
+            else // first record
+            {
+                if (LoginInfo.BuInfo.IsHQ)
+                {
+                    drNew["BuCode"] = string.Empty;
+                }
+                else
+                {
+                    drNew["BuCode"] = LoginInfo.BuInfo.BuCode;
+                }
+            }
+
+            dsPR.Tables[prDt.TableName].Rows.Add(drNew);
+
+            // Gridview New Expand.
+            grd_PrDt1.DataSource = dsPR.Tables[prDt.TableName];
+            grd_PrDt1.EditIndex = dsPR.Tables[prDt.TableName].Rows.Count - 1;
+            grd_PrDt1.DataBind();
+
+            PRDtEditMode = "NEW";
+            Session["dsPR"] = dsPR;
+
+
+            //int limitDetails = 0;
+            //if (LimitDetail != string.Empty)
+            //{ limitDetails = Convert.ToInt32(LimitDetail); }
+
+            //// < : create new detail, = : cannot
+            //if (LimitDetail == string.Empty
+            //    || grd_PrDt1.Rows.Count < limitDetails
+            //    || limitDetails == 0)
+            //{
+            //    #region Unlimit or Under-limit
+            //    txt_PrDate.Enabled = false;
+            //    //if (ddl_PrType.SelectedValue == null)
+            //    if (ddl_PrType.Value == null)
+            //    {
+            //        pop_AlertProdCateType.ShowOnPageLoad = true;
+            //        return;
+            //    }
+
+            //    dsPR = (DataSet)Session["dsPR"];
+            //    for (var i = dsPR.Tables[prDt.TableName].Rows.Count; i > 0; i--)
+            //    {
+            //        var item = dsPR.Tables[prDt.TableName].Rows[i - 1];
+            //        if (string.IsNullOrEmpty(item["ProductCode"].ToString()))
+            //        {
+            //            item.Delete();
+            //        }
+            //    }
+
+
+            //    // Enable Pr Type
+            //    //ddl_PrType.Enabled = false;
+
+            //    // Disable Save and Back button when click Save or Back.
+            //    menu_CmdBar.Items.FindByName("Save").Visible = false;
+            //    menu_CmdBar.Items.FindByName("Commit").Visible = false;
+            //    menu_CmdBar.Items.FindByName("Back").Visible = true;
+
+            //    // Disable Create and Delete Button When click Create or Delete. 
+            //    menu_GrdBar.Items.FindByName("Create").Visible = false;
+            //    menu_GrdBar.Items.FindByName("Delete").Visible = false;
+
+            //    // Add new prdt row
+            //    var drNew = dsPR.Tables[prDt.TableName].NewRow();
+
+            //    drNew["PRNo"] = string.Empty;
+            //    //drNew["PRDtNo"]         = dsPR.Tables[prDt.TableName].Rows.Count + 1;
+            //    drNew["PRDtNo"] = (dsPR.Tables[prDt.TableName].Rows.Count == 0
+            //        ? 1
+            //        : int.Parse(
+            //            dsPR.Tables[prDt.TableName].Rows[dsPR.Tables[prDt.TableName].Rows.Count - 1]["PRDtNo"].ToString()) +
+            //          1);
+            //    drNew["ProductCode"] = string.Empty;
+            //    drNew["ReqQty"] = 0;
+            //    drNew["ReqDate"] = DateTime.Now.AddDays(1);
+            //    drNew["OrderQty"] = 0;
+            //    drNew["ApprQty"] = 0;
+            //    drNew["FOCQty"] = 0;
+            //    drNew["RcvQty"] = 0;
+            //    drNew["DiscPercent"] = 0;
+            //    drNew["DiscAmt"] = 0;
+            //    drNew["TaxAmt"] = 0;
+            //    drNew["NetAmt"] = 0;
+            //    drNew["TotalAmt"] = 0;
+            //    drNew["TaxRate"] = 0;
+            //    drNew["TaxAdj"] = false;
+            //    drNew["Price"] = 0;
+            //    var apprStatus = workFlow.GetDtApprStatus("PC", "PR", hf_ConnStr.Value);
+            //    drNew["ApprStatus"] = apprStatus;
+            //    lbl_Title_Nm.Text = apprStatus;
+
+            //    // Added on: 01/09/2017, By: Fon
+            //    drNew["CurrNetAmt"] = 0;
+            //    drNew["CurrDiscAmt"] = 0;
+            //    drNew["CurrTaxAmt"] = 0;
+            //    drNew["CurrTotalAmt"] = 0;
+            //    drNew["CurrencyCode"] = baseCurrency;
+            //    drNew["CurrencyRate"] = 1;
+            //    // End Added.
+
+            //    //Default New Line.
+            //    if (dsPR.Tables[prDt.TableName].Rows.Count > 0) // copy from previous record.
+            //    {
+            //        var drLastPrDt = dsPR.Tables[prDt.TableName].Rows[dsPR.Tables[prDt.TableName].Rows.Count - 1];
+
+            //        drNew["BuCode"] = drLastPrDt["BuCode"].ToString();
+            //        if (wfStep > 1)
+            //        {
+            //            drNew["VendorCode"] = drLastPrDt["VendorCode"].ToString();
+            //        }
+            //        drNew["LocationCode"] = drLastPrDt["LocationCode"].ToString();
+            //        drNew["DeliPoint"] = drLastPrDt["DeliPoint"].ToString();
+            //        drNew["ReqDate"] = DateTime.Parse(drLastPrDt["ReqDate"].ToString());
+            //    }
+            //    else // first record
+            //    {
+            //        if (LoginInfo.BuInfo.IsHQ)
+            //        {
+            //            drNew["BuCode"] = string.Empty;
+            //        }
+            //        else
+            //        {
+            //            drNew["BuCode"] = LoginInfo.BuInfo.BuCode;
+            //        }
+            //    }
+
+            //    dsPR.Tables[prDt.TableName].Rows.Add(drNew);
+
+            //    // Gridview New Expand.
+            //    grd_PrDt1.DataSource = dsPR.Tables[prDt.TableName];
+            //    grd_PrDt1.EditIndex = dsPR.Tables[prDt.TableName].Rows.Count - 1;
+            //    grd_PrDt1.DataBind();
+
+            //    PRDtEditMode = "NEW";
+            //    Session["dsPR"] = dsPR;
+            //    #endregion
+            //}
+            //else
+            //{
+            //    lbl_PopupAlert.Text = string.Format("Purchase Request is limited {0} detail(s).", limitDetails);
+            //    pop_Alert.HeaderText = "Warning (Purchase Request limit)";
+            //    pop_Alert.ShowOnPageLoad = true;
+            //}
         }
 
 
@@ -1008,35 +1115,6 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
             }
         }
 
-        protected void ddl_LocationCode_OnItemRequestedByValue_SQL(object source,
-           ListEditItemRequestedByValueEventArgs e)
-        {
-            ASPxComboBox comboBox = (ASPxComboBox)source;
-            if (e.Value == null || e.Value == string.Empty || comboBox == null)
-                return;
-
-            var ddl_BuCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_BuCode") as ASPxComboBox;
-            string buCode = ddl_BuCode.Text.Split(':')[0].Trim();
-
-            SqlDataSource1.ConnectionString = bu.GetConnectionString(buCode);
-
-            string sqlText = "SELECT l.LocationCode, l.LocationName";
-            sqlText += " FROM [IN].StoreLocation l";
-            sqlText += " JOIN [ADMIN].UserStore us ON us.LocationCode = l.LocationCode AND us.LoginName = @LoginName";
-            sqlText += " WHERE l.IsActive = 1";
-            //sqlText += " AND l.LocationCode = @LocationCode";
-
-            sqlText += " ORDER BY l.LocationCode";
-
-            SqlDataSource1.SelectCommand = @sqlText;
-            SqlDataSource1.SelectParameters.Clear();
-            //SqlDataSource1.SelectParameters.Add("LocationCode", TypeCode.String, e.Value.ToString());
-            SqlDataSource1.SelectParameters.Add("LoginName", TypeCode.String, LoginInfo.LoginName);
-            comboBox.DataSource = SqlDataSource1;
-            comboBox.DataBind();
-            comboBox.ToolTip = comboBox.Text;
-        }
-
         private DataTable GetLocations(string loginName, string connectionString)
         {
             string sql = "SELECT l.LocationCode, l.LocationName";
@@ -1051,8 +1129,42 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
 
         }
 
-        protected void ddl_LocationCode_OnItemsRequestedByFilterCondition_SQL(object source,
-            ListEditItemsRequestedByFilterConditionEventArgs e)
+
+        protected void ddl_LocationCode_OnItemRequestedByValue_SQL(object source, ListEditItemRequestedByValueEventArgs e)
+        {
+            ASPxComboBox comboBox = (ASPxComboBox)source;
+
+            if (e.Value == null || e.Value == string.Empty || comboBox == null)
+                return;
+
+            var ddl_BuCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_BuCode") as ASPxComboBox;
+
+            string buCode = ddl_BuCode.Text.Split(':')[0].Trim();
+
+            SqlDataSource1.ConnectionString = bu.GetConnectionString(buCode);
+
+            string sqlText = "SELECT l.LocationCode, l.LocationName";
+            sqlText += " FROM [IN].StoreLocation l";
+            sqlText += " JOIN [ADMIN].UserStore us ON us.LocationCode = l.LocationCode AND us.LoginName = @LoginName";
+            sqlText += " WHERE l.IsActive = 1";
+            //sqlText += " AND l.LocationCode = @LocationCode";
+
+            sqlText += " ORDER BY l.LocationCode";
+
+            SqlDataSource1.SelectCommand = @sqlText;
+            SqlDataSource1.SelectParameters.Clear();
+
+            SqlDataSource1.SelectParameters.Add("LoginName", TypeCode.String, LoginInfo.LoginName);
+
+
+            comboBox.DataSource = SqlDataSource1;
+            comboBox.DataBind();
+            comboBox.ToolTip = comboBox.Text;
+
+
+        }
+
+        protected void ddl_LocationCode_OnItemsRequestedByFilterCondition_SQL(object source, ListEditItemsRequestedByFilterConditionEventArgs e)
         {
             var comboBox = (ASPxComboBox)source;
 
@@ -1091,6 +1203,29 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
             comboBox.DataBind();
 
             comboBox.ToolTip = comboBox.Text;
+        }
+
+
+        protected void ddl_LocationCode_Load(object sender, EventArgs e)
+        {
+            var ddl = sender as ASPxComboBox;
+            var query = @"
+SELECT
+	l.LocationCode,
+	l.LocationName
+FROM
+	[ADMIN].UserStore us
+	JOIN [IN].StoreLocation l ON l.LocationCode=us.LocationCode
+WHERE
+	LoginName=@LoginName
+ORDER BY
+	l.LocationCode";
+            var dt = bu.DbExecuteQuery(query, new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@LoginName", LoginInfo.LoginName) }, hf_ConnStr.Value);
+
+            ddl.DataSource = dt;
+            ddl.DataBind();
+
+
         }
 
         protected void ddl_LocationCode_SelectedIndexChanged(object sender, EventArgs e)
@@ -1138,6 +1273,11 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
             }
 
         }
+
+
+
+
+
 
         protected void ddl_ProductCode_OnItemRequestedByValue_SQL(object source, ListEditItemRequestedByValueEventArgs e)
         {
@@ -1211,14 +1351,21 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
 
         protected void ddl_ProductCode_SelectedIndexChanged(object sender, EventArgs e)
         {
+            var row = grd_PrDt1.Rows[grd_PrDt1.EditIndex];
 
             var ddl_BuCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_BuCode") as ASPxComboBox;
             var ddl_LocationCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_LocationCode") as ASPxComboBox;
             var ddl_ProductCode = sender as ASPxComboBox;
+            var ddl_Unit = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_Unit") as ASPxComboBox;
+
             var txt_DescEn = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_DescEn") as TextBox;
             var txt_DescLL = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_DescLL") as TextBox;
+
+            var lbl_TaxType_Grd = row.FindControl("lbl_TaxType_Grd") as Label;
+            var lbl_TaxRate_Grd = row.FindControl("lbl_TaxRate_Grd") as Label;
+
+
             var hf_ProductCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("hf_ProductCode") as HiddenField;
-            var ddl_Unit = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_Unit") as ASPxComboBox;
 
             var productCode = ddl_ProductCode.Text.Split(':')[0].Trim();
 
@@ -1235,8 +1382,22 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
                 ddl_Unit.Value = prodUnit.GetDefaultOrderUnit(ddl_ProductCode.Text.Split(':')[0].Trim(), bu.GetConnectionString(ddl_BuCode.Value.ToString()));
             }
 
+            var taxType = product.GetTaxType(productCode, hf_ConnStr.Value);
+
+            switch (taxType)
+            {
+                case "A": taxType = "Added";
+                    break;
+                case "I": taxType = "Included";
+                    break;
+                default: taxType = "None";
+                    break;
+            }
+
+            lbl_TaxType_Grd.Text = taxType;
+            lbl_TaxRate_Grd.Text = product.GetTaxRate(productCode, hf_ConnStr.Value).ToString();
+
             hf_ProductCode.Value = productCode;
-            //hf_ProductCode.Value = ddl_ProductCode.Text.Split(':')[0].Trim();
 
 
             if (IsApplyLastPrice)
@@ -1253,7 +1414,6 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
 
                 var info = GetProductInfo(productCode, unitCode, prDate);
 
-                var row = grd_PrDt1.Rows[grd_PrDt1.EditIndex];
 
                 var lbl_LastPrice = row.FindControl("lbl_LastPrice") as Label;
                 var lbl_LastVendor = row.FindControl("lbl_LastVendor") as Label;
@@ -4128,6 +4288,7 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
             var hf_LastRecNo = row.FindControl("hf_LastRecNo") as HiddenField;
 
 
+
             DataRow drWFDt = dsWF.Tables["APPwfdt"].Rows[0];
 
             string locationCode = string.Empty;
@@ -4152,8 +4313,8 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
                 }
 
                 // ------------------------------------
-                
-                
+
+
                 var orderUnit = ddl_Unit_av.Value.ToString();
 
 
@@ -4336,6 +4497,7 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
 
 
                 var txt_ApprQty_av = (ASPxSpinEdit)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_ApprQty_av");
+
                 if (!string.IsNullOrEmpty(txt_ApprQty_av.Text) && decimal.Parse(txt_ApprQty_av.Text) != 0)
                 {
                     drUpdating["ApprQty"] = RoundQty(decimal.Parse(txt_ApprQty_av.Text));
@@ -4359,46 +4521,49 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
             else
             {
                 #region Not Allocate Vendor
-                var ddl_ProductCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_ProductCode") as ASPxComboBox;
-
-                drUpdating["ProductCode"] = ddl_ProductCode.Value.ToString().Split(' ')[0].Trim();
 
                 var ddl_LocationCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_LocationCode") as ASPxComboBox;
+                var ddl_ProductCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_ProductCode") as ASPxComboBox;
+                var ddl_Unit = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_Unit") as ASPxComboBox;
+                var chk_Adj = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("chk_Adj") as CheckBox;
+                var txt_QtyRequest = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_QtyRequest") as ASPxSpinEdit;
+
+                var lbl_TaxType_Grd = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("lbl_TaxType_Grd") as Label;
+                var lbl_TaxRate_Grd = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("lbl_TaxRate_Grd") as Label;
+
+                if (ddl_Unit.Value == null)
+                {
+                    ShowAlert("Unit is required.");
+                }
+
+
+                locationCode = ddl_LocationCode.Value.ToString();
 
                 drUpdating["LocationCode"] = ddl_LocationCode.Value.ToString();
-                locationCode = ddl_LocationCode.Value.ToString();
+                drUpdating["ProductCode"] = ddl_ProductCode.Value.ToString().Split(' ')[0].Trim();
+                drUpdating["OrderUnit"] = ddl_Unit.Value;
+                drUpdating["TaxAdj"] = chk_Adj.Checked;
+
+                if (!chk_Adj.Checked && wfStep == 1)
+                {
+                    var taxType1 = lbl_TaxType_Grd.Text.Substring(0, 1).ToUpper();
+                    var taxRate1 = string.IsNullOrEmpty(lbl_TaxRate_Grd.Text) ? 0m : Convert.ToDecimal(lbl_TaxRate_Grd.Text);
+
+                    drUpdating["TaxType"] = !string.IsNullOrEmpty(taxType1) ? taxType1 : product.GetTaxType(drUpdating["ProductCode"].ToString(), hf_ConnStr.Value);
+                    drUpdating["TaxRate"] = taxRate1;
+
+                    //drUpdating["TaxType"] = product.GetTaxType(drUpdating["ProductCode"].ToString(), hf_ConnStr.Value);
+                    //drUpdating["TaxRate"] = product.GetTaxRate(drUpdating["ProductCode"].ToString(), hf_ConnStr.Value).ToString();
+                }
+
 
                 drUpdating["Descen"] = "";
                 drUpdating["Descll"] = "";
 
-                //drUpdating["Descen"] = product.GetName(ddl_ProductCode.Text.Split(':')[0].Trim(), bu.GetConnectionString(ddl_BuCode.Value.ToString()));
-                //drUpdating["Descll"] = product.GetName2(ddl_ProductCode.Text.Split(':')[0].Trim(), bu.GetConnectionString(ddl_BuCode.Value.ToString()));
 
 
-                //TextBox txt_Unit = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_Unit") as TextBox;
-                var ddl_Unit = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_Unit") as ASPxComboBox;
-                if (ddl_Unit != null && ddl_Unit.Value.ToString() != string.Empty)
-                    drUpdating["OrderUnit"] = ddl_Unit.Value;
-                else
-                {
-                    lbl_Pop_AlertBox.Text = "Unit is required.";
-                    pop_AlertBox.ShowOnPageLoad = true;
-                    return;
-                }
+                var reqQty = 0m;
 
-
-                var chk_Adj = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("chk_Adj") as CheckBox;
-                drUpdating["TaxAdj"] = chk_Adj.Checked;
-
-                if (!chk_Adj.Checked)
-                {
-                    drUpdating["TaxType"] = product.GetTaxType(drUpdating["ProductCode"].ToString(), hf_ConnStr.Value);
-                    drUpdating["TaxRate"] = product.GetTaxRate(drUpdating["ProductCode"].ToString(), hf_ConnStr.Value).ToString();
-                }
-
-
-                var txt_QtyRequest = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_QtyRequest") as ASPxSpinEdit;
-                decimal reqQty = 0;
                 decimal.TryParse(txt_QtyRequest.Text, out reqQty);
 
                 if (reqQty > 0)
@@ -4412,11 +4577,13 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
                     return;
                 }
 
-                if (!isCreateStep)
+                if (wfStep > 1)
                 {
+
                     var txt_ApprQty = (ASPxSpinEdit)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_ApprQty");
-                    decimal apprQty = 0;
-                    decimal.TryParse(txt_ApprQty.Text, out apprQty);
+
+                    var apprQty = Convert.ToDecimal(txt_ApprQty.Text);
+
                     if (apprQty > 0)
                         drUpdating["ApprQty"] = Convert.ToDecimal(txt_ApprQty.Text);
                     else
@@ -4430,8 +4597,7 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
                 //drUpdating["BuCode"] = LoginInfo.BuInfo.BuCode;
                 if (ddl_BuCode != null)
                 {
-                    drUpdating["BuCode"] = (LoginInfo.BuInfo.IsHQ)
-                                ? ddl_BuCode.Value.ToString() : LoginInfo.BuInfo.BuCode;
+                    drUpdating["BuCode"] = (LoginInfo.BuInfo.IsHQ) ? ddl_BuCode.Value.ToString() : LoginInfo.BuInfo.BuCode;
                 }
 
                 var dte_Date = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("dte_Date") as ASPxDateEdit;
@@ -4447,8 +4613,8 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
                     drUpdating["DeliPoint"] = int.Parse(DeliPoint[0]);
                 }
 
-                var txt_Comment_Detail =
-                    grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_Comment_Detail") as TextBox;
+                var txt_Comment_Detail = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_Comment_Detail") as TextBox;
+
                 drUpdating["Comment"] = (txt_Comment_Detail.Text != null ? txt_Comment_Detail.Text : string.Empty);
 
                 // Modified on: 01/09/2017, By: Fon
@@ -4523,23 +4689,15 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
             {
                 drUpdating["AddField1"] = ddl_JobCode.Value.ToString();
                 dsPR.Tables[pr.TableName].Rows[0]["AddField1"] = ddl_JobCode.Value.ToString();
-                //dsPR.Tables[pr.TableName].Rows[grd_PrDt1.EditIndex]["AddField1"] = ddl_JobCode.Value.ToString();
             }
 
             if (txt_Desc.Text != "")
             {
                 dsPR.Tables[pr.TableName].Rows[0]["Description"] = txt_Desc.Text;
-                //dsPR.Tables[pr.TableName].Rows[grd_PrDt1.EditIndex]["Description"] = txt_Desc.Text;
             }
-
-            // Enable Pr Type & Pr Date
-            //ddl_PrType.Enabled = true;
-            //txt_PrDate.Enabled = true;
 
             if (wfDt.GetAllowCreate(wfId, wfStep, hf_ConnStr.Value))
             {
-                //menu_CmdBar.Items[0].Visible = true; //Save
-                //menu_CmdBar.Items[1].Visible = true; //Back
 
                 menu_GrdBar.Items[0].Visible = true; //Create
                 menu_GrdBar.Items[1].Visible = true; //Delete
@@ -4558,16 +4716,10 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
                 menu_CmdBar.Items.FindByName("Back").Visible = true;
             }
 
-            //ddl_JobCode.Enabled = true;
             PRDtEditMode = string.Empty;
 
-            // Modified on: 10/11/2017, By: Fon
-            /*grd_PrDt1.DataSource = dsPR.Tables[prDt.TableName];
-            grd_PrDt1.EditIndex = -1;
-            grd_PrDt1.DataBind();*/
 
             Control_Location(locationCode, dsPR.Tables[prDt.TableName]);
-            // End Modified.
 
             Session["dsPR"] = dsPR;
         }
@@ -4920,7 +5072,10 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
                         {
                             drUpdating["TaxAdj"] = false;
                         }
+
                         // End Modified.
+                        drUpdating["Descll"] = "";
+                        drUpdating["Descen"] = "";
 
                         //var txt_DescEn = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_DescEn") as TextBox;
                         //drUpdating["Descen"] = txt_DescEn.Text;
@@ -4932,13 +5087,20 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
                         var ddl_Unit = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_Unit") as ASPxComboBox;
                         drUpdating["OrderUnit"] = ddl_Unit.Value;
 
-                        drUpdating["TaxType"] = product.GetTaxType(drUpdating["ProductCode"].ToString(), hf_ConnStr.Value);
-                        drUpdating["TaxRate"] = product.GetTaxRate(drUpdating["ProductCode"].ToString(), LoginInfo.ConnStr).ToString();
+                        var lbl_TaxType_Grd = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("lbl_TaxType_Grd") as Label;
+                        var lbl_TaxRate_Grd = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("lbl_TaxRate_Grd") as Label;
+
+                        drUpdating["TaxType"] = string.IsNullOrEmpty(lbl_TaxType_Grd.Text) ? "N" : lbl_TaxType_Grd.Text.Trim().Substring(0, 1);
+                        drUpdating["TaxRate"] = string.IsNullOrEmpty(lbl_TaxRate_Grd.Text) ? 0m : Convert.ToDecimal(lbl_TaxRate_Grd.Text);
+
+                        //drUpdating["TaxType"] = product.GetTaxType(drUpdating["ProductCode"].ToString(), hf_ConnStr.Value);
+                        //drUpdating["TaxRate"] = product.GetTaxRate(drUpdating["ProductCode"].ToString(), LoginInfo.ConnStr).ToString();
 
                         var txt_QtyRequest = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_QtyRequest") as ASPxSpinEdit;
                         if (txt_QtyRequest != null && decimal.Parse(txt_QtyRequest.Text) != 0)
                         {
                             drUpdating["ReqQty"] = txt_QtyRequest.Text;
+                            drUpdating["ApprQty"] = txt_QtyRequest.Text;
                         }
                         else
                         {
@@ -4946,11 +5108,14 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
                             return;
                         }
 
-                        var txt_ApprQty = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_ApprQty") as ASPxSpinEdit;
-
-                        if (!string.IsNullOrEmpty(txt_ApprQty.Text) && decimal.Parse(txt_ApprQty.Text) != 0)
+                        if (wfStep > 1)
                         {
-                            drUpdating["ApprQty"] = txt_ApprQty.Text;
+                            var txt_ApprQty = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_ApprQty") as ASPxSpinEdit;
+
+                            if (!string.IsNullOrEmpty(txt_ApprQty.Text) && decimal.Parse(txt_ApprQty.Text) != 0)
+                            {
+                                drUpdating["ApprQty"] = txt_ApprQty.Text;
+                            }
                         }
 
                         if (ddl_BuCode != null)
@@ -6565,7 +6730,7 @@ ORDER BY
 
 
 
-        private void ShowAlert(string text, string caption="")
+        private void ShowAlert(string text, string caption = "")
         {
             lbl_PopupAlert.Text = text;
 

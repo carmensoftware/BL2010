@@ -543,9 +543,16 @@
                                 <asp:Panel ID="p_Issue" runat="server" Width="100%">
                                     <!--Store/Location-->
                                     <div style="display: inline-block;">
-                                        <dx:ASPxComboBox ID="ddl_LocationCode" runat="server" Width="200px" AutoPostBack="True" EnableCallbackMode="true" CallbackPageSize="10" IncrementalFilteringMode="Contains"
+                                        <%--<dx:ASPxComboBox ID="ddl_LocationCode" runat="server" Width="200px" AutoPostBack="True" EnableCallbackMode="true" CallbackPageSize="10" IncrementalFilteringMode="Contains"
                                             TextFormatString="{0} : {1}" ValueField="LocationCode" ValueType="System.String" OnItemsRequestedByFilterCondition="ddl_LocationCode_OnItemsRequestedByFilterCondition_SQL"
                                             OnItemRequestedByValue="ddl_LocationCode_OnItemRequestedByValue_SQL" OnSelectedIndexChanged="ddl_LocationCode_SelectedIndexChanged">
+                                            <Columns>
+                                                <dx:ListBoxColumn Caption="Code" FieldName="LocationCode" Width="100px" />
+                                                <dx:ListBoxColumn Caption="Name" FieldName="LocationName" Width="380px" />
+                                            </Columns>
+                                        </dx:ASPxComboBox>--%>
+                                        <dx:ASPxComboBox ID="ddl_LocationCode" runat="server" Width="200px" AutoPostBack="True" EnableCallbackMode="true" CallbackPageSize="25" IncrementalFilteringMode="Contains"
+                                            TextFormatString="{0} : {1}" ValueField="LocationCode" ValueType="System.String" OnLoad="ddl_LocationCode_Load" OnSelectedIndexChanged="ddl_LocationCode_SelectedIndexChanged">
                                             <Columns>
                                                 <dx:ListBoxColumn Caption="Code" FieldName="LocationCode" Width="100px" />
                                                 <dx:ListBoxColumn Caption="Name" FieldName="LocationName" Width="380px" />
