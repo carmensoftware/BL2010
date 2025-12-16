@@ -4611,7 +4611,11 @@ ORDER BY
                 if (!chk_Adj.Checked && wfStep == 1)
                 {
                     var taxType1 = lbl_TaxType_Grd.Text.Substring(0, 1).ToUpper();
-                    var taxRate1 = string.IsNullOrEmpty(lbl_TaxRate_Grd.Text) ? 0m : Convert.ToDecimal(lbl_TaxRate_Grd.Text);
+                    var taxRateText = string.IsNullOrEmpty(lbl_TaxRate_Grd.Text) ? "0" : lbl_TaxRate_Grd.Text.Replace("%", "").Trim();
+                    var taxRate1 = Convert.ToDecimal(taxRateText);
+
+                    //lbl_Title_Nm.Text = lbl_TaxRate_Grd.Text + " !!!! ";
+                    //var taxRate1 = 0m;
 
                     drUpdating["TaxType"] = !string.IsNullOrEmpty(taxType1) ? taxType1 : product.GetTaxType(drUpdating["ProductCode"].ToString(), hf_ConnStr.Value);
                     drUpdating["TaxRate"] = taxRate1;
@@ -5157,7 +5161,11 @@ ORDER BY
                         var lbl_TaxRate_Grd = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("lbl_TaxRate_Grd") as Label;
 
                         drUpdating["TaxType"] = string.IsNullOrEmpty(lbl_TaxType_Grd.Text) ? "N" : lbl_TaxType_Grd.Text.Trim().Substring(0, 1);
-                        drUpdating["TaxRate"] = string.IsNullOrEmpty(lbl_TaxRate_Grd.Text) ? 0m : Convert.ToDecimal(lbl_TaxRate_Grd.Text);
+
+                        var taxRateText = string.IsNullOrEmpty(lbl_TaxRate_Grd.Text) ? "0" : lbl_TaxRate_Grd.Text.Replace("%", "").Trim();
+                        var taxRate1 = Convert.ToDecimal(taxRateText);
+
+                        drUpdating["TaxRate"] = taxRate1;
 
                         //drUpdating["TaxType"] = product.GetTaxType(drUpdating["ProductCode"].ToString(), hf_ConnStr.Value);
                         //drUpdating["TaxRate"] = product.GetTaxRate(drUpdating["ProductCode"].ToString(), LoginInfo.ConnStr).ToString();
