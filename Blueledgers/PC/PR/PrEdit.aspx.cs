@@ -4270,11 +4270,6 @@ ORDER BY
 
         protected void UpdateLastPrice(DataRow drUpdating)
         {
-            if (wfStep != 1)
-            {
-                return;
-            }
-
             var row = grd_PrDt1.Rows[grd_PrDt1.EditIndex];
 
             var lbl_LastPrice = row.FindControl("lbl_LastPrice") as Label;
@@ -4286,17 +4281,18 @@ ORDER BY
             var apprQty = wfStep == 1 ? reqQty : Convert.ToDecimal(drUpdating["ApprQty"]);
 
 
-            var lastPrice = string.IsNullOrEmpty(lbl_LastPrice.Text) ? 0m : Convert.ToDecimal(lbl_LastPrice.Text);
-            var lastVendorCode = string.IsNullOrEmpty(lbl_LastVendor.Text) ? "" : lbl_LastVendor.Text.Split(':').Select(x => x.Trim()).First();
 
-            drUpdating["LastPrice"] = lastPrice;
-            // Last Vendor
-            drUpdating["VendorProdCode"] = lastVendorCode;
-            drUpdating["RefNo"] = hf_LastRecNo.Value.ToString();
-
-
-            if (IsApplyLastPrice)
+            if (wfStep == 1 && IsApplyLastPrice)
             {
+                var lastPrice = string.IsNullOrEmpty(lbl_LastPrice.Text) ? 0m : Convert.ToDecimal(lbl_LastPrice.Text);
+                var lastVendorCode = string.IsNullOrEmpty(lbl_LastVendor.Text) ? "" : lbl_LastVendor.Text.Split(':').Select(x => x.Trim()).First();
+
+
+                drUpdating["LastPrice"] = lastPrice;
+                // Last Vendor
+                drUpdating["VendorProdCode"] = lastVendorCode;
+                drUpdating["RefNo"] = hf_LastRecNo.Value.ToString();
+
                 drUpdating["Price"] = lastPrice;
             }
 
@@ -4481,6 +4477,7 @@ ORDER BY
                 drUpdating["CurrNetAmt"] = txt_CurrNetAmt_Grd_Av.Text;
                 drUpdating["CurrTaxAmt"] = txt_CurrTaxAmt_Grd_Av.Text;
                 drUpdating["CurrTotalAmt"] = txt_CurrTotalAmt_Grd_Av.Text;
+
                 drUpdating["Descen"] = "";
                 drUpdating["Descll"] = "";
 
@@ -4619,9 +4616,6 @@ ORDER BY
 
                     drUpdating["TaxType"] = !string.IsNullOrEmpty(taxType1) ? taxType1 : product.GetTaxType(drUpdating["ProductCode"].ToString(), hf_ConnStr.Value);
                     drUpdating["TaxRate"] = taxRate1;
-
-                    //drUpdating["TaxType"] = product.GetTaxType(drUpdating["ProductCode"].ToString(), hf_ConnStr.Value);
-                    //drUpdating["TaxRate"] = product.GetTaxRate(drUpdating["ProductCode"].ToString(), hf_ConnStr.Value).ToString();
                 }
 
 
@@ -4644,13 +4638,13 @@ ORDER BY
                     pop_AlertQty.ShowOnPageLoad = true;
                     return;
                 }
+                var apprQty = 0m;
 
                 if (wfStep > 1)
                 {
-
                     var txt_ApprQty = (ASPxSpinEdit)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_ApprQty");
 
-                    var apprQty = Convert.ToDecimal(txt_ApprQty.Text);
+                    apprQty = Convert.ToDecimal(txt_ApprQty.Text);
 
                     if (apprQty > 0)
                         drUpdating["ApprQty"] = Convert.ToDecimal(txt_ApprQty.Text);
@@ -4661,8 +4655,6 @@ ORDER BY
                     }
                 }
 
-                // Modified on: 30/03/2018, By:Fon
-                //drUpdating["BuCode"] = LoginInfo.BuInfo.BuCode;
                 if (ddl_BuCode != null)
                 {
                     drUpdating["BuCode"] = (LoginInfo.BuInfo.IsHQ) ? ddl_BuCode.Value.ToString() : LoginInfo.BuInfo.BuCode;
@@ -4700,55 +4692,18 @@ ORDER BY
                         drUpdating["CurrencyRate"] = comb_CurrRate_Grd_av.Value.ToString();
                 }
 
-                // Because they don't have txt_Price in Issue panel.
-
-                //var lastPrice = string.IsNullOrEmpty(lbl_LastPrice.Text) ? 0m : Convert.ToDecimal(lbl_LastPrice.Text);
-                //var lastVendorCode = string.IsNullOrEmpty(lbl_LastVendor.Text) ? "" : lbl_LastVendor.Text.Split(':').Select(x => x.Trim()).First();
-
-                //drUpdating["LastPrice"] = lastPrice;
-                //// Last Vendor
-                //drUpdating["VendorProdCode"] = lastVendorCode;
-                //drUpdating["RefNo"] = hf_LastRecNo.Value.ToString();
-
-
-                //if (IsApplyLastPrice)
-                //{
-                //    // Last Price
-                //    if (wfStep == 1)
-                //    {
-                //        //drUpdating["VendorCode"] = lastVendorCode; 
-                //        drUpdating["Price"] = lastPrice;
-                //    }
-                //}
-
-
-                //decimal qty = 0;
-                //decimal price = 0;
-                //decimal discRate = 0, currRate = 0;
-
-                //decimal.TryParse(drUpdating["ApprQty"].ToString(), out qty);
-                //decimal.TryParse(drUpdating["Price"].ToString(), out price);
-                //decimal.TryParse(drUpdating["DiscPercent"].ToString(), out discRate);
-                //decimal.TryParse(drUpdating["CurrencyRate"].ToString(), out currRate);
-                //if (currRate == 0)
-                //    currRate = 1;
-
-                //string taxType = drUpdating["TaxType"].ToString();
-                //decimal taxRate = Convert.ToDecimal(drUpdating["TaxRate"]);
-
-                //decimal currDiscAmt = RoundAmt(((price * qty) * discRate) / 100);
-                //decimal discAmt = RoundAmt(currDiscAmt * currRate);
-
-                //drUpdating["CurrNetAmt"] = NetAmt(taxType, taxRate, price * qty, currDiscAmt, 1);
-                //drUpdating["CurrTaxAmt"] = TaxAmt(taxType, taxRate, price * qty, currDiscAmt, 1);
-                //drUpdating["CurrTotalAmt"] = Amount(taxType, taxRate, price * qty, currDiscAmt, 1);
-
-                //drUpdating["NetAmt"] = RoundAmt(Convert.ToDecimal(drUpdating["CurrNetAmt"]) * currRate);
-                //drUpdating["DiscAmt"] = RoundAmt(Convert.ToDecimal(drUpdating["CurrDiscAmt"]) * currRate);
-                //drUpdating["TaxAmt"] = RoundAmt(Convert.ToDecimal(drUpdating["CurrTaxAmt"]) * currRate);
-                //drUpdating["TotalAmt"] = RoundAmt(Convert.ToDecimal(drUpdating["CurrTotalAmt"]) * currRate);
-
                 UpdateLastPrice(drUpdating);
+
+                //var taxType = drUpdating["TaxType"].ToString();
+                //var taxRate = Convert.ToDecimal(drUpdating["TaxRate"]);
+                //var price = Convert.ToDecimal(drUpdating["Price"]);
+
+                //apprQty = Convert.ToDecimal(drUpdating["ApprQty"]);
+
+
+
+
+
 
 
                 // End Modified
