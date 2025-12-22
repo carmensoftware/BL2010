@@ -464,7 +464,12 @@ namespace BlueLedger.PL.PC.PR
             if (ACTION != null)
             {
                 if (ACTION.ToUpper() == "C")
-                    Save("Commit");
+                {
+                    var prNo = drPr["PrNo"].ToString();
+                    Commit(prNo);
+                    //Save("Commit");
+                }
+
             }
             // End Added.
 
@@ -868,59 +873,60 @@ namespace BlueLedger.PL.PC.PR
 
                     if (action.ToUpper() == "COMMIT")
                     {
-                        // Update WorkFlowStatus
-                        if (MODE.ToUpper() == "NEW" || MODE.ToUpper() == "TEMPLATE")
-                        {
-                            upAppr = UpdateApprStatus();
-                        }
+                        Commit(refNo);
+                        //                        // Update WorkFlowStatus
+                        //                        if (MODE.ToUpper() == "NEW" || MODE.ToUpper() == "TEMPLATE")
+                        //                        {
+                        //                            upAppr = UpdateApprStatus();
+                        //                        }
 
-                        if (MODE.ToUpper() == "EDIT")
-                        {
-                            if (wfDt.GetAllowCreate(wfId, wfStep, LoginInfo.ConnStr))   //if (wfStep == 1)
-                            {
-                                var isApprove = true;
+                        //                        if (MODE.ToUpper() == "EDIT")
+                        //                        {
+                        //                            if (wfDt.GetAllowCreate(wfId, wfStep, LoginInfo.ConnStr))   //if (wfStep == 1)
+                        //                            {
+                        //                                var isApprove = true;
 
-                                var sql = "SELECT MIN(CHARINDEX('_', ApprStatus)) as StartStep FROM PC.PrDt WHERE PrNo=@DocNo";
-                                var dt = prDt.DbExecuteQuery(sql, new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@DocNo", refNo) }, hf_ConnStr.Value);
+                        //                                var sql = "SELECT MIN(CHARINDEX('_', ApprStatus)) as StartStep FROM PC.PrDt WHERE PrNo=@DocNo";
+                        //                                var dt = prDt.DbExecuteQuery(sql, new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@DocNo", refNo) }, hf_ConnStr.Value);
 
 
-                                if (dt != null && dt.Rows.Count > 0)
-                                {
-                                    var startStep = Convert.ToInt32(dt.Rows[0][0]);
+                        //                                if (dt != null && dt.Rows.Count > 0)
+                        //                                {
+                        //                                    var startStep = Convert.ToInt32(dt.Rows[0][0]);
 
-                                    if (startStep > 1)
-                                    {
-                                        isApprove = false;
+                        //                                    if (startStep > 1)
+                        //                                    {
+                        //                                        isApprove = false;
 
-                                        // Update ApprStatus if this document is sent back from other step
-                                        sql = @"
-DECLARE @WfStep INT = (SELECT StepNo FROM APP.WF WHERE WFId=1)
-DECLARE @LastStep INT = (SELECT MAX(CHARINDEX('_', ApprStatus)) /10 FROM PC.PrDt WHERE PrNo=@DocNo)
-DECLARE @StartRejectStep INT = (SELECT MAX(CHARINDEX('R', ApprStatus)) /10 FROM PC.PrDt WHERE PrNo=@DocNo)
+                        //                                        // Update ApprStatus if this document is sent back from other step
+                        //                                        sql = @"
+                        //DECLARE @WfStep INT = (SELECT StepNo FROM APP.WF WHERE WFId=1)
+                        //DECLARE @LastStep INT = (SELECT MAX(CHARINDEX('_', ApprStatus)) /10 FROM PC.PrDt WHERE PrNo=@DocNo)
+                        //DECLARE @StartRejectStep INT = (SELECT MAX(CHARINDEX('R', ApprStatus)) /10 FROM PC.PrDt WHERE PrNo=@DocNo)
+                        //
+                        //    DECLARE @ApprStatus nvarchar(10) = REPLICATE('A', @LastStep - @StartRejectStep) 
+                        //
+                        //    IF @StartRejectStep > 0
+                        //    BEGIN
+                        //	    SET @ApprStatus = @ApprStatus + REPLICATE('P', @LastStep-@StartRejectStep )
+                        //    END
+                        //    SET @ApprStatus = @ApprStatus + REPLICATE('_', @WfStep - @LastStep)
+                        //
+                        //UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
+                        //";
+                        //                                        wfDt.DbExecuteQuery(sql, new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@DocNo", refNo) }, hf_ConnStr.Value);
+                        //                                    }
+                        //                                }
 
-    DECLARE @ApprStatus nvarchar(10) = REPLICATE('A', @LastStep - @StartRejectStep) 
+                        //                                if (isApprove)
+                        //                                    upAppr = UpdateApprStatus();
+                        //                            }
+                        //                        }
 
-    IF @StartRejectStep > 0
-    BEGIN
-	    SET @ApprStatus = @ApprStatus + REPLICATE('P', @LastStep-@StartRejectStep )
-    END
-    SET @ApprStatus = @ApprStatus + REPLICATE('_', @WfStep - @LastStep)
-
-UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
-";
-                                        wfDt.DbExecuteQuery(sql, new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@DocNo", refNo) }, hf_ConnStr.Value);
-                                    }
-                                }
-
-                                if (isApprove)
-                                    upAppr = UpdateApprStatus();
-                            }
-                        }
-
-                        if (wfStep <= 1)
-                        {
-                            SendEmailWorkflow.Send("A", refNo, 1, 1, LoginInfo.LoginName, hf_ConnStr.Value);
-                        }
+                        //                        if (wfStep <= 1)
+                        //                        {
+                        //                            SendEmailWorkflow.Send("A", refNo, 1, 1, LoginInfo.LoginName, hf_ConnStr.Value);
+                        //                        }
                     }
 
 
@@ -930,6 +936,43 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
                     if (!pop_Alert.ShowOnPageLoad)
                         Response.Redirect("Pr.aspx?BuCode=" + Request.Params["BuCode"] + "&ID=" + drPr["PrNo"] + "&VID=" + Request.Params["VID"]);
                 }
+            }
+        }
+
+        protected void Commit(string prNo)
+        {
+            var loginName = LoginInfo.LoginName;
+
+            if (wfStep == 1)
+            {
+                EXEC_WF_PR_APPR_STEP_1(prNo, loginName);
+
+                Response.Redirect("Pr.aspx?BuCode=" + Request.Params["BuCode"] + "&ID=" + prNo + "&VID=" + Request.Params["VID"]);                
+            }
+        }
+
+        private void EXEC_WF_PR_APPR_STEP_1(string prNo, string loginName)
+        {
+            var dtWFDt = workFlowDt.Get(wfId, wfStep, hf_ConnStr.Value);
+
+            var parameters = new Blue.DAL.DbParameter[2];
+            parameters[0] = new Blue.DAL.DbParameter("@PrNo", prNo);
+            parameters[1] = new Blue.DAL.DbParameter("@LoginName", loginName);
+
+            workFlowDt.ExcecuteApprRule("APP.WF_PR_APPR_STEP_1", parameters, hf_ConnStr.Value);
+
+            var isSentMail = Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["SentEmail"]);
+
+            if (isSentMail)
+            {
+                SendEmailWorkflow.Send("A", prNo, 1, 1, LoginInfo.LoginName, hf_ConnStr.Value);
+
+                //bool isSent = false;
+
+                //lbl_hide_action.Text = "Redirect".ToUpper();
+                //lbl_hide_value.Text = true.ToString();
+                //lbl_PrNo.Text = prNo;
+                //isSent = Control_SentEmail("A");
             }
         }
 
@@ -947,30 +990,33 @@ UPDATE PC.Pr SET ApprStatus=@ApprStatus WHERE PrNo=@DocNo
             }
         }
 
-        private object[] UpdateApprStatus()
-        {
-            object[] obj = new object[2];
-            var dtWFDt = workFlowDt.Get(wfId, wfStep, hf_ConnStr.Value);
 
-            var dbParams1 = new Blue.DAL.DbParameter[2];
-            dbParams1[0] = new Blue.DAL.DbParameter("@PrNo", dsPR.Tables[pr.TableName].Rows[0]["PRNo"].ToString());
-            dbParams1[1] = new Blue.DAL.DbParameter("@LoginName", LoginInfo.LoginName);
+        
 
-            workFlowDt.ExcecuteApprRule("APP.WF_PR_APPR_STEP_1", dbParams1, hf_ConnStr.Value);
+        //private object[] UpdateApprStatus()
+        //{
+        //    object[] obj = new object[2];
+        //    var dtWFDt = workFlowDt.Get(wfId, wfStep, hf_ConnStr.Value);
 
-            if (Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["SentEmail"]))
-            {
-                bool isSent = false;
-                lbl_hide_action.Text = "Redirect".ToUpper();
-                lbl_hide_value.Text = true.ToString();
-                lbl_PrNo.Text = dsPR.Tables[pr.TableName].Rows[0]["PRNo"].ToString();
-                isSent = Control_SentEmail("A");
+        //    var dbParams1 = new Blue.DAL.DbParameter[2];
+        //    dbParams1[0] = new Blue.DAL.DbParameter("@PrNo", dsPR.Tables[pr.TableName].Rows[0]["PRNo"].ToString());
+        //    dbParams1[1] = new Blue.DAL.DbParameter("@LoginName", LoginInfo.LoginName);
 
-                obj[0] = isSent;
-                obj[1] = "Sent Email";
-            }
-            return obj;
-        }
+        //    workFlowDt.ExcecuteApprRule("APP.WF_PR_APPR_STEP_1", dbParams1, hf_ConnStr.Value);
+
+        //    if (Convert.ToBoolean(dsWF.Tables["APPwfdt"].Rows[0]["SentEmail"]))
+        //    {
+        //        bool isSent = false;
+        //        lbl_hide_action.Text = "Redirect".ToUpper();
+        //        lbl_hide_value.Text = true.ToString();
+        //        lbl_PrNo.Text = dsPR.Tables[pr.TableName].Rows[0]["PRNo"].ToString();
+        //        isSent = Control_SentEmail("A");
+
+        //        obj[0] = isSent;
+        //        obj[1] = "Sent Email";
+        //    }
+        //    return obj;
+        //}
 
         //Update Data of Workflow Step 3
         public void UpdateAllocateVendorApprStatus(string PRNo, int PRDtNo)
