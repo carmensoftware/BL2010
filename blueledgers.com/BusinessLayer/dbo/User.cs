@@ -12,9 +12,15 @@ namespace Blue.BL.dbo
         private readonly Blue.BL.ADMIN.UserStore userStore = new Blue.BL.ADMIN.UserStore();
 
         /*  Customer's license
+            2027-01-31 = bayvillaskohphangan = 1+5+1 = 7
+            2027-01-31 = siamese = 24+2 = 26 + 20 + 10 = 56 (follow by Cassia Rama9)
+         
+         
             2026-11-30 = chalongmarina = 8+2=10
             2026-11-30 = korabeachresort = 10 + 22 = 32
          
+            2026-11-30 = skyviewresortphuket = 11 + 1 =12
+            2026-11-30 = wyndhamgardennaithon = 21
          
          
             2026-10-31 = blumonkeybangtaophuket = 6
@@ -22,11 +28,11 @@ namespace Blue.BL.dbo
          
          
          
-            2026-09-30 = siamese = 24+2 = 26 + 20 + 10 = 56 (follow by Cassia Rama9)
             2026-09-30 = rasahospitality = 73 + 17 = 90
             2026-09-30 = kckohchang = 17
             2026-09-30 = varanahotel = 16
             2025-09-30 = TheSarojin = 3
+            2025-09-30 = thekaset = 10
          
             2026-08-31 = themarinphuket = 19
             2026-08-31 = thenappathong = 8+5=13
@@ -67,7 +73,8 @@ namespace Blue.BL.dbo
             2026-03-31 = manor = 4
             2026-03-31 = parklanehotels = 16
             2026-03-31 = jazzotelbangkok = 7
-          
+            2026-03-31 = nh-asoke-bangkok = 15
+
             2026-02-28 = cafedelmarphuket =46
             2026-02-28 = gcmt = 1
             2026-02-28 = dewaphuketresort = 14+1=15
@@ -76,7 +83,6 @@ namespace Blue.BL.dbo
             2026-02-28 = sorahotels = 9
             2026-02-28 = firaphuketbeachclub = 5+3=8
           
-            2026-01-31 = bayvillaskohphangan = 1+5+1 = 7
             2026-01-31 = hotellotussukhumvit = 15+2 = 17 + 2 = 19
             2026-01-31 = verandaresortautograph = 3+10+1 = 14
             2026-01-31 = urbanalangsuanbkk = 7
@@ -101,15 +107,12 @@ namespace Blue.BL.dbo
             2026-01-31 = surestayplussukhumvit2 = 10
             2026-01-31 = selinaserenityrawai = 8
             2026-01-31 = namakaresortkamala = 15
+            2026-01-31 = tuibluethepassage = 8 + 8 = 16
+            2026-01-31 = thebangkokclub = 20
+            2026-01-31 = sztowerthai = 13+4=17
+            2026-01-31 = kappasensesubud = 17
          
             ------------------------------------------------------------------
-            2025-12-31 = tuibluethepassage = 8 + 8 = 16
-            2025-12-31 = thebangkokclub = 20
-            2025-12-31 = thekaset = 10
-            2025-12-31 = sztowerthai = 13+4=17
-            2025-12-31 = skyviewresortphuket = 11 + 1 =12
-            2025-12-31 = wyndhamgardennaithon = 21
-            2025-12-31 = kappasensesubud = 17
          
             ------------------------------------------------------------------
             2025-11-30 = tinbaron = 18
@@ -139,11 +142,11 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser =170;
+        private int licenseActiveUser =56;
 
         public DateTime GetLicenseExpiredDate()
         {
-            return new DateTime(2026, 03, 31);
+            return new DateTime(2027, 1, 31);
         }
 
         private DateTime licenseExpiredDate { get { return GetLicenseExpiredDate(); } }
