@@ -13,31 +13,52 @@ namespace BlueLedger.PL.PC.PL
 {
     public partial class ByVdImp : BasePage
     {
-        private readonly DataSet dsProdUnit = new DataSet();
-        private readonly Blue.BL.PC.PL.PL pl = new Blue.BL.PC.PL.PL();
-        private readonly Blue.BL.PC.PL.PLDt plDt = new Blue.BL.PC.PL.PLDt();
-        private readonly Blue.BL.IN.ProdUnit prodUnit = new Blue.BL.IN.ProdUnit();
-        private readonly Blue.BL.APP.Config con = new Blue.BL.APP.Config();
-        private readonly Blue.BL.Ref.Currency curr = new Blue.BL.Ref.Currency();
+        private readonly Blue.BL.APP.Config _config = new Blue.BL.APP.Config();
+        private readonly Blue.BL.GnxLib gnxLib = new Blue.BL.GnxLib();
 
-        private DataTable CSVTable = new DataTable();
+        private readonly Blue.BL.PC.PL.PL _pl = new Blue.BL.PC.PL.PL();
+        private readonly Blue.BL.PC.PL.PLDt _plDt = new Blue.BL.PC.PL.PLDt();
+        private readonly Blue.BL.IN.ProdUnit _prodUnit = new Blue.BL.IN.ProdUnit();
+        private readonly Blue.BL.Ref.Currency _currency = new Blue.BL.Ref.Currency();
+        private readonly Blue.BL.Option.Inventory.Product product = new Blue.BL.Option.Inventory.Product();
+        private readonly Blue.BL.AP.Vendor vendor = new Blue.BL.AP.Vendor();
+
+        private DataTable _dtPriceList
+        {
+            set { ViewState["_dtPriceList"] = value; }
+            get { return ViewState["_dtPriceList"] as DataTable; }
+        }
+
+
+        private int _ViewNo
+        {
+            get
+            {
+                var dtView = _config.DbExecuteQuery("SELECT TOP(1) ViewNo FROM APP.ViewHandler WHERE PageCode='[IN].[vPLVdList]' ORDER BY ViewNo", null, LoginInfo.ConnStr);
+
+                return dtView != null && dtView.Rows.Count > 0
+                    ? dtView.AsEnumerable().FirstOrDefault().Field<Int32>("ViewNo")
+                    : 0;
+            }
+        }
+
+        // -------------------
+
+
+        private OleDbConnection exConn; //ติดต่อ Excel
+
+        private readonly DataSet dsProdUnit = new DataSet();
         private DataSet dsPLImp = new DataSet();
         private DataTable dt; //Table เก็บข้อมูล Excel  
         private DataTable dtProdUnit = new DataTable();
-        private OleDbConnection exConn; //ติดต่อ Excel
-        private Blue.BL.GnxLib gnxLib = new Blue.BL.GnxLib();
-        private Blue.BL.Option.Inventory.Product product = new Blue.BL.Option.Inventory.Product();
-        //private SqlConnection sqConn; //ติดต่อ SQL Server
         private string strConn = "";
-        private Blue.BL.AP.Vendor vendor = new Blue.BL.AP.Vendor();
-
         private static string defaultCurrency = string.Empty;
 
 
-
+        // Init
         protected void Page_Init(object sender, EventArgs e)
         {
-            hf_ConnStr.Value = LoginInfo.ConnStr;
+            //LoginInfo.ConnStr = LoginInfo.ConnStr;
         }
 
         protected override void Page_Load(object sender, EventArgs e)
@@ -53,20 +74,20 @@ namespace BlueLedger.PL.PC.PL
                 dsPLImp = (DataSet)Session["dsPLImp"];
             }
 
-            defaultCurrency = con.GetValue("APP", "BU", "DefaultCurrency", LoginInfo.ConnStr);
+            defaultCurrency = _config.GetValue("APP", "BU", "DefaultCurrency", LoginInfo.ConnStr);
 
         }
 
         private void Page_Retrieve()
         {
-            var getPLSchema = pl.GetSchame(dsPLImp, LoginInfo.ConnStr);
+            var getPLSchema = _pl.GetSchame(dsPLImp, LoginInfo.ConnStr);
 
             if (!getPLSchema)
             {
                 return;
             }
 
-            var getPLdtSchema = plDt.GetSchame(dsPLImp, LoginInfo.ConnStr);
+            var getPLdtSchema = _plDt.GetSchame(dsPLImp, LoginInfo.ConnStr);
 
             if (!getPLdtSchema)
             {
@@ -74,9 +95,9 @@ namespace BlueLedger.PL.PC.PL
             }
 
             // Add new row to PL DataTable
-            var drPL = dsPLImp.Tables[pl.TableName].NewRow();
+            var drPL = dsPLImp.Tables[_pl.TableName].NewRow();
 
-            drPL["PriceLstNo"] = pl.GetNewID(LoginInfo.ConnStr);
+            drPL["PriceLstNo"] = _pl.GetNewID(LoginInfo.ConnStr);
             drPL["VendorCode"] = string.Empty;
             drPL["DateFrom"] = ServerDateTime;
             drPL["DateTo"] = ServerDateTime.AddDays(30); // Fixed 30 Days : Get from parameter next relase
@@ -85,7 +106,7 @@ namespace BlueLedger.PL.PC.PL
             drPL["UpdatedDate"] = ServerDateTime;
             drPL["UpdatedBy"] = LoginInfo.LoginName;
 
-            dsPLImp.Tables[pl.TableName].Rows.Add(drPL);
+            dsPLImp.Tables[_pl.TableName].Rows.Add(drPL);
 
             Session["dsPLImp"] = dsPLImp;
 
@@ -94,808 +115,229 @@ namespace BlueLedger.PL.PC.PL
 
         private void Page_Setting()
         {
-            var drPL = dsPLImp.Tables[pl.TableName].Rows[0];
+            var drPL = dsPLImp.Tables[_pl.TableName].Rows[0];
 
             ddl_Vendor.Value = drPL["VendorCode"].ToString();
-            //txt_Vendor.Text     = vendor.GetName(drPL["VendorCode"].ToString(), LoginInfo.ConnStr);
             txt_DateFrom.Date = DateTime.Parse(drPL["DateFrom"].ToString());
             txt_DateTo.Date = DateTime.Parse(drPL["DateTo"].ToString());
             txt_RefNo.Text = drPL["RefNo"].ToString();
 
-            // Added on: 28/01/2018, By: Fon
-            ddl_CurrCode.Value = defaultCurrency;
-            // End Added.
+            var dtConfig = _pl.DbExecuteQuery("SELECT [Value] FROM APP.Config WHERE [Key]='DefaultCurrency' AND SubModule='BU' AND Module='APP'", null, LoginInfo.ConnStr);
+            defaultCurrency = dtConfig != null && dtConfig.Rows.Count > 0 ? dtConfig.Rows[0][0].ToString() : "THB";
 
-            //grd_PLDt.DataSource = dsPLEdit.Tables[plDt.TableName];
-            //grd_PLDt.DataBind();
+            var dtCurrency = _pl.DbExecuteQuery("SELECT CurrencyCode, CONCAT(CurrencyCode,' : ', [Desc]) as CurrencyName FROM [REF].Currency WHERE IsActived=1 ORDER BY CurrencyCode", null, LoginInfo.ConnStr);
+            ddl_CurrCode.Items.Clear();
+            ddl_CurrCode.ValueField = "CurrencyCode";
+            ddl_CurrCode.TextField = "CurrencyName";
+
+            foreach (DataRow dr in dtCurrency.Rows)
+            {
+                ddl_CurrCode.Items.Add(new DevExpress.Web.ASPxEditors.ListEditItem
+                {
+                    Text = dr["CurrencyName"].ToString(),
+                    Value = dr["CurrencyCode"].ToString(),
+                    Selected = dr["CurrencyCode"].ToString() == defaultCurrency
+
+                });
+            }
+
+
+            var dtVendor = _pl.DbExecuteQuery("SELECT VendorCode, CONCAT(VendorCode, ' : ', [Name]) as VendorName FROM AP.Vendor WHERE IsActive=1 ORDER BY VendorCode", null, LoginInfo.ConnStr);
+
+            ddl_Vendor.Items.Clear();
+            ddl_Vendor.ValueField = "VendorCode";
+            ddl_Vendor.TextField = "VendorName";
+
+            foreach (DataRow dr in dtVendor.Rows)
+            {
+                ddl_Vendor.Items.Add(new DevExpress.Web.ASPxEditors.ListEditItem
+                {
+                    Text = dr["VendorName"].ToString(),
+                    Value = dr["VendorCode"].ToString()
+                });
+            }
+
         }
 
-        private string GetInventoryUnit(DataTable dt, string productcode)
-        {
-            var row = dt.AsEnumerable().Where(x => x.Field<string>("ProductCode") == productcode).FirstOrDefault();
-            if (row != null)
-                return row["InventoryUnit"].ToString();
-            else
-                return string.Empty;
-        }
 
-        private void Save()
-        {
-            if (ddl_Vendor.Value == null)
-            {
-                pop_VendorCode.ShowOnPageLoad = true;
-                return;
-            }
+        #region -- Event(s)--
 
-            if (txt_Vrank.Text == string.Empty)
-            {
-                pop_Vendor.ShowOnPageLoad = true;
-                return;
-            }
-
-            var dtProduct = product.DbExecuteQuery("SELECT ProductCode, InventoryUnit FROM [IN].Product", null, LoginInfo.ConnStr);
-
-
-            //Check product no unit
-            for (var i = 0; i <= GridView1.Rows.Count - 1; i++)
-            {
-                var ProductCode = GridView1.Rows[i].Cells[0].Text.Trim();
-                var OrderUnit = GridView1.Rows[i].Cells[3].Text.Trim();
-
-                if (prodUnit.CountByProdUnitCode(ProductCode, OrderUnit, LoginInfo.ConnStr) > 0)
-                {
-                    continue;
-                }
-                else
-                {
-                    //Insert Unit on ProdUnit
-                    dtProdUnit.Columns.Add("ProductCode");
-                    dtProdUnit.Columns.Add("DescriptionEn");
-                    dtProdUnit.Columns.Add("DescriptionTH");
-                    dtProdUnit.Columns.Add("InventoryUnit");
-                    dtProdUnit.Columns.Add("OrderUnit");
-                    dtProdUnit.Columns.Add("Rate");
-
-                    for (var j = 0; j <= GridView1.Rows.Count - 1; j++)
-                    {
-                        var ProductCodeInsertUnit = GridView1.Rows[j].Cells[0].Text.Trim();
-                        var DescEnInsertUnit = GridView1.Rows[j].Cells[1].Text.Trim();
-                        var DescTHInsertUnit = GridView1.Rows[j].Cells[2].Text.Trim();
-                        //var InventoryUnitInsertUnit = prodUnit.GetInvenUnit(ProductCodeInsertUnit, LoginInfo.ConnStr);
-                        var InventoryUnitInsertUnit = GetInventoryUnit(dtProduct, ProductCodeInsertUnit);
-                        var OrderUnitInsertUnit = GridView1.Rows[j].Cells[3].Text.Trim();
-
-                        if (prodUnit.CountByProdUnitCode(ProductCodeInsertUnit, OrderUnitInsertUnit, LoginInfo.ConnStr) == 0)
-                        {
-                            DataRow drProdUnit;
-                            drProdUnit = dtProdUnit.NewRow();
-
-                            drProdUnit["ProductCode"] = ProductCodeInsertUnit;
-                            drProdUnit["DescriptionEn"] = DescEnInsertUnit;
-                            drProdUnit["DescriptionTH"] = DescTHInsertUnit;
-                            drProdUnit["InventoryUnit"] = InventoryUnitInsertUnit;
-                            drProdUnit["OrderUnit"] = OrderUnitInsertUnit;
-
-                            dtProdUnit.Rows.Add(drProdUnit);
-                        }
-                    }
-
-                    grd_UnitProd.DataSource = dtProdUnit;
-                    grd_UnitProd.DataBind();
-
-                    Session["dtProdUnit"] = dtProdUnit;
-
-                    pop_UnitInsert.ShowOnPageLoad = true;
-                    return;
-                }
-            }
-
-            //pl.GetSchame(dsPLImp, LoginInfo.ConnStr);
-            var drPL = dsPLImp.Tables[pl.TableName].Rows[0];
-
-            drPL["PriceLstNo"] = pl.GetNewID(LoginInfo.ConnStr);
-
-            // Update Detail Information
-            foreach (DataRow drPLDt in dsPLImp.Tables[plDt.TableName].Rows)
-            {
-                if (drPLDt.RowState != DataRowState.Deleted)
-                {
-                    drPLDt["PriceLstNo"] = drPL["PriceLstNo"].ToString();
-                }
-            }
-
-            drPL["RefNo"] = txt_RefNo.Text.Trim();
-            drPL["DateFrom"] = DateTime.Parse(txt_DateFrom.Date.ToString("dd/MM/yyyy"));
-
-            if (txt_DateTo.Text != string.Empty)
-            {
-                drPL["DateTo"] = DateTime.Parse(txt_DateTo.Date.ToString("dd/MM/yyyy"));
-            }
-            else
-            {
-                drPL["DateTo"] = DBNull.Value;
-            }
-
-            drPL["VendorCode"] = ddl_Vendor.Value.ToString();
-            drPL["UpdatedDate"] = ServerDateTime;
-            drPL["UpdatedBy"] = LoginInfo.LoginName;
-
-            for (var i = 0; i <= GridView1.Rows.Count - 1; i++)
-            {
-                var drNew = dsPLImp.Tables[plDt.TableName].NewRow();
-
-                var ProductCode = GridView1.Rows[i].Cells[0].Text.Trim();
-                var OrderUnit = GridView1.Rows[i].Cells[3].Text.Trim();
-
-                if (GridView1.Rows[i].Cells[6].Text.Trim() != "&nbsp;") // Check Price is empty
-                {
-                    if (GridView1.Rows[i].Cells[6].Text.Trim() != string.Empty)
-                    {
-                        if (decimal.Parse(GridView1.Rows[i].Cells[6].Text.Trim()) > 0) // check price > 0
-                        {
-                            if (GridView1.Rows[i].Cells[10].Text.Trim() == "&nbsp;")
-                                GridView1.Rows[i].Cells[10].Text = "N";
-                            if (GridView1.Rows[i].Cells[11].Text.Trim() == "&nbsp;")
-                                GridView1.Rows[i].Cells[11].Text = "0";
-
-                            if ((GridView1.Rows[i].Cells[10].Text.Trim() == "A" &&
-                                 decimal.Parse(GridView1.Rows[i].Cells[11].Text.Trim()) > 0)
-                                ||
-                                (GridView1.Rows[i].Cells[10].Text.Trim() == "I" &&
-                                 decimal.Parse(GridView1.Rows[i].Cells[11].Text.Trim()) > 0)
-                                || (GridView1.Rows[i].Cells[10].Text.Trim() == "N"))
-                            {
-                                drNew["PriceLstNo"] = dsPLImp.Tables[pl.TableName].Rows[0]["PriceLstNo"].ToString();
-
-                                if (dsPLImp.Tables[plDt.TableName].Rows.Count == 0)
-                                {
-                                    drNew["SeqNo"] = 1;
-                                }
-                                else
-                                {
-                                    var RowCount = dsPLImp.Tables[plDt.TableName].Rows.Count;
-                                    var LatestSeqNo =
-                                        int.Parse(dsPLImp.Tables[plDt.TableName].Rows[RowCount - 1]["SeqNo"].ToString());
-                                    drNew["SeqNo"] = LatestSeqNo + 1;
-                                }
-
-                                drNew["ProductCode"] = GridView1.Rows[i].Cells[0].Text.Trim();
-                                drNew["OrderUnit"] = GridView1.Rows[i].Cells[3].Text.Trim();
-
-                                if (txt_Vrank.Text != string.Empty)
-                                {
-                                    drNew["VendorRank"] = txt_Vrank.Text;
-                                }
-                                else
-                                {
-                                    pop_Vendor.ShowOnPageLoad = true;
-                                    return;
-                                }
-
-                                if (GridView1.Rows[i].Cells[4].Text.Trim() == "&nbsp;" ||
-                                    GridView1.Rows[i].Cells[4].Text.Trim() == string.Empty)
-                                {
-                                    drNew["QtyFrom"] = 0;
-                                }
-                                else
-                                {
-                                    drNew["QtyFrom"] = GridView1.Rows[i].Cells[4].Text.Trim();
-                                }
-
-                                if (GridView1.Rows[i].Cells[5].Text.Trim() == "&nbsp;" ||
-                                    GridView1.Rows[i].Cells[5].Text.Trim() == string.Empty)
-                                {
-                                    drNew["QtyTo"] = 0;
-                                }
-                                else
-                                {
-                                    drNew["QtyTo"] = GridView1.Rows[i].Cells[5].Text.Trim();
-                                }
-
-                                if (GridView1.Rows[i].Cells[6].Text.Trim() == "&nbsp;" ||
-                                    GridView1.Rows[i].Cells[6].Text.Trim() == string.Empty)
-                                {
-                                    drNew["QuotedPrice"] = 0;
-                                }
-                                else
-                                {
-                                    drNew["QuotedPrice"] = GridView1.Rows[i].Cells[6].Text.Trim();
-                                }
-
-                                drNew["MarketPrice"] = 0.00;
-
-                                if (GridView1.Rows[i].Cells[7].Text.Trim() == "&nbsp;" ||
-                                    GridView1.Rows[i].Cells[7].Text.Trim() == string.Empty)
-                                {
-                                    drNew["FOC"] = 0;
-                                }
-                                else
-                                {
-                                    drNew["FOC"] = GridView1.Rows[i].Cells[7].Text.Trim();
-                                }
-
-                                drNew["Comment"] = (GridView1.Rows[i].Cells[13].Text.Trim() == "&nbsp;"
-                                    ? string.Empty
-                                    : GridView1.Rows[i].Cells[13].Text.Trim());
-
-                                if (GridView1.Rows[i].Cells[8].Text.Trim() == "&nbsp;" ||
-                                    GridView1.Rows[i].Cells[8].Text.Trim() == string.Empty)
-                                {
-                                    drNew["DiscPercent"] = 0;
-                                }
-                                else
-                                {
-                                    drNew["DiscPercent"] = GridView1.Rows[i].Cells[8].Text.Trim();
-                                }
-
-                                if (GridView1.Rows[i].Cells[9].Text.Trim() == "&nbsp;" ||
-                                    GridView1.Rows[i].Cells[9].Text.Trim() == string.Empty)
-                                {
-                                    drNew["DiscAmt"] = 0;
-                                }
-                                else
-                                {
-                                    drNew["DiscAmt"] = GridView1.Rows[i].Cells[9].Text.Trim();
-                                }
-
-                                if (GridView1.Rows[i].Cells[11].Text.Trim() == "&nbsp;" ||
-                                    GridView1.Rows[i].Cells[11].Text.Trim() == string.Empty)
-                                {
-                                    drNew["TaxRate"] = 0;
-                                }
-                                else
-                                {
-                                    drNew["TaxRate"] = GridView1.Rows[i].Cells[11].Text.Trim();
-                                }
-
-                                if (GridView1.Rows[i].Cells[10].Text.Trim() != null)
-                                {
-                                    drNew["Tax"] = GridView1.Rows[i].Cells[10].Text.Trim();
-                                    decimal DiscAmt = 0;
-                                    decimal TaxRate = 0;
-                                    decimal Price = 0;
-
-                                    TaxRate = Convert.ToDecimal(drNew["TaxRate"].ToString());
-                                    DiscAmt = Convert.ToDecimal(drNew["DiscAmt"].ToString());
-                                    Price = Convert.ToDecimal(drNew["QuotedPrice"].ToString());
-
-                                    switch (drNew["Tax"].ToString().ToUpper())
-                                    {
-                                        case "N":
-                                            drNew["NetAmt"] = (Price - DiscAmt).ToString();
-                                            break;
-                                        case "A":
-                                            //drNew["NetAmt"] = ((Price - DiscAmt) + ((Price * TaxRate) / 100)).ToString();
-                                            drNew["NetAmt"] = (Price - DiscAmt).ToString();
-                                            break;
-
-                                        case "I":
-                                            //drNew["NetAmt"] = ((Price - DiscAmt) - ((Price * TaxRate) / (100 + TaxRate))).ToString();
-                                            drNew["NetAmt"] = NetAmt(drNew["Tax"].ToString(), TaxRate,
-                                                Price, DiscAmt, 1); // price list จะคิดต่อ 1 ชิ้น
-                                            break;
-
-                                    }
-                                }
-
-                                drNew["VendorProdCode"] = (GridView1.Rows[i].Cells[12].Text.Trim() == "&nbsp;"
-                                    ? string.Empty
-                                    : GridView1.Rows[i].Cells[12].Text.Trim());
-                                drNew["AvgPrice"] = 0.00;
-                                drNew["LastPrice"] = 0.00;
-
-                                // Added on: 26/01/2018, By: Fon
-                                drNew["CurrencyCode"] = ddl_CurrCode.Value;
-                                // End Added.
-
-                                dsPLImp.Tables[plDt.TableName].Rows.Add(drNew);
-                            }
-                        }
-                    }
-                }
-
-                Session["dsPLImp"] = dsPLImp;
-            }
-
-            if (txt_DateFrom.Text != string.Empty && txt_DateTo.Text != string.Empty)
-            {
-                if (pl.CountByVendorDateFromTo(drPL["VendorCode"].ToString(),
-                    DateTime.Parse(drPL["DateFrom"].ToString())
-                    , DateTime.Parse(drPL["DateTo"].ToString()), LoginInfo.ConnStr) > 0)
-                {
-                    pop_ConfirmSave.ShowOnPageLoad = true;
-                }
-                else
-                {
-                    var result = pl.Save(dsPLImp, LoginInfo.ConnStr);
-
-                    if (result)
-                    {
-                        pop_ImportSuccess.ShowOnPageLoad = true;
-                    }
-                }
-            }
-            else if (txt_DateFrom.Text != string.Empty && txt_DateTo.Text == string.Empty)
-            {
-                if (
-                    pl.CountByVendorDateFrom(drPL["VendorCode"].ToString(), DateTime.Parse(drPL["DateFrom"].ToString()),
-                        LoginInfo.ConnStr) > 0)
-                {
-                    pop_ConfirmSave.ShowOnPageLoad = true;
-                }
-                else
-                {
-                    var result = pl.Save(dsPLImp, LoginInfo.ConnStr);
-
-                    if (result)
-                    {
-                        pop_ImportSuccess.ShowOnPageLoad = true;
-                    }
-                }
-            }
-            else if (txt_DateFrom.Text == string.Empty && txt_DateTo.Text != string.Empty)
-            {
-                if (
-                    pl.CountByVendorDateTo(drPL["VendorCode"].ToString(), DateTime.Parse(drPL["DateTo"].ToString()),
-                        LoginInfo.ConnStr) > 0)
-                {
-                    pop_ConfirmSave.ShowOnPageLoad = true;
-                }
-                else
-                {
-                    var result = pl.Save(dsPLImp, LoginInfo.ConnStr);
-
-                    if (result)
-                    {
-                        pop_ImportSuccess.ShowOnPageLoad = true;
-                    }
-                }
-            }
-            else if (txt_DateFrom.Text == string.Empty && txt_DateTo.Text == string.Empty)
-            {
-                if (pl.CountByVendor(drPL["VendorCode"].ToString(), LoginInfo.ConnStr) > 0)
-                {
-                    pop_ConfirmSave.ShowOnPageLoad = true;
-                }
-                else
-                {
-                    var result = pl.Save(dsPLImp, LoginInfo.ConnStr);
-
-                    if (result)
-                    {
-                        pop_ImportSuccess.ShowOnPageLoad = true;
-                    }
-                }
-            }
-        }
-
-        protected void btn_ConfirmSave_Click(object sender, EventArgs e)
-        {
-            dsPLImp.Clear();
-
-            var dtSave = new DataTable();
-
-            if (txt_DateFrom.Text != string.Empty && txt_DateTo.Text != string.Empty)
-            {
-                var getVenderFromTo = pl.GetList(dsPLImp, ddl_Vendor.Value.ToString(),
-                    DateTime.Parse(txt_DateFrom.Date.ToString()), DateTime.Parse(txt_DateTo.Date.ToString()),
-                    LoginInfo.ConnStr);
-
-                dtSave = pl.GetListByVendorDateFromTo(ddl_Vendor.Value.ToString(),
-                    DateTime.Parse(txt_DateFrom.Date.ToString()), DateTime.Parse(txt_DateTo.Date.ToString()),
-                    LoginInfo.ConnStr);
-
-                Session["dsPLImp"] = dsPLImp;
-            }
-            else if (txt_DateFrom.Text != string.Empty && txt_DateTo.Text == string.Empty)
-            {
-                dtSave = pl.GetList(ddl_Vendor.Value.ToString(), DateTime.Parse(txt_DateFrom.Date.ToString()),
-                    LoginInfo.ConnStr);
-
-                var getVendorFrom = pl.GetList(dsPLImp, ddl_Vendor.Value.ToString(),
-                    DateTime.Parse(txt_DateFrom.Date.ToString()), LoginInfo.ConnStr);
-
-                Session["dsPLImp"] = dsPLImp;
-            }
-            else if (txt_DateFrom.Text == string.Empty && txt_DateTo.Text != string.Empty)
-            {
-                dtSave = pl.GetListByVendorDateTo(ddl_Vendor.Value.ToString(),
-                    DateTime.Parse(txt_DateTo.Date.ToString()), LoginInfo.ConnStr);
-
-                var getVendorTo = pl.GetListVendorDateTo(dsPLImp, ddl_Vendor.Value.ToString(),
-                    DateTime.Parse(txt_DateTo.Date.ToString()), LoginInfo.ConnStr);
-
-                Session["dsPLImp"] = dsPLImp;
-            }
-            else if (txt_DateFrom.Text == string.Empty && txt_DateTo.Text == string.Empty)
-            {
-                dtSave = pl.GetList(ddl_Vendor.Value.ToString(), LoginInfo.ConnStr);
-
-                var getVendor = pl.GetList(dsPLImp, ddl_Vendor.Value.ToString(), LoginInfo.ConnStr);
-
-                Session["dsPLImp"] = dsPLImp;
-            }
-
-            var drSave = dsPLImp.Tables[pl.TableName].Rows[0];
-            foreach (DataRow dr in dtSave.Rows)
-            {
-                drSave["PriceLstNo"] = dr["PriceLstNo"];
-                drSave["UpdatedDate"] = ServerDateTime;
-                drSave["UpdatedBy"] = LoginInfo.LoginName;
-            }
-
-            var getPLDt = plDt.GetList(dsPLImp, drSave["PriceLstNo"].ToString(), LoginInfo.ConnStr);
-
-            if (!getPLDt)
-            {
-                return;
-            }
-
-            // Update Detail Information
-            foreach (DataRow drPLDt in dsPLImp.Tables[plDt.TableName].Rows)
-            {
-                if (drPLDt.RowState != DataRowState.Deleted)
-                {
-                    drPLDt["PriceLstNo"] = drSave["PriceLstNo"];
-                }
-            }
-
-            for (var i = 0; i <= GridView1.Rows.Count - 1; i++)
-            {
-                var dt = plDt.GetList(dsPLImp, drSave["PriceLstNo"].ToString(), GridView1.Rows[i].Cells[0].Text,
-                    LoginInfo.ConnStr);
-
-                if (dt.Rows.Count > 0)
-                {
-                    foreach (DataRow drUpdating in dsPLImp.Tables[plDt.TableName].Rows)
-                    {
-                        if (drUpdating["ProductCode"].ToString() == GridView1.Rows[i].Cells[0].Text)
-                        {
-                            if (GridView1.Rows[i].Cells[6].Text.Trim() != "&nbsp;") // Check Price is empty
-                            {
-                                if (GridView1.Rows[i].Cells[6].Text.Trim() != string.Empty)
-                                {
-                                    if (decimal.Parse(GridView1.Rows[i].Cells[6].Text.Trim()) > 0) // check price > 0
-                                    {
-                                        if ((GridView1.Rows[i].Cells[10].Text.Trim() == "A" &&
-                                             decimal.Parse(GridView1.Rows[i].Cells[11].Text.Trim()) > 0)
-                                            ||
-                                            (GridView1.Rows[i].Cells[10].Text.Trim() == "I" &&
-                                             decimal.Parse(GridView1.Rows[i].Cells[11].Text.Trim()) > 0)
-                                            || (GridView1.Rows[i].Cells[10].Text.Trim() == "N"))
-                                        {
-                                            drUpdating["OrderUnit"] = GridView1.Rows[i].Cells[3].Text.Trim();
-                                            drUpdating["VendorRank"] = txt_Vrank.Text;
-
-                                            if (GridView1.Rows[i].Cells[4].Text.Trim() == "&nbsp;" ||
-                                                GridView1.Rows[i].Cells[4].Text.Trim() == string.Empty)
-                                            {
-                                                drUpdating["QtyFrom"] = 0;
-                                            }
-                                            else
-                                            {
-                                                drUpdating["QtyFrom"] = GridView1.Rows[i].Cells[4].Text.Trim();
-                                            }
-
-                                            if (GridView1.Rows[i].Cells[5].Text.Trim() == "&nbsp;" ||
-                                                GridView1.Rows[i].Cells[5].Text.Trim() == string.Empty)
-                                            {
-                                                drUpdating["QtyTo"] = 0;
-                                            }
-                                            else
-                                            {
-                                                drUpdating["QtyTo"] = GridView1.Rows[i].Cells[5].Text.Trim();
-                                            }
-
-                                            if (GridView1.Rows[i].Cells[6].Text.Trim() == "&nbsp;" ||
-                                                GridView1.Rows[i].Cells[6].Text.Trim() == string.Empty)
-                                            {
-                                                drUpdating["QuotedPrice"] = 0;
-                                            }
-                                            else
-                                            {
-                                                drUpdating["QuotedPrice"] = GridView1.Rows[i].Cells[6].Text.Trim();
-                                            }
-
-                                            drUpdating["MarketPrice"] = 0.00;
-
-                                            if (GridView1.Rows[i].Cells[7].Text.Trim() == "&nbsp;" ||
-                                                GridView1.Rows[i].Cells[7].Text.Trim() == string.Empty)
-                                            {
-                                                drUpdating["FOC"] = 0;
-                                            }
-                                            else
-                                            {
-                                                drUpdating["FOC"] = GridView1.Rows[i].Cells[7].Text.Trim();
-                                            }
-
-                                            drUpdating["Comment"] = (GridView1.Rows[i].Cells[13].Text.Trim() == "&nbsp;"
-                                                ? string.Empty
-                                                : GridView1.Rows[i].Cells[13].Text.Trim());
-
-                                            if (GridView1.Rows[i].Cells[8].Text.Trim() == "&nbsp;" ||
-                                                GridView1.Rows[i].Cells[8].Text.Trim() == string.Empty)
-                                            {
-                                                drUpdating["DiscPercent"] = 0;
-                                            }
-                                            else
-                                            {
-                                                drUpdating["DiscPercent"] = GridView1.Rows[i].Cells[8].Text.Trim();
-                                            }
-
-                                            if (GridView1.Rows[i].Cells[9].Text.Trim() == "&nbsp;" ||
-                                                GridView1.Rows[i].Cells[9].Text.Trim() == string.Empty)
-                                            {
-                                                drUpdating["DiscAmt"] = 0;
-                                            }
-                                            else
-                                            {
-                                                drUpdating["DiscAmt"] = GridView1.Rows[i].Cells[9].Text.Trim();
-                                            }
-
-                                            if (GridView1.Rows[i].Cells[11].Text.Trim() == "&nbsp;" ||
-                                                GridView1.Rows[i].Cells[11].Text.Trim() == string.Empty)
-                                            {
-                                                drUpdating["TaxRate"] = 0;
-                                            }
-                                            else
-                                            {
-                                                drUpdating["TaxRate"] = GridView1.Rows[i].Cells[11].Text.Trim();
-                                            }
-
-                                            if (GridView1.Rows[i].Cells[10].Text.Trim() != null)
-                                            {
-                                                drUpdating["Tax"] = GridView1.Rows[i].Cells[10].Text.Trim();
-                                                decimal DiscAmt = 0;
-                                                decimal TaxRate = 0;
-                                                decimal Price = 0;
-
-                                                TaxRate = Convert.ToDecimal(drUpdating["TaxRate"].ToString());
-                                                DiscAmt = Convert.ToDecimal(drUpdating["DiscAmt"].ToString());
-                                                Price = Convert.ToDecimal(drUpdating["QuotedPrice"].ToString());
-
-                                                switch (drUpdating["Tax"].ToString().ToUpper())
-                                                {
-                                                    case "N":
-                                                        drUpdating["NetAmt"] = (Price - DiscAmt).ToString();
-                                                        break;
-
-                                                    case "A":
-                                                        //drUpdating["NetAmt"] = ((Price - DiscAmt) + ((Price * TaxRate) / 100)).ToString();
-                                                        drUpdating["NetAmt"] = (Price - DiscAmt).ToString();
-                                                        break;
-
-                                                    case "I":
-                                                        //drUpdating["NetAmt"] = ((Price - DiscAmt) - ((Price * TaxRate) / (100 + TaxRate))).ToString();
-                                                        drUpdating["NetAmt"] =
-                                                            NetAmt(drUpdating["Tax"].ToString(), TaxRate,
-                                                                Price, DiscAmt, 1); // price list จะคิดต่อ 1 ชิ้น
-                                                        break;
-                                                }
-                                            }
-
-                                            drUpdating["VendorProdCode"] = (GridView1.Rows[i].Cells[12].Text.Trim() ==
-                                                                            "&nbsp;"
-                                                ? string.Empty
-                                                : GridView1.Rows[i].Cells[12].Text.Trim());
-                                            drUpdating["AvgPrice"] = 0.00;
-                                            drUpdating["LastPrice"] = 0.00;
-
-                                            drUpdating["CurrencyCode"] = ddl_CurrCode.Value;
-
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    if (GridView1.Rows[i].Cells[6].Text.Trim() != "&nbsp;") // Check Price is empty
-                    {
-                        if (GridView1.Rows[i].Cells[6].Text.Trim() != string.Empty)
-                        {
-                            if (decimal.Parse(GridView1.Rows[i].Cells[6].Text.Trim()) > 0) // check price > 0
-                            {
-                                if ((GridView1.Rows[i].Cells[10].Text.Trim() == "A" &&
-                                     decimal.Parse(GridView1.Rows[i].Cells[11].Text.Trim()) > 0)
-                                    ||
-                                    (GridView1.Rows[i].Cells[10].Text.Trim() == "I" &&
-                                     decimal.Parse(GridView1.Rows[i].Cells[11].Text.Trim()) > 0)
-                                    || (GridView1.Rows[i].Cells[10].Text.Trim() == "N"))
-                                {
-                                    var drNew = dsPLImp.Tables[plDt.TableName].NewRow();
-                                    drNew["PriceLstNo"] = dsPLImp.Tables[pl.TableName].Rows[0]["PriceLstNo"].ToString();
-
-                                    if (dsPLImp.Tables[plDt.TableName].Rows.Count == 0)
-                                    {
-                                        drNew["SeqNo"] = 1;
-                                    }
-                                    else
-                                    {
-                                        var RowCount = dsPLImp.Tables[plDt.TableName].Rows.Count;
-                                        var LatestSeqNo =
-                                            int.Parse(
-                                                dsPLImp.Tables[plDt.TableName].Rows[RowCount - 1]["SeqNo"].ToString());
-                                        drNew["SeqNo"] = LatestSeqNo + 1;
-                                    }
-
-                                    drNew["ProductCode"] = GridView1.Rows[i].Cells[0].Text.Trim();
-                                    drNew["OrderUnit"] = GridView1.Rows[i].Cells[3].Text.Trim();
-                                    drNew["VendorRank"] = txt_Vrank.Text;
-
-                                    if (GridView1.Rows[i].Cells[4].Text.Trim() == "&nbsp;" ||
-                                        GridView1.Rows[i].Cells[4].Text.Trim() == string.Empty)
-                                    {
-                                        drNew["QtyFrom"] = 0;
-                                    }
-                                    else
-                                    {
-                                        drNew["QtyFrom"] = GridView1.Rows[i].Cells[4].Text.Trim();
-                                    }
-
-                                    if (GridView1.Rows[i].Cells[5].Text.Trim() == "&nbsp;" ||
-                                        GridView1.Rows[i].Cells[5].Text.Trim() == string.Empty)
-                                    {
-                                        drNew["QtyTo"] = 0;
-                                    }
-                                    else
-                                    {
-                                        drNew["QtyTo"] = GridView1.Rows[i].Cells[5].Text.Trim();
-                                    }
-
-                                    if (GridView1.Rows[i].Cells[6].Text.Trim() == "&nbsp;" ||
-                                        GridView1.Rows[i].Cells[6].Text.Trim() == string.Empty)
-                                    {
-                                        drNew["QuotedPrice"] = 0;
-                                    }
-                                    else
-                                    {
-                                        drNew["QuotedPrice"] = GridView1.Rows[i].Cells[6].Text.Trim();
-                                    }
-
-                                    drNew["MarketPrice"] = 0.00;
-
-                                    if (GridView1.Rows[i].Cells[7].Text.Trim() == "&nbsp;" ||
-                                        GridView1.Rows[i].Cells[7].Text.Trim() == string.Empty)
-                                    {
-                                        drNew["FOC"] = 0;
-                                    }
-                                    else
-                                    {
-                                        drNew["FOC"] = GridView1.Rows[i].Cells[7].Text.Trim();
-                                    }
-
-                                    drNew["Comment"] = (GridView1.Rows[i].Cells[13].Text.Trim() == "&nbsp;"
-                                        ? string.Empty
-                                        : GridView1.Rows[i].Cells[13].Text.Trim());
-
-                                    if (GridView1.Rows[i].Cells[8].Text.Trim() == "&nbsp;" ||
-                                        GridView1.Rows[i].Cells[8].Text.Trim() == string.Empty)
-                                    {
-                                        drNew["DiscPercent"] = 0;
-                                    }
-                                    else
-                                    {
-                                        drNew["DiscPercent"] = GridView1.Rows[i].Cells[8].Text.Trim();
-                                    }
-
-                                    if (GridView1.Rows[i].Cells[9].Text.Trim() == "&nbsp;" ||
-                                        GridView1.Rows[i].Cells[9].Text.Trim() == string.Empty)
-                                    {
-                                        drNew["DiscAmt"] = 0;
-                                    }
-                                    else
-                                    {
-                                        drNew["DiscAmt"] = GridView1.Rows[i].Cells[9].Text.Trim();
-                                    }
-
-                                    if (GridView1.Rows[i].Cells[11].Text.Trim() == "&nbsp;" ||
-                                        GridView1.Rows[i].Cells[11].Text.Trim() == string.Empty)
-                                    {
-                                        drNew["TaxRate"] = 0;
-                                    }
-                                    else
-                                    {
-                                        drNew["TaxRate"] = GridView1.Rows[i].Cells[11].Text.Trim();
-                                    }
-
-                                    if (GridView1.Rows[i].Cells[10].Text.Trim() != null)
-                                    {
-                                        drNew["Tax"] = GridView1.Rows[i].Cells[10].Text.Trim();
-                                        decimal DiscAmt = 0;
-                                        decimal TaxRate = 0;
-                                        decimal Price = 0;
-
-                                        TaxRate = Convert.ToDecimal(drNew["TaxRate"].ToString());
-                                        DiscAmt = Convert.ToDecimal(drNew["DiscAmt"].ToString());
-                                        Price = Convert.ToDecimal(drNew["QuotedPrice"].ToString());
-
-                                        switch (drNew["Tax"].ToString().ToUpper())
-                                        {
-                                            case "N":
-                                                drNew["NetAmt"] = (Price - DiscAmt).ToString();
-                                                break;
-
-                                            case "A":
-                                                drNew["NetAmt"] = ((Price - DiscAmt) + ((Price * TaxRate) / 100)).ToString();
-                                                break;
-
-                                            case "I":
-                                                drNew["NetAmt"] =
-                                                    ((Price - DiscAmt) - ((Price * TaxRate) / (100 + TaxRate))).ToString();
-                                                break;
-                                        }
-                                    }
-
-                                    drNew["VendorProdCode"] = (GridView1.Rows[i].Cells[12].Text.Trim() == "&nbsp;"
-                                        ? string.Empty
-                                        : GridView1.Rows[i].Cells[12].Text.Trim());
-                                    drNew["AvgPrice"] = 0.00;
-                                    drNew["LastPrice"] = 0.00;
-                                    drNew["CurrencyCode"] = ddl_CurrCode.Value;
-
-                                    dsPLImp.Tables[plDt.TableName].Rows.Add(drNew);
-
-                                    Session["dsPLImp"] = dsPLImp;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            var result = pl.Save(dsPLImp, LoginInfo.ConnStr);
-
-            if (result)
-            {
-                pop_ImportSuccess.ShowOnPageLoad = true;
-            }
-
-            pop_ConfirmSave.ShowOnPageLoad = false;
-        }
-
-        protected void Button1_Click(object sender, EventArgs e)
+        protected void btn_UploadFile_Click(object sender, EventArgs e)
         {
             if (FileUpload1.HasFile)
             {
-                var strTest = Guid.NewGuid().ToString();
-                var FileNameUpload = strTest +
-                                     FileUpload1.FileName.Substring(FileUpload1.FileName.LastIndexOf('.')).ToLower();
-                FileUpload1.PostedFile.SaveAs(Server.MapPath("~/Tmp/") + FileNameUpload);
-                ShowDatatoGrid(FileNameUpload);
+
+                var guid = Guid.NewGuid().ToString();
+                var fileName = Path.GetFileName(FileUpload1.PostedFile.FileName);
+                var tmpFilename = Path.Combine(Path.GetTempPath(), guid + "_" + fileName);
+
+                FileUpload1.PostedFile.SaveAs(tmpFilename);
+
+                ShowUploadFile(tmpFilename);
+            }
+            else
+            {
+                lbl_Alert.Text = "Please select a file to import.";
+                pop_Alert.ShowOnPageLoad = true;
             }
         }
 
-        private void ShowDatatoGrid(string f)
+        protected void menu_CmdBar_ItemClick(object source, DevExpress.Web.ASPxMenu.MenuItemEventArgs e)
         {
-            var sr_Imported = new StreamReader(Server.MapPath("~/Tmp/") + f, Encoding.GetEncoding("tis-620"));
-            var headerLine = string.Empty;
-            var dataLine = string.Empty;
-
-            // Create Table
-            headerLine = sr_Imported.ReadLine();
-            CreateCSVTable(headerLine);
-
-            while ((dataLine = sr_Imported.ReadLine()) != null)
+            switch (e.Item.Name.ToUpper())
             {
-                AddRowCSVTable(dataLine);
-            }
+                case "SAVE":
+                    CheckData();
+                    break;
 
-
-            GridView1.DataSource = CSVTable;
-            GridView1.DataBind();
-
-            if (sr_Imported != null)
-            {
-                sr_Imported.Close();
+                case "BACK":
+                    Response.Redirect("Vendor/VdList.aspx");
+                    break;
             }
         }
 
-        public void CreateCSVTable(string TableColumnList)
+        protected void btn_Save_NewOrderUnit_Click(object sender, EventArgs e)
         {
-            CSVTable = new DataTable("CSVTable");
+            var prodUnits = new List<ProdUnit>();
+
+            for (var i = 0; i <= grd_UnitProd.Rows.Count - 1; i++)
+            {
+                var row = grd_UnitProd.Rows[i];
+
+                var lbl_ProductCode = row.FindControl("lbl_ProductCode") as Label;
+                var lbl_Unit = row.FindControl("lbl_Unit") as Label;
+
+                var txt_Rate = row.FindControl("txt_Rate") as TextBox;
+
+                var rate = 0m;
+
+                if (decimal.TryParse(txt_Rate.Text, out rate))
+                {
+
+                    if (rate <= 0)
+                    {
+                        ShowAlert(string.Format("Rate is required for this product '{0}'.(Not allow zero)", lbl_ProductCode.Text));
+
+                        return;
+                    }
+                    else
+                    {
+                        prodUnits.Add(new ProdUnit
+                        {
+                            ProductCode = lbl_ProductCode.Text,
+                            OrderUnit = lbl_Unit.Text,
+                            Rate = rate
+                        });
+                    }
+                }
+            }
+
+            //Insert to [IN].ProdUnit
+            foreach (var item in prodUnits)
+            {
+                _config.DbExecuteQuery(string.Format("INSERT INTO [IN].ProdUnit (ProductCode, OrderUnit, Rate, IsDefault, UnitType) VALUES ('{0}','{1}',{2},0,'O')",
+                    item.ProductCode,
+                    item.OrderUnit,
+                    item.Rate), null, LoginInfo.ConnStr);
+            }
+
+            pop_NewOrderUnit.ShowOnPageLoad = false;
+
+            CheckData();
+        }
+
+        protected void btn_ConfirmReplace_Click(object sender, EventArgs e)
+        {
+            SaveReplace();
+
+            pop_NewOrReplace.ShowOnPageLoad = false;
+        }
+
+        protected void btn_ConfirmNew_Click(object sender, EventArgs e)
+        {
+            SaveNew();
+
+            pop_NewOrReplace.ShowOnPageLoad = false;
+        }
+
+
+        protected void btn_Saved_Import_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("ByVdImp.aspx");
+            pop_Saved.ShowOnPageLoad = false;
+        }
+
+        protected void btn_Saved_View_Click(object sender, EventArgs e)
+        {
+            var viewNo = _ViewNo;
+
+            if (viewNo > 0)
+            {
+                var priceListNo = hf_PriceListNo.Value;
+
+                Response.Redirect(string.Format("Vendor/Vd.aspx?BuCode=PK&ID={0}&VID={1}", priceListNo, viewNo));
+            }
+            else
+            {
+                Response.Redirect(string.Format("Vendor/VdList.aspx"));
+            }
+
+            pop_Saved.ShowOnPageLoad = false;
+        }
+
+        #endregion
+
+
+
+
+
+
+
+        private DataTable getWorksheet(string worksheet)
+        {
+            var m_ds = new DataSet();
+            try
+            {
+                exConn = new OleDbConnection(strConn);
+                exConn.Open();
+                var m_da = new OleDbDataAdapter("SELECT * FROM [" + worksheet + "] ", exConn);
+                m_da.Fill(m_ds, "Table");
+            }
+            catch (Exception ex)
+            {
+                lbl_Upload_Message.Text = ex.Message + "";
+            }
+            finally
+            {
+                exConn.Close();
+            }
+            if (m_ds.Tables.Count > 0)
+            {
+                return m_ds.Tables[0];
+            }
+
+            dt = new DataTable();
+            return dt;
+        }
+
+
+
+
+
+        // -------------------------------------------------------------
+
+        #region -- Method(s)--
+
+        private void ShowAlert(string text)
+        {
+            lbl_Alert.Text = text;
+            pop_Alert.ShowOnPageLoad = true;
+        }
+
+        private DataTable CreatePriclistDataTable(string TableColumnList)
+        {
+            var dt = new DataTable();
+
             DataColumn myDataColumn;
 
             var ColumnName = TableColumnList.Split(',');
@@ -905,8 +347,24 @@ namespace BlueLedger.PL.PC.PL
                 myDataColumn = new DataColumn();
                 myDataColumn.DataType = Type.GetType("System.String");
                 myDataColumn.ColumnName = ColumnName[i];
-                CSVTable.Columns.Add(myDataColumn);
+
+                dt.Columns.Add(myDataColumn);
             }
+
+            return dt;
+        }
+
+        public void AddItemToPriceList(DataTable dt, string rowColumns)
+        {
+            var rows = getColumn(rowColumns);
+            var dr = _dtPriceList.NewRow();
+
+
+            for (int i = 0; i < rows.Count; i++)
+            {
+                dr[i] = rows[i].Replace("'", "");
+            }
+            dt.Rows.Add(dr);
         }
 
         private List<string> getColumn(string line)
@@ -954,121 +412,577 @@ namespace BlueLedger.PL.PC.PL
             return column;
         }
 
-
-
-        public void AddRowCSVTable(string RowValueList)
+        private decimal CalculateNet(string taxType, decimal taxRate, decimal quotedPrice, decimal discAmt)
         {
-            List<string> rows = getColumn(RowValueList);
-            DataRow myDataRow = CSVTable.NewRow();
+            var netAmt = 0m;
+            var sub = quotedPrice - discAmt;
 
-            for (int i = 0; i < rows.Count; i++)
+            if (taxType == "I")
+                netAmt = RoundAmt(100 / (100 + taxRate) * sub);
+            else if (taxType == "A")
             {
-                myDataRow[i] = rows[i].Replace("'","");
+                netAmt = sub + RoundAmt(sub * taxRate / 100);
             }
-            CSVTable.Rows.Add(myDataRow);
+            else
+                netAmt = sub;
 
+            return netAmt;
         }
 
-        private DataTable getWorksheet(string worksheet)
+        private void ShowUploadFile(string filename)
         {
-            var m_ds = new DataSet();
-            try
+            var streamReader = new StreamReader(filename, Encoding.GetEncoding("tis-620"));
+
+            // Create Table
+            var columnNames = streamReader.ReadLine();
+
+            _dtPriceList = CreatePriclistDataTable(columnNames);
+
+            var dataRow = string.Empty;
+
+            while ((dataRow = streamReader.ReadLine()) != null)
             {
-                exConn = new OleDbConnection(strConn);
-                exConn.Open();
-                var m_da = new OleDbDataAdapter("SELECT * FROM [" + worksheet + "] ", exConn);
-                m_da.Fill(m_ds, "Table");
-            }
-            catch (Exception ex)
-            {
-                Label14.Text = ex.Message + "";
-            }
-            finally
-            {
-                exConn.Close();
-            }
-            if (m_ds.Tables.Count > 0)
-            {
-                return m_ds.Tables[0];
+                AddItemToPriceList(_dtPriceList, dataRow);
             }
 
-            dt = new DataTable();
-            return dt;
-        }
+            #region -- Check invalid product code --
 
-        protected void btn_ok_Click(object sender, EventArgs e)
-        {
-            Response.Redirect("ByVdImp.aspx");
-        }
+            var productList = _dtPriceList.AsEnumerable().Select(x => x.Field<string>("SKU#")).Distinct().ToArray();
+            var productCodes = "('" + String.Join("'), ('", productList) + "')";
+            var query = string.Format(@"
 
-        protected void btn_CancelSave_Click(object sender, EventArgs e)
-        {
-            pop_ConfirmSave.ShowOnPageLoad = false;
-        }
+DECLARE @prd TABLE(
+	ProductCode nvarchar(20) NOT NULL,
 
-        protected void btn_OK_Vendor_Click(object sender, EventArgs e)
-        {
-            pop_Vendor.ShowOnPageLoad = false;
-        }
+	PRIMARY KEY (ProductCode)
+);
 
-        protected void menu_CmdBar_ItemClick(object source, DevExpress.Web.ASPxMenu.MenuItemEventArgs e)
-        {
-            switch (e.Item.Name.ToUpper())
+INSERT INTO @prd VALUES {0};
+
+SELECT
+	prd.ProductCode
+FROM
+	@prd prd
+	LEFT JOIN [IN].Product p ON prd.ProductCode=p.ProductCode
+WHERE
+	p.ProductCode IS NULL
+ORDER BY
+	prd.ProductCode", productCodes);
+
+            var dtProduct = _pl.DbExecuteQuery(query, null, LoginInfo.ConnStr);
+
+            var errors = new StringBuilder();
+            var errorCodes = new List<string>();
+
+            foreach (DataRow dr in dtProduct.Rows)
             {
-                case "SAVE":
-                    Save();
-                    break;
+                var sku = dr[0].ToString();
 
-                case "BACK":
-                    Response.Redirect("Vendor/VdList.aspx");
-                    break;
+                errorCodes.Add(sku);
+                errors.AppendLine(string.Format("'{0}' product not found.<br/>", sku));
+            }
+
+            var error = errors.ToString().Trim();
+
+            if (!string.IsNullOrEmpty(error))
+            {
+                for (int i = _dtPriceList.Rows.Count - 1; i >= 0; i--)
+                {
+                    DataRow row = _dtPriceList.Rows[i];
+
+                    var sku = row["SKU#"].ToString();
+
+                    if (errorCodes.IndexOf(sku) >= 0)
+                    {
+                        _dtPriceList.Rows.Remove(row);
+                    }
+                }
+
+                _dtPriceList.AcceptChanges();
+
+                ShowAlert(error);
+            }
+
+            #endregion
+
+            GridView1.DataSource = _dtPriceList;
+            GridView1.DataBind();
+
+            if (streamReader != null)
+            {
+                streamReader.Close();
             }
         }
 
-        protected void btn_OK_Vendor_Pop_Click(object sender, EventArgs e)
-        {
-            pop_VendorCode.ShowOnPageLoad = false;
-        }
 
-        protected void btn_OK_ProdUnit_Click(object sender, EventArgs e)
-        {
-            pop_ProdUnit.ShowOnPageLoad = false;
-        }
-
-        protected void btn_OK_UnitInsert_Click(object sender, EventArgs e)
+        private void CheckData()
         {
 
-            dtProdUnit = (DataTable)Session["dtProdUnit"];
-            var get = prodUnit.GetSchema(dsProdUnit, hf_ConnStr.Value);
-            if (!get)
+            #region -- Check required --
+            if (ddl_Vendor.Value == null)
             {
+                ShowAlert("Vendor code is required.");
                 return;
             }
 
-            for (var i = 0; i <= grd_UnitProd.Rows.Count - 1; i++)
+            if (string.IsNullOrEmpty(ddl_CurrCode.Value.ToString()))
             {
-                var txt_Rate = grd_UnitProd.Rows[i].FindControl("txt_Rate") as TextBox;
-
-                var drProdUnitOrd = dsProdUnit.Tables[prodUnit.TableName].NewRow();
-
-                drProdUnitOrd["ProductCode"] = dtProdUnit.Rows[i]["ProductCode"].ToString();
-                drProdUnitOrd["OrderUnit"] = dtProdUnit.Rows[i]["OrderUnit"].ToString();
-                drProdUnitOrd["Rate"] = decimal.Parse(txt_Rate.Text);
-                drProdUnitOrd["IsDefault"] = false;
-                drProdUnitOrd["UnitType"] = 'O';
-
-                dsProdUnit.Tables[prodUnit.TableName].Rows.Add(drProdUnitOrd);
+                ShowAlert("Currency is required.");
+                return;
             }
 
-            var result = prodUnit.Save(dsProdUnit, hf_ConnStr.Value);
-            if (result)
+            if (string.IsNullOrEmpty(txt_Vrank.Text))
             {
-                pop_UnitInsert.ShowOnPageLoad = false;
-                Save();
+                ShowAlert("Ranking is required.");
+                return;
             }
 
+            #endregion
+
+            if (_dtPriceList == null || _dtPriceList.Rows.Count == 0)
+            {
+                ShowAlert("No any details.");
+
+                return;
+            }
+
+            #region -- Check new order unit--
+
+            var productCodeName = _dtPriceList.Columns[0].ColumnName;
+            var productDesc1Name = _dtPriceList.Columns[1].ColumnName;
+            var productDesc2Name = _dtPriceList.Columns[2].ColumnName;
+            var unitCodeName = _dtPriceList.Columns[3].ColumnName;
 
 
+            var productCodes = _dtPriceList.AsEnumerable()
+                .Select(x => x.Field<string>(productCodeName))
+                .Distinct()
+                .ToArray();
+
+            var query = string.Format(@"
+SELECT 
+	p.ProductCode, 
+	p.InventoryUnit,
+	u.OrderUnit,
+	u.Rate
+FROM
+	[IN].Product p
+	LEFT JOIN [IN].ProdUnit u ON u.ProductCode=p.ProductCode AND u.UnitType='O'
+WHERE 
+	p.ProductCode in ('{0}') 
+ORDER BY 
+	p.ProductCode, 
+	u.OrderUnit", string.Join("','", productCodes));
+
+            //ShowAlert(query);
+            //return;
+
+            var dt = _config.DbExecuteQuery(query, null, LoginInfo.ConnStr);
+
+            var prodUnits = dt.AsEnumerable()
+                .Select(x => new ProdUnit
+                {
+                    ProductCode = x.Field<string>("ProductCode"),
+                    InventoryUnit = x.Field<string>("InventoryUnit"),
+                    OrderUnit = x.Field<string>("OrderUnit"),
+                })
+                .ToArray();
+
+            var priceListUnits = _dtPriceList.AsEnumerable()
+                .Select(x => new ProdUnit
+                {
+                    ProductCode = x.Field<string>(productCodeName),
+                    ProductDesc1 = x.Field<string>(productDesc1Name),
+                    ProductDesc2 = x.Field<string>(productDesc2Name),
+                    OrderUnit = x.Field<string>(unitCodeName)
+                })
+                .ToArray();
+
+
+            var dtUnitProd = _config.DbExecuteQuery(@"
+SELECT TOP(0)
+	ProductCode,
+	ProductDesc1,
+	ProductDesc2,
+	InventoryUnit,
+	OrderUnit,
+	InventoryConvOrder as Rate
+FROM
+	[IN].Product", null, LoginInfo.ConnStr);
+
+
+            foreach (var pl in priceListUnits)
+            {
+                var item = prodUnits.FirstOrDefault(x => x.ProductCode == pl.ProductCode && x.OrderUnit == pl.OrderUnit);
+
+                if (item == null)
+                {
+                    var dr = dtUnitProd.NewRow();
+
+                    dr["ProductCode"] = pl.ProductCode;
+                    dr["ProductDesc1"] = pl.ProductDesc1;
+                    dr["ProductDesc2"] = pl.ProductDesc2;
+                    dr["InventoryUnit"] = prodUnits.FirstOrDefault(x => x.ProductCode == pl.ProductCode).InventoryUnit;
+                    dr["OrderUnit"] = pl.OrderUnit;
+
+                    dtUnitProd.Rows.Add(dr);
+                }
+            }
+
+            if (dtUnitProd.Rows.Count > 0)
+            {
+                grd_UnitProd.DataSource = dtUnitProd;
+                grd_UnitProd.DataBind();
+
+                pop_NewOrderUnit.ShowOnPageLoad = true;
+
+                return;
+            }
+
+            #endregion
+
+
+            CheckExistPriceList();
         }
+
+
+        private void CheckExistPriceList()
+        {
+            var query = new StringBuilder();
+
+            // check if existing pricelist (datefrom, dateTo and vendorCode)
+            var dateFrom = txt_DateFrom.Text;
+            var dateTo = txt_DateTo.Text;
+            var vendorCode = ddl_Vendor.Value.ToString();
+
+            query.AppendLine("SELECT TOP(1) PriceLstNo FROM [IN].PL WHERE 1=1");
+
+            query.AppendFormat(" AND DateFrom {0}", string.IsNullOrEmpty(dateFrom) ? " IS NULL" : string.Format(" = '{0}'", Convert.ToDateTime(txt_DateFrom.Text).ToString("yyyy-MM-dd")));
+            query.AppendFormat(" AND DateTo {0}", string.IsNullOrEmpty(dateTo) ? " IS NULL" : string.Format(" = '{0}'", Convert.ToDateTime(txt_DateTo.Text).ToString("yyyy-MM-dd")));
+            query.AppendFormat(" AND VendorCode = '{0}'", vendorCode);
+
+            var dt = _config.DbExecuteQuery(query.ToString(), null, LoginInfo.ConnStr);
+
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                var priceListNo = dt.Rows[0][0].ToString();
+
+                lbl_NewOrReplace.Text = string.Format("This pricelist has already exists by<br/> Valid from '{0}' and Valid To '{1}' and Vendor '{2}'",
+                    dateFrom,
+                    dateTo,
+                    vendorCode);
+
+
+                link_ExistPriceList.NavigateUrl = string.Format("~/PC/PL/Vendor/Vd.aspx?BuCode={0}&ID={1}&VID={2}", LoginInfo.BuInfo.BuCode, priceListNo, _ViewNo);
+
+                hf_PriceListNo.Value = priceListNo;
+                pop_NewOrReplace.ShowOnPageLoad = true;
+            }
+            else
+            {
+                SaveNew();
+            }
+        }
+
+        private void SaveNew()
+        {
+            var priceLstNo = _pl.GetNewID(LoginInfo.ConnStr);
+            var refNo = txt_RefNo.Text.Trim();
+            var dateFrom = txt_DateFrom.Date;
+            var dateTo = txt_DateTo.Date;
+            var vendorCode = ddl_Vendor.Value.ToString();
+            var createdBy = LoginInfo.LoginName;
+
+            var query = @"
+INSERT INTO [IN].[PL] ([PriceLstNo], [RefNo], [DateFrom], [DateTo], [VendorCode], [CreatedDate], [CreatedBy], [UpdatedDate],[UpdatedBy])
+VALUES (@PriceLstNo, @RefNo, @DateFrom, @DateTo, @VendorCode, GETDATE(), @CreatedBy, GETDATE(), @CreatedBy)";
+
+            var sql = new Helpers.SQL(LoginInfo.ConnStr);
+            var parameters = new List<SqlParameter>();
+
+            parameters.Add(new SqlParameter("@PriceLstNo", priceLstNo.ToString()));
+            parameters.Add(new SqlParameter("@RefNo", refNo));
+
+            parameters.Add(new SqlParameter("@DateFrom", dateFrom.ToString("yyyy-MM-dd")));
+
+            if (string.IsNullOrEmpty(txt_DateTo.Text.Trim()))
+                parameters.Add(new SqlParameter("@DateTo", DBNull.Value));
+            else
+                parameters.Add(new SqlParameter("@DateTo", dateTo.ToString("yyyy-MM-dd")));
+
+            parameters.Add(new SqlParameter("@VendorCode", vendorCode));
+            parameters.Add(new SqlParameter("@CreatedBy", createdBy));
+
+
+            sql.ExecuteQuery(query, parameters.ToArray());
+
+            var seqNo = 1;
+
+            foreach (DataRow dr in _dtPriceList.Rows)
+            {
+                #region
+                var productCode = dr[0].ToString();
+                var orderUnit = dr[3].ToString().Trim();
+                var qtyFrom = string.IsNullOrEmpty(dr[4].ToString()) ? 0m : Convert.ToDecimal(dr[4].ToString());
+                var qtyTo = string.IsNullOrEmpty(dr[5].ToString()) ? 0m : Convert.ToDecimal(dr[5].ToString());
+                var quotedPrice = string.IsNullOrEmpty(dr[6].ToString()) ? 0m : Convert.ToDecimal(dr[6].ToString());
+                var foc = string.IsNullOrEmpty(dr[7].ToString()) ? 0m : Convert.ToDecimal(dr[7].ToString());
+                var discRate = string.IsNullOrEmpty(dr[8].ToString()) ? 0m : Convert.ToDecimal(dr[8].ToString());
+                var discAmt = string.IsNullOrEmpty(dr[9].ToString()) ? 0m : Convert.ToDecimal(dr[9].ToString());
+
+                var taxType = dr[10].ToString().ToUpper();
+                var taxRate = string.IsNullOrEmpty(dr[11].ToString()) ? 0m : Convert.ToDecimal(dr[11].ToString());
+                var comment = dr[12].ToString().Trim();
+
+
+                var currencyCode = ddl_CurrCode.Value.ToString();
+                var vendorRank = string.IsNullOrEmpty(txt_Vrank.Text) ? 1 : Convert.ToSingle(txt_Vrank.Text);
+
+                if (taxType.StartsWith("I"))
+                    taxType = "I";
+                else if (taxType.StartsWith("A"))
+                    taxType = "A";
+                else
+                    taxType = "N";
+
+                discRate = discRate < 0 ? 0m : discRate;
+                discAmt = discAmt < 0 ? 0m : discAmt;
+
+                var discount = discAmt > 0 ? discAmt : RoundAmt(quotedPrice * discRate / 100);
+                var netAmt = CalculateNet(taxType, taxRate, quotedPrice, discount);
+
+                query = @"
+INSERT INTO [IN].[PLDT] (
+    [PriceLstNo], 
+    [SeqNo], 
+    [ProductCode], 
+    [OrderUnit], 
+    VendorRank, 
+    [QtyFrom], 
+    [QtyTo], 
+    Foc, 
+    CurrencyCode, 
+    QuotedPrice, 
+    MarketPrice,
+    DiscPercent,
+    DiscAmt,
+    Tax,
+    TaxRate,
+    NetAmt,
+    Comment)
+VALUES(
+    @PriceLstNo, 
+    @SeqNo, 
+    @ProductCode, 
+    @OrderUnit, 
+    @VendorRank, 
+    @QtyFrom, 
+    @QtyTo, 
+    @Foc, 
+    @CurrencyCode, 
+    @QuotedPrice, 
+    0,
+    @DiscPercent,
+    @DiscAmt,
+    @Tax,
+    @TaxRate,
+    @NetAmt,
+    @Comment)
+
+";
+                var param = new List<SqlParameter>();
+
+                param.Add(new SqlParameter("@PriceLstNo", priceLstNo));
+                param.Add(new SqlParameter("@SeqNo", seqNo++));
+                param.Add(new SqlParameter("@ProductCode", productCode));
+                param.Add(new SqlParameter("@OrderUnit", orderUnit));
+                param.Add(new SqlParameter("@VendorRank", vendorRank));
+                param.Add(new SqlParameter("@QtyFrom", qtyFrom));
+                param.Add(new SqlParameter("@QtyTo", qtyTo));
+                param.Add(new SqlParameter("@Foc", foc));
+                param.Add(new SqlParameter("@CurrencyCode", currencyCode));
+                param.Add(new SqlParameter("@QuotedPrice", quotedPrice));
+                //param.Add(new SqlParameter("@MarketPrice", 0m));
+                param.Add(new SqlParameter("@DiscPercent", discRate));
+                param.Add(new SqlParameter("@DiscAmt", discAmt));
+                param.Add(new SqlParameter("@Tax", taxType));
+                param.Add(new SqlParameter("@TaxRate", taxRate));
+                param.Add(new SqlParameter("@NetAmt", netAmt));
+                param.Add(new SqlParameter("@Comment", comment));
+
+                sql.ExecuteQuery(query, param.ToArray());
+
+                #endregion
+            }
+
+            hf_PriceListNo.Value = priceLstNo.ToString();
+            pop_Saved.ShowOnPageLoad = true;
+            //ShowAlert("Price list Save");
+            //Response.Redirect("ByVdImp.aspx");
+        }
+
+        private void SaveReplace()
+        {
+            var priceLstNo = Convert.ToInt32(hf_PriceListNo.Value);
+            var refNo = txt_RefNo.Text.Trim();
+            var dateFrom = txt_DateFrom.Date;
+            var dateTo = txt_DateTo.Date;
+            var vendorCode = ddl_Vendor.Value.ToString();
+            var createdBy = LoginInfo.LoginName;
+
+            var query = @"
+UPDATE 
+    [IN].[PL] 
+SET
+    RefNo=@RefNo, 
+    UpdatedBy=@UpdatedBy,
+    UpdatedDate=GETDATE()
+WHERE 
+    PriceLstNo=@PriceLstNo ;
+DELETE FROM [IN].[PLDT] WHERE PriceLstNo=@PriceLstNo;";
+
+            var sql = new Helpers.SQL(LoginInfo.ConnStr);
+            var parameters = new List<SqlParameter>();
+
+            parameters.Add(new SqlParameter("@PriceLstNo", priceLstNo.ToString()));
+            parameters.Add(new SqlParameter("@RefNo", refNo));
+            parameters.Add(new SqlParameter("@UpdatedBy", createdBy));
+
+            sql.ExecuteQuery(query, parameters.ToArray());
+
+            var seqNo = 1;
+
+            foreach (DataRow dr in _dtPriceList.Rows)
+            {
+                #region
+                var productCode = dr[0].ToString();
+                var orderUnit = dr[3].ToString().Trim();
+                var qtyFrom = string.IsNullOrEmpty(dr[4].ToString()) ? 0m : Convert.ToDecimal(dr[4].ToString());
+                var qtyTo = string.IsNullOrEmpty(dr[5].ToString()) ? 0m : Convert.ToDecimal(dr[5].ToString());
+                var quotedPrice = string.IsNullOrEmpty(dr[6].ToString()) ? 0m : Convert.ToDecimal(dr[6].ToString());
+                var foc = string.IsNullOrEmpty(dr[7].ToString()) ? 0m : Convert.ToDecimal(dr[7].ToString());
+                var discRate = string.IsNullOrEmpty(dr[8].ToString()) ? 0m : Convert.ToDecimal(dr[8].ToString());
+                var discAmt = string.IsNullOrEmpty(dr[9].ToString()) ? 0m : Convert.ToDecimal(dr[9].ToString());
+
+                var taxType = dr[10].ToString().ToUpper();
+                var taxRate = string.IsNullOrEmpty(dr[11].ToString()) ? 0m : Convert.ToDecimal(dr[11].ToString());
+                var comment = dr[12].ToString().Trim();
+
+
+                var currencyCode = ddl_CurrCode.Value.ToString();
+                var vendorRank = string.IsNullOrEmpty(txt_Vrank.Text) ? 1 : Convert.ToSingle(txt_Vrank.Text);
+
+                if (taxType.StartsWith("I"))
+                    taxType = "I";
+                else if (taxType.StartsWith("A"))
+                    taxType = "A";
+                else
+                    taxType = "N";
+
+                discRate = discRate < 0 ? 0m : discRate;
+                discAmt = discAmt < 0 ? 0m : discAmt;
+
+                var discount = discAmt > 0 ? discAmt : RoundAmt(quotedPrice * discRate / 100);
+                var netAmt = CalculateNet(taxType, taxRate, quotedPrice, discount);
+
+                //var sub = quotedPrice - discAmt1;
+
+                //if (taxType == "I")
+                //    netAmt = RoundAmt(100 / (100 + taxRate) * sub);
+                //else if (taxType == "A")
+                //{
+                //    netAmt = sub + RoundAmt(sub * taxRate / 100);
+                //}
+                //else
+                //    netAmt = quotedPrice;
+
+                #region
+                query = @"
+INSERT INTO [IN].[PLDT] (
+    [PriceLstNo], 
+    [SeqNo], 
+    [ProductCode], 
+    [OrderUnit], 
+    VendorRank, 
+    [QtyFrom], 
+    [QtyTo], 
+    Foc, 
+    CurrencyCode, 
+    QuotedPrice, 
+    MarketPrice,
+    DiscPercent,
+    DiscAmt,
+    Tax,
+    TaxRate,
+    NetAmt,
+    Comment)
+VALUES(
+    @PriceLstNo, 
+    @SeqNo, 
+    @ProductCode, 
+    @OrderUnit, 
+    @VendorRank, 
+    @QtyFrom, 
+    @QtyTo, 
+    @Foc, 
+    @CurrencyCode, 
+    @QuotedPrice, 
+    0,
+    @DiscPercent,
+    @DiscAmt,
+    @Tax,
+    @TaxRate,
+    @NetAmt,
+    @Comment)
+
+";
+                #endregion
+
+                var param = new List<SqlParameter>();
+
+                param.Add(new SqlParameter("@PriceLstNo", priceLstNo));
+                param.Add(new SqlParameter("@SeqNo", seqNo++));
+                param.Add(new SqlParameter("@ProductCode", productCode));
+                param.Add(new SqlParameter("@OrderUnit", orderUnit));
+                param.Add(new SqlParameter("@VendorRank", vendorRank));
+                param.Add(new SqlParameter("@QtyFrom", qtyFrom));
+                param.Add(new SqlParameter("@QtyTo", qtyTo));
+                param.Add(new SqlParameter("@Foc", foc));
+                param.Add(new SqlParameter("@CurrencyCode", currencyCode));
+                param.Add(new SqlParameter("@QuotedPrice", quotedPrice));
+                //param.Add(new SqlParameter("@MarketPrice", 0m));
+                param.Add(new SqlParameter("@DiscPercent", discRate));
+                param.Add(new SqlParameter("@DiscAmt", discAmt));
+                param.Add(new SqlParameter("@Tax", taxType));
+                param.Add(new SqlParameter("@TaxRate", taxRate));
+                param.Add(new SqlParameter("@NetAmt", netAmt));
+                param.Add(new SqlParameter("@Comment", comment));
+
+                sql.ExecuteQuery(query, param.ToArray());
+
+                #endregion
+            }
+
+            hf_PriceListNo.Value = priceLstNo.ToString();
+            pop_Saved.ShowOnPageLoad = true;
+        }
+
+
+
+        #endregion
+
+
+        public class ProdUnit
+        {
+            public string ProductCode { get; set; }
+            public string ProductDesc1 { get; set; }
+            public string ProductDesc2 { get; set; }
+            public string InventoryUnit { get; set; }
+            public string OrderUnit { get; set; }
+            public decimal Rate { get; set; }
+        }
+
     }
+
+
 }
