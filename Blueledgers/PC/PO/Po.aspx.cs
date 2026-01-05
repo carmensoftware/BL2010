@@ -567,12 +567,12 @@ WHERE
 
             bu.DbExecuteQuery(query, parameters, LoginInfo.ConnStr);
             _transLog.Save("PC", "PO", lbl_PONumber.Text, "CLOSED", txt_pop_ClosePO_Remark.Text, LoginInfo.LoginName, LoginInfo.ConnStr);
-               
+
             dsPo.Clear();
-                    
-            pop_ConfrimDelete.ShowOnPageLoad = false;                     
+
+            pop_ConfrimDelete.ShowOnPageLoad = false;
             pop_ClosePO.ShowOnPageLoad = false;
-                    
+
             Response.Redirect("~/PC/Po/PoList.aspx");
 
 
@@ -619,8 +619,8 @@ WHERE
                     _transLog.Save("PC", "PO", lbl_PONumber.Text, "CLOSED", txt_pop_ClosePO_Remark.Text, LoginInfo.LoginName, LoginInfo.ConnStr);
 
                     Response.Redirect("~/PC/Po/PoList.aspx");
-                }*/
-            }
+                }
+            }*/
         }
 
         /// <summary>

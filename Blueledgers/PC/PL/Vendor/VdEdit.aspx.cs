@@ -656,7 +656,7 @@ namespace BlueLedger.PL.PC.PL.Vendor
             drInserting["NetAmt"] = txt_NetAmt.Value;
 
             var txt_AvgPrice = grd_PLDt.Rows[grd_PLDt.EditIndex].FindControl("txt_AvgPrice") as ASPxSpinEdit;
-            drInserting["AvgPrice"] = txt_AvgPrice.Value;
+            drInserting["AvgPrice"] = txt_AvgPrice.Value == null ? 0m : txt_AvgPrice.Value;
 
             var txt_LastPrice = grd_PLDt.Rows[grd_PLDt.EditIndex].FindControl("txt_LastPrice") as ASPxSpinEdit;
             drInserting["LastPrice"] = txt_LastPrice.Value;
