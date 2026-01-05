@@ -548,7 +548,35 @@ namespace BlueLedger.PL.PC.PO
         /// <param name="e"></param>
         protected void btn_YesClosePO_Click(object sender, EventArgs e)
         {
-            decimal ordqty;
+            var poNo = lbl_PONumber.Text.Trim();
+            var query = @"
+UPDATE PC.PoDt SET CancelQty = CASE WHEN OrdQty < RcvQty THEN 0 ELSE OrdQty-RcvQty END WHERE PoNo=@poNo
+UPDATE 
+	PC.Po 
+SET 
+	DocStatus='Closed',
+	UpdatedDate=GETDATE(),
+	UpdatedBy=@LoginName
+WHERE 
+	PoNo=@poNo";
+            var parameters = new Blue.DAL.DbParameter[] 
+            {
+                new Blue.DAL.DbParameter("@PoNo", poNo),
+                new Blue.DAL.DbParameter("@LoginName", LoginInfo.LoginName)
+            };
+
+            bu.DbExecuteQuery(query, parameters, LoginInfo.ConnStr);
+            _transLog.Save("PC", "PO", lbl_PONumber.Text, "CLOSED", txt_pop_ClosePO_Remark.Text, LoginInfo.LoginName, LoginInfo.ConnStr);
+               
+            dsPo.Clear();
+                    
+            pop_ConfrimDelete.ShowOnPageLoad = false;                     
+            pop_ClosePO.ShowOnPageLoad = false;
+                    
+            Response.Redirect("~/PC/Po/PoList.aspx");
+
+
+            /*decimal ordqty;
             decimal rcvqty;
             decimal cancelqty;
 
@@ -591,7 +619,7 @@ namespace BlueLedger.PL.PC.PO
                     _transLog.Save("PC", "PO", lbl_PONumber.Text, "CLOSED", txt_pop_ClosePO_Remark.Text, LoginInfo.LoginName, LoginInfo.ConnStr);
 
                     Response.Redirect("~/PC/Po/PoList.aspx");
-                }
+                }*/
             }
         }
 
