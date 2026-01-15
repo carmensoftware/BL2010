@@ -659,7 +659,7 @@ namespace BlueLedger.PL.PC.PL.Vendor
             drInserting["AvgPrice"] = txt_AvgPrice.Value == null ? 0m : txt_AvgPrice.Value;
 
             var txt_LastPrice = grd_PLDt.Rows[grd_PLDt.EditIndex].FindControl("txt_LastPrice") as ASPxSpinEdit;
-            drInserting["LastPrice"] = txt_LastPrice.Value;
+            drInserting["LastPrice"] = string.IsNullOrEmpty(txt_LastPrice.Text) ? 0 : txt_LastPrice.Value;
 
             // Added on: 09/08/2017, By: Fon
             var comb_CurrCode = (ASPxComboBox)grd_PLDt.Rows[grd_PLDt.EditIndex].FindControl("comb_CurrCode");
