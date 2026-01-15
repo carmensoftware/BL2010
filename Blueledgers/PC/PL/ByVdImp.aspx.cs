@@ -429,6 +429,7 @@ namespace BlueLedger.PL.PC.PL
             return netAmt;
         }
 
+
         private void ShowUploadFile(string filename)
         {
             var streamReader = new StreamReader(filename, Encoding.GetEncoding("tis-620"));
@@ -447,7 +448,9 @@ namespace BlueLedger.PL.PC.PL
 
             #region -- Check invalid product code --
 
-            var productList = _dtPriceList.AsEnumerable().Select(x => x.Field<string>("SKU#")).Distinct().ToArray();
+            var productList = _dtPriceList.AsEnumerable()
+                .Select(x => x.Field<string>("SKU#").TrimStart('\'').Trim())
+                .Distinct().ToArray();
             var productCodes = "('" + String.Join("'), ('", productList) + "')";
             var query = string.Format(@"
 
@@ -474,12 +477,16 @@ ORDER BY
             var errors = new StringBuilder();
             var errorCodes = new List<string>();
 
-            foreach (DataRow dr in dtProduct.Rows)
+            if (dtProduct != null && dtProduct.Rows.Count > 0)
             {
-                var sku = dr[0].ToString();
+                foreach (DataRow dr in dtProduct.Rows)
+                {
+                    var sku = dr[0].ToString();
 
-                errorCodes.Add(sku);
-                errors.AppendLine(string.Format("'{0}' product not found.<br/>", sku));
+                    errorCodes.Add(sku);
+                    errors.AppendLine(string.Format("'{0}' product not found.<br/>", sku));
+
+                }
             }
 
             var error = errors.ToString().Trim();
@@ -619,10 +626,12 @@ FROM
                 {
                     var dr = dtUnitProd.NewRow();
 
+                    var unit = prodUnits.FirstOrDefault(x => x.ProductCode == pl.ProductCode);
+
                     dr["ProductCode"] = pl.ProductCode;
                     dr["ProductDesc1"] = pl.ProductDesc1;
                     dr["ProductDesc2"] = pl.ProductDesc2;
-                    dr["InventoryUnit"] = prodUnits.FirstOrDefault(x => x.ProductCode == pl.ProductCode).InventoryUnit;
+                    dr["InventoryUnit"] = unit.InventoryUnit ?? "";
                     dr["OrderUnit"] = pl.OrderUnit;
 
                     dtUnitProd.Rows.Add(dr);

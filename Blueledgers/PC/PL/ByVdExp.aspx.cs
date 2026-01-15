@@ -136,8 +136,8 @@ namespace BlueLedger.PL.PC.PL
                     {
                         var value = row.Cells[i].Text.Replace(',', ' ');
                         //if (i == 1 && value.StartsWith("0"))
-						if (i == 1)	
-                            value = "'" + value;
+						//if (i == 1)	
+                            //value = "'" + value;
 
                         line += value  + ",";
                     }
