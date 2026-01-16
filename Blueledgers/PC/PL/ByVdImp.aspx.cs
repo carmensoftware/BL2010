@@ -744,23 +744,26 @@ VALUES (@PriceLstNo, @RefNo, @DateFrom, @DateTo, @VendorCode, GETDATE(), @Create
                 var comment = dr[12].ToString().Trim();
 
 
-                var currencyCode = ddl_CurrCode.Value.ToString();
-                var vendorRank = string.IsNullOrEmpty(txt_Vrank.Text) ? 1 : Convert.ToSingle(txt_Vrank.Text);
+                if (quotedPrice > 0)
+                {
 
-                if (taxType.StartsWith("I"))
-                    taxType = "I";
-                else if (taxType.StartsWith("A"))
-                    taxType = "A";
-                else
-                    taxType = "N";
+                    var currencyCode = ddl_CurrCode.Value.ToString();
+                    var vendorRank = string.IsNullOrEmpty(txt_Vrank.Text) ? 1 : Convert.ToSingle(txt_Vrank.Text);
 
-                discRate = discRate < 0 ? 0m : discRate;
-                discAmt = discAmt < 0 ? 0m : discAmt;
+                    if (taxType.StartsWith("I"))
+                        taxType = "I";
+                    else if (taxType.StartsWith("A"))
+                        taxType = "A";
+                    else
+                        taxType = "N";
 
-                var discount = discAmt > 0 ? discAmt : RoundAmt(quotedPrice * discRate / 100);
-                var netAmt = CalculateNet(taxType, taxRate, quotedPrice, discount);
+                    discRate = discRate < 0 ? 0m : discRate;
+                    discAmt = discAmt < 0 ? 0m : discAmt;
 
-                query = @"
+                    var discount = discAmt > 0 ? discAmt : RoundAmt(quotedPrice * discRate / 100);
+                    var netAmt = CalculateNet(taxType, taxRate, quotedPrice, discount);
+
+                    query = @"
 INSERT INTO [IN].[PLDT] (
     [PriceLstNo], 
     [SeqNo], 
@@ -799,28 +802,28 @@ VALUES(
     @Comment)
 
 ";
-                var param = new List<SqlParameter>();
+                    var param = new List<SqlParameter>();
 
-                param.Add(new SqlParameter("@PriceLstNo", priceLstNo));
-                param.Add(new SqlParameter("@SeqNo", seqNo++));
-                param.Add(new SqlParameter("@ProductCode", productCode));
-                param.Add(new SqlParameter("@OrderUnit", orderUnit));
-                param.Add(new SqlParameter("@VendorRank", vendorRank));
-                param.Add(new SqlParameter("@QtyFrom", qtyFrom));
-                param.Add(new SqlParameter("@QtyTo", qtyTo));
-                param.Add(new SqlParameter("@Foc", foc));
-                param.Add(new SqlParameter("@CurrencyCode", currencyCode));
-                param.Add(new SqlParameter("@QuotedPrice", quotedPrice));
-                //param.Add(new SqlParameter("@MarketPrice", 0m));
-                param.Add(new SqlParameter("@DiscPercent", discRate));
-                param.Add(new SqlParameter("@DiscAmt", discAmt));
-                param.Add(new SqlParameter("@Tax", taxType));
-                param.Add(new SqlParameter("@TaxRate", taxRate));
-                param.Add(new SqlParameter("@NetAmt", netAmt));
-                param.Add(new SqlParameter("@Comment", comment));
+                    param.Add(new SqlParameter("@PriceLstNo", priceLstNo));
+                    param.Add(new SqlParameter("@SeqNo", seqNo++));
+                    param.Add(new SqlParameter("@ProductCode", productCode));
+                    param.Add(new SqlParameter("@OrderUnit", orderUnit));
+                    param.Add(new SqlParameter("@VendorRank", vendorRank));
+                    param.Add(new SqlParameter("@QtyFrom", qtyFrom));
+                    param.Add(new SqlParameter("@QtyTo", qtyTo));
+                    param.Add(new SqlParameter("@Foc", foc));
+                    param.Add(new SqlParameter("@CurrencyCode", currencyCode));
+                    param.Add(new SqlParameter("@QuotedPrice", quotedPrice));
+                    //param.Add(new SqlParameter("@MarketPrice", 0m));
+                    param.Add(new SqlParameter("@DiscPercent", discRate));
+                    param.Add(new SqlParameter("@DiscAmt", discAmt));
+                    param.Add(new SqlParameter("@Tax", taxType));
+                    param.Add(new SqlParameter("@TaxRate", taxRate));
+                    param.Add(new SqlParameter("@NetAmt", netAmt));
+                    param.Add(new SqlParameter("@Comment", comment));
 
-                sql.ExecuteQuery(query, param.ToArray());
-
+                    sql.ExecuteQuery(query, param.ToArray());
+                }
                 #endregion
             }
 
@@ -877,36 +880,37 @@ DELETE FROM [IN].[PLDT] WHERE PriceLstNo=@PriceLstNo;";
                 var taxRate = string.IsNullOrEmpty(dr[11].ToString()) ? 0m : Convert.ToDecimal(dr[11].ToString());
                 var comment = dr[12].ToString().Trim();
 
+                if (quotedPrice > 0)
+                {
+                    var currencyCode = ddl_CurrCode.Value.ToString();
+                    var vendorRank = string.IsNullOrEmpty(txt_Vrank.Text) ? 1 : Convert.ToSingle(txt_Vrank.Text);
 
-                var currencyCode = ddl_CurrCode.Value.ToString();
-                var vendorRank = string.IsNullOrEmpty(txt_Vrank.Text) ? 1 : Convert.ToSingle(txt_Vrank.Text);
+                    if (taxType.StartsWith("I"))
+                        taxType = "I";
+                    else if (taxType.StartsWith("A"))
+                        taxType = "A";
+                    else
+                        taxType = "N";
 
-                if (taxType.StartsWith("I"))
-                    taxType = "I";
-                else if (taxType.StartsWith("A"))
-                    taxType = "A";
-                else
-                    taxType = "N";
+                    discRate = discRate < 0 ? 0m : discRate;
+                    discAmt = discAmt < 0 ? 0m : discAmt;
 
-                discRate = discRate < 0 ? 0m : discRate;
-                discAmt = discAmt < 0 ? 0m : discAmt;
+                    var discount = discAmt > 0 ? discAmt : RoundAmt(quotedPrice * discRate / 100);
+                    var netAmt = CalculateNet(taxType, taxRate, quotedPrice, discount);
 
-                var discount = discAmt > 0 ? discAmt : RoundAmt(quotedPrice * discRate / 100);
-                var netAmt = CalculateNet(taxType, taxRate, quotedPrice, discount);
+                    //var sub = quotedPrice - discAmt1;
 
-                //var sub = quotedPrice - discAmt1;
+                    //if (taxType == "I")
+                    //    netAmt = RoundAmt(100 / (100 + taxRate) * sub);
+                    //else if (taxType == "A")
+                    //{
+                    //    netAmt = sub + RoundAmt(sub * taxRate / 100);
+                    //}
+                    //else
+                    //    netAmt = quotedPrice;
 
-                //if (taxType == "I")
-                //    netAmt = RoundAmt(100 / (100 + taxRate) * sub);
-                //else if (taxType == "A")
-                //{
-                //    netAmt = sub + RoundAmt(sub * taxRate / 100);
-                //}
-                //else
-                //    netAmt = quotedPrice;
-
-                #region
-                query = @"
+                    #region
+                    query = @"
 INSERT INTO [IN].[PLDT] (
     [PriceLstNo], 
     [SeqNo], 
@@ -945,30 +949,30 @@ VALUES(
     @Comment)
 
 ";
-                #endregion
+                    #endregion
 
-                var param = new List<SqlParameter>();
+                    var param = new List<SqlParameter>();
 
-                param.Add(new SqlParameter("@PriceLstNo", priceLstNo));
-                param.Add(new SqlParameter("@SeqNo", seqNo++));
-                param.Add(new SqlParameter("@ProductCode", productCode));
-                param.Add(new SqlParameter("@OrderUnit", orderUnit));
-                param.Add(new SqlParameter("@VendorRank", vendorRank));
-                param.Add(new SqlParameter("@QtyFrom", qtyFrom));
-                param.Add(new SqlParameter("@QtyTo", qtyTo));
-                param.Add(new SqlParameter("@Foc", foc));
-                param.Add(new SqlParameter("@CurrencyCode", currencyCode));
-                param.Add(new SqlParameter("@QuotedPrice", quotedPrice));
-                //param.Add(new SqlParameter("@MarketPrice", 0m));
-                param.Add(new SqlParameter("@DiscPercent", discRate));
-                param.Add(new SqlParameter("@DiscAmt", discAmt));
-                param.Add(new SqlParameter("@Tax", taxType));
-                param.Add(new SqlParameter("@TaxRate", taxRate));
-                param.Add(new SqlParameter("@NetAmt", netAmt));
-                param.Add(new SqlParameter("@Comment", comment));
+                    param.Add(new SqlParameter("@PriceLstNo", priceLstNo));
+                    param.Add(new SqlParameter("@SeqNo", seqNo++));
+                    param.Add(new SqlParameter("@ProductCode", productCode));
+                    param.Add(new SqlParameter("@OrderUnit", orderUnit));
+                    param.Add(new SqlParameter("@VendorRank", vendorRank));
+                    param.Add(new SqlParameter("@QtyFrom", qtyFrom));
+                    param.Add(new SqlParameter("@QtyTo", qtyTo));
+                    param.Add(new SqlParameter("@Foc", foc));
+                    param.Add(new SqlParameter("@CurrencyCode", currencyCode));
+                    param.Add(new SqlParameter("@QuotedPrice", quotedPrice));
+                    //param.Add(new SqlParameter("@MarketPrice", 0m));
+                    param.Add(new SqlParameter("@DiscPercent", discRate));
+                    param.Add(new SqlParameter("@DiscAmt", discAmt));
+                    param.Add(new SqlParameter("@Tax", taxType));
+                    param.Add(new SqlParameter("@TaxRate", taxRate));
+                    param.Add(new SqlParameter("@NetAmt", netAmt));
+                    param.Add(new SqlParameter("@Comment", comment));
 
-                sql.ExecuteQuery(query, param.ToArray());
-
+                    sql.ExecuteQuery(query, param.ToArray());
+                }
                 #endregion
             }
 
