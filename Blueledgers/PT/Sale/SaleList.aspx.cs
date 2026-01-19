@@ -1215,7 +1215,7 @@ BEGIN
 		s.OutletCode,
 		s.ItemCode,
 		s.LocationCode,
-		s.RcpCode as RecipeCode,
+		CASE WHEN ISNULL(s.RcpCode,'') <> '' THEN s.RcpCode ELSE i.RcpCode END  as RecipeCode,
 		s.Qty,
 		s.UnitPrice as Price,
 		s.Total,
@@ -1234,7 +1234,7 @@ BEGIN
 		LEFT JOIN [IN].StoreLocation l
 			ON l.LocationCode = s.LocationCode
 		LEFT JOIN PT.Rcp r
-			ON r.RcpCode=s.RcpCode
+			ON r.RcpCode=CASE WHEN ISNULL(s.RcpCode,'') <> '' THEN s.RcpCode ELSE i.RcpCode END
 	WHERE
 		SaleDate = @SaleDate
 	ORDER BY
