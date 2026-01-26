@@ -869,7 +869,9 @@ namespace BlueLedger.PL.PC.PR
 
                 if (save)
                 {
-                    string refNo = drPr["PrNo"].ToString();
+                    var refNo = drPr["PrNo"].ToString();
+                    _transLog.Save("PC", "PR", refNo, _action, string.Empty, LoginInfo.LoginName, hf_ConnStr.Value);
+
 
                     if (action.ToUpper() == "COMMIT")
                     {
@@ -930,7 +932,6 @@ namespace BlueLedger.PL.PC.PR
                     }
 
 
-                    _transLog.Save("PC", "PR", refNo, _action, string.Empty, LoginInfo.LoginName, hf_ConnStr.Value);
 
 
                     if (!pop_Alert.ShowOnPageLoad)
@@ -942,6 +943,8 @@ namespace BlueLedger.PL.PC.PR
         protected void Commit(string prNo)
         {
             var loginName = LoginInfo.LoginName;
+
+            _transLog.Save("PC", "PR", prNo, "COMMIT", string.Empty, LoginInfo.LoginName, hf_ConnStr.Value);
 
             if (wfStep == 1)
             {
