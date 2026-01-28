@@ -170,6 +170,7 @@
                     <asp:Button ID="BtnEdit" runat="server" Text="Edit" OnClick="BtnEdit_Click" />
                     <asp:Button ID="BtnChangePassword" runat="server" Text="Change Password" OnClick="BtnChangePassword_Click" />
                     <asp:Button ID="BtnDelUser" runat="server" Text="Delete" OnClick="BtnDelUser_Click" />
+                    <asp:Button ID="btn_Close" runat="server" Text="Delete" OnClick="btn_Close_Click" Visible="false"/>
                     <asp:Button ID="BtnSave" runat="server" Text="Save" OnClick="BtnSave_Click" />
                     <asp:Button ID="BtnCancel" runat="server" Text="Cancel" OnClick="BtnCancel_Click" />
                 </div>

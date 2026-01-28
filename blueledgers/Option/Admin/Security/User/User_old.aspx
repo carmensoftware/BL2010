@@ -1,32 +1,27 @@
 ﻿<%@ Page Language="C#" MasterPageFile="~/Master/In/SkinDefault.master" AutoEventWireup="true"
-    CodeFile="User.aspx.cs" Inherits="BlueLedger.PL.Option.Admin.Security.User.User" %>
+    CodeFile="User_old.aspx.cs" Inherits="BlueLedger.PL.Option.Admin.Security.User.User" %>
     
 <%@ MasterType VirtualPath="~/master/In/SkinDefault.master" %>
 <%@ Register Assembly="DevExpress.Web.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a"
     Namespace="DevExpress.Web.ASPxMenu" TagPrefix="dx" %>
-<%@ Register Assembly="DevExpress.Web.ASPxEditors.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a"
-    Namespace="DevExpress.Web.ASPxEditors" TagPrefix="dx" %>
 <%@ Register Assembly="DevExpress.Web.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a"
     Namespace="DevExpress.Web.ASPxPopupControl" TagPrefix="dx" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="cph_Main" runat="Server">
     <script type="text/javascript" language="javascript">
-
-//        function chkAll(obj, id) {
-//            obj.find("input:checkbox").each(function () {
-//                if (this != id) { this.checked = id.checked; }
-//            });
-//        }
-
         function chkAllUserRole(obj) {
-            $('#<%=grd_UserRole1.ClientID%>').find("input:checkbox").each(function () {
-                if (this != obj) { this.checked = obj.checked; }
-            });
+            var gv = document.getElementById('<%=grd_UserRole1.ClientID %>');
+            for (var i = 0; i < gv.all.length; i++) {
+                var node = gv.all[i];
+                node.checked = obj.checked;
+            }
         }
 
         function chkAllUserStore(obj) {
-            $('#<%=grd_UserStore1.ClientID%>').find("input:checkbox").each(function () {
-                if (this != obj) { this.checked = obj.checked; }
-            });
+            var gv = document.getElementById('<%=grd_UserStore1.ClientID %>');
+            for (var i = 0; i < gv.all.length; i++) {
+                var node = gv.all[i];
+                node.checked = obj.checked;
+            }
         }
 
     </script>
@@ -60,13 +55,23 @@
                                     <Border BorderStyle="None" />
                                 </ItemStyle>
                                 <Items>
-                                    <dx:MenuItem Name="Save" Text="" ToolTip="Save">
-                                        <ItemStyle Height="16px" Width="42px">
+                                    <dx:MenuItem Name="Create" Text="" ToolTip="Name">
+                                        <ItemStyle Height="16px" Width="49px">
                                             <HoverStyle>
-                                                <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-save.png"
+                                                <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-create.png"
                                                     Repeat="NoRepeat" VerticalPosition="center" />
                                             </HoverStyle>
-                                            <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/save.png"
+                                            <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/create.png"
+                                                Repeat="NoRepeat" VerticalPosition="center" />
+                                        </ItemStyle>
+                                    </dx:MenuItem>
+                                    <dx:MenuItem Name="Edit" Text="" ToolTip="Edit">
+                                        <ItemStyle Height="16px" Width="38px">
+                                            <HoverStyle>
+                                                <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-edit.png"
+                                                    Repeat="NoRepeat" VerticalPosition="center" />
+                                            </HoverStyle>
+                                            <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/edit.png"
                                                 Repeat="NoRepeat" VerticalPosition="center" />
                                         </ItemStyle>
                                     </dx:MenuItem>
@@ -117,28 +122,21 @@
                 </table>
                 <table border="0" cellpadding="1" cellspacing="0" width="100%" class="TABLE_HD">
                     <tr>
-                        <td rowspan="7" style="width: 1%;">
+                        <td rowspan="6" style="width: 1%;">
                         </td>
                         <td style="width: 7%">
-                            <asp:Label ID="lbl_LoginName_Nm" runat="server"  Text="<%$ Resources:Option_Admin_Security_User_User, lbl_LoginName_Nm %>"
+                            <asp:Label ID="lbl_LoginName_Nm" runat="server" Text="<%$ Resources:Option_Admin_Security_User_User, lbl_LoginName_Nm %>"
                                 SkinID="LBL_HD"></asp:Label>
                         </td>
                         <td style="width: 20%">
-                            <asp:TextBox ID="txt_LoginName" Width="250"  runat="server" OnTextChanged="txt_LoginName_TextChanged"></asp:TextBox>
+                            <asp:Label ID="lbl_LoginName" runat="server" SkinID="LBL_NR_BLUE"></asp:Label>
                         </td>
                         <td style="width: 7%">
                             <asp:Label ID="lbl_IsActive_Nm" runat="server" Text="<%$ Resources:Option_Admin_Security_User_User, lbl_IsActive_Nm %>"
                                 SkinID="LBL_HD"></asp:Label>
                         </td>
-                        <td style="width: 50%">
-                            <asp:CheckBox ID="chk_IsActive" runat="server" Text=" Active" font-size="Small" SkinID="CHK_V1" />
-                        </td>
-                         <td style="width: 7%">
-                        <asp:Label ID="lbl_LastLogin_Nm" runat="server" Text="<%$ Resources:Option_Admin_Security_User_User, lbl_LastLogin_Nm %>"
-                                SkinID="LBL_HD"></asp:Label>
-                        </td>
-                        <td style="width: 30%">
-                            <asp:TextBox ID="txt_LastLogin" Width="150"  runat="server" Enabled="False"></asp:TextBox>
+                        <td style="width: 66%">
+                            <asp:Label ID="lbl_IsActive" runat="server" SkinID="LBL_NR_BLUE"></asp:Label>
                         </td>
                     </tr>
                     <tr>
@@ -147,31 +145,62 @@
                                 SkinID="LBL_HD"></asp:Label>
                         </td>
                         <td>
-                            <asp:TextBox ID="txt_FName" Width="250"  runat="server"></asp:TextBox>
+                            <asp:Label ID="lbl_FName" runat="server" SkinID="LBL_NR_BLUE"></asp:Label>
                         </td>
-                               <td>
+                        <td>
+                            <asp:Label ID="lbl_LastLogin_Nm" runat="server" Text="<%$ Resources:Option_Admin_Security_User_User, lbl_LastLogin_Nm %>"
+                                SkinID="LBL_HD"></asp:Label>
+                        </td>
+                        <td>
+                            <asp:Label ID="lbl_LastLogin" runat="server" SkinID="LBL_NR_BLUE"></asp:Label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
                             <asp:Label ID="lbl_MName_Nm" runat="server" Text="<%$ Resources:Option_Admin_Security_User_User, lbl_MName_Nm %>"
                                 SkinID="LBL_HD"></asp:Label>
                         </td>
                         <td>
-                            <asp:TextBox ID="txt_MName" Width="250"  runat="server"></asp:TextBox>
+                            <asp:Label ID="lbl_MName" runat="server" SkinID="LBL_NR_BLUE"></asp:Label>
                         </td>
-                     </tr>
-                    <tr>
                         <td>
-                            <asp:Label ID="lbl_LName_Nm"  runat="server" Text="<%$ Resources:Option_Admin_Security_User_User, lbl_LName_Nm %>"
+                            <asp:Label ID="lbl_DepartmentCode_Nm" runat="server" Text="<%$ Resources:Option_Admin_Security_User_User, lbl_DepartmentCode_Nm %>"
                                 SkinID="LBL_HD"></asp:Label>
                         </td>
-                         <td>
-                            <asp:TextBox ID="txt_LName" Width="250" runat="server"></asp:TextBox>
+                        <td>
+                            <asp:Label ID="lbl_DepartmentCode" runat="server" SkinID="LBL_NR_BLUE"></asp:Label>
                         </td>
-                         <td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <asp:Label ID="lbl_LName_Nm" runat="server" Text="<%$ Resources:Option_Admin_Security_User_User, lbl_LName_Nm %>"
+                                SkinID="LBL_HD"></asp:Label>
+                        </td>
+                        <td>
+                            <asp:Label ID="lbl_LName" runat="server" SkinID="LBL_NR_BLUE"></asp:Label>
+                        </td>
+                        <td>
+                            <asp:Label ID="lbl_DivisionCode_Nm" runat="server" Text="<%$ Resources:Option_Admin_Security_User_User, lbl_DivisionCode_Nm %>"
+                                Visible="False" SkinID="LBL_HD"></asp:Label>
+                        </td>
+                        <td>
+                            <asp:Label ID="lbl_DivisionCode" runat="server" Visible="False" SkinID="LBL_NR_BLUE"></asp:Label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
                             <asp:Label ID="lbl_Mail_Nm" runat="server" Text="<%$ Resources:Option_Admin_Security_User_User, lbl_Mail_Nm %>"
                                 SkinID="LBL_HD"></asp:Label>
                         </td>
                         <td>
-                            <%--<asp:HyperLink ID="lnk_Email" runat="server" NavigateUrl="mailto:" Target="_blank">[lnk_Email]</asp:HyperLink>--%>
-                            <asp:TextBox ID="txt_Email" Width="250" runat="server" Visible="true"></asp:TextBox>
+                            <asp:HyperLink ID="lnk_Email" runat="server" NavigateUrl="mailto:" Target="_blank">[lnk_Email]</asp:HyperLink>
+                        </td>
+                        <td>
+                            <asp:Label ID="lbl_SectionCode_Nm" runat="server" Text="<%$ Resources:Option_Admin_Security_User_User, lbl_SectionCode_Nm %>"
+                                Visible="False" SkinID="LBL_HD"></asp:Label>
+                        </td>
+                        <td>
+                            <asp:Label ID="lbl_SectionCode" runat="server" Visible="False" SkinID="LBL_NR_BLUE"></asp:Label>
                         </td>
                     </tr>
                     <tr>
@@ -180,75 +209,66 @@
                                 SkinID="LBL_HD"></asp:Label>
                         </td>
                         <td>
-                            <asp:TextBox ID="txt_JobTitle" Width="250" runat="server"></asp:TextBox>
-                        </td>
-
-                        <td>            
-                           <asp:Label ID="lbl_DepartmentCode_Nm" runat="server" Text="<%$ Resources:Option_Admin_Security_User_User, lbl_DepartmentCode_Nm %>"
-                                SkinID="LBL_HD"></asp:Label>
+                            <asp:Label ID="lbl_JobTitle" runat="server" SkinID="LBL_NR_BLUE"></asp:Label>
                         </td>
                         <td>
-                            <dx:ASPxComboBox ID="cmb_Department" runat="server" DataSourceID="ods_Department" Width="255px"
-                                TextField="Department" IncrementalFilteringMode="Contains" TextFormatString="{0} : {1}"
-                                ValueField="DepCode" ValueType="System.String" SkinID="DDL_V1">
-                                <Columns>
-                                     <dx:ListBoxColumn Width="120px" Caption="DepartmentCode" FieldName="DepCode" />
-                                    <dx:ListBoxColumn Width="350px" Caption="Department" FieldName="DepName" />
-                                </Columns>
-                            </dx:ASPxComboBox>
-                            <asp:ObjectDataSource ID="ods_Department" runat="server" SelectMethod="GetList" TypeName="Blue.BL.ADMIN.Department">
-                                <SelectParameters>
-                                    <asp:ControlParameter ControlID="hf_ConnStr" Name="connStr" PropertyName="Value"
-                                        Type="String" />
-                                </SelectParameters>
-                            </asp:ObjectDataSource>
-                            <asp:HiddenField ID="hf_ConnStr" runat="server" />
-                        </td>
-                        <tr></tr>
-                        <tr>
-                         <td>
-                            <asp:Label ID="lbl_Password_Nm" runat="server" Text="<%$ Resources:Option_Admin_Security_User_User, lbl_Password_Nm %>"
-                                SkinID="LBL_HD" Visible="False"></asp:Label>
+                            &nbsp;
                         </td>
                         <td>
-                            <asp:TextBox ID="txt_Pwd0" Width="250" runat="server" Visible="False" TextMode="Password"></asp:TextBox>
+                            &nbsp;
                         </td>
-                        </tr>
-                         <tr>
-                         <td>
-                            <asp:Label ID="lbl_ConfirmPass" runat="server" Text="<%$ Resources:Option_Admin_Security_User_User, lbl_ConfirmPass %>"
-                                SkinID="LBL_HD" Visible="False"></asp:Label>
-                        </td>
-                        <td>
-                            <asp:TextBox ID="txt_PwdConfirm0" Width="250" runat="server" Visible="False" 
-                                TextMode="Password"></asp:TextBox>
-                      
-                        </td>
-                        </tr>
-                         </table>
-                         
-                         
-                         <table>
-                         <td>
-                            <asp:Label ID="lbl_DivisionCode_Nm" runat="server" Text="<%$ Resources:Option_Admin_Security_User_User, lbl_DivisionCode_Nm %>"
-                                Visible="False" SkinID="LBL_HD"></asp:Label>
-                        </td>
-                        <td>
-                            <asp:TextBox ID="txt_DivisionCode" Width="250" runat="server" Visible="False"></asp:TextBox>
-                        </td>
-                        <td>
-                            <asp:Label ID="lbl_SectionCode_Nm" runat="server" Text="<%$ Resources:Option_Admin_Security_User_User, lbl_SectionCode_Nm %>"
-                                Visible="False" SkinID="LBL_HD"></asp:Label>
-                        </td>
-                        <td>
-                            <asp:TextBox ID="txt_SectionCode" Width="250" runat="server" Visible="False"></asp:TextBox>
-                        </td>
-               
+                    </tr>
                 </table>
                 <table border="0" cellpadding="0" cellspacing="0" width="100%">
                     <tr style="background-color: #4d4d4d; height: 17px;">
                         <td align="right">
-                            &nbsp;</td>
+                            <dx:ASPxMenu ID="menu_Role" runat="server" OnItemClick="menu_Role_ItemClick" BackColor="Transparent"
+                                Border-BorderStyle="None" ItemSpacing="2px" VerticalAlign="Middle" Height="16px">
+                                <ItemStyle BackColor="Transparent">
+                                    <HoverStyle BackColor="Transparent">
+                                        <Border BorderStyle="None" />
+                                    </HoverStyle>
+                                    <Paddings Padding="2px" />
+                                    <Border BorderStyle="None" />
+                                </ItemStyle>
+                                <Items>
+                                    <dx:MenuItem Name="Save" Text="" ToolTip="Save">
+                                        <ItemStyle Height="16px" Width="42px">
+                                            <HoverStyle>
+                                                <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-save.png"
+                                                    Repeat="NoRepeat" VerticalPosition="center" />
+                                            </HoverStyle>
+                                            <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/save.png"
+                                                Repeat="NoRepeat" VerticalPosition="center" />
+                                        </ItemStyle>
+                                    </dx:MenuItem>
+                                </Items>
+                            </dx:ASPxMenu>
+                        </td>
+                        <td align="right">
+                            <dx:ASPxMenu ID="menu_Store" runat="server" OnItemClick="menu_Store_ItemClick" BackColor="Transparent"
+                                Border-BorderStyle="None" ItemSpacing="2px" VerticalAlign="Middle" Height="16px">
+                                <ItemStyle BackColor="Transparent">
+                                    <HoverStyle BackColor="Transparent">
+                                        <Border BorderStyle="None" />
+                                    </HoverStyle>
+                                    <Paddings Padding="2px" />
+                                    <Border BorderStyle="None" />
+                                </ItemStyle>
+                                <Items>
+                                    <dx:MenuItem Name="Save" Text="" ToolTip="Save">
+                                        <ItemStyle Height="16px" Width="42px">
+                                            <HoverStyle>
+                                                <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/gray-save.png"
+                                                    Repeat="NoRepeat" VerticalPosition="center" />
+                                            </HoverStyle>
+                                            <BackgroundImage HorizontalPosition="center" ImageUrl="~/App_Themes/Default/Images/master/icon/save.png"
+                                                Repeat="NoRepeat" VerticalPosition="center" />
+                                        </ItemStyle>
+                                    </dx:MenuItem>
+                                </Items>
+                            </dx:ASPxMenu>
+                        </td>
                     </tr>
                     <tr>
                         <td valign="top" width="50%">
@@ -274,22 +294,67 @@
                                 <Settings ShowFilterRow="True" ShowFooter="True" />
                             </dx:ASPxGridView>--%>
                             <asp:GridView ID="grd_UserRole1" runat="server" AutoGenerateColumns="False" EnableModelValidation="True"
-                                SkinID="GRD_V1" Width="100%" DataKeyNames="RoleName" 
-                                onselectedindexchanged="grd_UserRole1_SelectedIndexChanged" 
-                                onrowcreated="grd_UserRole1_RowCreated">
+                                SkinID="GRD_V1" Width="100%" DataKeyNames="RoleName">
                                 <Columns>
                                     <asp:TemplateField>
                                         <HeaderStyle Width="3%" HorizontalAlign="Left" />
                                         <ItemStyle HorizontalAlign="Left" VerticalAlign="Top" />
                                         <FooterStyle />
                                         <HeaderTemplate>
-                                            <asp:CheckBox ID="Chk_AllR" onClick="chkAllUserRole(this);" runat="server" />
+                                            <asp:CheckBox ID="Chk_All" onClick="javascript:chkAllUserRole(this);" runat="server" />
                                         </HeaderTemplate>
                                         <ItemTemplate>
-                                            <asp:CheckBox ID="Chk_ItemR" runat="server" />
+                                            <asp:CheckBox ID="Chk_Item" runat="server" />
                                         </ItemTemplate>
                                     </asp:TemplateField>
                                     <asp:BoundField HeaderText="Role" DataField="RoleName">
+                                        <HeaderStyle HorizontalAlign="Left" />
+                                    </asp:BoundField>
+                                </Columns>
+                            </asp:GridView>
+                        </td>
+                        <td valign="top" width="50%">
+                            <%--<dx:ASPxGridView ID="grd_UserStore" runat="server" Width="100%" AutoGenerateColumns="False"
+                                ClientInstanceName="grd_UserStore" KeyFieldName="LocationCode" OnLoad="grd_UserStore_Load">
+                                <Styles>
+                                    <Header HorizontalAlign="Center">
+                                    </Header>
+                                </Styles>
+                                <SettingsPager Mode="ShowAllRecords" Visible="False">
+                                </SettingsPager>
+                                <Columns>
+                                    <dx:GridViewCommandColumn ShowSelectCheckbox="True" VisibleIndex="0" Width="50px">
+                                        <ClearFilterButton Visible="True">
+                                        </ClearFilterButton>
+                                        <HeaderTemplate>
+                                            <input id="chk_SelAll" type="checkbox" onclick="grd_UserStore.SelectAllRowsOnPage(this.checked);" />
+                                        </HeaderTemplate>
+                                    </dx:GridViewCommandColumn>
+                                    <dx:GridViewDataTextColumn Caption="Code" FieldName="LocationCode" VisibleIndex="1">
+                                    </dx:GridViewDataTextColumn>
+                                    <dx:GridViewDataTextColumn Caption="Location Name" FieldName="LocationName" VisibleIndex="2">
+                                    </dx:GridViewDataTextColumn>
+                                </Columns>
+                                <Settings ShowFilterRow="True" ShowFooter="True" />
+                            </dx:ASPxGridView>--%>
+                            <asp:GridView ID="grd_UserStore1" runat="server" AutoGenerateColumns="False" EnableModelValidation="True"
+                                SkinID="GRD_V1" Width="100%" DataKeyNames="LocationCode">
+                                <Columns>
+                                    <asp:TemplateField>
+                                        <HeaderStyle Width="3%" HorizontalAlign="Left" />
+                                        <ItemStyle HorizontalAlign="Left" VerticalAlign="Top" />
+                                        <FooterStyle />
+                                        <HeaderTemplate>
+                                            <asp:CheckBox ID="Chk_All" onClick="javascript:chkAllUserStore(this);" runat="server" />
+                                        </HeaderTemplate>
+                                        <ItemTemplate>
+                                            <asp:CheckBox ID="Chk_Item" runat="server" />
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <asp:BoundField HeaderText="Code" DataField="LocationCode">
+                                        <HeaderStyle HorizontalAlign="Left" />
+                                    </asp:BoundField>
+                                    <asp:BoundField HeaderText="Location Name" DataField="LocationName">
                                         <HeaderStyle HorizontalAlign="Left" />
                                     </asp:BoundField>
                                 </Columns>
@@ -299,51 +364,7 @@
                 </table>
             </td>
         </tr>
-    </table>
-    <table border="0" cellpadding="0" cellspacing="0" width="100%">
-        <tr style="background-color: #4d4d4d; height: 17px;">
-            <td align="right">
-                &nbsp;</td>
-        </tr>
-    </table>
-    <table style="width: 100%;">
-        <tr>
-            <td>
-                <asp:GridView ID="grd_UserStore1" runat="server" AutoGenerateColumns="False" EnableModelValidation="True"
-                    SkinID="GRD_V1" Width="100%" DataKeyNames="LocationCode" 
-                    onselectedindexchanged="grd_UserStore1_SelectedIndexChanged">
-                    <Columns>
-                        <asp:TemplateField>
-                            <HeaderStyle Width="3%" HorizontalAlign="Left" />
-                            <ItemStyle HorizontalAlign="Left" VerticalAlign="Top" />
-                            <FooterStyle />
-                            <HeaderTemplate>
-                                <asp:CheckBox ID="Chk_AllS" onClick="chkAllUserStore(this);" runat="server" />
-                            </HeaderTemplate>
-                            <ItemTemplate>
-                                <asp:CheckBox ID="Chk_ItemS" runat="server" />
-                            </ItemTemplate>
-                        </asp:TemplateField>
-                        <asp:BoundField HeaderText="Code" DataField="LocationCode">
-                            <HeaderStyle HorizontalAlign="Left" />
-                        </asp:BoundField>
-                        <asp:BoundField HeaderText="Location Name" DataField="LocationName">
-                            <HeaderStyle HorizontalAlign="Left" />
-                        </asp:BoundField>
-                    </Columns>
-                </asp:GridView>
-            </td>
-        </tr>
-    </table>
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
+    </table>    
     <dx:ASPxPopupControl ID="pop_ConfrimDelete" runat="server" Width="300px" CloseAction="CloseButton"
         HeaderText="<%$ Resources:Option_Admin_Security_User_User, Msg %>" Modal="True"
         PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowCloseButton="False">
@@ -490,7 +511,6 @@
             <dx:PopupControlContentControl runat="server">
                 <asp:Label ID="Label14" runat="server" Text="<%$ Resources:Option_Admin_Security_User_User, MsgWarning2 %>"
                     SkinID="LBL_NR"></asp:Label>
-                &nbsp;
             </dx:PopupControlContentControl>
         </ContentCollection>
         <HeaderStyle HorizontalAlign="Left" />
