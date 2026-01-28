@@ -162,46 +162,44 @@
             </ContentCollection>
             <ClientSideEvents CloseUp="function(s, e) { SetImageState(false); }" PopUp="function(s, e) { SetImageState(true); }" />
         </dx:ASPxPopupControl>
-        <dx:ASPxPopupControl ID="pop_Manage" runat="server" ClientInstanceName="pop_Manage" HeaderText="User List" Modal="True" CloseAction="CloseButton" AllowDragging="True"
-            PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" Width="320px" Height="480px">
+        <dx:ASPxPopupControl ID="pop_UserList" runat="server" ClientInstanceName="pop_UserList" HeaderText="User(s)" Modal="True" CloseAction="CloseButton" AllowDragging="True"
+            PopupHorizontalAlign="WindowCenter" ShowPageScrollbarWhenModal="True">
             <ContentCollection>
                 <dx:PopupControlContentControl runat="server">
-                    <%--<div>
-                        <p>
-                            <asp:TextBox ID="txt_Search" runat="server" AutoPostBack="true" value="" placeholder="Search"
-                                Width="30%" />
-                        </p>
-                    </div>--%>
-                    <dx:ASPxGridView ID="grid_UserList" ClientInstanceName="grid_UserList" EnableRowsCache="false" KeyFieldName="LoginName" runat="server" AutoGenerateColumns="false"
-                        OnPageIndexChanged="grid_UserList_PageIndexChanged" OnInit="grid_UserList_Init" OnLoad="grid_UserList_Load">
-                        <Columns>
-                            <dx:GridViewDataTextColumn FieldName="IsActived" Caption="Actived" VisibleIndex="0" UnboundType="Boolean" CellStyle-HorizontalAlign="Center">
-                                <Settings AllowAutoFilter="False"></Settings>
-                                <DataItemTemplate>
-                                    <dx:ASPxCheckBox ID="cb_IsActive" runat="server" Value='<%# Bind("IsActived") %>' AutoPostBack="true" OnCheckedChanged="cb_IsActive_CheckedChanged">
-                                    </dx:ASPxCheckBox>
-                                </DataItemTemplate>
-                                <Settings AllowAutoFilter="False"></Settings>
-                                <CellStyle HorizontalAlign="Center">
-                                </CellStyle>
-                            </dx:GridViewDataTextColumn>
-                            <dx:GridViewDataColumn FieldName="LoginName" Caption="Login">
-                                <Settings AutoFilterCondition="Contains" AllowSort="True"></Settings>
-                            </dx:GridViewDataColumn>
-                            <dx:GridViewDataColumn FieldName="Name" Caption="Name">
-                                <Settings AutoFilterCondition="Contains"></Settings>
-                            </dx:GridViewDataColumn>
-                            <dx:GridViewDataColumn FieldName="JobTitle" Caption="Job Title">
-                            </dx:GridViewDataColumn>
-                        </Columns>
-                        <Settings ShowFilterRow="true" />
-                        <Settings ShowFilterRow="True"></Settings>
-                    </dx:ASPxGridView>
-                    <div align="right" style="width: 100%;">
-                        <br />
-                        <asp:Button ID="btn_Save" runat="server" Text="Save" OnClick="btn_Save_Click" />&nbsp
-                        <asp:Button ID="btn_Cancel" runat="server" Text="Cancel" OnClick="btn_Cancel_Click" />
+                    <div style="margin-bottom: 5px;">
+                        <asp:Label ID="lbl_ActiveUserCount" runat="server" Font-Size="Large" />
                     </div>
+                    <asp:GridView runat="server" ID="gv_Users" Width="100%" AutoGenerateColumns="false" DataKeyNames="LoginName" OnRowCommand="gv_Users_RowCommand" GridLines="Horizontal">
+                        <Columns>
+                            <asp:BoundField HeaderText="No." DataField="RowId" />
+                            <asp:BoundField HeaderText="Login name" DataField="LoginName"  />
+                            <asp:BoundField HeaderText="First name" DataField="FName" />
+                            <asp:BoundField HeaderText="Middle name" DataField="MName" />
+                            <asp:BoundField HeaderText="Last name" DataField="LName" />
+                            
+                            <asp:TemplateField HeaderText="Status">
+                                <ItemTemplate>
+                                    <div style="margin: 5px;">
+                                        <asp:Label runat="server" Font-Bold="true" ForeColor="Blue"  Text='<%# Eval("Status") %>' />
+                                    </div>
+                                </ItemTemplate>
+                            </asp:TemplateField>
+                            <asp:TemplateField HeaderText="Action">
+                                <ItemTemplate>
+                                    <div style="margin: 5px;">
+                                        <asp:Button ID="btn_Active" runat="server" Text="Active" CommandArgument='<%# Eval("LoginName") %>' CommandName="active" />
+                                    </div>
+                                </ItemTemplate>
+                            </asp:TemplateField>
+                            <asp:TemplateField HeaderText="Action">
+                                <ItemTemplate>
+                                    <div style="margin: 5px;">
+                                        <asp:Button ID="btn_Inactive" runat="server" Text="Inactive" CommandArgument='<%# Eval("LoginName") %>' CommandName="inactive" />
+                                    </div>
+                                </ItemTemplate>
+                            </asp:TemplateField>
+                        </Columns>
+                    </asp:GridView>
                 </dx:PopupControlContentControl>
             </ContentCollection>
         </dx:ASPxPopupControl>

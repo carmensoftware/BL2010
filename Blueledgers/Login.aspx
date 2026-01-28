@@ -63,6 +63,7 @@
         
         .message
         {
+            width:480px;
             clear: both;
             position: relative;
             z-index: 50;

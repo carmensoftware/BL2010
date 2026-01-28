@@ -124,6 +124,11 @@ public partial class Login : BasePage
             }
             else
                 LoginControl.FailureText = msgErr;
+
+            if (msgErr.StartsWith("You have more users"))
+            {
+
+            }
         }
     }
 

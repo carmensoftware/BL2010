@@ -61,116 +61,112 @@ public partial class License : System.Web.UI.Page
 
         if (_user.GetUserListByLoginName(dsAboutUser, usr, pwd))
         {
-            DataTable dt = Get_Ori_dboUser();
-            dsAboutUser.Tables.Add(dt);
-
-            if (dsAboutUser != null)
-            {
-                grid_UserList.KeyFieldName = "LoginName";
-                grid_UserList.DataSource = dsAboutUser.Tables[_user.TableName];
-                grid_UserList.DataBind();
-
-                Session["dsAboutUser"] = dsAboutUser;
-                pop_Manage.ShowOnPageLoad = true;
-            }
+            BindUsers();
+            pop_UserList.ShowOnPageLoad = true;            
         }
 
         pop_Login.ShowOnPageLoad = false;
     }
 
-    protected virtual DataTable Get_Ori_dboUser()
+
+    protected void gv_Users_RowCommand(object sender, GridViewCommandEventArgs e)
     {
-        string conStr = System.Configuration.ConfigurationManager.AppSettings["ConnStr"].ToString();
-        string sqlStr = "SELECT * FROM [dbo].[User]";
-        DataTable dtUser = new DataTable();
-        SqlConnection con = new SqlConnection(conStr);
+        var loginName = e.CommandArgument.ToString();
+        var isActive = e.CommandName == "active" ? 1 : 0;
+
+        var query = "UPDATE [dbo].[User] SET IsActived=@IsActived WHERE LoginName=@LoginName";
+
+
+        var connStr = System.Configuration.ConfigurationManager.AppSettings["ConnStr"].ToString();
+        var conn = new SqlConnection(connStr);
 
         try
         {
-            con.Open();
-            SqlCommand cmd = new SqlCommand(sqlStr, con);
+            conn.Open();
+            var cmd = new SqlCommand(query, conn);
+
+            cmd.Parameters.Add(new SqlParameter("@IsActived", isActive));
+            cmd.Parameters.Add(new SqlParameter("@LoginName", loginName));
+            cmd.ExecuteNonQuery();
+
+            conn.Close();
+
+            BindUsers();
+
+        }
+        catch (Exception ex)
+        {
+            conn.Close();
+            throw new Exception(ex.Message);
+        }
+
+
+        // You can add more else if blocks for other command names
+        // Get the row index from the CommandArgument
+
+        // Access the GridViewRow and data (e.g., using DataKeys)
+
+        // Implement your logic based on the command and data
+        //System.Diagnostics.Debug.WriteLine($"Adding customer {customerId} to cart.");
+    }
+
+
+    private void BindUsers()
+    {
+        gv_Users.DataSource = GetUsers();
+        gv_Users.DataBind();
+    }
+
+
+    private DataTable GetUsers()
+    {
+        var connStr = System.Configuration.ConfigurationManager.AppSettings["ConnStr"].ToString();
+        var query = @"
+SELECT 
+    ROW_NUMBER() OVER(ORDER BY IsActived DESC, LoginName) as RowId,
+    LoginName, 
+    FName, 
+    MName, 
+    LName, 
+    IsActived, 
+    CASE WHEN IsActived=1 THEN 'Active' ELSE '' END [Status] 
+FROM 
+    [dbo].[User] 
+WHERE
+    LoginName <> 'support@carmen'
+ORDER BY 
+    IsActived DESC,
+    LoginName";
+
+        var dtUser = new DataTable();
+        var conn = new SqlConnection(connStr);
+
+        try
+        {
+            conn.Open();
+            SqlCommand cmd = new SqlCommand(query, conn);
             SqlDataAdapter da = new SqlDataAdapter(cmd);
             da.Fill(dtUser);
-            dtUser.TableName = dtSaveUser;
-            con.Close();
+
+
+            query = "SELECT COUNT(LoginName) FROM [dbo].[User] WHERE IsActived=1 AND LoginName <> 'support@carmen'";
+
+            var cmd1 = new SqlCommand(query, conn);
+
+
+            var count = (int)cmd1.ExecuteScalar();
+
+            lbl_ActiveUserCount.Text = string.Format("Actived user(s) = {0}", count);
+            
+            conn.Close();
+
             return dtUser;
         }
         catch (Exception ex)
         {
-            string mess = ex.Message;
-            con.Close();
-            return null;
-        }
-
-    }
-
-    protected void grid_UserList_Init(object sender, EventArgs e)
-    {
-        if (dsAboutUser.Tables[_user.TableName] != null)
-        {
-            DataTable dt = dsAboutUser.Tables[_user.TableName];
-            grid_UserList.KeyFieldName = "LoginName";
-            grid_UserList.DataSource = dt;
-            grid_UserList.DataBind();
+            conn.Close();
+            throw new Exception(ex.Message);
         }
     }
-
-    protected void grid_UserList_Load(object sender, EventArgs e)
-    {
-        if (dsAboutUser.Tables[_user.TableName] != null)
-        {
-            DataTable dt = dsAboutUser.Tables[_user.TableName];
-            grid_UserList.KeyFieldName = "LoginName";
-            grid_UserList.DataSource = dt;
-            grid_UserList.DataBind();
-        }
-    }
-
-    protected void grid_UserList_PageIndexChanged(object sender, EventArgs e)
-    {
-        int pageIndex = (sender as ASPxGridView).PageIndex;
-        string filter = string.Empty;
-        DataTable dt = dsAboutUser.Tables[_user.TableName];
-
-        grid_UserList.PageIndex = pageIndex;
-        grid_UserList.KeyFieldName = "LoginName";
-        grid_UserList.DataSource = dt;
-        grid_UserList.DataBind();
-    }
-
-    protected void cb_IsActive_CheckedChanged(object sender, EventArgs e)
-    {
-        // Note: ASPxGridView cann't use DataBound like ASP.net(normal). So, I use Value='<% #Bind("...")%>'
-        ASPxCheckBox cb_IsActive = (ASPxCheckBox)sender;
-        GridViewDataItemTemplateContainer cb_con = (GridViewDataItemTemplateContainer)cb_IsActive.NamingContainer;
-        string rowValue = Convert.ToString(cb_con.KeyValue); // KeyValueField = "LoginName"
-        bool cbBool = Convert.ToBoolean(cb_IsActive.Value);
-
-        string filter = string.Format("LoginName = '{0}'", rowValue);
-        DataTable dt = dsAboutUser.Tables[_user.TableName];
-        DataRow[] drrow = dt.Select(filter);
-        if (drrow.Length > 0 && drrow.Length <= 1)
-        {
-            drrow[0]["IsActived"] = cbBool;
-
-            DataRow[] drUserRow = dsAboutUser.Tables[dtSaveUser].Select(filter);
-            drUserRow[0]["IsActived"] = cbBool;
-            Session["dsAboutUser"] = dsAboutUser;
-        }
-    }
-
-    protected void btn_Save_Click(object sender, EventArgs e)
-    {
-        dsAboutUser.Tables.Remove(dsAboutUser.Tables[_user.TableName]);
-        dsAboutUser.Tables[dtSaveUser].TableName = _user.TableName;
-
-        bool returnSave = _user.Save(dsAboutUser);
-        pop_Manage.ShowOnPageLoad = (returnSave) ? false : true;
-        Page.Response.Redirect(Page.Request.Url.ToString(), true);
-    }
-
-    protected void btn_Cancel_Click(object sender, EventArgs e)
-    {
-        pop_Manage.ShowOnPageLoad = false;
-    }
+    
 }

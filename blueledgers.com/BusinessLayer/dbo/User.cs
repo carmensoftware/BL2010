@@ -209,6 +209,7 @@ namespace Blue.BL.dbo
             dbParams[0] = new DbParameter("@LoginName", LoginName);
 
             bool isSuccess = DbRetrieve("[dbo].[User_CheckLogin]", dsUser, dbParams, TableName, ref MsgError);
+            var activedUsers = GetActiveUser();
 
             if (isSuccess)
             {
@@ -240,9 +241,11 @@ namespace Blue.BL.dbo
                         MsgError = "License has been expired since " + licenseExpiredDate.ToShortDateString();
                         return false;
                     }
-                    else if (GetActiveUser() > licenseActiveUser)
+                    else if (activedUsers > licenseActiveUser)
                     {
-                        MsgError = "You have more users than your license allows. Please contact administrator to purchase the license.";
+                        //MsgError = "You have more users than your license allows. Please contact administrator to purchase the license.";
+                        MsgError = string.Format("The number of users exceeds the available licenses.<br/>Purchase users: {0}<br/>Active users: {1}",
+                            licenseActiveUser, activedUsers);
                         return false;
                     }
                     else if (DateTime.Now.Date >= licenseExpiredDate.AddDays(-30))
