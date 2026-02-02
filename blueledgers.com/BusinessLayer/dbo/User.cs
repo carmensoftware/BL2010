@@ -16,7 +16,7 @@ namespace Blue.BL.dbo
             2027-01-31 = siamese = 24+2 = 26 + 20 + 10 = 56 (follow by Cassia Rama9)
             2027-01-31 = surestaytheiconicari = 10        
             2027-01-31 = teerapatgroup = 5 + 5 = 10
-            2027-01-31 = wyndhamgardenphuketkamala = 25+4 = 29
+            2027-01-31 = wyndhamgardenphuketkamala = 25+4 = 29 + 3 = 32
             2027-01-31 = bwpluscarapace =17
             2027-01-31 = Phuket Emerald = 15+5 = 20 
             2027-01-31 = bestwesternchatuchak = 9
@@ -150,11 +150,11 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser =34;
+        private int licenseActiveUser =32;
 
         public DateTime GetLicenseExpiredDate()
         {
-            return new DateTime(2026, 6, 30);
+            return new DateTime(2027, 1, 31);
         }
 
         private DateTime licenseExpiredDate { get { return GetLicenseExpiredDate(); } }
