@@ -729,15 +729,17 @@ VALUES (@PriceLstNo, @RefNo, @DateFrom, @DateTo, @VendorCode, GETDATE(), @Create
 
             foreach (DataRow dr in _dtPriceList.Rows)
             {
+                var value = 0m;
+
                 #region
                 var productCode = dr[0].ToString();
                 var orderUnit = dr[3].ToString().Trim();
-                var qtyFrom = string.IsNullOrEmpty(dr[4].ToString()) ? 0m : Convert.ToDecimal(dr[4].ToString());
-                var qtyTo = string.IsNullOrEmpty(dr[5].ToString()) ? 0m : Convert.ToDecimal(dr[5].ToString());
-                var quotedPrice = string.IsNullOrEmpty(dr[6].ToString()) ? 0m : Convert.ToDecimal(dr[6].ToString());
-                var foc = string.IsNullOrEmpty(dr[7].ToString()) ? 0m : Convert.ToDecimal(dr[7].ToString());
-                var discRate = string.IsNullOrEmpty(dr[8].ToString()) ? 0m : Convert.ToDecimal(dr[8].ToString());
-                var discAmt = string.IsNullOrEmpty(dr[9].ToString()) ? 0m : Convert.ToDecimal(dr[9].ToString());
+                var qtyFrom = decimal.TryParse(dr[4].ToString(), out value) ? value : 0m; // string.IsNullOrEmpty(dr[4].ToString()) ? 0m : Convert.ToDecimal(dr[4].ToString());
+                var qtyTo = decimal.TryParse(dr[5].ToString(), out value) ? value : 0m;// string.IsNullOrEmpty(dr[5].ToString()) ? 0m : Convert.ToDecimal(dr[5].ToString());
+                var quotedPrice = decimal.TryParse(dr[6].ToString(), out value) ? value : 0m; // string.IsNullOrEmpty(dr[6].ToString()) ? 0m : Convert.ToDecimal(dr[6].ToString());
+                var foc = decimal.TryParse(dr[7].ToString(), out value) ? value : 0m; //string.IsNullOrEmpty(dr[7].ToString()) ? 0m : Convert.ToDecimal(dr[7].ToString());
+                var discRate = decimal.TryParse(dr[8].ToString(),out value) ? value : 0m; // string.IsNullOrEmpty(dr[8].ToString()) ? 0m : Convert.ToDecimal(dr[8].ToString());
+                var discAmt = decimal.TryParse(dr[9].ToString(), out value) ? value : 0m; //string.IsNullOrEmpty(dr[9].ToString()) ? 0m : Convert.ToDecimal(dr[9].ToString());
 
                 var taxType = dr[10].ToString().ToUpper();
                 var taxRate = string.IsNullOrEmpty(dr[11].ToString()) ? 0m : Convert.ToDecimal(dr[11].ToString());
@@ -867,17 +869,19 @@ DELETE FROM [IN].[PLDT] WHERE PriceLstNo=@PriceLstNo;";
             foreach (DataRow dr in _dtPriceList.Rows)
             {
                 #region
+                var value = 0m;
+
                 var productCode = dr[0].ToString();
                 var orderUnit = dr[3].ToString().Trim();
-                var qtyFrom = string.IsNullOrEmpty(dr[4].ToString()) ? 0m : Convert.ToDecimal(dr[4].ToString());
-                var qtyTo = string.IsNullOrEmpty(dr[5].ToString()) ? 0m : Convert.ToDecimal(dr[5].ToString());
-                var quotedPrice = string.IsNullOrEmpty(dr[6].ToString()) ? 0m : Convert.ToDecimal(dr[6].ToString());
-                var foc = string.IsNullOrEmpty(dr[7].ToString()) ? 0m : Convert.ToDecimal(dr[7].ToString());
-                var discRate = string.IsNullOrEmpty(dr[8].ToString()) ? 0m : Convert.ToDecimal(dr[8].ToString());
-                var discAmt = string.IsNullOrEmpty(dr[9].ToString()) ? 0m : Convert.ToDecimal(dr[9].ToString());
+                var qtyFrom = decimal.TryParse(dr[4].ToString(), out value) ? value : 0m; // string.IsNullOrEmpty(dr[4].ToString()) ? 0m : Convert.ToDecimal(dr[4].ToString());
+                var qtyTo = decimal.TryParse(dr[5].ToString(), out value) ? value : 0m;// string.IsNullOrEmpty(dr[5].ToString()) ? 0m : Convert.ToDecimal(dr[5].ToString());
+                var quotedPrice = decimal.TryParse(dr[6].ToString(), out value) ? value : 0m; // string.IsNullOrEmpty(dr[6].ToString()) ? 0m : Convert.ToDecimal(dr[6].ToString());
+                var foc = decimal.TryParse(dr[7].ToString(), out value) ? value : 0m; //string.IsNullOrEmpty(dr[7].ToString()) ? 0m : Convert.ToDecimal(dr[7].ToString());
+                var discRate = decimal.TryParse(dr[8].ToString(),out value) ? value : 0m; // string.IsNullOrEmpty(dr[8].ToString()) ? 0m : Convert.ToDecimal(dr[8].ToString());
+                var discAmt = decimal.TryParse(dr[9].ToString(), out value) ? value : 0m; //string.IsNullOrEmpty(dr[9].ToString()) ? 0m : Convert.ToDecimal(dr[9].ToString());
 
                 var taxType = dr[10].ToString().ToUpper();
-                var taxRate = string.IsNullOrEmpty(dr[11].ToString()) ? 0m : Convert.ToDecimal(dr[11].ToString());
+                var taxRate = decimal.TryParse(dr[11].ToString(), out value) ? value : 0m; //string.IsNullOrEmpty(dr[11].ToString()) ? 0m : Convert.ToDecimal(dr[11].ToString());
                 var comment = dr[12].ToString().Trim();
 
                 if (quotedPrice > 0)

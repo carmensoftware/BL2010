@@ -191,12 +191,14 @@ namespace BlueLedger.PL.IN
 
         protected void btn_SyncVendor_Click(object sender, EventArgs e)
         {
-            var error = SyncVendor();
+            SyncVendor();
 
-            if (string.IsNullOrEmpty(error))
-            {
-                Response.Redirect(Request.RawUrl);
-            }
+            //var error = SyncVendor();
+
+            //if (string.IsNullOrEmpty(error))
+            //{
+            //    Response.Redirect(Request.RawUrl);
+            //}
         }
 
         protected void btn_Category_Back_Click(object sender, EventArgs e)
@@ -377,13 +379,12 @@ namespace BlueLedger.PL.IN
             gv_Category.DataBind();
         }
 
-        private string SyncVendor()
+        private void SyncVendor()
         {
-            var error = "";
+            lbl_Error.Text = "";
 
             try
             {
-
                 var values = config.GetValue("APP", "INTF", "ACCOUNT", LoginInfo.ConnStr);
 
                 if (!string.IsNullOrEmpty(values))
@@ -404,28 +405,34 @@ namespace BlueLedger.PL.IN
                         var api = new API(baseUrl, auth);
 
                         var json = api.Get(endpoint);
+
+                        lbl_Title.Text = json;
+
+
                         var result = JsonConvert.DeserializeObject<RootData>(json);
 
-                        var errors = new StringBuilder();
+                        var errors = new List<SyncError>();
 
                         foreach (var item in result.Data)
                         {
                             var sql = @"
 EXEC [Tool].[Vendor_InsertOrUpdate] 
-@VendorCode,
-@CategoryCode,
-@VendorName,
-@Address,
-@Tel,
-@Fax,
-@TaxId,
-@BranchId,
-@TaxType,
-@TaxRate,
-@CreditTerm,
-@IsActive,
-@UpdatedBy,
-@UpdatedDate";
+@VendorCode=@VendorCode,
+@CategoryCode=@CategoryCode,
+@VendorName=@VendorName,
+@Address=@Address,
+@Tel=@Tel,
+@Fax=@Fax,
+@Email=@Email,
+@Contact=@Contact,
+@TaxId=@TaxId,
+@BranchId=@BranchId,
+@TaxType=@TaxType,
+@TaxRate=@TaxRate,
+@CreditTerm=@CreditTerm,
+@IsActive=@IsActive,
+@UpdatedBy=@UpdatedBy,
+@UpdatedDate=@UpdatedDate";
                             var address = new StringBuilder();
 
                             address.Append(item.VnAdd1 + " ");
@@ -435,6 +442,8 @@ EXEC [Tool].[Vendor_InsertOrUpdate]
                             try
                             {
 
+
+
                                 using (SqlConnection connection = new SqlConnection(LoginInfo.ConnStr))
                                 {
                                     SqlCommand command = new SqlCommand(sql, connection);
@@ -442,15 +451,17 @@ EXEC [Tool].[Vendor_InsertOrUpdate]
                                     command.Parameters.AddWithValue("@CategoryCode", item.VnCateCode);
                                     command.Parameters.AddWithValue("@VendorName", item.VnName);
                                     command.Parameters.AddWithValue("@Address", address.ToString().Trim());
-                                    command.Parameters.AddWithValue("@Tel", item.VnTel);
-                                    command.Parameters.AddWithValue("@Fax", item.VnFax);
-                                    command.Parameters.AddWithValue("@TaxId", item.VnTaxNo);
-                                    command.Parameters.AddWithValue("@BranchId", item.BranchNo);
+                                    command.Parameters.AddWithValue("@Tel", item.VnTel ?? "");
+                                    command.Parameters.AddWithValue("@Fax", item.VnFax ?? "");
+                                    command.Parameters.AddWithValue("@Email", item.VnEmail ?? "");
+                                    command.Parameters.AddWithValue("@Contact", item.VnAttn ?? "");
+                                    command.Parameters.AddWithValue("@TaxId", item.VnTaxNo ?? "");
+                                    command.Parameters.AddWithValue("@BranchId", item.BranchNo ?? "");
                                     command.Parameters.AddWithValue("@TaxType", item.VnVat1.Substring(0, 1));
                                     command.Parameters.AddWithValue("@TaxRate", item.VnTaxR1 ?? 0);
                                     command.Parameters.AddWithValue("@CreditTerm", item.VnTerm);
                                     command.Parameters.AddWithValue("@IsActive", item.Active);
-                                    command.Parameters.AddWithValue("@UpdatedBy", item.UserModified);
+                                    command.Parameters.AddWithValue("@UpdatedBy", item.UserModified ?? "");
                                     command.Parameters.AddWithValue("@UpdatedDate", item.LastModified);
 
                                     command.Connection.Open();
@@ -459,87 +470,37 @@ EXEC [Tool].[Vendor_InsertOrUpdate]
                             }
                             catch (Exception ex)
                             {
-                                errors.AppendLine(item.VnCode + " = " + ex.Message);
+                                //errors.Add(item.VnCode + " = " + ex.Message);
+                                errors.Add(new SyncError
+                                {
+                                    VendorCode = item.VnCode,
+                                    Error = ex.Message
+                                });
                             }
                         }
 
 
-                        if (!string.IsNullOrEmpty( errors.ToString()))
+                        if (!string.IsNullOrEmpty(errors.ToString()))
                         {
-                            lbl_Error.Text = errors.ToString();
+                            var error = JsonConvert.SerializeObject(errors);
+
+                            lbl_Error.Text = "Error";
+                            Response.Write(string.Format("<script>console.log(`{0}`);</script>", error));
                         }
 
-                        //var script = new List<string>();
-                        //var script = new StringBuilder();
 
-                        //foreach (DataVendor item in result.Data)
-                        //{
-                        //    var vnCode = item.VnCode;
-                        //    var vnName = item.VnName.Replace("\'", "\'\'");
-                        //    var vnAdd1 = string.IsNullOrEmpty(item.VnAdd1) ? "" : item.VnAdd1.Replace("\'", "\'\'");
-                        //    var vnAdd2 = string.IsNullOrEmpty(item.VnAdd2) ? "" : item.VnAdd2.Replace("\'", "\'\'");
-                        //    var vnAdd3 = string.IsNullOrEmpty(item.VnAdd3) ? "" : item.VnAdd3.Replace("\'", "\'\'");
-                        //    var vnAdd4 = string.IsNullOrEmpty(item.VnAdd4) ? "" : item.VnAdd4.Replace("\'", "\'\'");
-                        //    var vnTel = string.IsNullOrEmpty(item.VnTel) ? "" : item.VnTel.Replace("\'", "\'\'");
-                        //    var vnFax = string.IsNullOrEmpty(item.VnFax) ? "" : item.VnFax.Replace("\'", "\'\'");
-                        //    var vnCateCode = item.VnCateCode;
-                        //    //var vnTaxNo = item.VnTaxNo;
-                        //    var vnTaxNo = string.IsNullOrEmpty(item.VnTaxNo) ? "" : item.VnTaxNo.Replace("\'", "\'\'");
-                        //    var branchNo = item.BranchNo;
-                        //    var vnVat1 = item.VnVat1.Substring(0, 1);
-                        //    var vnTaxR1 = item.VnTaxR1 ?? 0;
-                        //    var vnTerm = item.VnTerm ?? 0;
-                        //    var active = item.Active ? "1" : "0";
-                        //    var lastModified = item.LastModified == null ? null : string.Format("{0:yyyy-MM-dd HH:mm:ss}", item.LastModified);
-
-                        //    var address = string.Format("{0} {1} {2} {3}", vnAdd1, vnAdd2, vnAdd3, vnAdd4).Trim();
-                        //    var userModified = string.IsNullOrEmpty(item.UserModified);
-
-                        //    //using (SqlConnection connection = new SqlConnection(LoginInfo.ConnStr))
-                        //    //{
-                        //    string sql = "EXEC [Tool].[Vendor_InsertOrUpdate] ";
-                        //    sql += string.Format("@VendorCode=N'{0}',", vnCode);
-                        //    sql += string.Format("@CategoryCode=N'{0}',", vnCateCode);
-                        //    sql += string.Format("@VendorName=N'{0}',", vnName);
-                        //    sql += string.Format("@Address=N'{0}',", address);
-                        //    sql += string.Format("@Tel=N'{0}',", vnTel);
-                        //    sql += string.Format("@Fax=N'{0}',", vnFax);
-                        //    sql += string.Format("@TaxId=N'{0}',", vnTaxNo);
-                        //    sql += string.Format("@BranchId=N'{0}',", branchNo);
-                        //    sql += string.Format("@TaxType='{0}',", vnVat1);
-                        //    sql += string.Format("@TaxRate='{0}',", vnTaxR1);
-                        //    sql += string.Format("@CreditTerm='{0}',", vnTerm);
-                        //    sql += string.Format("@IsActive='{0}',", active);
-                        //    sql += string.Format("@UpdatedBy='{0}',", userModified);
-                        //    sql += string.Format("@UpdatedDate='{0}'", lastModified);
-
-
-                        //    script.AppendLine(sql);
-
-                        //}
-
-                        ////lbl_Title.Text = string.Join("; ", script);
-
-                        //lbl_Error.Text = script.ToString();
-
-
-                        //using (SqlConnection connection = new SqlConnection(LoginInfo.ConnStr))
-                        //{
-                        //    SqlCommand command = new SqlCommand(string.Join("; ", script), connection);
-                        //    command.Connection.Open();
-                        //    command.ExecuteNonQuery();
-                        //}
                     }
-
                 }
             }
             catch (Exception ex)
             {
-                error = ex.Message;
+                var error = ex.Message;
+                lbl_Error.Text = "Error";
                 Response.Write(string.Format("<script>console.log(`{0}`);</script>", error));
             }
 
-            return error;
+
+
         }
 
         public class RootData
@@ -563,6 +524,8 @@ EXEC [Tool].[Vendor_InsertOrUpdate]
             public string VnAdd4 { get; set; }
             public string VnTel { get; set; }
             public string VnFax { get; set; }
+            public string VnEmail { get; set; }
+            public string VnAttn { get; set; }
             public string VnCateCode { get; set; }
             public string VnTaxNo { get; set; }
             public string BranchNo { get; set; }
@@ -575,13 +538,19 @@ EXEC [Tool].[Vendor_InsertOrUpdate]
 
 
             //public string VnCateDesc { get; set; }
-            //public string VnEmail { get; set; }
             //public int VnDisTrm { get; set; }
             //public decimal VnDisPct { get; set; }
             //public string VnRegNo { get; set; }
         }
 
 
+
+        public class SyncError
+        {
+            public string VendorCode { get; set; }
+            public string Error { get; set; }
+
+        }
 
 
         #endregion
