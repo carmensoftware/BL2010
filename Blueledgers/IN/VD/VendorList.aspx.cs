@@ -459,7 +459,7 @@ EXEC [Tool].[Vendor_InsertOrUpdate]
                                     command.Parameters.AddWithValue("@BranchId", item.BranchNo ?? "");
                                     command.Parameters.AddWithValue("@TaxType", item.VnVat1.Substring(0, 1));
                                     command.Parameters.AddWithValue("@TaxRate", item.VnTaxR1 ?? 0);
-                                    command.Parameters.AddWithValue("@CreditTerm", item.VnTerm);
+                                    command.Parameters.AddWithValue("@CreditTerm", item.VnTerm ?? 0);
                                     command.Parameters.AddWithValue("@IsActive", item.Active);
                                     command.Parameters.AddWithValue("@UpdatedBy", item.UserModified ?? "");
                                     command.Parameters.AddWithValue("@UpdatedDate", item.LastModified);
@@ -479,24 +479,30 @@ EXEC [Tool].[Vendor_InsertOrUpdate]
                             }
                         }
 
+
                         if (errors.Count > 0)
                         {
                             var error = JsonConvert.SerializeObject(errors);
 
-                            lbl_Error.Text = "Error";
+                            lbl_Error.Text = "Found some errors (debug).";
                             Response.Write(string.Format("<script>console.log(`{0}`);</script>", error));
                         }
                         else
                         {
                             lbl_Error.Text = "";
                         }
+
+                        //lbl_Error.Text = 
+
+
                     }
                 }
             }
             catch (Exception ex)
             {
                 var error = ex.Message;
-                lbl_Error.Text = "Error";
+
+                lbl_Error.Text = "Found some errors (debug).";
                 Response.Write(string.Format("<script>console.log(`{0}`);</script>", error));
             }
 
