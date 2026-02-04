@@ -479,16 +479,17 @@ EXEC [Tool].[Vendor_InsertOrUpdate]
                             }
                         }
 
-
-                        if (!string.IsNullOrEmpty(errors.ToString()))
+                        if (errors.Count > 0)
                         {
                             var error = JsonConvert.SerializeObject(errors);
 
                             lbl_Error.Text = "Error";
                             Response.Write(string.Format("<script>console.log(`{0}`);</script>", error));
                         }
-
-
+                        else
+                        {
+                            lbl_Error.Text = "";
+                        }
                     }
                 }
             }
