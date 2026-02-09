@@ -368,7 +368,7 @@
                                         <asp:Label runat="server" ID="Label2" Text="Cost of Total Mix" />
                                     </td>
                                     <td>
-                                        <dx:ASPxSpinEdit ID="se_CostTotalMix" runat="server" Width="100%" TabIndex="103" AllowNull="False" NullText="0" HorizontalAlign="Right">
+                                        <dx:ASPxSpinEdit ID="se_CostTotalMix" runat="server" Width="100%" TabIndex="103" AllowNull="False" NullText="0" HorizontalAlign="Right" ReadOnly="true" BackColor="#d0d3d4">
                                             <SpinButtons ShowIncrementButtons="false" />
                                         </dx:ASPxSpinEdit>
                                     </td>

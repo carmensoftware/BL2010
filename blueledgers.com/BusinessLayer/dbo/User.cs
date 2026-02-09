@@ -113,7 +113,7 @@ namespace Blue.BL.dbo
           
             2026-02-28 = absoluteresorts = 1
             2026-02-28 = boulevardhotelbangkok = 10 + 17 = 27
-            2026-02-28 = hopinnth = 27 
+            2026-02-28 = hopinnth = 27 + 23 = 50
             2026-02-28 = hotellotussukhumvit = 15+2 = 17 + 2 = 19
             2026-02-28 = legacysuites = 15 + 7 = 22
             2026-02-28 = peachgroup = 13 
@@ -152,11 +152,11 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser =5;
+        private int licenseActiveUser =500;
 
         public DateTime GetLicenseExpiredDate()
         {
-            return new DateTime(2026, 4, 30);
+            return new DateTime(2026, 2, 28);
         }
 
         private DateTime licenseExpiredDate { get { return GetLicenseExpiredDate(); } }
@@ -246,7 +246,7 @@ namespace Blue.BL.dbo
                     else if (activedUsers > licenseActiveUser)
                     {
                         //MsgError = "You have more users than your license allows. Please contact administrator to purchase the license.";
-                        MsgError = string.Format("The number of users exceeds the available licenses.<br/>Purchase users: {0}<br/>Active users: {1}",
+                        MsgError = string.Format("The number of users exceeds the available licenses.<br/>License: {0} user(s) / used: {1} user(s)",
                             licenseActiveUser, activedUsers);
                         return false;
                     }
