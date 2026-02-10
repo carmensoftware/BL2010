@@ -12,6 +12,12 @@ namespace Blue.BL.dbo
         private readonly Blue.BL.ADMIN.UserStore userStore = new Blue.BL.ADMIN.UserStore();
 
         /*  Customer's license
+            2027-02-28 = mybeachphuket = 10+? = 13 + 1 = 14
+            2027-02-28 = firaphuketbeachclub = 5+3=8
+            2027-02-28 = gcmt = 1
+         
+         
+         
             2027-01-31 = bayvillaskohphangan = 1+5+1 = 7
             2027-01-31 = siamese = 24+2 = 26 + 20 + 10 = 56 (follow by Cassia Rama9)
             2027-01-31 = surestaytheiconicari = 10        
@@ -26,6 +32,9 @@ namespace Blue.BL.dbo
             2027-01-31 = OKM = 50
             2027-01-31 = ibis = 999
          
+            2027-01-31 = TWIN_LOTUS (on permise) = 16
+            2027-01-31 = legacysuites = 15 + 7 = 22
+            2027-01-31 = boulevardhotelbangkok = 10 + 17 = 27
          
          
             ---------------------------------------------------------------
@@ -105,21 +114,15 @@ namespace Blue.BL.dbo
             2026-03-31 = kappasensesubud = 17
 
             2026-02-28 = cafedelmarphuket =46
-            2026-02-28 = gcmt = 1
             2026-02-28 = belairebangkok = 11
-            2026-02-28 = mybeachphuket = 10+? = 13 + 1 = 14
             2026-02-28 = sorahotels = 9
-            2026-02-28 = firaphuketbeachclub = 5+3=8
           
             2026-02-28 = absoluteresorts = 1
-            2026-02-28 = boulevardhotelbangkok = 10 + 17 = 27
             2026-02-28 = hopinnth = 27 + 23 = 50
             2026-02-28 = hotellotussukhumvit = 15+2 = 17 + 2 = 19
-            2026-02-28 = legacysuites = 15 + 7 = 22
             2026-02-28 = peachgroup = 13 
             2026-02-28 = urbanalangsuanbkk = 7
             2026-02-28 = selinaserenityrawai = 8
-            2026-02-28 = TWIN_LOTUS (on permise) = 16
           
                     
           
@@ -152,11 +155,11 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser =500;
+        private int licenseActiveUser =22;
 
         public DateTime GetLicenseExpiredDate()
         {
-            return new DateTime(2026, 2, 28);
+            return new DateTime(2027, 1, 31);
         }
 
         private DateTime licenseExpiredDate { get { return GetLicenseExpiredDate(); } }
