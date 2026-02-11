@@ -1491,7 +1491,7 @@ VALUES (@RefId, @Type, 'Saved', @Description, NULL, @CreateBy, @CreateDate, @Upd
             var error = "";
             var date = saleDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 
-            var query = "SELECT * FROM [IN].[Period] WHERE @Date BETWEEN StartDate AND EndDate";
+            var query = "SELECT IsClose FROM [IN].[Period] WHERE IsClose=1 AND @Date BETWEEN StartDate AND EndDate";
             var dtPeriod = bu.DbExecuteQuery(query, new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@Date", date) }, LoginInfo.ConnStr);
 
             if (dtPeriod != null && dtPeriod.Rows.Count > 0)
