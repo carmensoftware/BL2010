@@ -98,7 +98,7 @@ namespace Blue.BL.dbo
             2026-04-30 = wyndhamgardenmanilabay = 7
             2026-04-30 = MysKhaoyai = 12
             2026-04-30 = bellevillachiangmai = 10
-            2026-04-30 = sotetsu-hotels = 1
+            2026-04-30 = sotetsu-hotels = 1 + 6 = 7
             2026-04-30 = surestayplusramkhamheang = 5
             2026-04-30 = maitriahotels = 5
 
@@ -155,11 +155,11 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser =22;
+        private int licenseActiveUser =7;
 
         public DateTime GetLicenseExpiredDate()
         {
-            return new DateTime(2027, 1, 31);
+            return new DateTime(2026, 4, 30);
         }
 
         private DateTime licenseExpiredDate { get { return GetLicenseExpiredDate(); } }
