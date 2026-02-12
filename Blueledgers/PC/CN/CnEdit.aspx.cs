@@ -1416,6 +1416,38 @@ WHERE
                 return;
             }
 
+            var docNo = txt_DocNo.Text.Trim();
+            var vendorCode = ddl_Vendor.Value.ToString();
+
+            if (string.IsNullOrEmpty(docNo))
+            {
+                ShowWarning("Document No. is required.");
+
+                return;
+            }
+
+            var query = @"
+SELECT TOP(1) RecNo as DocNo FROM PC.REC WHERE DocStatus <> 'Voided' AND InvoiceNo = @DocNo AND VendorCode=@VendorCode
+UNION ALL
+SELECT TOP(1) CnNo FROM PC.Cn WHERE CnNo <> @CnNo AND DocStatus <> 'Voided' AND DocNo = @DocNo AND VendorCode=@VendorCode";
+            var dtDocNo = _bu.DbExecuteQuery(query, new Blue.DAL.DbParameter[]
+            {
+                new Blue.DAL.DbParameter("@CnNo", _ID),
+                new Blue.DAL.DbParameter("@DocNo", docNo),
+                new Blue.DAL.DbParameter("@VendorCode", vendorCode)
+            }, hf_ConnStr.Value);
+
+            if (dtDocNo != null && dtDocNo.Rows.Count > 0)
+            {
+                var checkDocNo = dtDocNo.Rows[0]["DocNo"].ToString();
+
+                ShowWarning(string.Format("Duplicate document no with receiving/credit note '{0}'.", checkDocNo));
+
+                return;
+            }
+
+
+
             var isNew = string.IsNullOrEmpty(_ID);
 
             var queries = new StringBuilder();
@@ -1429,9 +1461,7 @@ WHERE
 
             var cnDate = de_CnDate.Date;
             var cnNo = string.IsNullOrEmpty(_ID) ? _cn.GetNewID(cnDate, hf_ConnStr.Value) : _ID;
-            var docNo = txt_DocNo.Text.Trim();
             var docDate = de_DocDate.Date;
-            var vendorCode = ddl_Vendor.Value.ToString();
             var currencyCode = ddl_Currency.Value.ToString();
             var currencyRate = se_CurrencyRate.Number;
             var description = txt_Desc.Text.Trim();
@@ -1565,7 +1595,7 @@ WHERE
                 if (isCommit)
                 {
                     // Check Onhand
-                    var query = @"
+                    query = @"
 DECLARE @DocDate DATE = (SELECT CnDate FROM PC.Cn WHERE CnNo=@CnNo)
 DECLARE @CommittedDate DATE = [IN].GetCommittedDate(@DocDate, NULL)
 
@@ -1712,7 +1742,7 @@ WHERE
             var se_CnCurrNetAmt = control.NamingContainer.FindControl("se_CnCurrNetAmt") as ASPxSpinEdit;
             var se_CnCurrTaxAmt = control.NamingContainer.FindControl("se_CnCurrTaxAmt") as ASPxSpinEdit;
             var se_CnCurrTotalAmt = control.NamingContainer.FindControl("se_CnCurrTotalAmt") as ASPxSpinEdit;
-            
+
             // ----------------------------------------------------------------------------------------------------
 
 
@@ -2192,7 +2222,7 @@ WHERE
             }
             else
             {
-                netAmt = RoundAmt( amt * 100 / (taxRate + 100));
+                netAmt = RoundAmt(amt * 100 / (taxRate + 100));
                 taxAmt = amt - netAmt;
                 //taxAmt = (amt * taxRate) / (100 - taxRate);
                 //netAmt = amt - taxAmt;

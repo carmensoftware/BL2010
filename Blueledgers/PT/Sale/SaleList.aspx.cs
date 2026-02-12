@@ -1491,27 +1491,34 @@ VALUES (@RefId, @Type, 'Saved', @Description, NULL, @CreateBy, @CreateDate, @Upd
             var error = "";
             var date = saleDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 
-            var query = "SELECT IsClose FROM [IN].[Period] WHERE IsClose=1 AND @Date BETWEEN StartDate AND EndDate";
+            var query = "SELECT * FROM [IN].[Period] WHERE IsClose=1 AND  @Date BETWEEN StartDate AND EndDate";
             var dtPeriod = bu.DbExecuteQuery(query, new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@Date", date) }, LoginInfo.ConnStr);
 
             if (dtPeriod != null && dtPeriod.Rows.Count > 0)
             {
-                var isClosed = Convert.ToBoolean(dtPeriod.Rows[0][0]) == true;
-
-                if (isClosed)
-                {
-                    error = "Date was in the closed period.";
-
-                    return error;
-                }
-
-            }
-            else
-            {
-                error = "Invalid period date";
+                error = "Date was in the closed period.";
 
                 return error;
             }
+
+            //if (dtPeriod != null && dtPeriod.Rows.Count > 0)
+            //{
+            //    var isClosed = Convert.ToBoolean(dtPeriod.Rows[0][0]) == true;
+
+            //    if (isClosed)
+            //    {
+            //        error = "Date was in the closed period.";
+
+            //        return error;
+            //    }
+
+            //}
+            //else
+            //{
+            //    error = "Invalid period date";
+
+            //    return error;
+            //}
 
 
             query = "SELECT [Status] FROM [IN].StockOut WHERE RefId=@RefId";
@@ -1669,7 +1676,7 @@ ORDER BY
         }
 
 
-        
+
         private void SaveAdjustType(string code)
         {
             //bu.DbExecuteQuery("SELECT [Value] FROM APP.Config WHERE Module='PT' AND SubModule='SALE' AND [Key]='AdjsutType'", null, LoginInfo.ConnStr);
