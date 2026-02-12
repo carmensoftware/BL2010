@@ -45,6 +45,9 @@ namespace BlueLedger.PL.PC.CN
 
         #endregion
 
+
+        private int _digitPrice;
+
         protected override void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
@@ -83,6 +86,11 @@ namespace BlueLedger.PL.PC.CN
                     return;
                 }
             }
+
+            var digitPrice = config.GetValue("APP", "Default", "DigitPrice", hf_ConnStr.Value);
+
+            _digitPrice = string.IsNullOrEmpty(digitPrice) ? 3 : Convert.ToInt32(digitPrice);
+
 
             Page_Setting();
 
@@ -395,7 +403,8 @@ namespace BlueLedger.PL.PC.CN
                     if (e.Row.FindControl("lbl_RecPrice") != null)
                     {
                         var lbl = e.Row.FindControl("lbl_RecPrice") as Label;
-                        lbl.Text = string.Format(DefaultAmtFmt, DataBinder.Eval(e.Row.DataItem, "Price"));
+                        //lbl.Text = string.Format(DefaultAmtFmt, DataBinder.Eval(e.Row.DataItem, "Price"));
+                        lbl.Text = FormatPrice(DataBinder.Eval(e.Row.DataItem, "Price"));
                         lbl.ToolTip = lbl.Text;
                     }
 
@@ -687,6 +696,13 @@ namespace BlueLedger.PL.PC.CN
         protected void btn_Send_Click(object sender, EventArgs e)
         {
             pop_SendMsg.ShowOnPageLoad = false;
+        }
+
+        private string FormatPrice(object value)
+        {
+            var number = string.IsNullOrEmpty(value.ToString()) ? 0m : Convert.ToDecimal(value);
+
+            return number.ToString(string.Format("N{0}", _digitPrice));
         }
 
     }

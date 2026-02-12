@@ -88,6 +88,7 @@ namespace BlueLedger.PL.PC.CN
             hf_ConnStr.Value = LoginInfo.ConnStr;
 
             var currency = _config.GetValue("APP", "BU", "DefaultCurrency", hf_ConnStr.Value);
+            var digitPrice = _config.GetValue("APP", "Default", "DigitPrice", hf_ConnStr.Value);
             var digitAmt = _config.GetValue("APP", "Default", "DigitAmt", hf_ConnStr.Value);
             var digitQty = _config.GetValue("APP", "Default", "DigitQty", hf_ConnStr.Value);
             var taxRate = _config.GetValue("APP", "Default", "TaxRate", hf_ConnStr.Value);
@@ -96,6 +97,7 @@ namespace BlueLedger.PL.PC.CN
             _default = new DefaultValues
             {
                 Currency = currency,
+                DigitPrice = string.IsNullOrEmpty(digitPrice) ? 3 : Convert.ToInt32(digitPrice),
                 DigitAmt = string.IsNullOrEmpty(digitAmt) ? 2 : Convert.ToInt32(digitAmt),
                 DigitQty = string.IsNullOrEmpty(digitQty) ? 2 : Convert.ToInt32(digitQty),
                 TaxRate = string.IsNullOrEmpty(taxRate) ? 0 : Convert.ToDecimal(taxRate),
@@ -521,7 +523,7 @@ namespace BlueLedger.PL.PC.CN
                 //BindGridRow_Label(e, "lbl_RecPrice", FormatAmt(drRec["Price"]));
                 BindGridRow_Label(e, "lbl_RecTaxType", taxTypeName);
                 BindGridRow_Label(e, "lbl_RecTaxRate", FormatAmt(drRec["TaxRate"]));
-                BindGridRow_Label(e, "lbl_RecPrice", FormatAmt(drRec["Price"]));
+                BindGridRow_Label(e, "lbl_RecPrice", FormatPrice(drRec["Price"]));
 
 
                 btn_Save.Visible = true;
@@ -838,7 +840,7 @@ WHERE
                 // Price
                 var price = DataBinder.Eval(dataItem, "Price").ToString();
 
-                BindGridRow_Label(e, "lbl_Price", FormatAmt(price));
+                BindGridRow_Label(e, "lbl_Price", FormatPrice(price));
 
 
                 // RcvUnit
@@ -2191,6 +2193,13 @@ WHERE
             return number.ToString(string.Format("N{0}", DefaultAmtDigit));
         }
 
+        private string FormatPrice(object value)
+        {
+            var number = string.IsNullOrEmpty(value.ToString()) ? 0m : Convert.ToDecimal(value);
+
+            return number.ToString(string.Format("N{0}", _default.DigitPrice));
+        }
+
         private string FormatDate(object value)
         {
 
@@ -2308,10 +2317,12 @@ WHERE
         }
 
 
+       
         // Classes
         public class DefaultValues
         {
             public string Currency { get; set; }
+            public int DigitPrice { get; set; }
             public int DigitAmt { get; set; }
             public int DigitQty { get; set; }
             public decimal TaxRate { get; set; }
