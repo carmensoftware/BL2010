@@ -19,22 +19,22 @@ namespace BlueLedger.PL.Option.Admin.Security.User
         private readonly Blue.BL.ADMIN.RolePermission rolePermiss = new Blue.BL.ADMIN.RolePermission();
         private readonly string moduleID = "99.98.1.2";
 
-        private DataSet dsUser = new DataSet();
-        private DataTable dtUser = new DataTable();
+        private readonly string connetionString = System.Configuration.ConfigurationManager.AppSettings["ConnStr"].ToString();
+
+        //private DataSet dsUser = new DataSet();
+        //private DataTable dtUser = new DataTable();
+        private DataTable _dtUser
+        {
+            get { return ViewState["dtUser"] as DataTable; }
+            set { ViewState["dtUser"] = value; }
+        }
 
         #endregion
 
-
-        /// <summary>
-        ///     Display all User data.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         protected override void Page_Load(object sender, EventArgs e)
         {
-            //Response.Write("TEST_PageLoad");
-
             base.Page_Load(sender, e);
+
             if (!IsPostBack)
             {
                 Page_Retrieve();
@@ -42,75 +42,82 @@ namespace BlueLedger.PL.Option.Admin.Security.User
             }
             else
             {
-                dsUser = (DataSet)Session["dsUser"];
-                dtUser = (DataTable)Session["dtUser"];
-                countRow(dtUser);
+                //dsUser = (DataSet)Session["dsUser"];
+                //dtUser = (DataTable)Session["dtUser"];
+                //CountRows(dtUser);
             }
 
         }
 
-        /// <summary>
-        ///     Get user data.
-        /// </summary>
         private void Page_Retrieve()
         {
-            dsUser.Clear();
-            var result = user.GetList(dsUser, LoginInfo.BuInfo.BuCode);
+            //_dtUser = GetListUsers();
 
-            if (result)
-            {
-                Session["dsUser"] = dsUser;
+            Page_Setting();
+            //dsUser.Clear();
+            //var result = user.GetList(dsUser, LoginInfo.BuInfo.BuCode);
 
-                // Display User data.
-                Page_Setting();
-            }
+            //if (result)
+            //{
+            //    Session["dsUser"] = dsUser;
+
+            //    // Display User data.
+            //    Page_Setting();
+            //}
         }
 
-        /// <summary>
-        ///     Display user data.
-        /// </summary>
         private void Page_Setting()
         {
-
-
-            string connetionString = System.Configuration.ConfigurationManager.AppSettings["ConnStr"].ToString();
-            SqlConnection cnn = new SqlConnection(connetionString);
-            try
-            {
-                cnn.Open();
-
-            }
-            catch (Exception ex)
-            {
-                cnn.Close();
-                string ErrorMess = ex.ToString();
-            }
-            //string strsql = "select FName+' '+MName+' '+LName AS FullName,";
-            //strsql += " Email, LoginName, JobTitle, IsActived, LastLogin,";
-            //strsql += " Case IsActived When '1' Then 'Active' When '0' Then 'Inactive' Else 'Null' End AS IsActived2 ";
-            //strsql += " from dbo.[User]";
-            string sql = string.Empty;
-            sql = " SELECT ISNULL(FName,'') + ' ' + ISNULL(MName,'') + ' ' + ISNULL(LName,'') AS FullName,";
-            sql += " Email, u.LoginName, JobTitle, IsActived, LastLogin,";
-            sql += " Case IsActived When '1' Then 'Active' When '0' Then 'Inactive' Else 'Null' End AS IsActived2 ";
-            sql += " FROM dbo.[User] u";
-            //sql += " LEFT JOIN dbo.BuUser bu ON bu.LoginName = u.LoginName";
-            //sql += string.Format(" WHERE BuCode = '{0}'", LoginInfo.BuInfo.BuCode);
-
-            SqlCommand myCommand = new SqlCommand(sql, cnn);
-            SqlDataAdapter da = new SqlDataAdapter(myCommand);
-            DataSet dUser = new DataSet();
-            dtUser = dsUser.Tables[0];
-            dtUser.Clear();
-            da.Fill(dtUser);
-
-            gvUserList.DataSource = dtUser;
-            gvUserList.DataBind();
-            countRow(dtUser);
-
             Control_HeaderMenuBar();
-            Session["dsUser"] = (DataSet)dsUser;
-            Session["dtUser"] = (DataTable)dtUser;
+
+            BindUserList();
+
+            //            SqlConnection cnn = new SqlConnection(connetionString);
+            //            try
+            //            {
+            //                cnn.Open();
+
+            //            }
+            //            catch (Exception ex)
+            //            {
+            //                cnn.Close();
+            //                string ErrorMess = ex.ToString();
+            //            }
+            //            string sql = @"
+            //SELECT 
+            //    ROW_NUMBER() OVER(ORDER BY LoginName) as RowId,
+            //	LoginName, 
+            //	CONCAT(ISNULL(FName,''), ' ', ISNULL(MName,''), ' ', ISNULL(LName,'')) AS FullName,
+            //	Email, 
+            //	JobTitle, 
+            //	IsActived, 
+            //	LastLogin,
+            //	CASE IsActived 
+            //		WHEN '1' THEN 'Active' 
+            //		ELSE 'Inactive' 
+            //	END IsActived2
+            //FROM 
+            //	dbo.[User]
+            //WHERE
+            //	LoginName NOT IN (SELECT LoginName FROM [dbo].[User] WHERE LoginName IN ('support@carmen','support@genex') OR [SectionCode] = 'SUPPORT')
+            //ORDER BY
+            //	LoginName";
+
+
+            //            SqlCommand myCommand = new SqlCommand(sql, cnn);
+            //            SqlDataAdapter da = new SqlDataAdapter(myCommand);
+            //            DataSet dUser = new DataSet();
+            //            dtUser = dsUser.Tables[0];
+            //            dtUser.Clear();
+            //            da.Fill(dtUser);
+
+            //            gvUserList.DataSource = dtUser;
+            //            gvUserList.DataBind();
+            //            CountRows(dtUser);
+
+            //            Control_HeaderMenuBar();
+            //            Session["dsUser"] = (DataSet)dsUser;
+            //            Session["dtUser"] = (DataTable)dtUser;
 
         }
 
@@ -118,6 +125,56 @@ namespace BlueLedger.PL.Option.Admin.Security.User
         {
             int pagePermission = rolePermiss.GetPagePermission(moduleID, LoginInfo.LoginName, LoginInfo.ConnStr);
             btnAddUser.Visible = (pagePermission >= 3) ? btnAddUser.Visible : false;
+        }
+
+        #region -- Event(s) --
+
+        protected void Create(object sender, EventArgs e)
+        {
+            iFrame_UserInfo.Attributes["src"] = "UserProfile.aspx?mode=CREATE";
+            Label_UserInfo.Text = "New";
+            pop_UserInfo.Show();
+        }
+
+        protected void Print(object sender, EventArgs e)
+        {
+            Report rpt = new Report();
+            rpt.PrintForm(this, "../../../../RPT/PrintForm.aspx", "", "UserList");
+        }
+
+        protected void btnHome_Click(object sender, EventArgs e)
+        {
+            BindUserList();
+            //_dtUser.DefaultView.RowFilter = string.Empty;
+            //Page_Setting();
+        }
+
+        //protected void chkViewAllBu_CheckedChanged(object sender, EventArgs e)
+        //{
+        //    Page_Load(sender, e);
+        //}
+
+        protected void btnS_Click(object sender, EventArgs e)
+        {
+            BindUserList();
+            //GettxtSearch(dtUser, txtSearch.Text);
+        }
+
+        protected void ddl_Status_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            BindUserList();
+            //var ddl = (sender as DropDownList);
+            //string filterText = string.Format("IsActived2 = '{0}'", ddl.SelectedItem.Text);
+            //if (ddl.SelectedIndex == 1)
+            //{
+            //    filterText = "IsActived = 1";
+            //}
+            //else if (ddl.SelectedIndex == 2)
+            //{
+            //    filterText = "IsActived = 0";
+            //}
+            //filterStatus(dtUser, filterText);
+
         }
 
         protected void gvUserList_RowDataBound(object sender, GridViewRowEventArgs e)
@@ -144,132 +201,155 @@ namespace BlueLedger.PL.Option.Admin.Security.User
             }
         }
 
-        protected void countRow(DataTable dt)
-        {
-            DataRow[] rowA = dt.Select("IsActived = 1");
-            int countT = dt.Rows.Count;
-            int countA = rowA.Length;
-
-            lblcountA.Text = String.Format("{0:,0}", countA) + " active(s)/ " + String.Format("{0:,0}", countT) + " user(s)";
-        }
-        protected void btnHome_Click(object sender, EventArgs e)
-        {
-            dtUser.DefaultView.RowFilter = string.Empty;
-            Page_Setting();
-        }
-
-        protected void ddlActive_OnSelectedIndexChanged(object sender, EventArgs e)
-        {
-            string filterText = string.Format("IsActived2 = '{0}'", ddlActive.SelectedItem.Text);
-            if (ddlActive.SelectedIndex == 1)
-            {
-                filterText = "IsActived = 1";
-            }
-            else if (ddlActive.SelectedIndex == 2)
-            {
-                filterText = "IsActived = 0";
-            }
-            filterStatus(dtUser, filterText);
-
-        }
-
-        private void filterStatus(DataTable dt_, string filter)
-        {
-            string filterAll = string.Format("IsActived2 = '{0}'", "All");
-            if (filter == filterAll)
-            {
-                dt_.DefaultView.RowFilter = string.Empty;
-                gvUserList.DataSource = dt_;
-                gvUserList.DataBind();
-            }
-            else
-            {
-                dt_.DefaultView.RowFilter = filter;
-                gvUserList.DataSource = dt_;
-                gvUserList.DataBind();
-            }
-
-        }
-        protected void btnS_Click(object sender, EventArgs e)
-        {
-            GettxtSearch(dtUser, txtSearch.Text);
-        }
-        private void GettxtSearch(DataTable dt_, string txt)
-        {
-            string filtertxt;
-            string searchFilter = "(FullName like '%{0}%' OR Email like '%{0}%' OR LoginName like '%{0}%' OR  JobTitle like '%{0}%')";
-            dt_.DefaultView.RowFilter = string.Empty;
-            if (ddlActive.SelectedItem.Text == "Active")
-            {
-                filtertxt = string.Format(searchFilter + " AND (IsActived2  = '{1}')", txt, "Active");
-            }
-            else if (ddlActive.SelectedItem.Text == "Inactive")
-            {
-                filtertxt = string.Format(searchFilter + " AND (IsActived2  = '{1}')", txt, "Inactive");
-            }
-            else
-            {
-                filtertxt = string.Format(searchFilter, txt);
-            }
-
-            dt_.DefaultView.RowFilter = filtertxt;
-            gvUserList.DataSource = dt_;
-            gvUserList.DataBind();
-        }
         protected void gvUserList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            string loginName = gvUserList.SelectedRow.Cells[1].Text;
+            string loginName = gvUserList.SelectedRow.Cells[2].Text;
             iFrame_UserInfo.Attributes["src"] = "UserProfile.aspx?mode=VIEW&user=" + loginName + "";
             Label_UserInfo.Text = loginName;
             Session["saveStatus"] = "0";
             pop_UserInfo.Show();
         }
 
-        protected void Create(object sender, EventArgs e)
+        #endregion
+
+        private void BindUserList()
         {
-            // Check Maximum User Number.
-            // Not allow to create user if the number of user in the business unit is equal to maximum.
-            //var buLicense = new Blue.BL.dbo.BuLicense();
-            //var buUser = new Blue.BL.dbo.BUUser();
+            _dtUser = GetListUsers();
 
-            //if (buUser.GetUserNo(LoginInfo.BuInfo.BuCode) > buLicense.GetMaxUser(LoginInfo.BuInfo.BuCode))
-            //{
-            //    // Display Error Message
-            //    pop_ReachMaxUserNo.ShowOnPageLoad = true;
+            gvUserList.DataSource = _dtUser;
+            gvUserList.DataBind();
 
-            //}
-            //else
+            ShowLicense();
+        }
+
+
+        private DataTable GetListUsers()
+        {
+            var buCode = "";
+            var status = ddl_Status.SelectedValue.ToString();
+            var search = "%" + txtSearch.Text.Trim() + "%";
+            var query = @"
+;WITH
+exclude AS(
+	SELECT 
+		LoginName 
+	FROM 
+		[dbo].[User] 
+	WHERE 
+		LoginName IN ('support@carmen','support@genex') 
+		OR [SectionCode] = 'SUPPORT'		
+),
+u AS(
+	SELECT
+		DISTINCT u.LoginName
+	FROM
+		dbo.[User] u
+		JOIN [dbo].BuUser bu ON bu.LoginName=u.LoginName
+	WHERE
+		u.LoginName NOT IN (SELECT LoginName FROM exclude)
+		AND bu.BuCode=CASE WHEN ISNULL(@BuCode,'')='' THEN bu.BuCode ELSE @BuCode END
+),
+usr AS(
+	SELECT 
+		LoginName, 
+		CONCAT(ISNULL(FName,''), ' ', ISNULL(MName,''), ' ', ISNULL(LName,'')) AS FullName,
+		Email, 
+		JobTitle, 
+		IsActived, 
+		CASE IsActived 
+			WHEN '1' THEN 'Active' 
+			ELSE 'Inactive' 
+		END [Status],
+		LastLogin
+	FROM 
+		dbo.[User]
+	WHERE
+		IsActived= CASE @Status 
+			WHEN '0' THEN 0
+			WHEN '1' THEN 1
+			ELSE IsActived
+		END
+		AND LoginName IN (SELECT LoginName FROM u)
+)
+SELECT
+	ROW_NUMBER() OVER(ORDER BY LoginName) as RowId,
+	*
+FROM
+	usr
+WHERE
+	LoginName LIKE @Search
+	OR FullName LIKE @Search
+	OR Email LIKE @Search
+	OR JobTitle LIKE @Search
+ORDER BY
+	LoginName";
+            var parameters = new Blue.DAL.DbParameter[]
             {
-                //pop_UserInfo.BehaviorID = "btnCreate";
-                //iFrame_UserInfo.Attributes["src"] = "UserManage.aspx?mode=CREATE";
-                iFrame_UserInfo.Attributes["src"] = "UserProfile.aspx?mode=CREATE";
-                Label_UserInfo.Text = "New";
-                pop_UserInfo.Show();
-            }
+                new Blue.DAL.DbParameter("@BuCode", buCode),
+                new Blue.DAL.DbParameter("@Search", search),
+                new Blue.DAL.DbParameter("@Status", status),
+            };
+
+            var dt = user.DbExecuteQuery(query, parameters, connetionString);
+
+            return dt;
         }
 
-        protected void Print(object sender, EventArgs e)
+
+
+
+        protected void ShowLicense()
         {
-            Report rpt = new Report();
-            rpt.PrintForm(this, "../../../../RPT/PrintForm.aspx", "", "UserList");
+            var license = user.GetActiveUserLicense();
+            var active = user.GetActiveUser();
+            var available = license - active;
+
+            var text = string.Format("License: {0} purchased | {1} available, {2} assigned", license, available, active);
+
+            lblcountA.Text = text;
         }
 
-        protected void ButtonClose_Click(object sender, EventArgs e)
-        {
-            //Response.Redirect(Request.RawUrl);
-            Response.Write("TEST");
+        //private void filterStatus(DataTable dt_, string filter)
+        //{
+        //    string filterAll = string.Format("IsActived2 = '{0}'", "All");
+        //    if (filter == filterAll)
+        //    {
+        //        dt_.DefaultView.RowFilter = string.Empty;
+        //        gvUserList.DataSource = dt_;
+        //        gvUserList.DataBind();
+        //    }
+        //    else
+        //    {
+        //        dt_.DefaultView.RowFilter = filter;
+        //        gvUserList.DataSource = dt_;
+        //        gvUserList.DataBind();
+        //    }
 
-            //string status = Session["saveStatus"].ToString();
-            //if (status == "1")
-            //{
-            //    //Response.Redirect(Request.RawUrl);
-            //    Page.Response.Redirect(HttpContext.Current.Request.Url.ToString(), true);
-            //}
-        }
-        protected void chkViewAllBu_CheckedChanged(object sender, EventArgs e)
-        {
-            Page_Load(sender, e);
-        }
+        //}
+
+        //private void GettxtSearch(DataTable dt_, string txt)
+        //{
+        //    string filtertxt;
+        //    string searchFilter = "(FullName like '%{0}%' OR Email like '%{0}%' OR LoginName like '%{0}%' OR  JobTitle like '%{0}%')";
+        //    dt_.DefaultView.RowFilter = string.Empty;
+        //    if (ddlActive.SelectedItem.Text == "Active")
+        //    {
+        //        filtertxt = string.Format(searchFilter + " AND (IsActived2  = '{1}')", txt, "Active");
+        //    }
+        //    else if (ddlActive.SelectedItem.Text == "Inactive")
+        //    {
+        //        filtertxt = string.Format(searchFilter + " AND (IsActived2  = '{1}')", txt, "Inactive");
+        //    }
+        //    else
+        //    {
+        //        filtertxt = string.Format(searchFilter, txt);
+        //    }
+
+        //    dt_.DefaultView.RowFilter = filtertxt;
+        //    gvUserList.DataSource = dt_;
+        //    gvUserList.DataBind();
+        //}
+
 
     }
 }

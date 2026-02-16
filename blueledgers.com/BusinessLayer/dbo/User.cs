@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Data;
 using Blue.DAL;
-using System.Security.Cryptography;
+
+
 
 namespace Blue.BL.dbo
 {
@@ -155,23 +156,36 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser =7;
+        private int licenseActiveUser = 51;
 
         public DateTime GetLicenseExpiredDate()
         {
             return new DateTime(2026, 4, 30);
         }
 
-        private DateTime licenseExpiredDate { get { return GetLicenseExpiredDate(); } }
+        private DateTime licenseExpiredDate
+        {
+            get
+            {
+                return GetLicenseExpiredDate();
+            }
+        }
         //private DateTime licenseExpiredDate = new DateTime(2026, 1, 31);
 
 
         public int GetActiveUser()
         {
-            string sqlSelect = "SELECT COUNT(*) as ActiveUserCount FROM [dbo].[User] WHERE IsActived = 1 AND LoginName NOT IN ('support@carmen','support@genex')";
+            string query = @"
+SELECT 
+	COUNT(LoginName) as ActiveUserCount 
+FROM 
+	[dbo].[User] 
+WHERE 
+	IsActived = 1 
+	AND LoginName NOT IN (SELECT LoginName FROM [dbo].[User] WHERE LoginName IN ('support@carmen','support@genex') OR [SectionCode] = 'SUPPORT')
+";
 
-            return (int)DbExecuteQuery(sqlSelect, null).Rows[0][0];
-
+            return (int)DbExecuteQuery(query, null).Rows[0][0];
         }
 
         public int GetActiveUserLicense()
@@ -208,7 +222,7 @@ namespace Blue.BL.dbo
         }
 
         public bool CheckLogin(DataSet dsUser, string LoginName, string Password, ref string MsgError, string connStr)
-        {
+        {            
             // Create parameters
             var dbParams = new DbParameter[1];
             dbParams[0] = new DbParameter("@LoginName", LoginName);

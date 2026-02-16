@@ -70,6 +70,7 @@
     </script>
     <asp:UpdatePanel ID="UpdatePanel1" UpdateMode="Conditional" runat="server">
         <ContentTemplate>
+            <asp:HiddenField ID="btnUserInfo" runat="server" />
             <div style="width: 100%">
                 <!-- Title & Command Bar -->
                 <table border="0" cellpadding="0" cellspacing="0" width="100%">
@@ -92,15 +93,16 @@
                         </td>
                     </tr>
                 </table>
+                <!-- Option -->
                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding: 5px;">
                     <tr valign="top" height="30px">
                         <td align="left">
                             <div style="width: 100%; display: inline-block;">
-                                <asp:Label ID="lbltxt1" runat="server" Text="View: "></asp:Label>
-                                <asp:DropDownList ID="ddlActive" runat="server" Width="100px" AutoPostBack="true" OnSelectedIndexChanged="ddlActive_OnSelectedIndexChanged">
-                                    <asp:ListItem Selected="True">All</asp:ListItem>
-                                    <asp:ListItem>Active</asp:ListItem>
-                                    <asp:ListItem>Inactive</asp:ListItem>
+                                <asp:Label ID="Label1" runat="server" Text="View: "></asp:Label>
+                                <asp:DropDownList ID="ddl_Status" runat="server" Width="100px" AutoPostBack="true" OnSelectedIndexChanged="ddl_Status_SelectedIndexChanged">
+                                    <asp:ListItem Value="" Text="All" Selected="True" />
+                                    <asp:ListItem Value="1" Text="Active" />
+                                    <asp:ListItem Value="0" Text="Inactive" />
                                 </asp:DropDownList>
                                 <asp:LinkButton ID="btnRresh" Text="Refresh" Font-Underline="false" ForeColor="Black" runat="server" OnClick="btnHome_Click"></asp:LinkButton>
                             </div>
@@ -116,12 +118,19 @@
                     </tr>
                 </table>
             </div>
+            <div class="">
+                <asp:Label ID="lblcountA" runat="server" Font-Size="Small"></asp:Label>
+            </div>
+            <br />
             <asp:GridView ID="gvUserList" runat="server" AutoGenerateColumns="false" DataKeyNames="loginName" Width="100%" BackColor="White" BorderColor="#DDDDDD"
                 GridLines="Horizontal" Font-Names="Arial" Font-Size="12px" OnSelectedIndexChanged="gvUserList_SelectedIndexChanged" OnRowDataBound="gvUserList_RowDataBound">
                 <HeaderStyle Height="40px" BackColor="#F4F4F5" Font-Bold="True" ForeColor="#444444" HorizontalAlign="Left" />
                 <PagerStyle BackColor="#336666" ForeColor="White" HorizontalAlign="Center" BorderColor="#DDDDDD" />
                 <RowStyle Height="50px" BackColor="White" ForeColor="#333333" BorderColor="#DDDDDD" />
                 <Columns>
+                    <asp:BoundField HeaderText="#" DataField="RowId">
+                        <ItemStyle HorizontalAlign="Center" Width="60px" />
+                    </asp:BoundField>
                     <asp:TemplateField HeaderText="">
                         <ItemTemplate>
                             <asp:ImageButton ID="imgIcon" AlternateText="Icon" runat="server" ImageUrl="~/App_Themes\Default\Images\master\icon\DefaultUserIcon.png" />
@@ -141,7 +150,7 @@
                     <asp:BoundField HeaderText="Job Title" DataField="JobTitle">
                         <ItemStyle HorizontalAlign="Left" Width="300px" />
                     </asp:BoundField>
-                    <asp:BoundField HeaderText="Status" DataField="IsActived2">
+                    <asp:BoundField HeaderText="Status" DataField="Status">
                         <HeaderStyle HorizontalAlign="Center" />
                         <ItemStyle HorizontalAlign="Center" Width="100px" />
                     </asp:BoundField>
@@ -151,9 +160,7 @@
                 </Columns>
                 <SelectedRowStyle BackColor="#4D4D4D" Font-Bold="True" ForeColor="White" />
             </asp:GridView>
-            <div class="footer">
-                <asp:Label ID="lblcountA" runat="server"></asp:Label>
-            </div>
+            <!-- Popup -->
             <cc1:ModalPopupExtender ID="pop_UserInfo" runat="server" PopupControlID="panel_UserInfo" TargetControlID="btnUserInfo" CancelControlID="ButtonClose" BehaviorID="pop_UserInfo"
                 BackgroundCssClass="Background">
             </cc1:ModalPopupExtender>
@@ -165,16 +172,13 @@
                             <asp:Label ID="Label_UserInfo" runat="server" Text="User Information" CssClass="Title" />
                         </td>
                         <td style="text-align: right;">
-                            <asp:Button ID="ButtonClose" runat="server" Text="X" OnClientClick="window.top.location.reload();" />
-                            <%--<asp:Button ID="ButtonClose" runat="server" Text="X"  
-                                onclick="ButtonClose_Click"/>--%>
+                            <asp:Button ID="ButtonClose" runat="server" Text="X" OnClientClick="window.top.location.reload();" />                           
                         </td>
                     </tr>
                 </table>
                 <!-- iFrame -->
                 <iframe id="iFrame_UserInfo" runat="server" style="width: 100%; height: 98%" frameborder="0" />
             </asp:Panel>
-            <asp:HiddenField ID="btnUserInfo" runat="server" />
             <dx:ASPxPopupControl ID="pop_ReachMaxUserNo" runat="server" Width="400px" HeaderText="<%$ Resources:Option_Admin_Security_User_User, Msg2 %>" Modal="True"
                 PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter">
                 <ContentCollection>
