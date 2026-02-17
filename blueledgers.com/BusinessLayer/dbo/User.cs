@@ -89,6 +89,8 @@ namespace Blue.BL.dbo
             2026-05-31 = chi = 2
             2026-05-31 = HotelSensai (Chiang Mai) = 3+8 = 11 ปรับเป็น 10 
             2026-05-31 = chatriumniseko = 9
+            2026-05-31 = surestayplustpattaya = 10
+            2026-05-31 = siamesehotelpattaya = 10
 
             2026-04-30 = indochinephuket = 27
             2026-04-30 = silqandsq = 9+5=14
@@ -156,11 +158,11 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser = 51;
+        private int licenseActiveUser = 10;
 
         public DateTime GetLicenseExpiredDate()
         {
-            return new DateTime(2026, 4, 30);
+            return new DateTime(2026, 5, 31);
         }
 
         private DateTime licenseExpiredDate
