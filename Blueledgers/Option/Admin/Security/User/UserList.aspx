@@ -175,7 +175,7 @@
                 <SelectedRowStyle BackColor="#4D4D4D" Font-Bold="True" ForeColor="White" />
             </asp:GridView>
             <!-- Popup -->
-            <cc1:ModalPopupExtender ID="pop_UserInfo" runat="server" PopupControlID="panel_UserInfo" TargetControlID="btnUserInfo" CancelControlID="ButtonClose" BehaviorID="pop_UserInfo"
+            <cc1:ModalPopupExtender ID="pop_UserInfo" runat="server" PopupControlID="panel_UserInfo" TargetControlID="btnUserInfo" CancelControlID="btn_CloseDialog" BehaviorID="pop_UserInfo"
                 BackgroundCssClass="Background">
             </cc1:ModalPopupExtender>
             <asp:Panel ID="panel_UserInfo" runat="server" CssClass="Popup" Style="display: inline-block">
@@ -186,7 +186,7 @@
                             <asp:Label ID="Label_UserInfo" runat="server" Text="User Information" CssClass="Title" />
                         </td>
                         <td style="text-align: right;">
-                            <asp:Button ID="ButtonClose" runat="server" Text="X" OnClientClick="window.top.location.reload();" />
+                            <asp:Button ID="btn_CloseDialog" runat="server" Text="X" OnClientClick="window.top.location.reload();" />
                         </td>
                     </tr>
                 </table>

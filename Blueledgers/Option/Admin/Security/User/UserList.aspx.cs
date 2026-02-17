@@ -5,6 +5,7 @@ using System.Web.UI.WebControls;
 using BlueLedger.PL.BaseClass;
 using System.Data.SqlClient;
 using System.Web;
+using System.Collections.Generic;
 
 namespace BlueLedger.PL.Option.Admin.Security.User
 {
@@ -12,19 +13,36 @@ namespace BlueLedger.PL.Option.Admin.Security.User
     {
         private readonly string moduleID = "99.98.1.2";
         private readonly Blue.BL.Option.Admin.Security.UserRole userRole = new Blue.BL.Option.Admin.Security.UserRole();
-        
+
         private readonly Blue.BL.dbo.User user = new Blue.BL.dbo.User();
         private readonly Blue.BL.ADMIN.RolePermission rolePermiss = new Blue.BL.ADMIN.RolePermission();
 
-        //private readonly Blue.BL.dbo.BUUser buUser = new Blue.BL.dbo.BUUser();
-        //private readonly Blue.BL.ADMIN.UserStore userStore = new Blue.BL.ADMIN.UserStore();
-
         private readonly string connetionString = System.Configuration.ConfigurationManager.AppSettings["ConnStr"].ToString();
-        
+
         private DataTable _dtUser
         {
             get { return ViewState["dtUser"] as DataTable; }
             set { ViewState["dtUser"] = value; }
+        }
+
+        private bool _supportMode
+        {
+            get
+            {
+                var support = Request.Params["support"] == null ? "" : Request.Params["support"].ToString();
+                return support.ToLower() == "true";
+            }
+        }
+
+        private string _status { get { return Request.Params["status"] == null ? "" : Request.Params["status"].ToString(); } }
+        
+        private string _search { get { return Request.Params["search"] == null ? "" : Request.Params["search"].ToString(); } }
+
+
+        protected void Control_HeaderMenuBar()
+        {
+            int pagePermission = rolePermiss.GetPagePermission(moduleID, LoginInfo.LoginName, LoginInfo.ConnStr);
+            btnAddUser.Visible = (pagePermission >= 3) ? btnAddUser.Visible : false;
         }
 
 
@@ -46,82 +64,19 @@ namespace BlueLedger.PL.Option.Admin.Security.User
 
         }
 
-        protected void Control_HeaderMenuBar()
-        {
-            int pagePermission = rolePermiss.GetPagePermission(moduleID, LoginInfo.LoginName, LoginInfo.ConnStr);
-            btnAddUser.Visible = (pagePermission >= 3) ? btnAddUser.Visible : false;
-        }
-
         private void Page_Retrieve()
         {
-            //_dtUser = GetListUsers();
-
             Page_Setting();
-            //dsUser.Clear();
-            //var result = user.GetList(dsUser, LoginInfo.BuInfo.BuCode);
-
-            //if (result)
-            //{
-            //    Session["dsUser"] = dsUser;
-
-            //    // Display User data.
-            //    Page_Setting();
-            //}
         }
 
         private void Page_Setting()
         {
             Control_HeaderMenuBar();
 
+            ddl_Status.SelectedValue = _status;
+            txtSearch.Text = _search;
+
             BindUserList();
-
-            //            SqlConnection cnn = new SqlConnection(connetionString);
-            //            try
-            //            {
-            //                cnn.Open();
-
-            //            }
-            //            catch (Exception ex)
-            //            {
-            //                cnn.Close();
-            //                string ErrorMess = ex.ToString();
-            //            }
-            //            string sql = @"
-            //SELECT 
-            //    ROW_NUMBER() OVER(ORDER BY LoginName) as RowId,
-            //	LoginName, 
-            //	CONCAT(ISNULL(FName,''), ' ', ISNULL(MName,''), ' ', ISNULL(LName,'')) AS FullName,
-            //	Email, 
-            //	JobTitle, 
-            //	IsActived, 
-            //	LastLogin,
-            //	CASE IsActived 
-            //		WHEN '1' THEN 'Active' 
-            //		ELSE 'Inactive' 
-            //	END IsActived2
-            //FROM 
-            //	dbo.[User]
-            //WHERE
-            //	LoginName NOT IN (SELECT LoginName FROM [dbo].[User] WHERE LoginName IN ('support@carmen','support@genex') OR [SectionCode] = 'SUPPORT')
-            //ORDER BY
-            //	LoginName";
-
-
-            //            SqlCommand myCommand = new SqlCommand(sql, cnn);
-            //            SqlDataAdapter da = new SqlDataAdapter(myCommand);
-            //            DataSet dUser = new DataSet();
-            //            dtUser = dsUser.Tables[0];
-            //            dtUser.Clear();
-            //            da.Fill(dtUser);
-
-            //            gvUserList.DataSource = dtUser;
-            //            gvUserList.DataBind();
-            //            CountRows(dtUser);
-
-            //            Control_HeaderMenuBar();
-            //            Session["dsUser"] = (DataSet)dsUser;
-            //            Session["dtUser"] = (DataTable)dtUser;
-
         }
 
         #region -- Event(s) --
@@ -142,16 +97,39 @@ namespace BlueLedger.PL.Option.Admin.Security.User
         protected void btnHome_Click(object sender, EventArgs e)
         {
             BindUserList();
-        }        
+        }
 
         protected void btnS_Click(object sender, EventArgs e)
         {
-            BindUserList();
+            var status = ddl_Status.SelectedValue.ToString();
+            var search = txtSearch.Text.Trim();
+
+            var url = string.Format("UserList.aspx?status={0}&search={1}", status, search);
+
+            if (_supportMode)
+            {
+                url = "UserList.aspx?support=true";
+            }
+
+            Response.Redirect(url);
+
+            //BindUserList();
         }
 
         protected void ddl_Status_SelectedIndexChanged(object sender, EventArgs e)
         {
-            BindUserList();
+            var status = (sender as DropDownList).SelectedValue.ToString();
+            var search = txtSearch.Text.Trim();
+
+            var url = string.Format("UserList.aspx?status={0}&search={1}", status, search);
+
+            if (_supportMode)
+            {
+                url = "UserList.aspx?support=true";
+            }
+
+            Response.Redirect(url);
+            //BindUserList();
         }
 
         protected void gvUserList_RowDataBound(object sender, GridViewRowEventArgs e)
@@ -180,8 +158,11 @@ namespace BlueLedger.PL.Option.Admin.Security.User
         private DataTable GetListUsers()
         {
             //var buCode = "";
-            var status = ddl_Status.SelectedValue.ToString();
-            var search = "%" + txtSearch.Text.Trim() + "%";
+            //var status = ddl_Status.SelectedValue.ToString();
+            //var search = "%" + txtSearch.Text.Trim() + "%";
+
+            var status = _status;
+            var search = "%" + _search + "%"; ;
             var query = @"
 ;WITH
 u AS(
@@ -219,14 +200,46 @@ WHERE
 	OR JobTitle LIKE @Search
 ORDER BY
 	LoginName";
-            var parameters = new Blue.DAL.DbParameter[]
-            {
-                //new Blue.DAL.DbParameter("@BuCode", buCode),
-                new Blue.DAL.DbParameter("@Search", search),
-                new Blue.DAL.DbParameter("@Status", status),
-            };
 
-            var dt = user.DbExecuteQuery(query, parameters, connetionString);
+            var parameters = new List<Blue.DAL.DbParameter>();
+
+            if (_supportMode)
+            {
+                query = @"
+                    ;WITH
+                    u AS(
+	                    SELECT
+		                    LoginName
+		                    LoginName, 
+		                    CONCAT(ISNULL(FName,''), ' ', ISNULL(MName,''), ' ', ISNULL(LName,'')) AS FullName,
+		                    Email, 
+		                    JobTitle, 
+		                    IsActived, 
+		                    CASE IsActived 
+			                    WHEN '1' THEN 'Active' 
+			                    ELSE 'Inactive' 
+		                    END [Status],
+		                    LastLogin
+	                    FROM 
+		                    dbo.[User] 
+	                    WHERE 
+		                    LoginName IN (SELECT LoginName FROM [dbo].[User] WHERE LoginName IN ('support@carmen','support@genex') OR [SectionCode] = 'SUPPORT')
+                    )
+                    SELECT
+	                    ROW_NUMBER() OVER(ORDER BY LoginName) as RowId,
+	                    u.*
+                    FROM
+	                    u
+                    ORDER BY
+	                    u.LoginName";
+            }
+            else
+            {
+                parameters.Add(new Blue.DAL.DbParameter("@Search", search));
+                parameters.Add(new Blue.DAL.DbParameter("@Status", status));
+            }
+
+            var dt = user.DbExecuteQuery(query, parameters.ToArray(), connetionString);
 
             return dt;
         }
