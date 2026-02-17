@@ -129,31 +129,45 @@
                 <RowStyle Height="50px" BackColor="White" ForeColor="#333333" BorderColor="#DDDDDD" />
                 <Columns>
                     <asp:BoundField HeaderText="#" DataField="RowId">
-                        <ItemStyle HorizontalAlign="Center" Width="60px" />
+                        <ItemStyle HorizontalAlign="Center" Width="40px" Font-Size="Small" />
+                        <HeaderStyle HorizontalAlign="Center" Width="40px" />
                     </asp:BoundField>
                     <asp:TemplateField HeaderText="">
                         <ItemTemplate>
-                            <asp:ImageButton ID="imgIcon" AlternateText="Icon" runat="server" ImageUrl="~/App_Themes\Default\Images\master\icon\DefaultUserIcon.png" />
+                            <asp:ImageButton runat="server" ID="imgIcon" AlternateText="Icon" Height="24" ImageUrl="~/App_Themes\Default\Images\master\icon\DefaultUserIcon.png" />
                         </ItemTemplate>
                         <ItemStyle HorizontalAlign="Center" Width="50px" />
                     </asp:TemplateField>
                     <asp:BoundField HeaderText="Login Name" DataField="LoginName">
-                        <ItemStyle HorizontalAlign="Left" Width="200px" />
+                        <ItemStyle HorizontalAlign="Left" Width="240px" />
                     </asp:BoundField>
                     <asp:TemplateField HeaderText="Profile">
                         <ItemTemplate>
-                            <asp:Label ID="lblFull" Text="" runat="server"></asp:Label><br />
-                            <asp:Label ID="lblEmail" Text="" runat="server"></asp:Label>
+                            <div style="font-size: small;">
+                                <%# Eval("FullName") %>
+                            </div>
+                            <span style="color: Black">
+                                <%# Eval("Email") %>
+                            </span>
                         </ItemTemplate>
                         <ItemStyle HorizontalAlign="Left" Width="200px" ForeColor="#088A29" />
                     </asp:TemplateField>
                     <asp:BoundField HeaderText="Job Title" DataField="JobTitle">
                         <ItemStyle HorizontalAlign="Left" Width="300px" />
                     </asp:BoundField>
-                    <asp:BoundField HeaderText="Status" DataField="Status">
+                    <asp:TemplateField HeaderText="Status">
+                        <ItemTemplate>
+                            <span style='color: <%# Eval("Status").ToString() == "Active" ? "#2787F5" : "Silver" %>'>
+                                <%# Eval("Status") %>
+                            </span>
+                            
+                        </ItemTemplate>
+                        <ItemStyle HorizontalAlign="Left" Width="200px" />
+                    </asp:TemplateField>
+                    <%--<asp:BoundField HeaderText="Status" DataField="Status">
                         <HeaderStyle HorizontalAlign="Center" />
                         <ItemStyle HorizontalAlign="Center" Width="100px" />
-                    </asp:BoundField>
+                    </asp:BoundField>--%>
                     <asp:BoundField HeaderText="Last Login" DataField="LastLogin">
                         <ItemStyle HorizontalAlign="Left" Width="200px" />
                     </asp:BoundField>
@@ -172,7 +186,7 @@
                             <asp:Label ID="Label_UserInfo" runat="server" Text="User Information" CssClass="Title" />
                         </td>
                         <td style="text-align: right;">
-                            <asp:Button ID="ButtonClose" runat="server" Text="X" OnClientClick="window.top.location.reload();" />                           
+                            <asp:Button ID="ButtonClose" runat="server" Text="X" OnClientClick="window.top.location.reload();" />
                         </td>
                     </tr>
                 </table>
