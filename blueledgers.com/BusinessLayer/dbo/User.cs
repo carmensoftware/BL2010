@@ -158,7 +158,7 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser = 10;
+        private int licenseActiveUser = 51;
 
         public DateTime GetLicenseExpiredDate()
         {
@@ -224,7 +224,7 @@ WHERE
         }
 
         public bool CheckLogin(DataSet dsUser, string LoginName, string Password, ref string MsgError, string connStr)
-        {            
+        {
             // Create parameters
             var dbParams = new DbParameter[1];
             dbParams[0] = new DbParameter("@LoginName", LoginName);
@@ -265,8 +265,8 @@ WHERE
                     else if (activedUsers > licenseActiveUser)
                     {
                         //MsgError = "You have more users than your license allows. Please contact administrator to purchase the license.";
-                        MsgError = string.Format("The number of users exceeds the available licenses.<br/>License: {0} user(s) / used: {1} user(s)",
-                            licenseActiveUser, activedUsers);
+                        MsgError = string.Format("The number of users exceeds the available licenses.<br/>License: {0} purchased | {1} assigned.", licenseActiveUser, activedUsers);
+                        
                         return false;
                     }
                     else if (DateTime.Now.Date >= licenseExpiredDate.AddDays(-30))
