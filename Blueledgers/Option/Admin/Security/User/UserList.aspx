@@ -1,15 +1,12 @@
 ﻿<%@ Page Language="C#" MasterPageFile="~/Master/In/SkinDefault.master" AutoEventWireup="true" EnableEventValidation="false" CodeFile="UserList.aspx.cs"
     Inherits="BlueLedger.PL.Option.Admin.Security.User.UserList" %>
 
-<%@ Register Assembly="DevExpress.Web.ASPxEditors.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Web.ASPxEditors"
-    TagPrefix="dx" %>
-<%@ Register Assembly="System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" Namespace="System.Web.UI" TagPrefix="asp" %>
 <%@ MasterType VirtualPath="~/master/In/SkinDefault.master" %>
-<%@ Register Assembly="DevExpress.Web.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Web.ASPxMenu" TagPrefix="dx" %>
-<%@ Register Assembly="DevExpress.Web.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Web.ASPxPopupControl"
-    TagPrefix="dx" %>
-<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="cc1" %>
+<%@ Register Assembly="DevExpress.Web.ASPxEditors.v10.1" Namespace="DevExpress.Web.ASPxEditors" TagPrefix="dx" %>
+<%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxMenu" TagPrefix="dx" %>
 <%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxPopupControl" TagPrefix="dx" %>
+<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="cc1" %>
+<%@ Register Assembly="System.Web.Extensions" Namespace="System.Web.UI" TagPrefix="asp" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="cph_Main" runat="Server">
     <style type="text/css">
         .Background
@@ -160,7 +157,6 @@
                             <span style='color: <%# Eval("Status").ToString() == "Active" ? "#2787F5" : "Silver" %>'>
                                 <%# Eval("Status") %>
                             </span>
-                            
                         </ItemTemplate>
                         <ItemStyle HorizontalAlign="Left" Width="200px" />
                     </asp:TemplateField>
@@ -175,8 +171,8 @@
                 <SelectedRowStyle BackColor="#4D4D4D" Font-Bold="True" ForeColor="White" />
             </asp:GridView>
             <!-- Popup -->
-            <cc1:ModalPopupExtender ID="pop_UserInfo" runat="server" PopupControlID="panel_UserInfo" TargetControlID="btnUserInfo" CancelControlID="btn_CloseDialog" BehaviorID="pop_UserInfo"
-                BackgroundCssClass="Background">
+            <cc1:ModalPopupExtender ID="pop_UserInfo" runat="server" PopupControlID="panel_UserInfo" TargetControlID="btnUserInfo" CancelControlID="btn_CloseDialog"
+                BehaviorID="pop_UserInfo" BackgroundCssClass="Background">
             </cc1:ModalPopupExtender>
             <asp:Panel ID="panel_UserInfo" runat="server" CssClass="Popup" Style="display: inline-block">
                 <!-- Title Bar -->

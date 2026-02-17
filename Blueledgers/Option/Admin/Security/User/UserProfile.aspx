@@ -1,9 +1,10 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="UserProfile.aspx.cs" Inherits="Option_Admin_Security_User_UserProfile" %>
 
-<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="cc1" %>
-<%@ Register Assembly="System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" Namespace="System.Web.UI" TagPrefix="asp" %>
 <%@ Register Assembly="DevExpress.Web.ASPxEditors.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Web.ASPxEditors"
     TagPrefix="dx" %>
+<%@ Register Assembly="DevExpress.Web.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Web.ASPxPopupControl" TagPrefix="dx" %>
+<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="cc1" %>
+<%@ Register Assembly="System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" Namespace="System.Web.UI" TagPrefix="asp" %>
 <!DOCTYPE html>
 <html>
 <head runat="server">
@@ -420,6 +421,26 @@
                 </p>
             </asp:Panel>
             <asp:HiddenField ID="HiddenField_MessageBox" runat="server" />
+            <dx:ASPxPopupControl ID="pop_licenseExceed" runat="server" Width="400px" HeaderText="<%$ Resources:Option_Admin_Security_User_User, Msg2 %>" Modal="True"
+                PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter">
+                <ContentCollection>
+                    <dx:PopupControlContentControl ID="PopupControlContentControl1" runat="server">
+                        <table border="0" cellpadding="5" cellspacing="0" width="100%">
+                            <tr>
+                                <td align="center">
+                                    <asp:Label ID="lbl_LicenseExceed" runat="server" Font-Size="Small" Text="Active users are exceed than purchased license. This user will be inactived." SkinID="LBL_NR"></asp:Label>
+                                </td>
+                            </tr>
+                            <tr >
+                                <td align="center">
+                                    <asp:Button runat="server" ID="btn_LiceseExceed" Width="60" Text="Ok" OnClick="btn_LiceseExceed_Click" />
+                                </td>
+                            </tr>
+                        </table>
+                    </dx:PopupControlContentControl>
+                </ContentCollection>
+                <HeaderStyle HorizontalAlign="Left" />
+            </dx:ASPxPopupControl>
         </ContentTemplate>
     </asp:UpdatePanel>
     </form>

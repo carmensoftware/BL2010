@@ -589,7 +589,8 @@ public partial class Option_Admin_Security_User_UserProfile : BasePage //System.
                 int activeUserCurrent = _user.GetActiveUser() + 1;
                 if (activeUserCurrent > activeUserLicense)
                 {
-                    message = "Active users are exceed than license. This user will be inactived.";
+                    message = "LICENSE_EXCEED";
+
                     ActiveUser.Checked = false;
                 }
             }
@@ -1071,16 +1072,30 @@ public partial class Option_Admin_Security_User_UserProfile : BasePage //System.
         if (ListBU.SelectedIndex > -1)
             SaveSelectionOfRoleAndLocationToDataTable(ListBU.SelectedItem.Text);
 
+        var loginName = TextLoginName.Text.Trim();
+        var message = SaveUser(loginName);
 
-        string message = SaveUser(TextLoginName.Text);  // return string.Empty if no any error
 
-        if (message != string.Empty)
+        if (string.IsNullOrEmpty(message))
+        {
+            Response.Redirect("UserProfile.aspx?mode=VIEW&USER=" + loginName);
+        }
+        else if (message == "LICENSE_EXCEED")
+        {
+            //AlertBox(string.Format("Active users are exceed than purchased license. This user will be inactived.", loginName));
+            pop_licenseExceed.ShowOnPageLoad = true;
+            //Response.Redirect(url);
+        }
+        else
         {
             AlertBox(message);
         }
-        else
-            Response.Redirect("UserProfile.aspx?mode=VIEW&USER=" + TextLoginName.Text + "");
 
+    }
+    protected void btn_LiceseExceed_Click(object sender, EventArgs e)
+    {
+        var loginName = TextLoginName.Text.Trim();
+        Response.Redirect("UserProfile.aspx?mode=VIEW&USER=" + loginName);
     }
 
     protected void BtnCancel_Click(object sender, EventArgs e)
