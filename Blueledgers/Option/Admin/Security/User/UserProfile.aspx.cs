@@ -566,33 +566,43 @@ public partial class Option_Admin_Security_User_UserProfile : BasePage //System.
 
     private string SaveUser(string loginName)
     {
+        var validUser = true;
+        var query = string.Empty;
+        var message = CheckRequiredField();  // return empty if no errors
+
         loginName = loginName.Trim();
-
-
-        bool validUser = true;
-        string sql = string.Empty;
-
-        string message = CheckRequiredField();  // return empty if no errors
 
         if (message == string.Empty)
         {
             // Save to SysDb
-            SqlConnection sysConn = new SqlConnection(GetSqlConnectionString(""));
+            var sysConnStr = GetSqlConnectionString("");
+
+            SqlConnection sysConn = new SqlConnection(sysConnStr);
             SqlCommand sysCmd = new SqlCommand();
+
             sysCmd.Connection = sysConn;
             sysConn.Open();
 
 
-            if (ActiveUser.Checked)
+            if (ActiveUser.Checked && loginName.ToLower() != "support@carmen")
             {
-                int activeUserLicense = _user.GetActiveUserLicense();
-                int activeUserCurrent = _user.GetActiveUser() + 1;
-                if (activeUserCurrent > activeUserLicense)
-                {
-                    message = "LICENSE_EXCEED";
 
-                    ActiveUser.Checked = false;
+                var sql = new Helpers.SQL(sysConnStr);
+                var dtUserCheck = sql.ExecuteQuery("SELECT TOP(1) LoginName FROM [dbo].[User] WHERE SectionCode='SUPPORT' AND LoginName=@LoginName", new SqlParameter[] { new SqlParameter("@LoginName", loginName) });
+
+                if (dtUserCheck != null && dtUserCheck.Rows.Count == 0)
+                {
+                    int activeUserLicense = _user.GetActiveUserLicense();
+                    int activeUserCurrent = _user.GetActiveUser() + 1;
+
+                    if (activeUserCurrent > activeUserLicense)
+                    {
+                        message = "LICENSE_EXCEED";
+
+                        ActiveUser.Checked = false;
+                    }
                 }
+
             }
 
 
@@ -602,21 +612,14 @@ public partial class Option_Admin_Security_User_UserProfile : BasePage //System.
                 validUser = CheckLoginName(loginName);
                 if (validUser)
                 {
-                    // dbo.User
-                    // Modified on: 18/01/2018, By: Fon
-                    //sql = "INSERT INTO dbo.[User]( LoginName, Password, FName, MName, LName,";
-                    //sql += "                              Email, IsActived, JobTitle, HomePage)";
-                    //sql += " VALUES (@LoginName, @Password, @FirstName, @MidName, @LastName,";
-                    //sql += "         @Email, @IsActived, @JobTitle, '~/Option/User/Default.aspx')";
-
-                    sql = string.Format(@"INSERT INTO dbo.[User]( LoginName, Password, FName, MName, LName,
+                    query = string.Format(@"INSERT INTO dbo.[User]( LoginName, Password, FName, MName, LName,
                         Email, IsActived, JobTitle, HomePage, [DepartmentCode] ) 
                         VALUES (@LoginName, @Password, @FirstName, @MidName, @LastName,
                         @Email, @IsActived, @JobTitle, '~/Option/User/Default.aspx', @DepartmentCode)");
                     // End Modified.
 
 
-                    sysCmd.CommandText = sql;
+                    sysCmd.CommandText = query;
                     sysCmd.Parameters.Clear();
                     sysCmd.Parameters.AddWithValue("@LoginName", TextLoginName.Text);
                     sysCmd.Parameters.AddWithValue("@Password", GetEncryptPassword(TextPasswordConfirm.Text));
@@ -644,21 +647,21 @@ public partial class Option_Admin_Security_User_UserProfile : BasePage //System.
             }
             else  // Edit
             {
-                sql += " UPDATE dbo.[User] SET ";
+                query += " UPDATE dbo.[User] SET ";
                 //sql += "   Password = @Password,";
-                sql += "   FName = @FName,";
-                sql += "   MName = @MName,";
-                sql += "   LName = @LName,";
-                sql += "   Email = @Email,";
-                sql += "   IsActived = @IsActived,";
-                sql += "   JobTitle = @JobTitle";
+                query += "   FName = @FName,";
+                query += "   MName = @MName,";
+                query += "   LName = @LName,";
+                query += "   Email = @Email,";
+                query += "   IsActived = @IsActived,";
+                query += "   JobTitle = @JobTitle";
 
                 // Added on: 18/01/2018, By: Fon
-                sql += " , [DepartmentCode] = @DepartmentCode";
+                query += " , [DepartmentCode] = @DepartmentCode";
                 // End Added.
 
-                sql += " WHERE LoginName = @LoginName";
-                sysCmd.CommandText = sql;
+                query += " WHERE LoginName = @LoginName";
+                sysCmd.CommandText = query;
                 //cmd.Parameters.AddWithValue("@Password", GetEncryptPassword(TextPassword.Text));
                 sysCmd.Parameters.AddWithValue("@FName", TextFirstName.Text);
                 sysCmd.Parameters.AddWithValue("@MName", TextMidName.Text);
@@ -708,12 +711,12 @@ public partial class Option_Admin_Security_User_UserProfile : BasePage //System.
             foreach (var newBuCode in _buNew)
             {
 
-                sql = "INSERT INTO dbo.[BuUser](Bucode, LoginName, Theme, DispLang)";
-                sql += " SELECT BuCode, @LoginName, 'Default', LangCode";
-                sql += " FROM dbo.BuFmt";
-                sql += " WHERE BuCode = @BuCode";
+                query = "INSERT INTO dbo.[BuUser](Bucode, LoginName, Theme, DispLang)";
+                query += " SELECT BuCode, @LoginName, 'Default', LangCode";
+                query += " FROM dbo.BuFmt";
+                query += " WHERE BuCode = @BuCode";
 
-                sysCmd.CommandText = sql;
+                sysCmd.CommandText = query;
                 sysCmd.Parameters.Clear();
                 sysCmd.Parameters.AddWithValue("@LoginName", TextLoginName.Text);
                 sysCmd.Parameters.AddWithValue("@BuCode", newBuCode);
