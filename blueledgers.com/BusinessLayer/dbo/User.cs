@@ -162,7 +162,7 @@ namespace Blue.BL.dbo
 
         public DateTime GetLicenseExpiredDate()
         {
-            return new DateTime(2026, 5, 31);
+            return new DateTime(2026, 4, 30);
         }
 
         private DateTime licenseExpiredDate
