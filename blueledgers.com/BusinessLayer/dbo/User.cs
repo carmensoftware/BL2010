@@ -16,6 +16,8 @@ namespace Blue.BL.dbo
             2027-02-28 = mybeachphuket = 10+? = 13 + 1 = 14
             2027-02-28 = firaphuketbeachclub = 5+3=8
             2027-02-28 = gcmt = 1
+            2027-02-28 = sorahotels = 9
+            2027-02-28 = belairebangkok = 11
          
          
          
@@ -36,6 +38,9 @@ namespace Blue.BL.dbo
             2027-01-31 = TWIN_LOTUS (on permise) = 16
             2027-01-31 = legacysuites = 15 + 7 = 22
             2027-01-31 = boulevardhotelbangkok = 10 + 17 = 27
+            2027-01-31 = samuiparadisebeach = 10
+            2027-01-31 = jazzotelbangkok = 7 + 5= 12
+            2027-01-31 = MysKhaoyai = 12
          
          
             ---------------------------------------------------------------
@@ -45,6 +50,7 @@ namespace Blue.BL.dbo
          
             2026-11-30 = skyviewresortphuket = 11 + 1 =12
             2026-11-30 = wyndhamgardennaithon = 21
+            2026-11-30 = surestayplussukhumvit2 = 10
          
          
             2026-10-31 = blumonkeybangtaophuket = 6
@@ -99,7 +105,6 @@ namespace Blue.BL.dbo
             2026-04-30 = waltonsuitessukhumvitbangkok = 5
             2026-04-30 = theakyrabangkok11 = 5
             2026-04-30 = wyndhamgardenmanilabay = 7
-            2026-04-30 = MysKhaoyai = 12
             2026-04-30 = bellevillachiangmai = 10
             2026-04-30 = sotetsu-hotels = 1 + 6 = 7
             2026-04-30 = surestayplusramkhamheang = 5
@@ -110,29 +115,29 @@ namespace Blue.BL.dbo
             2026-03-31 = DeevanaPhuket = 65=> 69
             2026-03-31 = manor = 4
             2026-03-31 = parklanehotels = 16 + 8 = 24
-            2026-03-31 = jazzotelbangkok = 7 + 5= 12
             2026-03-31 = nh-asoke-bangkok = 15
-            2026-03-31 = samuiparadisebeach = 10
 
             2026-03-31 = kappasensesubud = 17
+            2026-03-31 = selinaserenityrawai = 8
+            2026-03-31 = hotellotussukhumvit = 15+2 = 17 + 2 = 19
+            2026-03-31 = hopinnth = 27 + 23 = 50
+            2026-03-31 = hopinn (On-Permise) = 27
+
+
+
+
+
+
 
             2026-02-28 = cafedelmarphuket =46
-            2026-02-28 = belairebangkok = 11
-            2026-02-28 = sorahotels = 9
           
             2026-02-28 = absoluteresorts = 1
-            2026-02-28 = hopinnth = 27 + 23 = 50
-            2026-02-28 = hotellotussukhumvit = 15+2 = 17 + 2 = 19
             2026-02-28 = peachgroup = 13 
             2026-02-28 = urbanalangsuanbkk = 7
-            2026-02-28 = selinaserenityrawai = 8
-          
-                    
           
           
           
             2026-01-31 = Zeavola = 28         
-            2026-01-31 = surestayplussukhumvit2 = 10
           
             ---------------------------------------------------------------
             -- Expired ----------------------------------------------------
@@ -158,7 +163,7 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser = 24;
+        private int licenseActiveUser = 27;
 
         public DateTime GetLicenseExpiredDate()
         {
