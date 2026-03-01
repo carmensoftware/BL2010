@@ -41,6 +41,7 @@ namespace Blue.BL.dbo
             2027-01-31 = samuiparadisebeach = 10
             2027-01-31 = jazzotelbangkok = 7 + 5= 12
             2027-01-31 = MysKhaoyai = 12
+            2027-01-31 = absoluteresorts = 1
          
          
             ---------------------------------------------------------------
@@ -124,6 +125,7 @@ namespace Blue.BL.dbo
             2026-03-31 = hopinn (On-Permise) = 27
 
             2026-03-31 = cafedelmarphuket =46
+            2026-02-28 = peachgroup = 13 
 
 
 
@@ -132,8 +134,6 @@ namespace Blue.BL.dbo
 
 
           
-            2026-02-28 = absoluteresorts = 1
-            2026-02-28 = peachgroup = 13 
             2026-02-28 = urbanalangsuanbkk = 7
           
           
@@ -164,7 +164,7 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser = 46;
+        private int licenseActiveUser = 13;
 
         public DateTime GetLicenseExpiredDate()
         {
