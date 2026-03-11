@@ -457,6 +457,7 @@ VALUES ('APP','INTF','SunSystems', @Value, 'SYSTEM',GETDATE())";
             //Download the Text file.
             var fileName = "AP" + dateFrom.ToString("yyyyMMdd") + "-" + dateTo.ToString("yyyyMMdd") + ".txt";
 
+            //ShowAlert(dt.Rows.Count.ToString());
             SaveAsText(text, fileName);
         }
 
