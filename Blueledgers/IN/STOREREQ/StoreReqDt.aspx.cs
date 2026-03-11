@@ -153,17 +153,6 @@ namespace BlueLedger.PL.IN.STOREREQ
                 btn_Void.Visible = true;
             }
 
-            //if (int.Parse(drStoreReq["WFStep"].ToString()) != 3)
-            //{
-            //    btn_Void.Visible = false;
-
-            //}
-
-            //if ((int.Parse(drStoreReq["WFStep"].ToString()) == 1) && (drStoreReq["ApprStatus"].ToString() == "___"))
-            //{
-            //    btn_Void.Visible = true;
-            //}
-
             bool allowCreate = workFlowDt.GetAllowCreate(WfId, WfStep, LoginInfo.ConnStr);
 
             btn_Create.Visible = allowCreate;
@@ -174,20 +163,6 @@ namespace BlueLedger.PL.IN.STOREREQ
 				lbl_ApproveMessage.Text = string.Empty;
                 panel_WFControl.Enabled = true;
 
-                // check if the current date is outside the opening period. No approval is allowed.
-                // DateTime today = DateTime.Today;
-                // DateTime openPeriod = period.GetLatestOpenEndDate(LoginInfo.ConnStr);
-                // if (today > openPeriod)
-                // {
-                    // lbl_ApproveMessage.Text = "Not Allowed to Issue SR Document until closed peroid./ไม่อนุญาตให้ Issue จนกว่าจะปิดเดือนเรียบร้อย";
-                    // panel_WFControl.Enabled = false;
-
-                // }
-                // else
-                // {
-                    // lbl_ApproveMessage.Text = string.Empty;
-                    // panel_WFControl.Enabled = true;
-                // }
             }
 
             // Check normal operations
@@ -396,7 +371,7 @@ namespace BlueLedger.PL.IN.STOREREQ
                 decimal reOrder = 0;
                 decimal onOrder = 0;
                 decimal lastPrice = 0;
-                decimal lastCost = 0;
+                decimal lastCost = Convert.ToDecimal(DataBinder.Eval(e.Row.DataItem, "Cost"));
                 decimal reStock = 0;
                 string lastVendor = string.Empty;
                 DateTime atDate = DateTime.Now;
@@ -418,22 +393,22 @@ namespace BlueLedger.PL.IN.STOREREQ
                     onOrder = dr["OnOrder"].ToString() == string.Empty ? 0 : Convert.ToDecimal(dr["OnOrder"]);
                     reOrder = dr["ReOrder"].ToString() == string.Empty ? 0 : Convert.ToDecimal(dr["ReOrder"]);
                     lastPrice = dr["LastPrice"].ToString() == string.Empty ? 0 : Convert.ToDecimal(dr["LastPrice"]);
-                    lastCost = dr["LastCost"].ToString() == string.Empty ? 0 : Convert.ToDecimal(dr["LastCost"]);
+                    //lastCost = dr["LastCost"].ToString() == string.Empty ? 0 : Convert.ToDecimal(dr["LastCost"]);
                     reStock = dr["ReStock"].ToString() == string.Empty ? 0 : Convert.ToDecimal(dr["ReStock"]);
                     lastVendor = dr["LastVendor"].ToString();
                 }
 
 
-                var status = lbl_Status.Text.Trim();
+                //var status = lbl_Status.Text.Trim();
 
-                if (status.StartsWith("C"))
-                {
-                    var dtno = DataBinder.Eval(e.Row.DataItem, "RefId").ToString();
-                    var query = string.Format("SELECT TOP(1) Amount FROM [IN].Inventory WHERE DtNo={0} AND [Type] IN ('SR','TR')", dtno );
-                    var dtCost = bu.DbExecuteQuery(query, null, LoginInfo.ConnStr);
+                //if (status.StartsWith("C"))
+                //{
+                //    var dtno = DataBinder.Eval(e.Row.DataItem, "RefId").ToString();
+                //    var query = string.Format("SELECT TOP(1) Amount FROM [IN].Inventory WHERE DtNo={0} AND [Type] IN ('SR','TR')", dtno );
+                //    var dtCost = bu.DbExecuteQuery(query, null, LoginInfo.ConnStr);
 
-                    lastCost = dtCost.Rows.Count == 0 ? lastCost : Convert.ToDecimal(dtCost.Rows[0][0]);
-                }
+                //    lastCost = dtCost.Rows.Count == 0 ? lastCost : Convert.ToDecimal(dtCost.Rows[0][0]);
+                //}
 
 
                 // Check Box
