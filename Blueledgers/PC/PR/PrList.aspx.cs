@@ -46,11 +46,6 @@ namespace BlueLedger.PL.PC.PR
 
             }
 
-            //ListPage.CreateItems.Items.FindByName("MC").NavigateUrl = "~/PC/PR/PrEdit.aspx?BuCode=" + LoginInfo.BuInfo.BuCode + "&MODE=new" + "&VID=" + Request.Cookies["[PC].[vPrList]"].Value + "&Type=C";
-
-
-            // Assign menu action to Session["MODE"] and reset menu button selecting
-
             if (Request.Params["MODE"] != null)
             {
                 Session["MODE"] = Request.Params["MODE"].ToString();
@@ -214,7 +209,6 @@ namespace BlueLedger.PL.PC.PR
 
             Session["dsTemplateDt"] = dsTemplateDt;
 
-            //Response.Redirect("MLtoPr.aspx?VID=" + Request.Cookies["[PC].[vPrList]"].Value.ToString());
 
             if (ods_Template.SelectParameters[0].DefaultValue == "M")
             {

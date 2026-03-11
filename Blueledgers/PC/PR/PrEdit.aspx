@@ -687,14 +687,22 @@
                                                 </dx:ASPxComboBox>
                                             </td>
                                             <td colspan="3">
-                                                <dx:ASPxComboBox ID="ddl_ProductCode_av" runat="server" Width="420px" AutoPostBack="True" IncrementalFilteringMode="Contains" EnableCallbackMode="true"
-                                                    ValueField="ProductCode" ValueType="System.String" TextFormatString="{0} : {1} : {2}" OnSelectedIndexChanged="ddl_ProductCode_av_SelectedIndexChanged">
+                                             <dx:ASPxComboBox ID="ddl_ProductCode_av" runat="server" Width="420px" AutoPostBack="True" IncrementalFilteringMode="Contains" EnableCallbackMode="false"
+                                                    ValueField="ProductCode" ValueType="System.String" TextFormatString="{0} : {1} : {2}" OnItemsRequestedByFilterCondition="ddl_ProductCode_av_ItemsRequestedByFilterCondition" OnItemRequestedByValue="ddl_ProductCode_av_ItemRequestedByValue" OnSelectedIndexChanged="ddl_ProductCode_av_SelectedIndexChanged">
                                                     <Columns>
                                                         <dx:ListBoxColumn Caption="Code" FieldName="ProductCode" Width="100px" />
                                                         <dx:ListBoxColumn Caption="Name" FieldName="ProductDesc1" Width="200px" />
                                                         <dx:ListBoxColumn Caption="Other Name" FieldName="ProductDesc2" Width="150px" />
                                                     </Columns>
                                                 </dx:ASPxComboBox>
+                                               <%-- <dx:ASPxComboBox ID="ddl_ProductCode_av" runat="server" Width="420px" AutoPostBack="True" IncrementalFilteringMode="Contains" EnableCallbackMode="true"
+                                                    ValueField="ProductCode" ValueType="System.String" TextFormatString="{0} : {1} : {2}" OnSelectedIndexChanged="ddl_ProductCode_av_SelectedIndexChanged">
+                                                    <Columns>
+                                                        <dx:ListBoxColumn Caption="Code" FieldName="ProductCode" Width="100px" />
+                                                        <dx:ListBoxColumn Caption="Name" FieldName="ProductDesc1" Width="200px" />
+                                                        <dx:ListBoxColumn Caption="Other Name" FieldName="ProductDesc2" Width="150px" />
+                                                    </Columns>
+                                                </dx:ASPxComboBox>--%>
                                                 <asp:HiddenField ID="hf_ProductCode_av" runat="server" />
                                             </td>
                                             <td>
@@ -1454,7 +1462,7 @@
                                                     </td>
                                                     <td>
                                                         <dx:ASPxComboBox ID="ddl_TaxType_Grd_Av" runat="server" AutoPostBack="true" Font-Size="9pt" Font-Names="arial" ForeColor="#4d4d4d" ValueType="System.String"
-                                                            Width="80px" SelectedIndex="0" OnSelectedIndexChanged="ddl_TaxType_Grd_Av_SelectedIndexChanged">
+                                                            Width="80px"  OnSelectedIndexChanged="ddl_TaxType_Grd_Av_SelectedIndexChanged">
                                                             <Items>
                                                                 <dx:ListEditItem Text="None" Value="N" />
                                                                 <dx:ListEditItem Text="Add" Value="A" />

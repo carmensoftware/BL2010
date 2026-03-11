@@ -154,6 +154,8 @@ namespace BlueLedger.PL.PC.PR
                 return value == "1" || value == "true";
             }
         }
+
+        private decimal _default_TaxRate { set { ViewState["_default_TaxRate"]=value; } get { return Convert.ToDecimal(ViewState["_default_TaxRate"]); } }
         // End Aded.
 
         #endregion
@@ -196,6 +198,11 @@ namespace BlueLedger.PL.PC.PR
 
         private void Page_Retrieve()
         {
+            var taxRate = conf.GetValue("APP", "Default", "TaxRate", LoginInfo.ConnStr);
+
+            _default_TaxRate = Convert.ToDecimal(string.IsNullOrEmpty(taxRate) ? "0" : taxRate);
+
+
             #region Mode: New
             if (MODE.ToUpper() == "NEW")
             {
@@ -950,7 +957,7 @@ namespace BlueLedger.PL.PC.PR
             {
                 EXEC_WF_PR_APPR_STEP_1(prNo, loginName);
 
-                Response.Redirect("Pr.aspx?BuCode=" + Request.Params["BuCode"] + "&ID=" + prNo + "&VID=" + Request.Params["VID"]);                
+                Response.Redirect("Pr.aspx?BuCode=" + Request.Params["BuCode"] + "&ID=" + prNo + "&VID=" + Request.Params["VID"]);
             }
         }
 
@@ -994,7 +1001,7 @@ namespace BlueLedger.PL.PC.PR
         }
 
 
-        
+
 
         //private object[] UpdateApprStatus()
         //{
@@ -1571,32 +1578,184 @@ ORDER BY
             //}
         }
 
+        private DataTable GetListProductByLocation(string prType, string locationCode)
+        {
+            // Fetch only the specific item from the database
+            var query = @"
+SELECT 
+    ProductCode, 
+    ProductDesc1, 
+    ProductDesc2 
+FROM 
+    [IN].Product 
+    LEFT JOIN [IN].ProductCategory pc ON pc.CategoryCode = p.ProductCate
+WHERE 
+    IsActive=1
+    AND pc.LevelNo = 3
+    AND pc.CategoryType = @PrType
+    AND p.productcode IN (SELECT ProductCode FROM [IN].[ProdLoc] WHERE LocationCode = @LocationCode)
+";
+            var parameters = new Blue.DAL.DbParameter[] 
+            { 
+                new Blue.DAL.DbParameter("@PrType", prType),
+                new Blue.DAL.DbParameter("@LocationCode", locationCode) 
+            };
+            var dt = conf.DbExecuteQuery(query, parameters, LoginInfo.ConnStr);
+
+            return dt;
+        }
+
+
+        private DataTable FilterProductByLocation(string prType, string locationCode, string text)
+        {
+            var filter = "%" + text + "%";
+
+            // Fetch only the specific item from the database
+            var query = @"
+SELECT 
+    ProductCode, 
+    ProductDesc1, 
+    ProductDesc2 
+FROM(
+    SELECT 
+        ROW_NUMBER() OVER(ORDER BY p.ProductCode) as RowId,
+        p.ProductCode, 
+        p.ProductDesc1, 
+        p.ProductDesc2 
+    FROM 
+        [IN].Product p 
+        LEFT JOIN [IN].ProductCategory pc ON pc.CategoryCode = p.ProductCate
+    WHERE 
+        p.IsActive ='True' 
+        AND (ISNULL(p.ProductCode, '') + ' ' + ISNULL(p.ProductDesc1,'') + ' ' + ISNULL(p.ProductDesc2,'') LIKE @filter )
+        AND pc.LevelNo = 3
+		AND pc.CategoryType = @PrType
+        AND p.productcode IN (SELECT ProductCode FROM [IN].[ProdLoc] WHERE LocationCode = @LocationCode)
+    ) as st 
+WHERE 
+    st.RowId BETWEEN @startIndex and @endIndex
+";
+            var parameters = new Blue.DAL.DbParameter[] 
+            { 
+                new Blue.DAL.DbParameter("@filter", filter),
+                new Blue.DAL.DbParameter("@PrType", prType),
+                new Blue.DAL.DbParameter("@LocationCode", locationCode) 
+            };
+            var dt = conf.DbExecuteQuery(query, parameters, LoginInfo.ConnStr);
+
+            return dt;
+        }
+
+        protected void ddl_ProductCode_av_ItemRequestedByValue(object source, ListEditItemRequestedByValueEventArgs e)
+        {
+            if (e.Value == null || string.IsNullOrEmpty(e.Value.ToString()))
+                return;
+
+            ASPxComboBox comboBox = (ASPxComboBox)source;
+
+            var ddl_LocationCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_LocationCode") as ASPxComboBox;
+
+            var prType = ddl_PrType.SelectedItem.Value.ToString();
+            var locationCode = ddl_LocationCode.Value.ToString().Split(':').Select(x => x.Trim()).FirstOrDefault();
+
+            comboBox.DataSource = GetListProductByLocation(prType, locationCode);
+            comboBox.DataBind();
+            comboBox.Value = e.Value;
+        }
+
+        protected void ddl_ProductCode_av_ItemsRequestedByFilterCondition(object source, ListEditItemsRequestedByFilterConditionEventArgs e)
+        {
+            var comboBox = source as ASPxComboBox;
+
+            var ddl_BuCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_BuCode") as ASPxComboBox;
+            var ddl_LocationCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_LocationCode") as ASPxComboBox;
+
+            if (ddl_BuCode.Value == null || ddl_LocationCode.Value == null)
+                return;
+
+            var buCode = ddl_BuCode.Text.Split(':')[0].Trim();
+            var locationCode = ddl_LocationCode.Value.ToString();
+            var prType = ddl_PrType.SelectedItem.Value.ToString();
+
+            SqlDataSource1.ConnectionString = bu.GetConnectionString(buCode);
+
+            SqlDataSource1.SelectCommand = @"
+SELECT 
+    ProductCode, 
+    ProductDesc1, 
+    ProductDesc2 
+FROM(
+    SELECT 
+        row_number()over(order by p.[ProductCode]) as RowId,
+        p.ProductCode, 
+        p.ProductDesc1, 
+        p.ProductDesc2 
+    FROM 
+        [IN].Product p 
+        LEFT JOIN [IN].ProductCategory pc ON pc.CategoryCode = p.ProductCate
+    WHERE 
+        p.IsActive ='True' 
+        AND ( ISNULL(p.ProductCode, '') + ' ' + ISNULL(p.ProductDesc1,'') + ' ' + ISNULL(p.ProductDesc2,'') LIKE @filter )
+        AND pc.LevelNo = 3
+		AND pc.CategoryType = @PrType
+        AND p.productcode IN (SELECT ProductCode FROM [IN].[ProdLoc] WHERE LocationCode = @LocationCode)
+    ) as st 
+WHERE 
+    st.RowId BETWEEN @startIndex and @endIndex";
+
+            SqlDataSource1.SelectParameters.Clear();
+            SqlDataSource1.SelectParameters.Add("filter", TypeCode.String, string.Format("%{0}%", e.Filter));
+            SqlDataSource1.SelectParameters.Add("PrType", TypeCode.String, prType.ToString());
+            SqlDataSource1.SelectParameters.Add("LocationCode", TypeCode.String, locationCode);
+            SqlDataSource1.SelectParameters.Add("startIndex", TypeCode.Int64, (e.BeginIndex + 1).ToString());
+            SqlDataSource1.SelectParameters.Add("endIndex", TypeCode.Int64, (e.EndIndex + 1).ToString());
+
+
+            comboBox.DataSource = SqlDataSource1;
+            comboBox.DataBind();
+            comboBox.ToolTip = comboBox.Text;
+        }
+
         protected void ddl_ProductCode_av_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var buCode = dsPR.Tables[prDt.TableName].Rows[((GridViewRow)(sender as ASPxComboBox).NamingContainer).DataItemIndex]["BuCode"].ToString();
-            var ddl_LocationCode_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_LocationCode_av") as ASPxComboBox;
-            var ddl_ProductCode_av = sender as ASPxComboBox;
-            var hf_ProductCode_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("hf_ProductCode_av") as HiddenField;
-            var ddl_Unit_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_Unit_av") as ASPxComboBox;
-            var ddl_TaxType_Grd_Av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_TaxType_Grd_Av") as ASPxComboBox;
-            var connStr = bu.GetConnectionString(buCode);
-            var productCode = ddl_ProductCode_av.Value.ToString().Split(':')[0].Trim();
+            var ddl = sender as ASPxComboBox;
 
-            if (ddl_Unit_av != null)
+            if (ddl.Value != null)
             {
-                ddl_Unit_av.DataSource = prodUnit.GetLookUp_OrderUnitByProductCode(productCode, connStr);
-                ddl_Unit_av.DataBind();
-            }
+                var row = grd_PrDt1.Rows[grd_PrDt1.EditIndex];
 
-            if (ddl_ProductCode_av.Value.ToString() != hf_ProductCode_av.Value)
-            {
+                var ddl_LocationCode_av = row.FindControl("ddl_LocationCode_av") as ASPxComboBox;
+                var ddl_Unit_av = row.FindControl("ddl_Unit_av") as ASPxComboBox;
+                var ddl_TaxType_Grd_Av = row.FindControl("ddl_TaxType_Grd_Av") as ASPxComboBox;
+                var txt_TaxRate_Grd_av = row.FindControl("txt_TaxRate_Grd_av") as TextBox;
+                var hf_ProductCode_av = row.FindControl("hf_ProductCode_av") as HiddenField;
+
+                var productCode = ddl.Value.ToString().Split(':')[0].Trim();
+
+                //var buCode = dsPR.Tables[prDt.TableName].Rows[((GridViewRow)(sender as ASPxComboBox).NamingContainer).DataItemIndex]["BuCode"].ToString();
+                //var connStr = bu.GetConnectionString(buCode);
+                var connStr = LoginInfo.ConnStr;
+
+                if (ddl_Unit_av != null)
+                {
+                    ddl_Unit_av.DataSource = prodUnit.GetLookUp_OrderUnitByProductCode(productCode, connStr);
+                    ddl_Unit_av.DataBind();
+                }
+
                 var dtProduct = product.GetProdList(productCode, connStr);
+                var orderUnit = dtProduct.Rows.Count > 0 ? dtProduct.Rows[0]["OrderUnit"].ToString() : "";
+                var taxType = dtProduct.Rows.Count > 0 ? dtProduct.Rows[0]["TaxType"].ToString() : "N";
+                var taxRate = dtProduct.Rows.Count > 0 ? dtProduct.Rows[0]["TaxRate"].ToString() : "0";
 
-                ddl_Unit_av.Value = dtProduct.Rows[0]["OrderUnit"].ToString();
-                ddl_TaxType_Grd_Av.Value = dtProduct.Rows[0]["TaxType"].ToString();
+                if (ddl.Value.ToString() != hf_ProductCode_av.Value)
+                {
+                    ddl_Unit_av.Value = orderUnit;
+                    ddl_TaxType_Grd_Av.Value = taxType;
+                    txt_TaxRate_Grd_av.Text = string.Format(DefaultAmtFmt, taxRate); ;
+                }
+
+                hf_ProductCode_av.Value = ddl.Value.ToString();
             }
-
-            hf_ProductCode_av.Value = productCode;
         }
 
         protected void ddl_DeliPoint_av_Load(object sender, EventArgs e)
@@ -1612,6 +1771,45 @@ ORDER BY
                 ddl_DeliPoint_av.DataBind();
             }
         }
+
+        protected void ddl_TaxType_Grd_Av_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var ddl_TaxType_Grd_Av = (ASPxComboBox)sender;
+            var row = grd_PrDt1.Rows[grd_PrDt1.EditIndex];
+
+            TextBox txt_TaxRate_Grd_Av = (TextBox)row.FindControl("txt_TaxRate_Grd_Av");
+            TextBox txt_CurrTaxAmt_Grd_Av = (TextBox)row.FindControl("txt_CurrTaxAmt_Grd_Av");
+            TextBox txt_TaxAmt_Grd_Av = (TextBox)row.FindControl("txt_TaxAmt_Grd_Av");
+
+
+            var taxType = ddl_TaxType_Grd_Av.Value;
+
+            if (txt_TaxRate_Grd_Av != null)
+            {
+                if (ddl_TaxType_Grd_Av.SelectedItem.Value.ToString() == "N")
+                {
+                    txt_TaxRate_Grd_Av.Text = string.Format("{0:N}", 0);
+                    txt_TaxRate_Grd_Av.Enabled = false;
+                    txt_CurrTaxAmt_Grd_Av.Enabled = false;
+                    txt_TaxAmt_Grd_Av.Enabled = false;
+                }
+                else
+                {
+                    var taxRate = Convert.ToDecimal(txt_TaxRate_Grd_Av.Text);
+
+                    if (taxRate==0)
+                        txt_TaxRate_Grd_Av.Text = string.Format("{0:N}", _default_TaxRate);
+                    txt_TaxRate_Grd_Av.Enabled = true;
+                    txt_CurrTaxAmt_Grd_Av.Enabled = true;
+                    txt_TaxAmt_Grd_Av.Enabled = true;
+                }
+            }
+
+            CalculationItem_av(grd_PrDt1.EditIndex);
+            CostContent_ValueChanged(grd_PrDt1.EditIndex, true);
+        }
+
+
 
         /// <summary>
         ///     Manual Assign vendor and price to pr detail from price list.
@@ -5403,17 +5601,22 @@ ORDER BY
         protected void chk_Adj_Grd_Av_CheckedChanged(object sender, EventArgs e)
         {
             var chk_Adj_Grd_Av = sender as ASPxCheckBox;
-            var ddl_TaxType_Grd_Av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_TaxType_Grd_Av") as ASPxComboBox;
-            var txt_TaxRate_Grd_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_TaxRate_Grd_av") as TextBox;
+
+            var row = grd_PrDt1.Rows[grd_PrDt1.EditIndex];
+
+            var ddl_TaxType_Grd_Av = row.FindControl("ddl_TaxType_Grd_Av") as ASPxComboBox;
+            var txt_TaxRate_Grd_av = row.FindControl("txt_TaxRate_Grd_av") as TextBox;
+
 
             if (!chk_Adj_Grd_Av.Checked) // return to default value
             {
-                var ddl_BuCode = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_BuCode") as ASPxComboBox;
-                var ddl_ProductCode_av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_ProductCode_av") as ASPxComboBox;
+                var ddl_BuCode = row.FindControl("ddl_BuCode") as ASPxComboBox;
+                var ddl_ProductCode_av = row.FindControl("ddl_ProductCode_av") as ASPxComboBox;
 
                 var connStr = bu.GetConnectionString(ddl_BuCode.Value.ToString());
-                var productCode = ddl_ProductCode_av.Value.ToString();
-                var dtProduct = bu.DbExecuteQuery("SELECT TOP(1) * FROM [IN].Product WHERE ProductCode = '" + productCode + "'", null, connStr);
+                var productCode = ddl_ProductCode_av.Value.ToString().Split(':').Select(x => x.Trim()).FirstOrDefault();
+
+                var dtProduct = bu.DbExecuteQuery("SELECT TOP(1) * FROM [IN].Product WHERE ProductCode=@ProductCode", new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@ProductCode", productCode) }, connStr);
                 var taxType = dtProduct.Rows.Count > 0 ? dtProduct.Rows[0]["TaxType"].ToString() : "N";
                 var taxRate = dtProduct.Rows.Count > 0 ? Convert.ToDecimal(dtProduct.Rows[0]["TaxRate"].ToString()) : 0m;
 
@@ -5424,25 +5627,6 @@ ORDER BY
 
             ddl_TaxType_Grd_Av.Enabled = chk_Adj_Grd_Av.Checked;
             txt_TaxRate_Grd_av.Enabled = chk_Adj_Grd_Av.Checked;
-
-            //CalculationItem_av(grd_PrDt1.EditIndex);
-
-            // Modified on: 30/08/2017, By: Fon
-            //var chk_Adj_Grd_Av = sender as ASPxCheckBox;
-            //var txt_TaxAmt_Grd_Av = grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_TaxAmt_Grd_Av") as TextBox;
-            //TextBox txt_CurrTaxAmt_Grd_Av = (TextBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_CurrTaxAmt_Grd_Av");
-            //TextBox txt_TaxRate_Grd_Av = (TextBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_TaxRate_Grd_av");
-            //ASPxComboBox ddl_TaxType_Grd_Av = (ASPxComboBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("ddl_TaxType_Grd_Av");
-
-            //txt_TaxAmt_Grd_Av.Enabled = chk_Adj_Grd_Av.Checked;
-            //txt_CurrTaxAmt_Grd_Av.Enabled = chk_Adj_Grd_Av.Checked;
-            //txt_TaxRate_Grd_Av.Enabled = chk_Adj_Grd_Av.Checked;
-            //ddl_TaxType_Grd_Av.Enabled = chk_Adj_Grd_Av.Checked;
-            //if (!chk_Adj_Grd_Av.Checked)
-            //{
-            //}
-            //CostContent_ValueChanged(grd_PrDt1.EditIndex, true);
-
 
         }
 
@@ -5472,35 +5656,6 @@ ORDER BY
         protected void btn_WarningDiscAmt_Click(object sender, EventArgs e)
         {
             pop_AlertDiscAmt.ShowOnPageLoad = false;
-        }
-
-        protected void ddl_TaxType_Grd_Av_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            ASPxComboBox ddl_TaxType_Grd_Av = (ASPxComboBox)sender;
-            TextBox txt_TaxRate_Grd_Av = (TextBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_TaxRate_Grd_Av");
-            TextBox txt_CurrTaxAmt_Grd_Av = (TextBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_CurrTaxAmt_Grd_Av");
-            TextBox txt_TaxAmt_Grd_Av = (TextBox)grd_PrDt1.Rows[grd_PrDt1.EditIndex].FindControl("txt_TaxAmt_Grd_Av");
-
-            if (txt_TaxRate_Grd_Av != null)
-            {
-                txt_TaxRate_Grd_Av.Enabled = true;
-                txt_CurrTaxAmt_Grd_Av.Enabled = true;
-                txt_TaxAmt_Grd_Av.Enabled = true;
-            }
-
-            if (ddl_TaxType_Grd_Av.SelectedItem.Value.ToString() == "N")
-            {
-                if (txt_TaxRate_Grd_Av != null)
-                {
-                    txt_TaxRate_Grd_Av.Text = string.Format("{0:N}", 0);
-                    txt_TaxRate_Grd_Av.Enabled = false;
-                    txt_CurrTaxAmt_Grd_Av.Enabled = false;
-                    txt_TaxAmt_Grd_Av.Enabled = false;
-                }
-            }
-
-            CalculationItem_av(grd_PrDt1.EditIndex);
-            //CostContent_ValueChanged(grd_PrDt1.EditIndex, true);
         }
 
         // Check date for period.

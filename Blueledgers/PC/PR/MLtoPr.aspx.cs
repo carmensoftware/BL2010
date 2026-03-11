@@ -2,6 +2,7 @@
 using System.Data;
 using System.Web.UI.WebControls;
 using BlueLedger.PL.BaseClass;
+using System.Globalization;
 
 namespace BlueLedger.PL.PC.PR
 {
@@ -20,6 +21,13 @@ namespace BlueLedger.PL.PC.PR
 
         private readonly Blue.BL.APP.Config con = new Blue.BL.APP.Config();
 
+        private bool IsApplyLastPrice
+        {
+            set { ViewState["IsApplyLastPrice"] = value; }
+            get { return ViewState["IsApplyLastPrice"] == null ? false : Convert.ToBoolean(ViewState["IsApplyLastPrice"]); }
+        }
+
+
         protected override void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
@@ -36,8 +44,13 @@ namespace BlueLedger.PL.PC.PR
 
         private void Page_Retrieve()
         {
+            var value = con.GetConfigValue("PC", "PR", "ApplyLastPrice", LoginInfo.ConnStr).ToLower();
+
+            IsApplyLastPrice = value == "1" || value == "true";
+
             //string MsgError = string.Empty;
             dsTemplateDt = (DataSet)Session["dsTemplateDt"];
+
 
             Page_Setting();
         }
@@ -56,23 +69,29 @@ namespace BlueLedger.PL.PC.PR
 
         protected void Save()
         {
+            var connStr = LoginInfo.ConnStr;
+            var currencyCode = con.GetValue("APP", "BU", "DefaultCurrency", LoginInfo.ConnStr);
             // Get Pr, PrDt Table Schema
+
             var dsPr = new DataSet();
-            var getPrSchema = pr.GetStructure(dsPr, LoginInfo.ConnStr);
-            var getPrDtSchema = prDt.GetStructure(dsPr, LoginInfo.ConnStr);
+            var getPrSchema = pr.GetStructure(dsPr, connStr);
+            var getPrDtSchema = prDt.GetStructure(dsPr, connStr);
 
             // Create PR Header
             var drPr = dsPr.Tables[pr.TableName].NewRow();
-            drPr["PRNo"] = pr.GetNewID(ServerDateTime, LoginInfo.ConnStr);
-            drPr["PrDate"] = ServerDateTime;
+            var prNo = pr.GetNewID(ServerDateTime, connStr);
+            var prDate = ServerDateTime;
+
+            drPr["PRNo"] = prNo;
+            drPr["PrDate"] = prDate;
             drPr["Description"] = lbl_Desc.Text;
 
             if (workFlow.GetIsActive("PC", "PR", LoginInfo.ConnStr))
             {
-                drPr["ApprStatus"] = workFlow.GetHdrApprStatus("PC", "PR", LoginInfo.ConnStr);
+                drPr["ApprStatus"] = workFlow.GetHdrApprStatus("PC", "PR", connStr);
             }
 
-            drPr["HOD"] = dep.GetHeadOfDep(LoginInfo.DepartmentCode, LoginInfo.ConnStr);
+            drPr["HOD"] = dep.GetHeadOfDep(LoginInfo.DepartmentCode, connStr);
             drPr["DocStatus"] = "In Process";
             drPr["CreatedDate"] = ServerDateTime;
             drPr["CreatedBy"] = LoginInfo.LoginName;
@@ -96,46 +115,93 @@ namespace BlueLedger.PL.PC.PR
                 {
                     var drPrDt = dsPr.Tables[prDt.TableName].NewRow();
 
+                    var productCode = dsTemplateDt.Tables[templateDt.TableName].Rows[grd_TemplateDetail.Rows[i].DataItemIndex]["ProductCode"].ToString();
+                    var orderUnit = dsTemplateDt.Tables[templateDt.TableName].Rows[grd_TemplateDetail.Rows[i].DataItemIndex]["UnitCode"].ToString();
+
+                    var price = 0m;
+                    var reqQty = Convert.ToDecimal(txt_ReqQty.Text);
+                    var taxType = product.GetTaxType(drPrDt["ProductCode"].ToString(), LoginInfo.ConnStr);
+                    var taxRate = product.GetTaxRate(drPrDt["ProductCode"].ToString(), LoginInfo.ConnStr);
+
+                    if (IsApplyLastPrice)
+                    {
+                        var item = GetProductLastPrice(productCode, orderUnit, prDate);
+
+                        price = item.LastPrice;
+
+                        drPrDt["LastPrice"] = item.LastPrice;
+                        drPrDt["RefNo"] = item.LastRecNo;
+                        drPrDt["VendorProdCode"] = item.LastVendorCode;
+                    }
+
+
                     drPrDt["PRNo"] = drPr["PRNo"];
                     drPrDt["PRDtNo"] = prDtCount;
-                    drPrDt["ProductCode"] =
-                        dsTemplateDt.Tables[templateDt.TableName].Rows[grd_TemplateDetail.Rows[i].DataItemIndex][
-                            "ProductCode"].ToString();
-                    drPrDt["ReqQty"] = txt_ReqQty.Text;
-                    drPrDt["HOD"] = drPr["HOD"].ToString();
-                    drPrDt["BuCOde"] = LoginInfo.BuInfo.BuCode;
-                    drPrDt["Reqdate"] = txt_DeliveryDate.Date.ToString("dd/MM/yyyy");
-                    drPrDt["OrderQty"] = 0;
-                    drPrDt["ApprQty"] = 0;
+                    drPrDt["BuCode"] = LoginInfo.BuInfo.BuCode;
+                    drPrDt["LocationCode"] = dsTemplateDt.Tables[templateDt.TableName].Rows[grd_TemplateDetail.Rows[i].DataItemIndex]["LocationCode"].ToString();
+                    drPrDt["ProductCode"] = productCode;
                     drPrDt["FOCQty"] = 0;
-                    drPrDt["RcvQty"] = 0;
-                    drPrDt["DiscPercent"] = 0;
-                    drPrDt["DiscAmt"] = 0;
+                    drPrDt["ReqQty"] = reqQty;
+                    drPrDt["ApprQty"] = reqQty;
+                    drPrDt["OrderUnit"] = orderUnit;
+
+                    drPrDt["Reqdate"] = txt_DeliveryDate.Date.ToString("yyyy-MM-dd");
+                    drPrDt["HOD"] = drPr["HOD"].ToString();
+
                     drPrDt["TaxAdj"] = false;
-                    drPrDt["TaxAmt"] = 0;
-                    drPrDt["NetAmt"] = 0;
-                    drPrDt["TotalAmt"] = 0;
-                    drPrDt["TaxType"] = product.GetTaxType(drPrDt["ProductCode"].ToString(), LoginInfo.ConnStr);
-                    drPrDt["TaxRate"] = product.GetTaxRate(drPrDt["ProductCode"].ToString(), LoginInfo.ConnStr);
-                    drPrDt["Price"] = 0;
-                    drPrDt["OrderUnit"] =
-                        dsTemplateDt.Tables[templateDt.TableName].Rows[grd_TemplateDetail.Rows[i].DataItemIndex][
-                            "UnitCode"].ToString();
-                    drPrDt["LocationCode"] =
-                        dsTemplateDt.Tables[templateDt.TableName].Rows[grd_TemplateDetail.Rows[i].DataItemIndex][
-                            "LocationCode"].ToString();
+                    drPrDt["TaxType"] = taxType;
+                    drPrDt["TaxRate"] = taxRate;
+                    drPrDt["Price"] = price;
                     drPrDt["DeliPoint"] = store.GetDeliveryPoint(drPrDt["LocationCode"].ToString(), LoginInfo.ConnStr);
                     drPrDt["Comment"] = string.Empty;
-                    drPrDt["Descen"] = product.GetName(drPrDt["ProductCode"].ToString(), LoginInfo.ConnStr);
-                    drPrDt["Descll"] = product.GetName2(drPrDt["ProductCode"].ToString(), LoginInfo.ConnStr);
+
+                    drPrDt["DiscPercent"] = 0;
 
                     // Added on: 30/01/2018, By: Fon
-                    drPrDt["CurrNetAmt"] = 0;
-                    drPrDt["CurrDiscAmt"] = 0;
-                    drPrDt["CurrTaxAmt"] = 0;
-                    drPrDt["CurrTotalAmt"] = 0;
-                    drPrDt["CurrencyCode"] = con.GetValue("APP", "BU", "DefaultCurrency", LoginInfo.ConnStr);
+                    drPrDt["CurrencyCode"] = currencyCode;
                     drPrDt["CurrencyRate"] = 1;
+
+
+                    var net = 0m;
+                    var tax = 0m;
+                    var total = 0m;
+
+                    switch (taxType.ToUpper())
+                    {
+                        case "A":
+                            net = RoundAmt(price * reqQty);
+                            tax = net * (taxRate / 100);
+                            total = net + tax;
+                            break;
+                        case "I":
+                            total = RoundAmt(price * reqQty);
+                            tax = RoundAmt(total * taxRate / (100 + taxRate));
+                            net = total - tax;
+                            
+                            break;
+                        default:
+                            net = RoundAmt(price * reqQty);
+                            tax = 0m;
+                            total = net;
+                            break;
+                    }
+
+
+                    drPrDt["CurrDiscAmt"] = 0;
+                    drPrDt["CurrNetAmt"] = net;
+                    drPrDt["CurrTaxAmt"] = tax;
+                    drPrDt["CurrTotalAmt"] = total;
+
+                    drPrDt["DiscAmt"] =0;
+                    drPrDt["TaxAmt"] = tax;
+                    drPrDt["NetAmt"] = net;
+                    drPrDt["TotalAmt"] = total;
+
+
+                    drPrDt["OrderQty"] = 0;
+                    drPrDt["RcvQty"] = 0;
+                    drPrDt["Descen"] = ""; // product.GetName(drPrDt["ProductCode"].ToString(), LoginInfo.ConnStr);
+                    drPrDt["Descll"] = ""; // product.GetName2(drPrDt["ProductCode"].ToString(), LoginInfo.ConnStr);
                     // End Added.
 
                     if (workFlow.GetIsActive("PC", "PR", LoginInfo.ConnStr))
@@ -151,38 +217,19 @@ namespace BlueLedger.PL.PC.PR
 
             Session["dsTemplate"] = dsPr;
 
+
+
+            var buCode = LoginInfo.BuInfo.BuCode;
+            var vid = Request.Cookies["[PC].[vPrList]"].Value;
+
             if (Request.Params["Type"].ToUpper() == "M")
             {
-                // Redirec to PrEdit.aspx page
-                Response.Redirect("PrEdit.aspx?BuCode=" + LoginInfo.BuInfo.BuCode + "&MODE=template&VID=" +
-                                  Request.Cookies["[PC].[vPrList]"].Value + "&Type=M");
+                Response.Redirect("PrEdit.aspx?BuCode=" + buCode + "&MODE=template&VID=" + vid + "&Type=M");
             }
             else
             {
-                // Redirec to PrEdit.aspx page
-                Response.Redirect("PrEdit.aspx?BuCode=" + LoginInfo.BuInfo.BuCode + "&MODE=template&VID=" +
-                                  Request.Cookies["[PC].[vPrList]"].Value + "&Type=O");
+                Response.Redirect("PrEdit.aspx?BuCode=" + buCode + "&MODE=template&VID=" + vid + "&Type=O");
             }
-
-
-            //bool result = pr.Save(dsPr, LoginInfo.ConnStr);
-
-            //if (result)
-            //{
-            //    // Update Approve Status
-            //    DbParameter[] dbParams1 = new DbParameter[1];
-            //    dbParams1[0] = new DbParameter("@PrNo", drPr["PRNo"].ToString());
-            //    workFlowDt.ExcecuteApprRule("APP.WF_PR_APPR_STEP_1", dbParams1, LoginInfo.ConnStr);
-
-            //    DbParameter[] dbParams2 = new DbParameter[2];
-            //    dbParams2[0] = new DbParameter("@PrNo", drPr["PRNo"].ToString());
-            //    dbParams2[1] = new DbParameter("@LoginName", LoginInfo.LoginName);
-            //    workFlowDt.ExcecuteApprRule("APP.WF_PR_APPR_STEP_2", dbParams2, LoginInfo.ConnStr);
-
-            //    // Redirec to PrEdit.aspx page
-            //    //Response.Redirect("PrHQ.aspx?ID=" + drPr["PRNo"].ToString());
-            //    Response.Redirect("Pr.aspx?BuCode=" + LoginInfo.BuInfo.BuCode + "&ID=" + drPr["PRNo"].ToString() + "&VID=" + Request.Params["VID"].ToString());
-            //}
         }
 
         protected void Back()
@@ -201,6 +248,78 @@ namespace BlueLedger.PL.PC.PR
                     Back();
                     break;
             }
+        }
+
+
+        private ProductLastPrice GetProductLastPrice(string productCode, string unitCode, DateTime date)
+        {
+            var info = new ProductLastPrice();
+
+            info.ProductCode = productCode;
+            info.UnitCode = unitCode;
+
+            if (string.IsNullOrEmpty(productCode) || string.IsNullOrEmpty(unitCode))
+                return info;
+
+
+            var query = @"
+SELECT 
+	TOP(1)
+	RecDate,
+	rec.RecNo,
+	rec.VendorCode,
+	v.[Name] as VendorName,
+	Price
+FROM 
+	PC.REC
+	JOIN PC.RECDt ON rec.RecNo=recdt.RecNo
+	LEFT JOIN AP.Vendor v ON v.VendorCode=rec.VendorCode
+WHERE
+	rec.DocStatus = 'Committed'
+	AND CommitDate <= @Date
+	AND ProductCode = @ProductCode
+	AND RcvUnit =@UnitCode
+ORDER BY
+	RecDate DESC,
+	RecNo DESC
+";
+            var parameters = new Blue.DAL.DbParameter[]
+            {
+                new Blue.DAL.DbParameter("@Date", date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
+                new Blue.DAL.DbParameter("@ProductCode", productCode),
+                new Blue.DAL.DbParameter("@UnitCode", unitCode)
+            };
+            var dt = prDt.DbExecuteQuery(query, parameters, LoginInfo.ConnStr);
+
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                var dr = dt.Rows[0];
+
+                info.LastRecDate = Convert.ToDateTime(dr["RecDate"]);
+                info.LastRecNo = dr["RecNo"].ToString();
+                info.LastVendorCode = dr["VendorCode"].ToString();
+                info.LastVendorName = dr["VendorName"].ToString();
+                info.LastPrice = Convert.ToDecimal(dr["Price"]);
+            }
+
+
+            return info;
+        }
+
+        public class ProductLastPrice
+        {
+            public ProductLastPrice()
+            {
+                LastPrice = 0;
+            }
+
+            public string ProductCode { get; set; }
+            public string UnitCode { get; set; }
+            public DateTime LastRecDate { get; set; }
+            public string LastRecNo { get; set; }
+            public string LastVendorCode { get; set; }
+            public string LastVendorName { get; set; }
+            public decimal LastPrice { get; set; }
         }
     }
 }
