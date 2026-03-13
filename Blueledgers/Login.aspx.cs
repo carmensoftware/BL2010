@@ -2,11 +2,9 @@
 using System.Data;
 using System.Text;
 using System.Web;
-using System.Web.UI;
 using System.Web.UI.WebControls;
 using BlueLedger.PL.BaseClass;
 
-using System.Web.Security;
 
 public partial class Login : BasePage
 {
@@ -14,79 +12,42 @@ public partial class Login : BasePage
 
     private readonly Blue.BL.dbo.Bu _bu = new Blue.BL.dbo.Bu();
     private readonly Blue.BL.dbo.BUUser _buUser = new Blue.BL.dbo.BUUser();
-    private readonly DataSet _dsOnlineUser = new DataSet();
-    private readonly DataSet _dsUser = new DataSet();
-    private readonly LoginInformation _loginInfo = new LoginInformation();
     private readonly Blue.BL.dbo.User _user = new Blue.BL.dbo.User();
 
+    private readonly DataSet _dsUser = new DataSet();
+    private readonly LoginInformation _loginInfo = new LoginInformation();
 
-    private string UserName
-    {
-        get { return ViewState["UserName"].ToString(); }
-        set { ViewState["UserName"] = value; }
-    }
-
-    private string Password
-    {
-        get { return ViewState["Password"].ToString(); }
-        set { ViewState["Password"] = value; }
-    }
-
+    
     #endregion
 
     #region "Operations"
 
-    /// <summary>
-    ///     Override page pre-initial to cancel all page default setting command.
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
+    
     protected override void Page_PreInit(object sender, EventArgs e)
     {
-        // Do nothing to override page setting command.            
     }
 
-    /// <summary>
-    ///     Page load event
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
+    
     protected override void Page_Load(object sender, EventArgs e)
     {
-
         base.Page_Load(sender, e);
-        //throw (new ArgumentNullException());
 
         if (!IsPostBack)
         {
             Session["LoginInfo"] = null;
-            // If Request.Params["ID"] != null, there is one system try to 
-            // automatic login and BU select page.
-            if (Request.Params["ID"] != null)
-            {
-                // Login Pass-Through
-                LoginPassThrough();
-            }
-
-            ViewState["LoginErrors"] = 0;
-
         }
-
-
-
     }
 
-    /// <summary>
-    ///     Check user login
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
+    
     protected void LoginControl_Authenticate(object sender, AuthenticateEventArgs e)
     {
-        var msgErr = string.Empty;
-
         // check login
-        var validUser = Request.Params["ID"] != null ? _user.CheckLogin(_dsUser, UserName, Password, ref msgErr) : _user.CheckLogin(_dsUser, LoginControl.UserName, LoginControl.Password, ref msgErr);
+
+        var username = LoginControl.UserName;
+        var password = LoginControl.Password;
+        var message = string.Empty;
+
+        var validUser = _user.CheckLogin(_dsUser, username, password, ref message);
 
         if (validUser)
         {
@@ -101,11 +62,8 @@ public partial class Login : BasePage
             }
             else
             {
-
-                _dsOnlineUser.Clear();
-
-                if (msgErr.ToString() != string.Empty)
-                    Session["License"] = msgErr;
+                if (message.ToString() != string.Empty)
+                    Session["License"] = message;
 
                 e.Authenticated = true;
             }
@@ -115,29 +73,24 @@ public partial class Login : BasePage
             e.Authenticated = false;
 
             // Display error message
-            if (msgErr.Substring(0, 3).ToUpper() == "MSG")
+            if (message.Substring(0, 3).ToUpper() == "MSG")
             {
-                if (msgErr.ToUpper() == "MSG008") // Exceed active user license
+                if (message.ToUpper() == "MSG008") // Exceed active user license
                     Response.Redirect("~/UserActive.aspx");
                 else
-                    LoginControl.FailureText = Resources.MsgLogin.ResourceManager.GetString(msgErr);
+                    LoginControl.FailureText = Resources.MsgLogin.ResourceManager.GetString(message);
             }
             else
-                LoginControl.FailureText = msgErr;
+                LoginControl.FailureText = message;
 
-            if (msgErr.StartsWith("You have more users"))
+            if (message.StartsWith("You have more users"))
             {
 
             }
         }
     }
 
-
-    /// <summary>
-    ///     Keep user login information to session
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
+    
     protected void LoginControl_LoggedIn(object sender, EventArgs e)
     {
         var drUser = _dsUser.Tables[_user.TableName].Rows[0];
@@ -196,6 +149,10 @@ public partial class Login : BasePage
             Response.Redirect(string.IsNullOrEmpty(homepage) ? "~/Option/User/Default.aspx" : homepage);
 		
     }
+
+    #endregion
+
+    // Method(s)
 
     private void UpdateLoginInfo()
     {
@@ -261,16 +218,13 @@ public partial class Login : BasePage
 
         // update connection string. 
         _loginInfo.ConnStr = new StringBuilder().AppendFormat(
-            "Data Source={0};Initial Catalog={1};User ID={2};Password={3};packet size=4096;Min Pool Size=5; Max Pool Size=200;Connection Timeout=30;",
+            //"Data Source={0};Initial Catalog={1};User ID={2};Password={3};packet size=4096;Min Pool Size=5; Max Pool Size=200;Connection Timeout=30;",
+            "Data Source={0};Initial Catalog={1};User ID={2};Password={3};Connection Timeout=30;",
             drBuUser["ServerName"],
             drBuUser["DatabaseName"],
             drBuUser["UserName"],
             Blue.BL.GnxLib.EnDecryptString(drBuUser["Password"].ToString(), Blue.BL.GnxLib.EnDeCryptor.DeCrypt))
             .ToString();
-        //loginInfo.ConnStr = "Data Source=" + drBuUser["ServerName"].ToString() + "; " +
-        //    "Initial Catalog = " + drBuUser["DatabaseName"].ToString() + "; " +
-        //    "User ID = " + drBuUser["UserName"].ToString() + "; " +
-        //    "Password = " + Blue.BL.GnxLib.EnDecryptString(drBuUser["Password"].ToString(), Blue.BL.GnxLib.EnDeCryptor.DeCrypt);
 
 
         // update selected business unit information.
@@ -325,114 +279,37 @@ public partial class Login : BasePage
 
         Session["LoginInfo"] = _loginInfo;
 
-        //DataRow drBuGroup = buGroup.GetMessageConnStr(BuInfo["BuGrpCode"].ToString()).Rows[0];
-        //loginInfo.MessageConnStr = "Data Source=" + drBuGroup["ServerName"].ToString() + "; " +
-        //    "Initial Catalog = " + drBuGroup["DatabaseName"].ToString() + "; " +
-        //    "User ID = " + drBuGroup["UserName"].ToString() + "; " +
-        //    "Password = " + Blue.BL.GnxLib.EnDecryptString(drBuGroup["Password"].ToString(), Blue.BL.GnxLib.EnDeCryptor.DeCrypt);
     }
-
-    #endregion
-
-    #region "Redirect to Inbox Page."
-
-    /// <summary>
-    ///     Check bu, user name and password from parameter and redirect to inbox
-    /// </summary>
-    private void LoginPassThrough()
-    {
-
-        //Decrpypt Parameter
-        var paramsLogin = Blue.BL.GnxLib.EnDecryptString(Request.Params["ID"], Blue.BL.GnxLib.EnDeCryptor.DeCrypt);
-        var id = paramsLogin.Split('&');
-        var bu = id[0].Split('=');
-        var username = id[1].Split('=');
-        var password = id[2].Split('=');
-
-        var xParam = Blue.BL.GnxLib.EnDecryptString(Request.Params["ID"], Blue.BL.GnxLib.EnDeCryptor.DeCrypt, Blue.BL.GnxLib.KEY_LOGIN_PASSWORD);
-        var xID = xParam.Split('&');
-        password = xID[2].Split('=');
-
-
-        // Assign UserName and Password
-        UserName = username[1];
-        Password = password[1];
-
-        // Fire Authenticate event
-        var auth = new AuthenticateEventArgs();
-        LoginControl_Authenticate(this, auth);
-
-        var e = new EventArgs();
-        LoginControl_LoggedIn(this, e);
-
-        Response.Redirect("BuList.aspx?BuCode=" + bu[1]);
-    }
-
-    #endregion
-
-    #region "Cookie"
-
-    /*
-    private void Create_Cookie()
-    {
-        var Cookie = new HttpCookie("BLCookie");
-    }
-*/
-
-    /*
-        private void Input_Value_Cookie()
-        {
-            var Cookie = new HttpCookie("BLCookie");
-            Cookie.Values["Code"] = "Logedin";
-            //GnxLib.EnDecryptString("Logedin", Blue.BL.GnxLib.EnDeCryptor.EnCrypt);
-            Response.Cookies.Add(Cookie);
-        }
-    */
-
-    /*
-        private bool Check_Cookie()
-        {
-            HttpCookie getCookie;
-            getCookie = Request.Cookies["BLCookie"];
-            if (Request.Cookies["BLCookie"] != null)
-            {
-                if (getCookie.Value == "Logedin")
-                    //GnxLib.EnDecryptString(getCookie.Value.ToString(), Blue.BL.GnxLib.EnDeCryptor.DeCrypt) 
-                {
-                    return true;
-                }
-                return false;
-            }
-            return false;
-        }
-    */
-
-    #endregion
-
-    protected void imgb_Subscribe_Click(object sender, ImageClickEventArgs e)
-    {
-        //  txt_Email.Text;
-
-        //DataSet DsSubscriber = new DataSet();
-        //sb.GetSchema(DsSubscriber, connStr);
-        //DataRow DrSubscriber = DsSubscriber.Tables["[sb].[Subscriber]"].NewRow();
-        //DrSubscriber["Email"] = txt_Email.Text;
-        //DrSubscriber["RegisDate"] = ServerDateTime;
-        //DsSubscriber.Tables["[sb].[Subscriber]"].Rows.Add(DrSubscriber);
-        //if (sb.Save(DsSubscriber, connStr))
-        //{
-        //    Lb_Popup.Text = "Thank you for subscribe";
-        //    PU_Alert.ShowOnPageLoad = true;
-        //}
-        //else {
-        //    Lb_Popup.Text = "Error to subscribe";
-        //    PU_Alert.ShowOnPageLoad = true;
-        //}
-    }
-
-    //protected void Btn_Popup_Ok_Click(object sender, EventArgs e)
+    
+    //private void LoginPassThrough()
     //{
-    //   // PU_Alert.ShowOnPageLoad = false;
-    //    Response.Redirect(Request.Url.ToString());
+    //    var paramsLogin = Blue.BL.GnxLib.EnDecryptString(Request.Params["ID"], Blue.BL.GnxLib.EnDeCryptor.DeCrypt);
+
+    //    var urlParams = paramsLogin.Split('&');
+    //    var bu = urlParams[0].Split('=');
+    //    var username = urlParams[1].Split('=');
+    //    var password = urlParams[2].Split('=');
+
+    //    var xParam = Blue.BL.GnxLib.EnDecryptString(Request.Params["ID"], Blue.BL.GnxLib.EnDeCryptor.DeCrypt, Blue.BL.GnxLib.KEY_LOGIN_PASSWORD);
+
+    //    var xID = xParam.Split('&');
+    //    password = xID[2].Split('=');
+
+
+    //    // Assign UserName and Password
+    //    _UserName = username[1];
+    //    _Password = password[1];
+
+    //     Fire Authenticate event
+
+    //    LoginControl_Authenticate(this, new AuthenticateEventArgs());
+    //    LoginControl_LoggedIn(this, new EventArgs());
+
+    //    Response.Redirect("BuList.aspx?BuCode=" + bu[1]);
     //}
+
+    
+
+
+
 }

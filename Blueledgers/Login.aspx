@@ -179,23 +179,19 @@
             <br />
             <div>
                 <asp:TextBox ID="UserName" runat="server" class="input" placeholder=" Username" />
-                <%--<asp:RequiredFieldValidator ID="UserNameRequired" runat="server" ControlToValidate="UserName" ErrorMessage="Username is required." ToolTip="Username is required."
-                    ValidationGroup="LoginControl">*</asp:RequiredFieldValidator>--%>
             </div>
             <br />
             <div>
                 <div>
                     <asp:TextBox ID="Password" runat="server" TextMode="Password" class="input" placeholder=" Password" />
-                    <%--<asp:RequiredFieldValidator ID="PasswordRequired" runat="server" ControlToValidate="Password" ErrorMessage="Password is required." ToolTip="Password is required."
-                        ValidationGroup="LoginControl">*</asp:RequiredFieldValidator>--%>
                 </div>
                 <br />
                 <div>
                     <asp:Button ID="LoginButton" runat="server" CommandName="Login" Text="Log In" ValidationGroup="LoginControl" class="btn" Width="100%" Height="35" />
                 </div>
                 <br />
-                <div>
-                    <center><asp:CheckBox ID="RememberMe1" runat="server" Text="Remember me"></asp:CheckBox></center>
+                <div style="display:flex; justify-content:center;">
+                    <asp:CheckBox ID="RememberMe1" runat="server" Text="Remember me" />
                 </div>
                 <br />
                 <div id="MessageBox" class="message" onclick="closeMessage('MessageBox'); return false;">

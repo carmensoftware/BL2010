@@ -2,14 +2,13 @@
     Title="Home - blueledgers.com" %>
 
 <%@ MasterType VirtualPath="~/Master/In/SkinDefault.master" %>
-<%@ Register Assembly="DevExpress.Web.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Web.ASPxClasses"
-    TagPrefix="dx" %>
-<%@ Register Assembly="DevExpress.Web.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Web.ASPxTabControl"
-    TagPrefix="dx" %>
+<%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxClasses" TagPrefix="dx" %>
+<%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxTabControl" TagPrefix="dx" %>
 <%@ Register Assembly="DevExpress.Web.v10.1" Namespace="DevExpress.Web.ASPxPopupControl" TagPrefix="dx" %>
-<%@ Register Src="Inbox.ascx" TagName="Inbox" TagPrefix="uc1" %>
+<%@ Register Src="~/UserControl/Password.ascx" TagName="PasswordDialog" TagPrefix="uc1" %>
+<%--<%@ Register Src="Inbox.ascx" TagName="Inbox" TagPrefix="uc1" %>
 <%@ Register Src="Delete.ascx" TagName="Delete" TagPrefix="uc2" %>
-<%@ Register Src="Sent.ascx" TagName="Sent" TagPrefix="uc3" %>
+<%@ Register Src="Sent.ascx" TagName="Sent" TagPrefix="uc3" %>--%>
 <%@ Register Src="Personal.ascx" TagName="Personal" TagPrefix="uc4" %>
 <%@ Register Src="HomePage.ascx" TagName="HomePage" TagPrefix="uc6" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
@@ -144,7 +143,6 @@
     </script>
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="cph_Main" runat="Server">
-    <br />
     <!-- Title & Command Bar  -->
     <div class="content-main-bar">
         <div>
@@ -169,10 +167,12 @@
             </h4>
             <h4>
                 Last login: <span>
-                    <%= LoginInfo.LastLogin.ToShortDateString() %></span>
+                    <%= LoginInfo.LastLogin.ToString("dd/MM/yyyy HH:mm:ss") %></span>
             </h4>
+            <asp:Label runat="server" ID="lbl_LastChangedPassword" />
+            <br />
             <div>
-                <asp:Button ID="btn_ChangePassword" runat="server" Text="Change Password ..." OnClick="btn_ChangePassword_Click" />
+                <asp:Button ID="btn_ChangePassword" runat="server" Width="200" Text="Change Password ..." OnClick="btn_ChangePassword_Click" />
             </div>
         </div>
     </div>
@@ -193,9 +193,11 @@
     <div id="HomePage" class="tab-container tab-border" style="display: none;">
         <uc6:HomePage ID="HomePage1" runat="server" />
     </div>
+    <uc1:PasswordDialog ID="dlgPassword" runat="server" />
+    <br />
     <hr />
     <asp:Label runat="server" ID="lbl_Session" Font-Size="Large" />
-    <dx:ASPxPopupControl ID="pop_Password" ClientInstanceName="pop_Password" runat="server" Width="360" HeaderText="Password" ShowCloseButton="true" CloseAction="CloseButton"
+    <%--<dx:ASPxPopupControl ID="pop_Password" ClientInstanceName="pop_Password" runat="server" Width="360" HeaderText="Password" ShowCloseButton="true" CloseAction="CloseButton"
         Modal="True" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" AllowDragging="true" AutoUpdatePosition="true" ShowPageScrollbarWhenModal="True">
         <ContentCollection>
             <dx:PopupControlContentControl ID="PopupControlContentControl_Password" runat="server">
@@ -218,11 +220,11 @@
                     </tr>
                 </table>
                 <br />
-                <div style="display:flex; justify-content:flex-end; ">
-                        <asp:Button ID="btn_Save" runat="server" Text="Save" OnClick="btn_Save_Click" />
-                        &nbsp;&nbsp;&nbsp;&nbsp;
-                        <asp:Button ID="btn_Cancel" runat="server" Text="Cancel" OnClick="btn_Cancel_Click" />
-                        &nbsp;&nbsp;&nbsp;&nbsp;
+                <div style="display: flex; justify-content: flex-end;">
+                    <asp:Button ID="btn_Save" runat="server" Text="Save" OnClick="btn_Save_Click" />
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <asp:Button ID="btn_Cancel" runat="server" Text="Cancel" OnClick="btn_Cancel_Click" />
+                    &nbsp;&nbsp;&nbsp;&nbsp;
                 </div>
                 <br />
                 <div style="text-align: center; color: Red;">
@@ -230,5 +232,5 @@
                 </div>
             </dx:PopupControlContentControl>
         </ContentCollection>
-    </dx:ASPxPopupControl>
+    </dx:ASPxPopupControl>--%>
 </asp:Content>
