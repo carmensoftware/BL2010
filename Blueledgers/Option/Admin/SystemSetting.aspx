@@ -573,7 +573,7 @@
                                         <asp:Label ID="Label5" runat="server" Text="Minimum password length:" />
                                     </td>
                                     <td>
-                                        <dx:ASPxSpinEdit ID="txt_PasswordLength" runat="server" Width="80" NumberType="Integer" SpinButtons-ShowIncrementButtons="true" Number="8" />
+                                        <dx:ASPxSpinEdit ID="txt_PasswordLength" runat="server" Width="80" NumberType="Integer" SpinButtons-ShowIncrementButtons="true" Number="6" MinValue="6" MaxValue="50" />
                                     </td>
                                 </tr>
                                 <tr>

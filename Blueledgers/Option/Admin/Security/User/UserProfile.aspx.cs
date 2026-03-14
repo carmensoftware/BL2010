@@ -8,11 +8,14 @@ using DevExpress.Web.ASPxEditors;
 using System.Web.UI.WebControls;
 using System.Text.RegularExpressions;
 using BlueLedger.PL.BaseClass;
+using System.Text;
 
 
 public partial class Option_Admin_Security_User_UserProfile : BasePage //System.Web.UI.Page
 {
     #region User Definition
+
+    private static string sysConnStr = System.Configuration.ConfigurationManager.AppSettings["ConnStr"].ToString();
 
     private readonly string moduleID = "99.98.1.2";
     private readonly Blue.BL.ADMIN.RolePermission rolePermiss = new Blue.BL.ADMIN.RolePermission();
@@ -988,6 +991,8 @@ public partial class Option_Admin_Security_User_UserProfile : BasePage //System.
             else
                 GetNewUser();
 
+            ShowPasswordPolicy();
+
         }  // if (!IsPostBack)
         else
         {
@@ -1025,33 +1030,52 @@ public partial class Option_Admin_Security_User_UserProfile : BasePage //System.
 
     protected void BtnPopChangePasswordSave_Click(object sender, EventArgs e)
     {
-        if (TextChangePassword.Text != string.Empty && TextChangePassword.Text == TextChangePasswordConfirm.Text)
-        {
-            string messageError = CheckPasswordCondition(TextChangePassword.Text);
-            if (messageError == string.Empty)
-            {
-                UpdatePassword(TextLoginName.Text, TextChangePassword.Text);
-                AlertBox("Change password successfully.");
-            }
-            else
-            {
-                //lbl_PasswordError.Text = messageError;
-                LabelChangePasswordAlert.Text = messageError;
-                Pop_ChangePassword.Show();
+        var loginName = TextLoginName.Text;
+        var password1 = TextChangePassword.Text;
+        var password2 = TextChangePasswordConfirm.Text;
 
-            }
-            //ScriptManager.RegisterStartupScript(this, this.GetType(), "pop_Password_Close", "alert('Password is saved.'); $find('pop_ResetPassword').hide();", true);
-        }
-        else if (TextChangePassword.Text != TextChangePasswordConfirm.Text)
+        // Check Password Condition(s)
+        var error = CheckPasswordPolicy(loginName, password1, password2);
+
+        if (string.IsNullOrEmpty(error))
         {
-            LabelChangePasswordAlert.Text = "Password does not match.";
-            Pop_ChangePassword.Show();
+            UpdatePassword(loginName, password1);
+            AlertBox("Change password successfully.");
+
         }
         else
         {
-            LabelChangePasswordAlert.Text = "Invalid password or password is empty.";
+            LabelChangePasswordAlert.Text = error;
             Pop_ChangePassword.Show();
         }
+
+        //if (TextChangePassword.Text != string.Empty && TextChangePassword.Text == TextChangePasswordConfirm.Text)
+        //{
+        //    string messageError = CheckPasswordCondition(TextChangePassword.Text);
+        //    if (messageError == string.Empty)
+        //    {
+        //        UpdatePassword(TextLoginName.Text, TextChangePassword.Text);
+        //        AlertBox("Change password successfully.");
+        //    }
+        //    else
+        //    {
+        //        //lbl_PasswordError.Text = messageError;
+        //        LabelChangePasswordAlert.Text = messageError;
+        //        Pop_ChangePassword.Show();
+
+        //    }
+        //    //ScriptManager.RegisterStartupScript(this, this.GetType(), "pop_Password_Close", "alert('Password is saved.'); $find('pop_ResetPassword').hide();", true);
+        //}
+        //else if (TextChangePassword.Text != TextChangePasswordConfirm.Text)
+        //{
+        //    LabelChangePasswordAlert.Text = "Password does not match.";
+        //    Pop_ChangePassword.Show();
+        //}
+        //else
+        //{
+        //    LabelChangePasswordAlert.Text = "Invalid password or password is empty.";
+        //    Pop_ChangePassword.Show();
+        //}
 
     }
 
@@ -1351,4 +1375,140 @@ public partial class Option_Admin_Security_User_UserProfile : BasePage //System.
         return messageError;
     }
 
+
+    private void ShowPasswordPolicy()
+    {
+        var _passwordPolicy = GetPasswordPolicy();
+        var policy = new StringBuilder();
+
+        policy.Append("<b><u>Password Policy</u></b><br/>");
+        policy.AppendFormat("Password must be at least {0} characters long.<br/>", _passwordPolicy.Length);
+
+
+        if (_passwordPolicy.IsComplexity)
+        {
+            policy.Append("Password must meet complexity requirements.<br/>");
+            policy.Append("  - at least one uppercase letter.<br/>");
+            policy.Append("  - at least one lowercase letter.<br/>");
+            policy.Append("  - at least one number and one special character (e.g., @, #, $).<br/>");
+        }
+
+        if (_passwordPolicy.ExpiredDays > 0)
+        {
+            policy.AppendFormat("Passwords must be changed every {0} days per our security policy.<br/>", _passwordPolicy.ExpiredDays);
+        }
+
+        lbl_PasswordPolicy.Text = policy.ToString();
+    }
+
+    // Password Plicy
+    public string CheckPasswordPolicy(string loginName, string password, string password2)
+    {
+        if (password != password2)
+        {
+            return "Password and confirm password does not match.";
+        }
+
+        // No same as old password
+        var dtSamePwd = _user.DbExecuteQuery(
+            "SELECT CASE WHEN [Password]=@Password THEN 1 ELSE 0 END FROM dbo.[User] WHERE LoginName=@LoginName",
+            new Blue.DAL.DbParameter[] 
+            { 
+                new Blue.DAL.DbParameter("@Password", GetEncryptPassword(password)), 
+                new Blue.DAL.DbParameter("@LoginName", loginName) 
+            },
+            sysConnStr);
+
+        if (dtSamePwd != null && dtSamePwd.Rows.Count > 0)
+        {
+            var value = dtSamePwd.Rows[0][0].ToString();
+
+            if (value == "1")
+            {
+                return "New password cannot match previous passwords.";
+            }
+        }
+       
+        var policy = GetPasswordPolicy();
+
+
+        if (password.Length < policy.Length)
+        {
+            return string.Format("Minimum {0} characters required.", policy.Length);
+        }
+
+        if (policy.IsComplexity)
+        {
+            return ValidateComplexityPassword(password);
+        }
+
+
+
+        return "";
+    }
+
+
+    private PasswordPolicy GetPasswordPolicy()
+    {
+        var dt =  _user.DbExecuteQuery("SELECT [Key], [Value] FROM dbo.[Config]", null);
+        var policies = dt.AsEnumerable()
+            .Select(x => new KeyValue
+            {
+                Value = x.Field<string>("Value"),
+                Key = x.Field<string>("Key"),
+            })
+            .ToArray();
+
+        var policy_Length = policies.FirstOrDefault(x => x.Key.ToLower() == "password.length").Value;
+        var policy_Complexity = policies.FirstOrDefault(x => x.Key.ToLower() == "password.complexity").Value;
+        var policy_ExpDays = policies.FirstOrDefault(x => x.Key.ToLower() == "password.expiredays").Value;
+
+
+        var pwdLength = string.IsNullOrEmpty(policy_Length) ? 6 : Convert.ToInt32(policy_Length);
+        var pwdComplex = string.IsNullOrEmpty(policy_Complexity) ? false : policy_Complexity == "1";
+        var pwdExpDays = string.IsNullOrEmpty(policy_ExpDays) ? 0 : Convert.ToInt32(policy_ExpDays);
+
+
+        return new PasswordPolicy
+        {
+            Length = pwdLength,
+            IsComplexity = pwdComplex,
+            ExpiredDays = pwdExpDays
+        };
+    }
+
+    private string ValidateComplexityPassword(string password)
+    {
+        var errors = new StringBuilder();
+
+        if (!password.Any(char.IsUpper))
+            errors.Append("Missing uppercase letter.<br/>");
+
+        if (!password.Any(char.IsLower))
+            errors.AppendLine("Missing lowercase letter.<br/>");
+
+        if (!password.Any(char.IsDigit))
+            errors.AppendLine("Missing number.<br/>");
+
+        if (!password.Any(ch => !char.IsLetterOrDigit(ch)))
+            errors.AppendLine("Missing special character such as @ # $ % ^ & * - .<br/>");
+
+        return errors.ToString().Trim(); ;
+    }
+
+
+    [Serializable]
+    internal class PasswordPolicy
+    {
+        public int Length { get; set; }
+        public bool IsComplexity { get; set; }
+        public int ExpiredDays { get; set; }
+    }
+
+    [Serializable]
+    protected class KeyValue
+    {
+        public string Key { get; set; }
+        public string Value { get; set; }
+    }
 }

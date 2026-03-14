@@ -825,6 +825,18 @@ namespace BlueLedger.PL.Option.Admin
 
         protected void btn_PasswordPolicySave_Click(object sender, EventArgs e)
         {
+            var pwdLength = string.IsNullOrEmpty(txt_PasswordLength.Text) ? 0 : Convert.ToInt32(txt_PasswordLength.Number);
+
+            if (pwdLength < 6 || pwdLength > 50)
+            {
+                ShowAlert("Minimum password length is 6 and not greater than 50 characters.");
+
+                return;
+            }
+
+
+            txt_ExpireDays.Text = string.IsNullOrEmpty(txt_ExpireDays.Text) ? "0" : txt_ExpireDays.Text;
+
             string sql = "";
 
             sql = @"IF NOT EXISTS (SELECT * FROM dbo.Config WHERE [key]='{0}')
@@ -838,7 +850,7 @@ namespace BlueLedger.PL.Option.Admin
                     END";
 
             // Password Length
-            bu.DbExecuteQuery(string.Format(sql, "Password.Length", txt_PasswordLength.Text), null, sys_db);
+            bu.DbExecuteQuery(string.Format(sql, "Password.Length", pwdLength.ToString()), null, sys_db);
             // Password Complexity
             bu.DbExecuteQuery(string.Format(sql, "Password.Complexity", chk_ComplexityPassword.Checked ? "1" : "0"), null, sys_db);
             // Password Expired day(s)

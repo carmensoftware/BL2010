@@ -2,7 +2,8 @@
 
 <%@ Register Assembly="DevExpress.Web.ASPxEditors.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Web.ASPxEditors"
     TagPrefix="dx" %>
-<%@ Register Assembly="DevExpress.Web.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Web.ASPxPopupControl" TagPrefix="dx" %>
+<%@ Register Assembly="DevExpress.Web.v10.1, Version=10.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Web.ASPxPopupControl"
+    TagPrefix="dx" %>
 <%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="cc1" %>
 <%@ Register Assembly="System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" Namespace="System.Web.UI" TagPrefix="asp" %>
 <!DOCTYPE html>
@@ -311,7 +312,7 @@
             <cc1:ModalPopupExtender ID="Pop_ChangePassword" runat="server" BehaviorID="Pop_ChangePassword" PopupControlID="Panel_ChangePassword" TargetControlID="HiddenField_ChangePassword"
                 CancelControlID="BtnPopChangePasswordCancel" BackgroundCssClass="Background">
             </cc1:ModalPopupExtender>
-            <asp:Panel ID="Panel_ChangePassword" runat="server" CssClass="Popup" Width="320px" Height="220px">
+            <asp:Panel ID="Panel_ChangePassword" runat="server" CssClass="Popup" Width="400" Height="340">
                 <div class="popup-header">
                     <h3>
                         Change Password
@@ -341,11 +342,16 @@
                     <asp:Label ID="LabelChangePasswordAlert" runat="server" Text="" />
                 </div>
                 <div class="popup-footer">
-                    <div style="float: right; margin-right: 10px;">
+                    <div style="display: flex; justify-content: center;">
                         <asp:Button ID="BtnPopChangePasswordSave" runat="server" Text="Save" OnClick="BtnPopChangePasswordSave_Click" />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <asp:Button ID="BtnPopChangePasswordCancel" runat="server" Text="Cancel" />
                     </div>
-                    <br style="clear: both;" />
+                </div>
+                <br />
+                <hr />
+                <div style="margin-left: 15px;">
+                    <asp:Label runat="server" ID="lbl_PasswordPolicy" ForeColor="Blue" Text="" />
                 </div>
             </asp:Panel>
             <asp:HiddenField ID="HiddenField_ChangePassword" runat="server" />
@@ -428,10 +434,11 @@
                         <table border="0" cellpadding="5" cellspacing="0" width="100%">
                             <tr>
                                 <td align="center">
-                                    <asp:Label ID="lbl_LicenseExceed" runat="server" Font-Size="Small" Text="Active users are exceed than purchased license. This user will be inactived." SkinID="LBL_NR"></asp:Label>
+                                    <asp:Label ID="lbl_LicenseExceed" runat="server" Font-Size="Small" Text="Active users are exceed than purchased license. This user will be inactived."
+                                        SkinID="LBL_NR"></asp:Label>
                                 </td>
                             </tr>
-                            <tr >
+                            <tr>
                                 <td align="center">
                                     <asp:Button runat="server" ID="btn_LiceseExceed" Width="60" Text="Ok" OnClick="btn_LiceseExceed_Click" />
                                 </td>
