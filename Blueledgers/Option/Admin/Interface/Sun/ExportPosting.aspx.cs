@@ -349,6 +349,7 @@ SELECT
             var taxAccType = ddl_Config_TaxAccountType.SelectedItem.Value.ToString();
             var taxAccCode = txt_Config_TaxAccountCode.Text.Trim();
             var singleExport = ddl_Config_SingleExport.SelectedItem.Value.ToString();
+            var useCommitDate = ddl_Config_UseCommitDate.SelectedItem.Value.ToString();
 
             var useA1 = ddl_UseA1.SelectedItem.Value.ToString();
             var useA2 = ddl_UseA2.SelectedItem.Value.ToString();
@@ -369,6 +370,7 @@ SELECT
             config.Append(string.Format("<JournalType>{0}</JournalType>", journalType));
             config.Append(string.Format("<TaxAccountCode Type=\"{0}\">{1}</TaxAccountCode>", taxAccType, taxAccCode));
             config.Append(string.Format("<SingleExport>{0}</SingleExport>", singleExport));
+            config.Append(string.Format("<UseCommitDate>{0}</UseCommitDate>", useCommitDate));
 
             config.Append(string.Format("<UseA1>{0}</UseA1>", useA1));
             config.Append(string.Format("<UseA2>{0}</UseA2>", useA2));
