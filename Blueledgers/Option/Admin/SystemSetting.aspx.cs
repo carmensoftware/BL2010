@@ -129,6 +129,7 @@ namespace BlueLedger.PL.Option.Admin
             txt_Fax.ReadOnly = !isEdit;
             txt_Email.ReadOnly = !isEdit;
             txt_TaxId.ReadOnly = !isEdit;
+            txt_BranchNo.ReadOnly = !isEdit;
 
             FileUpload1.Visible = isEdit;
 
@@ -151,6 +152,7 @@ namespace BlueLedger.PL.Option.Admin
                 txt_Fax.Text = dr["Fax"].ToString();
                 txt_Email.Text = dr["Email"].ToString();
                 txt_TaxId.Text = dr["TaxId"].ToString();
+                txt_BranchNo.Text = dr["BranchNo"].ToString();
 
 
                 if (dr["BuLogo"] != System.DBNull.Value)
@@ -199,7 +201,7 @@ namespace BlueLedger.PL.Option.Admin
         protected void btn_SaveBu_Click(object sender, EventArgs e)
         {
             SqlConnection con = new SqlConnection(LoginInfo.ConnStr);
-            SqlCommand cmd = new SqlCommand("UPDATE [ADMIN].Bu SET Name=@Name, NameBilling=@NameBilling, Address=@Address, PostCode=@PostCode, Phone=@Phone, Fax=@Fax, Email=@Email, TaxId=@TaxId", con);
+            SqlCommand cmd = new SqlCommand("UPDATE [ADMIN].Bu SET Name=@Name, NameBilling=@NameBilling, Address=@Address, PostCode=@PostCode, Phone=@Phone, Fax=@Fax, Email=@Email, TaxId=@TaxId, BranchNo=@BranchNo", con);
             cmd.Parameters.AddWithValue("@Name", txt_BuName.Text);
             cmd.Parameters.AddWithValue("@NameBilling", txt_NameBilling.Text);
             cmd.Parameters.AddWithValue("@Address", txt_Address.Text);
@@ -208,6 +210,7 @@ namespace BlueLedger.PL.Option.Admin
             cmd.Parameters.AddWithValue("@Fax", txt_Fax.Text);
             cmd.Parameters.AddWithValue("@Email", txt_Email.Text);
             cmd.Parameters.AddWithValue("@TaxId", txt_TaxId.Text);
+            cmd.Parameters.AddWithValue("@BranchNo", txt_BranchNo.Text);
             try
             {
                 con.Open();

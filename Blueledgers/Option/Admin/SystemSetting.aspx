@@ -180,6 +180,14 @@
                                 </tr>
                                 <tr>
                                     <td>
+                                        <asp:Label ID="lbl_BranchNo" runat="server" Text="Branch No" />
+                                    </td>
+                                    <td>
+                                        <asp:TextBox ID="txt_BranchNo" runat="server" Width="480" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
                                         <asp:Label ID="lbl_BuLogo" runat="server" Text="Company Logo" />
                                     </td>
                                     <td>
