@@ -207,6 +207,15 @@
                         <asp:ListItem Value="false" Text="No" />
                     </asp:DropDownList>
                 </div>
+                 <div class="mb-10">
+                    <asp:Label ID="Label1" runat="server" Text="Summary Tax" />
+                </div>
+                <div class="mb-20">
+                    <asp:DropDownList runat="server" ID="ddl_Config_SummaryTax" Width="120">
+                        <asp:ListItem Value="true" Text="Yes" />
+                        <asp:ListItem Value="false" Text="No" />
+                    </asp:DropDownList>
+                </div>
                 <hr />
                 <div class="mb-10">
                     <asp:Label ID="Label101" runat="server" Text="Required A1" />

@@ -277,6 +277,7 @@ DECLARE @TaxAccountType nvarchar(20) = @doc.value('(/Config/TaxAccountCode/@Type
 DECLARE @TaxAccountCode nvarchar(20) = @doc.value('(/Config/TaxAccountCode)[1]', 'varchar(20)')
 
 DECLARE @UseCommitDate nvarchar(5) = @doc.value('(/Config/UseCommitDate)[1]', 'varchar(5)')
+DECLARE @SummaryTax nvarchar(5) = @doc.value('(/Config/SummaryTax)[1]', 'varchar(5)')
 DECLARE @SingleExport nvarchar(5) = @doc.value('(/Config/SingleExport)[1]', 'varchar(5)')
 
 DECLARE @UseA1 nvarchar(5) = @doc.value('(/Config/UseA1)[1]', 'varchar(5)')
@@ -296,7 +297,9 @@ SELECT
 	ISNULL(@UseA3,'true') as UseA3,
 
 	ISNULL(@UseCommitDate,'true') as UseCommitDate,
+	ISNULL(@SummaryTax,'false') as [SummaryTax],
 	ISNULL(@SingleExport,'true') as [SingleExport]
+
 ";
             var dt = sql.ExecuteQuery(query);
 
@@ -314,6 +317,7 @@ SELECT
 
                 config.UseCommitDate = Convert.ToBoolean(dr["UseCommitDate"]);
                 config.SingleExport = Convert.ToBoolean(dr["SingleExport"]);
+                config.SummaryTax = Convert.ToBoolean(dr["SummaryTax"]);
 
                 config.UseA1 = Convert.ToBoolean(dr["UseA1"]);
                 config.UseA2 = Convert.ToBoolean(dr["UseA2"]);
@@ -339,6 +343,7 @@ SELECT
 
             ddl_Config_UseCommitDate.SelectedValue = config.UseCommitDate ? "true" : "false";
             ddl_Config_SingleExport.SelectedValue = config.SingleExport ? "true" : "false";
+            ddl_Config_SummaryTax.SelectedValue = config.SummaryTax ? "true" : "false"; 
 
         }
 
@@ -350,6 +355,7 @@ SELECT
             var taxAccCode = txt_Config_TaxAccountCode.Text.Trim();
             var singleExport = ddl_Config_SingleExport.SelectedItem.Value.ToString();
             var useCommitDate = ddl_Config_UseCommitDate.SelectedItem.Value.ToString();
+            var summaryTax = ddl_Config_SummaryTax.SelectedItem.Value.ToString();
 
             var useA1 = ddl_UseA1.SelectedItem.Value.ToString();
             var useA2 = ddl_UseA2.SelectedItem.Value.ToString();
@@ -370,6 +376,7 @@ SELECT
             config.Append(string.Format("<JournalType>{0}</JournalType>", journalType));
             config.Append(string.Format("<TaxAccountCode Type=\"{0}\">{1}</TaxAccountCode>", taxAccType, taxAccCode));
             config.Append(string.Format("<SingleExport>{0}</SingleExport>", singleExport));
+            config.Append(string.Format("<SummaryTax>{0}</SummaryTax>", summaryTax));
             config.Append(string.Format("<UseCommitDate>{0}</UseCommitDate>", useCommitDate));
 
             config.Append(string.Format("<UseA1>{0}</UseA1>", useA1));
@@ -523,6 +530,7 @@ VALUES ('APP','INTF','SunSystems', @Value, 'SYSTEM',GETDATE())";
             public string TaxAccountType { get; set; }
             public string TaxAccountCode { get; set; }
             public bool SingleExport { get; set; }
+            public bool SummaryTax { get; set; }
             public bool UseCommitDate { get; set; }
 
             public bool UseA1 { get; set; }
