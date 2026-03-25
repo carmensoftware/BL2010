@@ -52,7 +52,6 @@ public static class SendEmailWorkflow
 
     public static bool Send(string approveCode, string docNo, int wfId, int wfStep, string loginName, string connectionString)
     {
-
         var errorMessage = string.Empty;
         var code = approveCode.ToUpper();
         var inboxNo = "";
@@ -60,26 +59,35 @@ public static class SendEmailWorkflow
 
         try
         {
-            var sql = string.Format("SELECT TOP(1) InboxNo, StepTo FROM [IM].[Inbox] WHERE [RefNo]='{0}' AND [Sender]='{1}' AND StepFrom = {2} ORDER BY InboxNo DESC", docNo, loginName, wfStep);
-            var dtInbox = DbExecuteQuery(sql, null, connectionString);
+            //var sql = string.Format("SELECT TOP(1) InboxNo, StepTo FROM [IM].[Inbox] WHERE [RefNo]='{0}' AND [Sender]='{1}' AND StepFrom = {2} ORDER BY InboxNo DESC", docNo, loginName, wfStep);
+            var sql = @"SELECT TOP(1) InboxNo, StepTo FROM [IM].[Inbox] WHERE [RefNo]=@RefNo AND [Sender]=@Sender AND StepFrom=@StepFrom ORDER BY InboxNo DESC";
 
+            var dtInbox = DbExecuteQuery(sql,
+                new DbParameter[]
+                {
+                    new DbParameter("@RefNo", docNo),
+                    new DbParameter("@Sender", loginName),
+                    new DbParameter("@StepFrom", wfStep.ToString())
+                },
+                connectionString);
 
             if (dtInbox != null && dtInbox.Rows.Count > 0) // Found
             {
                 var dr = dtInbox.Rows[0];
-               
+
                 var stepTo = Convert.ToInt32(dr["StepTo"]);
 
                 inboxNo = dr["InboxNo"].ToString();
 
-                var dtSentFrom = DbExecuteQuery(string.Format("SELECT SentEmail FROM APP.WFDt WHERE WFId=1 AND Step={0}", wfStep), null, connectionString);
-                var dtSentTo = DbExecuteQuery(string.Format("SELECT SentEmail FROM APP.WFDt WHERE WFId=1 AND Step={0}", stepTo), null, connectionString);
+                //var dtSentFrom = DbExecuteQuery(string.Format("SELECT SentEmail FROM APP.WFDt WHERE WFId=1 AND Step={0}", wfStep), null, connectionString);
+                var dtSentTo = DbExecuteQuery(string.Format("SELECT SentEmail, IsHoD FROM APP.WFDt WHERE WFId=1 AND Step={0}", stepTo), null, connectionString);
 
-                //var isSent = dtSentMail != null && dtSentMail.Rows.Count > 0 && dtSentMail.Rows[0][0].ToString() == "1";
-                var isSent = Convert.ToBoolean(dtSentFrom.Rows[0][0]) || Convert.ToBoolean(dtSentTo.Rows[0][0]);
+                //var isSent = Convert.ToBoolean(dtSentFrom.Rows[0][0]) || Convert.ToBoolean(dtSentTo.Rows[0][0]);
+                var isHOD = dtSentTo != null && dtSentTo.Rows.Count > 0 ? dtSentTo.Rows[0]["IsHOD"].ToString() == "1" : false;
+                var isSent = dtSentTo != null && dtSentTo.Rows.Count > 0 ? Convert.ToBoolean(dtSentTo.Rows[0]["SentEmail"]) : false;
 
 
-                if (!isSent)
+                if (isSent == false)
                 {
                     return false;
                 }
@@ -87,9 +95,20 @@ public static class SendEmailWorkflow
                 var mailTo = "";
 
                 if (code == "A")
-                    mailTo = Get_InvolvedLoginFromApprovals(docNo, wfId, stepTo, connectionString);
+                {
+                    //mailTo = Get_InvolvedLoginFromApprovals(docNo, wfId, stepTo, connectionString);
+                    if (isHOD)
+                    {
+                    }
+                    else
+                    {
+                        mailTo = GetApprovalEmails(
+                    }
+                }
                 else
+                {
                     mailTo = Get_InvolvedEmail(docNo, connectionString);
+                }
 
                 receiver = mailTo;
 
@@ -424,7 +443,7 @@ SELECT SentEmail FROM APP.WFDt WHERE WFId=1 AND Step=@WfStep";
         }
 
 
-        emails = string.Join(";", mails.Select(x=>x).Distinct());
+        emails = string.Join(";", mails.Select(x => x).Distinct());
 
         return emails;
     }
@@ -454,15 +473,57 @@ SELECT SentEmail FROM APP.WFDt WHERE WFId=1 AND Step=@WfStep";
             emails.Add(dr["Email"].ToString().Trim());
         }
 
-        
 
-        return string.Join(";", emails.Select(x=>x.Trim()).Distinct()); ;
+
+        return string.Join(";", emails.Select(x => x.Trim()).Distinct()); ;
     }
+
+    private static string Get_InvolvedLoginFromApprovals1(string docNo, int wfId, int toStep, string connectionString)
+    {
+        var sql = @"
+DECLARE 
+	@Approvals nvarchar(max),
+	@IsHod BIT
+
+SELECT @Approvals=Approvals, @IsHod=IsHOD FROM APP.WFDt WHERE WFId=@WfId AND Step=@WfStep
+DECLARE @HOD nvarchar(20) = CASE WHEN @IsHod=1 THEN (SELECT HOD FROM PC.Pr WHERE PrNo=@DocNo) ELSE '' END
+
+SELECT @Approvals as Approvals, @IsHod as IsHOD, @HOD as HOD
+";
+        var dt = DbExecuteQuery(sql, new DbParameter[]
+        {
+            new DbParameter("@DocNo", docNo),
+            new DbParameter("@WfId", wfId.ToString()),
+            new DbParameter("@WfStep", toStep.ToString())
+
+        },
+        connectionString);
+
+        var approvals = "";
+        var isHOD = false;
+        var hod = "";
+
+        if (dt != null && dt.Rows.Count > 0)
+        {
+            approvals = dt.Rows[0]["Approvals"].ToString();
+            isHOD = dt.Rows[0]["IsHOD"].ToString() == "1";
+            hod = dt.Rows[0]["HOD"].ToString();
+        }
+
+        if (isHOD)
+        {
+            return "";
+        }
+        else
+        {
+            return ExtractEmailFromApprovals1(approvals, connectionString);
+        }
+
+    }
+
 
     private static string Get_InvolvedLoginFromApprovals(string prNo, int wfId, int toStep, string connectionString)
     {
-        //string prNo = Request.Params["ID"];
-
         #region
         string sql = string.Format(@"
 DECLARE @list TABLE ( [LoginName] NVARCHAR(100), [Email] NVARCHAR(MAX) )
@@ -505,9 +566,11 @@ END
 SELECT * FROM @list");
 
         #endregion
-        string login = string.Empty;
-        SqlConnection con = new SqlConnection(connectionString);
-        DataTable dt = new DataTable();
+
+        var login = string.Empty;
+        var con = new SqlConnection(connectionString);
+        var dt = new DataTable();
+
         try
         {
             con.Open();
@@ -584,6 +647,96 @@ SELECT * FROM @list");
 
     }
 
+
+    private static string GetApprovalEmails(string approvals, string connStr)
+    {
+        var emails = new List<string>();
+
+        var list = approvals.Split(',').Select(x => x.Trim()).ToArray();
+
+        var loginNames = new List<string>();
+        var roles = new List<string>();
+
+
+        // roles
+        roles.AddRange(list.Where(x => !x.StartsWith("#")).Select(x => x.Trim()).Distinct().ToArray());
+
+        var roleItems = roles.Select(x => string.Format("'{0}'", x));
+        var sql = string.Format(@"
+SELECT
+	DISTINCT LoginName
+FROM
+	[ADMIN].UserRole
+WHERE
+	IsActive=1
+	AND RoleName IN ({0})", string.Join(",", roleItems));
+        var dtUserRole = DbExecuteQuery(sql, null, connStr);
+
+        // loginName
+        loginNames.AddRange(list.Where(x => x.StartsWith("#")).ToArray());
+
+        if (dtUserRole != null && dtUserRole.Rows.Count > 0)
+        {
+            var items = dtUserRole.AsEnumerable()
+                .Select(x => x.Field<string>("LoginName").Trim())
+                .Distinct()
+                .ToArray();
+
+            loginNames.AddRange(items);
+        }
+
+        var parameters = new List<DbParameter>();
+        var i = 1;
+        sql = "SELECT Email FROM [ADMIN].vUser WHERE IsActived=1 AND LoginName IN (";
+
+
+        var paramNameList = new List<string>();
+
+        foreach (var loginName in loginNames.Distinct())
+        {
+            var paramName = string.Format("@LoginName{0}", i++);
+
+            paramNameList.Add(paramName);
+            parameters.Add(new DbParameter(paramName, loginName));
+        }
+
+        sql += string.Join(",", paramNameList) + ")";
+
+        var dt = DbExecuteQuery(sql, parameters.ToArray(), connStr);
+
+        if (dt != null && dt.Rows.Count > 0)
+        {
+            emails.AddRange(dt.AsEnumerable()
+                .Select(x => x.Field<string>("Email"))
+                .ToArray());
+        }
+
+
+
+        return string.Join(";", emails.Select(x => x.Trim()).Distinct());
+    }
+
+
+    private static string GetHodEmails(string depCode, string connStr)
+    {
+        var emails = new List<string>();
+
+        var sql = "SELECT DISTINCT u.Email FROM [ADMIN].vHeadOfDepartment hod JOIN [ADMIN].vUser u ON u.LoginName COLLATE DATABASE_DEFAULT=hod.LoginName COLLATE DATABASE_DEFAULT WHERE u.IsActived=1 AND DepCode=@DepCode";
+
+        var dt = DbExecuteQuery(sql, new DbParameter[] { new DbParameter("@DepCode", depCode) }, connStr);
+
+        if (dt != null && dt.Rows.Count > 0)
+        {
+            emails.AddRange(dt.AsEnumerable()
+                .Select(x => x.Field<string>("Email"))
+                .ToArray());
+        }
+
+
+
+        return string.Join(";", emails.Select(x => x.Trim()).Distinct());
+    }
+    
     private static string GetEmails(string value, string connectionString)
     {
         var userList = new List<string>();

@@ -1533,12 +1533,14 @@ namespace BlueLedger.PL.PC.PR
                                 continue;
 
                             var dbParams = new Blue.DAL.DbParameter[3];
+                            
                             dbParams[0] = new Blue.DAL.DbParameter("@PrNo", dsPR.Tables[pr.TableName].Rows[0]["PRNo"].ToString());
                             dbParams[1] = new Blue.DAL.DbParameter("@PrDtNo", drApprove["PRDtNo"].ToString());
                             dbParams[2] = new Blue.DAL.DbParameter("@LoginName", LoginInfo.LoginName);
 
                             // Modified on: 10/10/2017, By: Fon
                             string apprRules = wfDt.GetApprRule(wfId, wfStep, LoginInfo.ConnStr);
+
                             if (apprRules != string.Empty)
                                 workFlowDt.ExcecuteApprRule(apprRules, dbParams, hf_ConnStr.Value);
                             else
@@ -1568,17 +1570,6 @@ namespace BlueLedger.PL.PC.PR
             else
             {
                 SendEmailWorkflow.Send("A", prNo, wfId, wfStep, LoginInfo.LoginName, hf_ConnStr.Value);
-
-                //bool sentable = false;
-                //var isSentMail = SendEmailWorkflow.IsSentMailPR(prNo, wfStep, LoginInfo.LoginName, hf_ConnStr.Value);
-                //if (isSentMail)
-                //{
-                //    lbl_hide_action.Text = "Redirect".ToUpper();
-                //    lbl_hide_value.Text = true.ToString();
-
-                //    sentable = SendEmailWorkflow.Send("A", prNo, wfId, wfStep, LoginInfo.LoginName, hf_ConnStr.Value);
-                //}
-
 
                 if (chk_Approve_NoShowMessage.Checked)
                 {
