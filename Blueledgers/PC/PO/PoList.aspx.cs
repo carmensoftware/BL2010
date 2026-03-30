@@ -1565,12 +1565,10 @@ namespace BlueLedger.PL.PC.PO
                         PrDt.* 
                       FROM 
                         PC.PrDt 
-                      -- LEFT JOIN PC.Pr ON Pr.PRNo = PrDt.PRNo 
                       WHERE 
                         PrDt.PRNo IN ({0})
                         AND CurrencyCode = '{1}'
                         AND (CHARINDEX('R', PrDt.ApprStatus) = 0)
-                        AND (CHARINDEX('_', PrDt.ApprStatus) = 0)
                       ORDER BY PrDt.VendorCode, PrDt.ReqDate, PrDt.BuCode, PrDt.LocationCode, PrDt.DeliPoint, PrDt.ProductCode"
                     , prList, currCode);
 
@@ -1606,8 +1604,7 @@ namespace BlueLedger.PL.PC.PO
                                                             PoDtNo = @PoDtNo 
                                                     WHERE   PRNo = @PrNo 
                                                             AND PrDtNo = @PrDtNo 
-                                                            AND PrDt.ApprStatus not LIKE '%R%' 
-                                                            AND CHARINDEX('_', PrDt.ApprStatus) = 0 ";
+                                                            AND CHARINDEX('R', PrDt.ApprStatus) = 0 ";
                                 var dbParamsUpdPrDt = new Blue.DAL.DbParameter[4];
 
                                 // Define Parameter
@@ -1724,8 +1721,7 @@ namespace BlueLedger.PL.PC.PO
                                 LEFT JOIN AP.Vendor ON (Vendor.VendorCode = PrDt.VendorCode) 
                                 WHERE prdt.PRNo IN ({0})
                                     AND prdt.CurrencyCode = '{1}'
-                                    AND (CHARINDEX('R', PrDt.ApprStatus) = 0 )
-                                    AND (CHARINDEX('_', PrDt.ApprStatus) = 0 )"
+                                    AND (CHARINDEX('R', PrDt.ApprStatus) = 0 )"                                    
                                 , prList, currCode); // End Modified.
 
                         var dbParamsInsPoHdr = new Blue.DAL.DbParameter[1];
@@ -1802,7 +1798,6 @@ FROM
 WHERE 
 	prdt.PRNo IN ({0}) 
     AND (CHARINDEX('R', prdt.ApprStatus) = 0 )
-    AND (CHARINDEX('_', prdt.ApprStatus) = 0 ) 
     AND [CurrencyCode] = @CurrCode                       
 GROUP BY    
 	prdt.VendorCode, 
