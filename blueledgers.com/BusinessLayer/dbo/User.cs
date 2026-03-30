@@ -25,6 +25,7 @@ namespace Blue.BL.dbo
             2027-02-28 = sorahotels = 9
             2027-02-28 = belairebangkok = 11
             2027-02-28 = dewaphuketresort = 14+1=15
+            2027-02-28 = cafedelmarphuket =46
          
          
          
@@ -121,13 +122,12 @@ namespace Blue.BL.dbo
             2026-04-30 = parklanehotels = 16 + 8 = 24
             2026-04-30 = nh-asoke-bangkok = 15
             2026-04-30 = DeevanaPhuket = 65=> 69
+            2026-04-30 = wyndhamjomtienpattaya = 20 + 2 = 22
 
-            2026-03-31 = wyndhamjomtienpattaya = 20 + 2 = 22
 
             2026-03-31 = selinaserenityrawai = 8
             2026-03-31 = hotellotussukhumvit = 15+2 = 17 + 2 = 19
 
-            2026-03-31 = cafedelmarphuket =46
 
 
 
@@ -163,11 +163,11 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser = 999;
+        private int licenseActiveUser = 22;
 
         public DateTime GetLicenseExpiredDate()
         {
-            return new DateTime(2027, 1, 31);
+            return new DateTime(2026, 4, 30);
         }
 
         private DateTime licenseExpiredDate
