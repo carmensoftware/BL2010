@@ -96,14 +96,7 @@ public static class SendEmailWorkflow
 
                 if (code == "A")
                 {
-                    //mailTo = Get_InvolvedLoginFromApprovals(docNo, wfId, stepTo, connectionString);
-                    if (isHOD)
-                    {
-                    }
-                    else
-                    {
-                        mailTo = GetApprovalEmails(
-                    }
+                    mailTo = Get_InvolvedLoginFromApprovals(docNo, wfId, stepTo, connectionString);
                 }
                 else
                 {
@@ -478,50 +471,6 @@ SELECT SentEmail FROM APP.WFDt WHERE WFId=1 AND Step=@WfStep";
         return string.Join(";", emails.Select(x => x.Trim()).Distinct()); ;
     }
 
-    private static string Get_InvolvedLoginFromApprovals1(string docNo, int wfId, int toStep, string connectionString)
-    {
-        var sql = @"
-DECLARE 
-	@Approvals nvarchar(max),
-	@IsHod BIT
-
-SELECT @Approvals=Approvals, @IsHod=IsHOD FROM APP.WFDt WHERE WFId=@WfId AND Step=@WfStep
-DECLARE @HOD nvarchar(20) = CASE WHEN @IsHod=1 THEN (SELECT HOD FROM PC.Pr WHERE PrNo=@DocNo) ELSE '' END
-
-SELECT @Approvals as Approvals, @IsHod as IsHOD, @HOD as HOD
-";
-        var dt = DbExecuteQuery(sql, new DbParameter[]
-        {
-            new DbParameter("@DocNo", docNo),
-            new DbParameter("@WfId", wfId.ToString()),
-            new DbParameter("@WfStep", toStep.ToString())
-
-        },
-        connectionString);
-
-        var approvals = "";
-        var isHOD = false;
-        var hod = "";
-
-        if (dt != null && dt.Rows.Count > 0)
-        {
-            approvals = dt.Rows[0]["Approvals"].ToString();
-            isHOD = dt.Rows[0]["IsHOD"].ToString() == "1";
-            hod = dt.Rows[0]["HOD"].ToString();
-        }
-
-        if (isHOD)
-        {
-            return "";
-        }
-        else
-        {
-            return ExtractEmailFromApprovals1(approvals, connectionString);
-        }
-
-    }
-
-
     private static string Get_InvolvedLoginFromApprovals(string prNo, int wfId, int toStep, string connectionString)
     {
         #region
@@ -531,7 +480,7 @@ DECLARE @approvals NVARCHAR(MAX) = ( SELECT [Approvals] + ',' FROM [APP].[WFDt] 
                
 IF ISNULL((SELECT IsHOD FROM [APP].[WFDt] WHERE [WFId] = @wfId AND [Step] = @wfStep), 0) = 1
 BEGIN
-	DECLARE @CreateBy NVARCHAR(20) = (SELECT CreatedBy FROM PC.PR WHERE PrNo = '" + prNo + @"');
+	DECLARE @CreateBy NVARCHAR(20) = (SELECT CreatedBy FROM PC.PR WHERE PrNo = @PrNo);
 	DECLARE @DeptCode NVARCHAR(20) = (SELECT DepartmentCode FROM [ADMIN].vUser WHERE LoginName = @CreateBy)
 
     INSERT INTO @list ( [LoginName], Email )
@@ -577,6 +526,7 @@ SELECT * FROM @list");
             SqlCommand cmd = new SqlCommand(sql, con);
             cmd.Parameters.AddWithValue("@wfId", wfId);
             cmd.Parameters.AddWithValue("@wfStep", toStep);
+            cmd.Parameters.AddWithValue("@PrNo", prNo);
 
             SqlDataAdapter da = new SqlDataAdapter(cmd);
             da.Fill(dt);
