@@ -222,8 +222,9 @@ namespace BlueLedger.PL.PC.PO
                     if (e.Row.FindControl("lbl_Vendor") != null)
                     {
                         var lblVendorNm = (Label)e.Row.FindControl("lbl_Vendor");
-                        //var lblPRDate = (Label)e.Row.FindControl("lbl_Vendor")
-                        lblVendorNm.Text = DataBinder.Eval(e.Row.DataItem, "VendorName").ToString();
+                        var vendor = string.Format("{0} - {1}", DataBinder.Eval(e.Row.DataItem, "Vendor"), DataBinder.Eval(e.Row.DataItem, "VendorName"));
+                        lblVendorNm.Text = vendor;
+                        lblVendorNm.ToolTip = vendor;
                     }
                     if (e.Row.FindControl("lbl_VendorEmail") != null)
                     {
@@ -233,14 +234,13 @@ namespace BlueLedger.PL.PC.PO
                     if (e.Row.FindControl("lbl_Amount") != null)
                     {
                         var lblAmount = (Label)e.Row.FindControl("lbl_Amount");
-                        var decAmt = decimal.Parse(DataBinder.Eval(e.Row.DataItem, "Amount").ToString());
+                        var decAmt = decimal.Parse(DataBinder.Eval(e.Row.DataItem, "TotalAmt").ToString());
                         lblAmount.Text = String.Format(DefaultAmtFmt, decAmt);
                     }
                     if (e.Row.FindControl("lbl_CompositeKey") != null)
                     {
                         var lblCompositeKey = (Label)e.Row.FindControl("lbl_CompositeKey");
                         lblCompositeKey.Text = DataBinder.Eval(e.Row.DataItem, "PoNo").ToString();
-                        //DataBinder.Eval(e.Row.DataItem, "PoNo").ToString() + "," + DataBinder.Eval(e.Row.DataItem, "PoDtNo").ToString();
                     }
                     break;
             }
@@ -1449,6 +1449,82 @@ namespace BlueLedger.PL.PC.PO
 
         protected void SavePO()
         {
+            var selectedPrNo = new List<string>();
+            var prDesc = string.Empty;
+
+            //=== Generate data to Create PO And Pop Up Show PoNo ===
+            for (var i = 0; i <= grd_PRList2.Rows.Count - 1; i++)
+            {
+                var chkItem = (CheckBox)grd_PRList2.Rows[i].FindControl("Chk_Item");
+                var lblRefNo = (Label)grd_PRList2.Rows[i].FindControl("lbl_RefNo");
+                //var lblDescPricelist = (Label)grd_PRList2.Rows[i].FindControl("lbl_DescPricelist");
+
+                if (chkItem.Checked)
+                {
+                    var prNo = lblRefNo.Text.Trim();
+                    
+                    //prDesc = lblDescPricelist.Text;
+                    selectedPrNo.Add(prNo);
+                }
+            }
+
+            if (selectedPrNo.Count > 0)
+            {
+                var errorMessage = string.Empty;
+                var prList = string.Join(",", selectedPrNo);
+                    
+                var dtGenPO = GenPOFromPR(prList, prDesc, LoginInfo.LoginName, LoginInfo.ConnStr, ref errorMessage);
+
+                if (dtGenPO == null)
+                {
+                    lbl_Warning.Text = "Error! process was interrupted (" + errorMessage + ")";
+                    pop_Confirm.ShowOnPageLoad = false;
+                    pop_Warning.ShowOnPageLoad = true;
+                }
+                else
+                {
+                    pop_Success.ShowOnPageLoad = true;
+
+                    // Add columns for show vendor name and amount.
+                    //if (dtGenPO.Rows.Count > 0)
+                    //{
+                    //    var dcNew = new DataColumn("Amount", Type.GetType("System.Int32"));
+                    //    dtGenPO.Columns.Add(dcNew);
+
+                    //    var dc = new DataColumn("VendorName", Type.GetType("System.String"));
+                    //    dtGenPO.Columns.Add(dc);
+
+                    //    for (var w = 0; w < dtGenPO.Rows.Count; w++)
+                    //    {
+                    //        var drPoAdd = dtGenPO.Rows[w];
+
+                    //        drPoAdd["VendorName"] = string.Format("{0} - {1}", drPoAdd["Vendor"], _vendor.GetName(drPoAdd["Vendor"].ToString(), LoginInfo.ConnStr));
+                    //        drPoAdd["Amount"] = _poDt.GetSumTotalAmt(drPoAdd["PoNo"].ToString(), LoginInfo.ConnStr);
+                    //    }
+                    //}
+
+                    grd_Success2.DataSource = dtGenPO;
+                    grd_Success2.DataBind();
+
+                    // Insert signature
+                    foreach (DataRow drGenPO in dtGenPO.Rows)
+                    {
+                        var poInsertSignature = new Blue.BL.PC.PO.PO();
+                        poInsertSignature.InsertSignature(drGenPO["PONo"].ToString(), LoginInfo.ConnStr);
+                    }
+                }
+            }
+            else
+            {
+                //Message Error
+                pop_Confirm.ShowOnPageLoad = false;
+                pop_Warning.ShowOnPageLoad = true;
+                lbl_Warning.Text = @"Please select data for generate PO.";
+            }
+        }
+
+        protected void SavePO1()
+        {
             var selectedPrNo = string.Empty;
             var prDesc = string.Empty;
 
@@ -1547,6 +1623,21 @@ namespace BlueLedger.PL.PC.PO
         }
 
         private DataTable GenPOFromPR(string prList, string strDesc, string loginName, string connStr, ref string errorMessage)
+        {
+            var sql = "EXEC PC.PoCreateFromPr @PrList, @LoginName";
+            var dt = _po.DbExecuteQuery(sql, new Blue.DAL.DbParameter[]
+            {
+                new Blue.DAL.DbParameter("@PrList", prList),
+                new Blue.DAL.DbParameter("@LoginName", LoginInfo.LoginName),
+            },
+            connStr);
+
+
+            return dt;
+        }
+
+
+        private DataTable GenPOFromPR1(string prList, string strDesc, string loginName, string connStr, ref string errorMessage)
         {
             var currCode = ddl_CurrCode.SelectedValue;
             var currRate = currency.GetLastCurrencyRate(currCode, DateTime.Now, LoginInfo.ConnStr);
@@ -1721,7 +1812,7 @@ namespace BlueLedger.PL.PC.PO
                                 LEFT JOIN AP.Vendor ON (Vendor.VendorCode = PrDt.VendorCode) 
                                 WHERE prdt.PRNo IN ({0})
                                     AND prdt.CurrencyCode = '{1}'
-                                    AND (CHARINDEX('R', PrDt.ApprStatus) = 0 )"                                    
+                                    AND (CHARINDEX('R', PrDt.ApprStatus) = 0 )"
                                 , prList, currCode); // End Modified.
 
                         var dbParamsInsPoHdr = new Blue.DAL.DbParameter[1];
@@ -1899,7 +1990,6 @@ SELECT
             }
             return null;
         }
-
         #endregion
 
         private void ShowWarning(string text)
