@@ -101,6 +101,7 @@ namespace Blue.BL.dbo
             2026-06-30 = urbana-sathorn = 6 + 2 = 8 + 2 = 10
             2026-06-30 = maduzi = 20
             2026-06-30 = kappasensesubud = 17
+            2026-06-30 = mavericks-management = 8
 
             2026-05-31 = ramadadmabangkok = 19
             2026-05-31 = chi = 2
@@ -163,7 +164,7 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser = 8;
+        private int licenseActiveUser = 80;
 
         public DateTime GetLicenseExpiredDate()
         {
