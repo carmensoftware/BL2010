@@ -1330,7 +1330,7 @@ namespace BlueLedger.PL.PC.PR
 
                     sql += string.Format(" SELECT '{0}', PrDtNo,  BuCode, ProductCode, LocationCode, ReqQty, OrderUnit, OrderQty,  ApprQty, VendorCode, FOCQty, RcvQty,", newPrNo);
                     sql += " DiscPercent, DiscAmt, TaxAmt, NetAmt, TotalAmt, TaxType, TaxRate, TaxAdj, Price, GrandTotalAmt,";
-                    sql += " Buyer, HOD, ReqDate, DeliPoint, Comment,  PoNo, PoDtNo, ApprStatus, PrStatus, RefNo, VendorProdCode, ";
+                    sql += " Buyer, HOD, ReqDate, DeliPoint, Comment,  PoNo, PoDtNo, REPLACE(ApprStatus,'R','_'), PrStatus, RefNo, VendorProdCode, ";
                     sql += " AddField1, AddField2, AddField3, AddField4, DescEn, Descll, LastPrice, GrpBuyer, ";
                     sql += " CurrencyCode, CurrencyRate, CurrNetAmt, CurrDiscAmt, CurrTaxAmt, CurrTotalAmt";
                     sql += " FROM PC.PrDt";
@@ -1374,6 +1374,7 @@ namespace BlueLedger.PL.PC.PR
             }
 
         }
+        
         private string ValidateApproval() // retrun empty string if valid else return error message.
         {
             int selectedItems = 0;
