@@ -34,8 +34,11 @@ public partial class Report : System.Web.UI.Page
 
     protected override void InitializeCulture()
     {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("th") { DateTimeFormat = { Calendar = new GregorianCalendar() } };
+        //        Thread.CurrentThread.CurrentCulture = new CultureInfo("th") { DateTimeFormat = { Calendar = new GregorianCalendar() } };
         base.InitializeCulture();
+
+        UICulture = "en-GB";
+        Culture = "en-GB";
     }
 
     protected void Page_Load(object sender, EventArgs e)
@@ -362,7 +365,9 @@ public partial class Report : System.Web.UI.Page
 
         var dateEdit = new ASPxDateEdit();
 
+        //dateEdit.EditFormatString = CultureInfo.CreateSpecificCulture("en-GB").DateTimeFormat.ShortDatePattern;
         //dateEdit.ClientIDMode = System.Web.UI.ClientIDMode.Static;
+
         dateEdit.ID = item.Name;
         dateEdit.CssClass = "parameter";
 
