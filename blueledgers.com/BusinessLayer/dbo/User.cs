@@ -15,8 +15,20 @@ namespace Blue.BL.dbo
         /*  Customer's license
          
          
+         
+            2027-05-31 = chatriumniseko = 9
+            2027-05-31 = ramadadmabangkok = 19
+         
+         
+            2027-04-30 = paresaresort = 23
+            2027-04-30 = silqandsq = 9+5=14
+            2027-04-30 = indochinephuket = 27
+         
+         
+         
             2027-03-31 = manor = 4
             2027-03-31 = silavadeepoolsparesort = 28
+            2027-03-31 = DeevanaPhuket = 65=> 69
          
          
             2027-02-28 = mybeachphuket = 10+? = 13 + 1 = 14
@@ -26,6 +38,7 @@ namespace Blue.BL.dbo
             2027-02-28 = belairebangkok = 11
             2027-02-28 = dewaphuketresort = 14+1=15
             2027-02-28 = cafedelmarphuket =46
+            2027-02-28 = maitriahotels = 5+6 = 11
          
          
          
@@ -53,6 +66,8 @@ namespace Blue.BL.dbo
          
             2027-01-31 = hopinnth = 27 + 23 = 50
             2027-01-31 = hopinn (On-Permise) = 27
+            2027-01-31 = bellevillagroup = 10
+            2027-01-31 = theakyrabangkok11 = 5+5=10
          
             ---------------------------------------------------------------
          
@@ -70,7 +85,7 @@ namespace Blue.BL.dbo
             2026-10-31 = peachgroup = 13 
          
          
-            2026-09-30 = rasahospitality = 73 + 17 = 90
+            2026-05-30 = rasahospitality = 73 + 17 = 90
             2026-09-30 = kckohchang = 17
             2026-09-30 = varanahotel = 16
             2026-09-30 = TheSarojin = 3
@@ -102,28 +117,28 @@ namespace Blue.BL.dbo
             2026-06-30 = maduzi = 20
             2026-06-30 = kappasensesubud = 17
             2026-06-30 = mavericks-management = 8
+            2026-06-30 = wyndhamgardenmanilabay = 7+1 = 8
+            2026-06-30 = parklanehotels = 16 + 8 = 24
 
-            2026-05-31 = ramadadmabangkok = 19
+
+
             2026-05-31 = chi = 2
             2026-05-31 = HotelSensai (Chiang Mai) = 3+8 = 11 ปรับเป็น 10 
-            2026-05-31 = chatriumniseko = 9
             2026-05-31 = surestayplustpattaya = 10
             2026-05-31 = siamesehotelpattaya = 10
+            2026-05-31 = nh-asoke-bangkok = 15
+            2026-05-31 = waltonsuitessukhumvitbangkok = 5
+            2026-05-31 = wyndhamjomtienpattaya = 20 + 2 = 22
+            2026-05-31 = bestwesternratchada = 10        
 
-            2026-04-30 = indochinephuket = 27
-            2026-04-30 = silqandsq = 9+5=14
-            2026-04-30 = bestwesternratchada = 10        
-            2026-04-30 = paresaresort = 23
-            2026-04-30 = waltonsuitessukhumvitbangkok = 5
-            2026-04-30 = theakyrabangkok11 = 5+5=10
-            2026-04-30 = wyndhamgardenmanilabay = 7+1 = 8
-            2026-04-30 = bellevillachiangmai = 10
+
+
+
+
+
+
+
             2026-04-30 = surestayplusramkhamheang = 5
-            2026-04-30 = maitriahotels = 5+6 = 11
-            2026-04-30 = parklanehotels = 16 + 8 = 24
-            2026-04-30 = nh-asoke-bangkok = 15
-            2026-04-30 = DeevanaPhuket = 65=> 69
-            2026-04-30 = wyndhamjomtienpattaya = 20 + 2 = 22
 
 
             2026-03-31 = selinaserenityrawai = 8
@@ -164,11 +179,11 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser = 80;
+        private int licenseActiveUser =19;
 
         public DateTime GetLicenseExpiredDate()
         {
-            return new DateTime(2026, 6, 30);
+            return new DateTime(2027, 05, 31);
         }
 
         private DateTime licenseExpiredDate
