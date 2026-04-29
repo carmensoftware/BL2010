@@ -1927,7 +1927,8 @@ ORDER BY
                 info.AppendFormat("\"Type\":\"{0}\",", dr["Type"].ToString());
                 info.AppendFormat("\"Source\":\"{0}\",", dr["Source"].ToString());
                 info.AppendFormat("\"Description\":\"{0}\",", dr["Description"].ToString());
-                info.AppendFormat("\"UpdatedDate\":\"{0}\",", Convert.ToDateTime(dr["UpdatedDate"]).ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
+                //info.AppendFormat("\"UpdatedDate\":\"{0}\",", Convert.ToDateTime(dr["UpdatedDate"]).ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
+                info.AppendFormat("\"UpdatedDate\":\"{0}\",", dr["UpdatedDate"]);
                 info.AppendFormat("\"UpdatedBy\":\"{0}\",", dr["UpdatedBy"].ToString());
 
                 txt_DataInfo.Text = "{" + info.ToString() + "}";

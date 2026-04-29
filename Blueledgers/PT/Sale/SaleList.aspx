@@ -802,7 +802,14 @@
                         </asp:TemplateField>
                         <asp:BoundField HeaderText="Description" DataField="Description" />
                         <asp:BoundField HeaderText="Source" DataField="Source" />
-                        <asp:BoundField HeaderText="Update date" DataField="UpdatedDate" />
+                        <asp:TemplateField>
+                            <HeaderTemplate>
+                                Updated
+                            </HeaderTemplate>
+                            <ItemTemplate>
+                                <%# Convert.ToDateTime(Eval("UpdatedDate")).ToString("dd/MM/yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture)%>
+                            </ItemTemplate>
+                        </asp:TemplateField>
                         <asp:TemplateField>
                             <ItemTemplate>
                                 <asp:HiddenField runat="server" ID="hf_RowId" Value='<%# Eval("RowId") %>' />
