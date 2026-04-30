@@ -231,7 +231,6 @@ namespace BlueLedger.PL.IN.REC
             {
                 // Initial page
                 InitialPage();
-
             }
             else
             {
@@ -239,7 +238,7 @@ namespace BlueLedger.PL.IN.REC
             }
 
 
-            ddl_Location_Stamp.Enabled = DsRecEdit.Tables[RecDt.TableName].Rows.Count == 0;
+            //ddl_Location_Stamp.Enabled = DsRecEdit.Tables[RecDt.TableName].Rows.Count == 0;
         }
 
         #endregion
@@ -534,7 +533,6 @@ namespace BlueLedger.PL.IN.REC
                     if (ddl_RcvUnit != null)
                     {
                         var rcvUnit = ddl_RcvUnit.Value == null ? "" : ddl_RcvUnit.Value.ToString();
-                        //lbl_Title.Text = rcvUnit;
 
                         var dtUnits = ProdUnit.GetLookUp_OrderUnitByProductCode(productCode, hf_ConnStr.Value);
 
@@ -1356,16 +1354,20 @@ as st where st.[rn] between @startIndex and @endIndex";
 
         protected void grd_RecEdit_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e)
         {
+            var dt = DsRecEdit.Tables[RecDt.TableName];
+            var index = DsRecEdit.Tables[RecDt.TableName].Rows.Count - 1;
+
             // When cancel click
             if (RecEditMode == "NEW")
             {
-                DsRecEdit.Tables[RecDt.TableName].Rows[DsRecEdit.Tables[RecDt.TableName].Rows.Count - 1].Delete();
+                dt.Rows[index].Delete();
+            }
+            else if (RecEditMode == "EDIT")
+            {
+                dt.Rows[index].CancelEdit();
             }
 
-            if (RecEditMode == "EDIT")
-            {
-                DsRecEdit.Tables[RecDt.TableName].Rows[DsRecEdit.Tables[RecDt.TableName].Rows.Count - 1].CancelEdit();
-            }
+            ddl_Location_Stamp.Enabled = dt.Rows.Count == 0;
 
             RecEditMode = string.Empty; // set before databind
             ddl_Currency.Enabled = true;
@@ -1374,6 +1376,7 @@ as st where st.[rn] between @startIndex and @endIndex";
             grd_RecEdit.DataSource = DsRecEdit.Tables[RecDt.TableName];
             grd_RecEdit.EditIndex = -1;
             grd_RecEdit.DataBind();
+
             UIControl_BetweenAddItem();
         }
 
@@ -1493,7 +1496,7 @@ as st where st.[rn] between @startIndex and @endIndex";
             var ddlLocationStamp = UpdatePanel2.FindControl("ddl_Location_Stamp") as ASPxComboBox;
 
             if (ddlLocationStamp != null)
-                drUpdating["LocationCode"] = ddlLocationStamp.Value.ToString();
+                drUpdating["LocationCode"] = ddlLocationStamp.Value.ToString().ToUpper();
 
             var lblOrderQty = grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("lbl_OrderQty") as Label;
 
@@ -1519,6 +1522,7 @@ as st where st.[rn] between @startIndex and @endIndex";
             }
 
             var ddlRcvUnit = grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("ddl_RcvUnit") as ASPxComboBox;
+            var rcvUnit = ddlRcvUnit.Value.ToString();
 
             if (ddlRcvUnit != null)
             {
@@ -1528,14 +1532,25 @@ as st where st.[rn] between @startIndex and @endIndex";
 
             var lblConvRate = grd_RecEdit.Rows[grd_RecEdit.EditIndex].FindControl("lbl_ConvertRate") as Label;
 
-            decimal convRate = 0;
-            if (lblConvRate != null)
-            {
-                decimal.TryParse(lblConvRate.Text, out convRate);
-                drUpdating["Rate"] = convRate;
-            }
+            //decimal convRate = 0;
 
-            lblBaseQty.Text = string.Format(DefaultQtyFmt, (qtyEdit * convRate));
+            //if (lblConvRate != null)
+            //{
+            //    decimal.TryParse(lblConvRate.Text, out convRate);
+            //    drUpdating["Rate"] = convRate;
+            //}
+
+            var productCode = ddlProduct.Value.ToString().Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+            
+            drUpdating["ProductCode"] = productCode;
+
+            // Rate
+            var rate = GetUnitRate(productCode, rcvUnit);
+
+            drUpdating["Rate"] = rate;
+            lblConvRate.Text = rate.ToString();
+
+            lblBaseQty.Text = string.Format(DefaultQtyFmt, (qtyEdit * rate));
             drUpdating["DiscAdj"] = chkDiscAdj.Checked;
             decimal disc;
             decimal.TryParse(txtDisc.Text, out disc);
@@ -1568,6 +1583,17 @@ as st where st.[rn] between @startIndex and @endIndex";
                 return;
             }
 
+            //if (ddlProduct != null && (lblPoNo == null) || string.IsNullOrEmpty(lblPoNo.Text))
+            //{
+            //    var productCode = (ddlProduct.Value.ToString().Contains(":"))
+            //        ? ddlProduct.Value.ToString().Split(new[] { ":" }, StringSplitOptions.None)[0]
+            //        : ddlProduct.Value.ToString();
+
+            //    drUpdating["ProductCode"] = productCode;
+            //}
+
+
+
             decimal netAmt;
             decimal.TryParse(txtNetAmt.Text, out netAmt);
             drUpdating["NetAmt"] = netAmt;
@@ -1599,15 +1625,6 @@ as st where st.[rn] between @startIndex and @endIndex";
             drUpdating["CurrTaxAmt"] = txt_CurrTaxAmt.Text;
             drUpdating["CurrTotalAmt"] = lbl_CurrTotalAmtDt.Text;
 
-            if (ddlProduct != null && (lblPoNo == null) || string.IsNullOrEmpty(lblPoNo.Text))
-            {
-                var productCode = (ddlProduct.Value.ToString().Contains(":"))
-                    ? ddlProduct.Value.ToString().Split(new[] { ":" }, StringSplitOptions.None)[0]
-                    : ddlProduct.Value.ToString();
-
-                drUpdating["ProductCode"] = productCode;
-            }
-
             AllocateExtraCost();
 
 
@@ -1635,11 +1652,40 @@ as st where st.[rn] between @startIndex and @endIndex";
 
 
             if (grd_RecEdit.Rows.Count < 1)
+            {
                 UIControl_BetweenAddItem();
+                ddl_Location_Stamp.Enabled = true;
+            }
+            else
+            {
+                ddl_Location_Stamp.Enabled = false;
+            }
+
+
 
             ddl_Location_Stamp.Enabled = grd_RecEdit.Rows.Count == 0;
         }
 
+
+        private decimal GetUnitRate(string productCode, string unitCode)
+        {
+            var rate = 0m;
+
+            var dtRate = _transLog.DbExecuteQuery("SELECT Rate FROM [IN].ProdUnit WHERE UnitType='O' AND ProductCode=@code AND OrderUnit=@Unit",
+                new Blue.DAL.DbParameter[] {
+                    new Blue.DAL.DbParameter("@code", productCode),
+                    new Blue.DAL.DbParameter("@unit", unitCode)
+                }, hf_ConnStr.Value);
+
+            if (dtRate != null && dtRate.Rows.Count > 0)
+            {
+                rate = Convert.ToDecimal(dtRate.Rows[0][0].ToString());
+            }
+
+
+            return rate;
+
+        }
 
         #region GridDataRow
 
@@ -2599,15 +2645,6 @@ as st where st.[rn] between @startIndex and @endIndex";
 
         private void UIControl_BetweenAddItem()
         {
-            //hong visible button 20130909
-            //btn_AddItem.Enabled = !isProcess;
-            //btn_Save.Enabled = !isProcess;
-            //btn_Commit.Enabled = !isProcess;
-            //de_RecDate.Enabled = !isProcess;
-            //de_InvDate.Enabled = !isProcess;
-            //cmb_DeliPoint.Enabled = !isProcess;
-            //ddl_Location_Stamp.Enabled = !isProcess;
-            //ddl_Vendor.Enabled = !isProcess;
         }
 
         private void NewItem()

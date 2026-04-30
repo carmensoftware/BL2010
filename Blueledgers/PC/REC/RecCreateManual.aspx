@@ -537,11 +537,8 @@
                                                     </td>
                                                     <td width="5%" style="padding-right: 5px;">
                                                         <%--80px--%>
-                                                        <dx:ASPxComboBox ID="ddl_RcvUnit" runat="server" Width="98%" ValueField="OrderUnit" TextField="OrderUnit" AutoPostBack="True" OnSelectedIndexChanged="ddl_RcvUnit_SelectedIndexChanged">
+                                                        <dx:ASPxComboBox ID="ddl_RcvUnit" runat="server" Width="100" ValueField="OrderUnit" TextField="OrderUnit" AutoPostBack="True" OnSelectedIndexChanged="ddl_RcvUnit_SelectedIndexChanged">
                                                         </dx:ASPxComboBox>
-                                                        <%--<dx:ASPxComboBox ID="ddl_RcvUnit" runat="server" Width="98%" ValueField="OrderUnit" TextField="OrderUnit" AutoPostBack="True" OnSelectedIndexChanged="ddl_RcvUnit_SelectedIndexChanged"
-                                                            OnItemsRequestedByFilterCondition="ddl_RcvUnit_OnItemsRequestedByFilterCondition">
-                                                        </dx:ASPxComboBox>--%>
                                                     </td>
                                                     <td width="7%" align="right" style="padding-right: 5px;">
                                                         <%--50px50px--%>
