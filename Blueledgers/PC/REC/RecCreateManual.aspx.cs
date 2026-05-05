@@ -3167,9 +3167,10 @@ as st where st.[rn] between @startIndex and @endIndex";
 
         private void SaveAndCommit(string strAction)
         {
-            var vendorCode = (ddl_Vendor.SelectedItem != null)
-                        ? ddl_Vendor.SelectedItem.Value.ToString()
-                        : ddl_Vendor.Value.ToString();
+            //var vendorCode = (ddl_Vendor.SelectedItem != null)
+            //            ? ddl_Vendor.SelectedItem.Value.ToString()
+            //            : ddl_Vendor.Value.ToString();
+            var vendorCode = ddl_Vendor.Value.ToString().Split(new[] { ":" }, StringSplitOptions.None)[0].Trim();
 
             var p_Vendor = new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@Code", vendorCode) };
             var dtVendor = config.DbExecuteQuery("SELECT VendorCode FROM AP.Vendor WHERE VendorCode=@Code", p_Vendor, hf_ConnStr.Value);
@@ -3212,9 +3213,10 @@ as st where st.[rn] between @startIndex and @endIndex";
                     drSave["Description"] = txt_Desc.Text.Trim();
                     drSave["DeliPoint"] = deliPoint;
                     drSave["InvoiceNo"] = txt_InvNo.Text.Trim();
-                    drSave["VendorCode"] = (ddl_Vendor.SelectedItem != null)
-                        ? ddl_Vendor.SelectedItem.Value.ToString()
-                        : ddl_Vendor.Value.ToString();
+                    //drSave["VendorCode"] = (ddl_Vendor.SelectedItem != null)
+                    //    ? ddl_Vendor.SelectedItem.Value.ToString()
+                    //    : ddl_Vendor.Value.ToString();
+                    drSave["VendorCode"] = ddl_Vendor.Value.ToString().Split(new[] { ":" }, StringSplitOptions.None)[0].Trim();
                     drSave["CurrencyCode"] = ddl_Currency.Value.ToString();
                     drSave["ExRateAudit"] = currencyRate;
                     drSave["CurrencyRate"] = currencyRate;
