@@ -709,21 +709,19 @@ WHERE
                     lbl_Amount.Text = String.Format(DefaultAmtFmt, DataBinder.Eval(e.Row.DataItem, "CurrTotalAmt"));
                 }
 
-                if (e.Row.FindControl("lbl_NetAC") != null)
-                {
-                    var lbl_NetAC = e.Row.FindControl("lbl_NetAC") as Label;
-                    var strProd = DataBinder.Eval(e.Row.DataItem, "Product").ToString();
-                    lbl_NetAC.Text = accMapp.GetA3Code(DataBinder.Eval(e.Row.DataItem, "BUCode").ToString(),
-                        DataBinder.Eval(e.Row.DataItem, "Location").ToString(),
-                        strProd.Substring(0, 4), hf_ConnStr.Value);
-                }
+                //if (e.Row.FindControl("lbl_NetAC") != null)
+                //{
+                //    var lbl_NetAC = e.Row.FindControl("lbl_NetAC") as Label;
+                //    var strProd = DataBinder.Eval(e.Row.DataItem, "Product").ToString();
+                //    lbl_NetAC.Text = accMapp.GetA3Code(DataBinder.Eval(e.Row.DataItem, "BUCode").ToString(), DataBinder.Eval(e.Row.DataItem, "Location").ToString(), strProd.Substring(0, 4), hf_ConnStr.Value);
+                //}
 
-                if (e.Row.FindControl("lbl_TaxAC") != null)
-                {
-                    var lbl_TaxAC = e.Row.FindControl("lbl_TaxAC") as Label;
-                    lbl_TaxAC.Text = prod.GetTaxAccCode(DataBinder.Eval(e.Row.DataItem, "Product").ToString(),
-                        hf_ConnStr.Value);
-                }
+                //if (e.Row.FindControl("lbl_TaxAC") != null)
+                //{
+                //    var lbl_TaxAC = e.Row.FindControl("lbl_TaxAC") as Label;
+                //    lbl_TaxAC.Text = prod.GetTaxAccCode(DataBinder.Eval(e.Row.DataItem, "Product").ToString(),
+                //        hf_ConnStr.Value);
+                //}
 
 
                 //----------------------- Expand Po Detail, Stock Summary and Pr Detail ----------------------------
