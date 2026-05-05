@@ -536,7 +536,6 @@
                                                         </dx:ASPxSpinEdit>
                                                     </td>
                                                     <td width="5%" style="padding-right: 5px;">
-                                                        <%--80px--%>
                                                         <dx:ASPxComboBox ID="ddl_RcvUnit" runat="server" Width="100" ValueField="OrderUnit" TextField="OrderUnit" AutoPostBack="True" OnSelectedIndexChanged="ddl_RcvUnit_SelectedIndexChanged">
                                                         </dx:ASPxComboBox>
                                                     </td>
