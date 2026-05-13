@@ -102,6 +102,7 @@ namespace Blue.BL.dbo
             2026-08-31 = palayanagroup = 2+20 = 22
             2026-08-31 = bwsanctuary = 10
             2026-08-31 = thebangkokclub = 20
+            2026-08-31 = wyndhamgardensamuiwing = 12
          
             2026-07-31 = Nexen = 20
             2026-07-31 = uchijapanese-phuket = 2
@@ -179,11 +180,11 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser =19;
+        private int licenseActiveUser =12;
 
         public DateTime GetLicenseExpiredDate()
         {
-            return new DateTime(2027, 05, 31);
+            return new DateTime(2026, 08, 31);
         }
 
         private DateTime licenseExpiredDate
