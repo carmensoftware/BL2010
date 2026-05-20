@@ -175,8 +175,6 @@ namespace BlueLedger.PL.Option.Admin.Interface.AccountMap
 
                     case "PRINT":
                         Session["AccountMappPrint"] = GetData1(true);
-                        //ScriptManager.RegisterClientScriptBlock(this, GetType(), "print", "window.print();", true);
-                        //ScriptManager.RegisterStartupScript(Page, GetType(), "test", "<script>test1()</script>", false);
                         ScriptManager.RegisterStartupScript(Page, GetType(), "print", string.Format("<script>window.open('AccountMappPrint.aspx?type={0}', 'Print');</script>", _postType), false);
                         break;
                 }
@@ -1507,6 +1505,7 @@ ORDER BY
                     var endpoint_account = config.Value("accountcode").Trim().TrimStart('/').TrimEnd('/');
                     var endpoint_department = config.Value("department").Trim().TrimStart('/').TrimEnd('/');
 
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                     using (var client = new WebClient())
                     {
                         client.BaseAddress = host;

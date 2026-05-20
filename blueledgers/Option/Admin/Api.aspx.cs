@@ -75,54 +75,6 @@ namespace BlueLedger.PL.Option.Admin
                 gv_Tenant.DataSource = tenants;
                 gv_Tenant.DataBind();
 
-                //var apiTenant = string.Format("api/tenant/adminToken/{0}", adminToken);
-
-                //var json = Get(host, apiTenant);
-
-                //var o = JObject.Parse(json);
-
-                //var data = JArray.Parse(o["Data"].ToString());
-
-                //var tenants = new List<Tenant>();
-
-                //foreach (var item in data.Children())
-                //{
-                //    var t = JObject.Parse(item.ToString());
-
-                //    tenants.Add(new Tenant
-                //    {
-                //        Code = t["Tenant"].Value<string>(),
-                //        Name = t["Description"].Value<string>(),
-                //    });
-                //}
-
-                //foreach (var tenant in tenants)
-                //{
-                //    //var accessToken = LoginCarmen(tenant.Code);
-
-                //    //var endpoint = "api/interfaceBlueLedgers/createSessionToken";
-                //    //var body = "";
-
-                //    //var res = Post(host, endpoint, body, accessToken);
-                //    //var blue = JObject.Parse(res);
-
-                //    //var directToken = blue["Authorization"].Value<string>();
-
-
-                //    //tenant.Token = directToken;
-
-                //}
-
-                //var s = new StringBuilder();
-
-                //foreach (var tenant in tenants)
-                //{
-                //    s.AppendFormat("{0} = {1}", tenant.Name, tenant.Token);
-                //    s.AppendLine("");
-                //}
-
-
-                //txt_Result.Text = s.ToString();
             }
             catch (Exception ex)
             {
@@ -213,6 +165,8 @@ namespace BlueLedger.PL.Option.Admin
         {
             try
             {
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
                 using (var client = new WebClient())
                 {
                     client.BaseAddress = host.TrimEnd('/') + "/";
