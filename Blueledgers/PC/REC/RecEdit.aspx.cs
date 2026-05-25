@@ -2585,7 +2585,6 @@ namespace BlueLedger.PL.IN.REC
             var deliPoint = cmb_DeliPoint.Value.ToString().Split(':')[0];
             var currRate = Convert.ToDecimal(txt_ExRateAu.Text);
 
-
             //For Edit 
             if (_mode.ToUpper() == "EDIT")
             {
@@ -2700,7 +2699,7 @@ namespace BlueLedger.PL.IN.REC
                 if (grd_RecEdit.Rows.Count > 0)
                 {
                     foreach (DataRow drSelectedNew in dsRecEdit.Tables[recDt.TableName].Rows)
-                    {
+                    {                        
                         if (drSelectedNew.RowState != DataRowState.Deleted)
                         {
                             if ((Convert.ToDecimal(drSelectedNew["RecQty"]) > 0))
@@ -2781,6 +2780,41 @@ namespace BlueLedger.PL.IN.REC
                 #endregion
             }
 
+            // Check Unit Rate
+            var dtRecDt = dsSave.Tables[recDt.TableName];
+
+            foreach (DataRow dr in dtRecDt.Rows)
+            {
+                var rate = string.IsNullOrEmpty(dr["Rate"].ToString()) ? 0m : Convert.ToDecimal(dr["Rate"]);
+
+                if (rate <= 0)
+                {
+                    var productCode = dr["ProductCode"].ToString();
+                    var unitCode = dr["RcvUnit"].ToString();
+
+                    var dtCheckUnit = bu.DbExecuteQuery("SELECT Rate FROM [IN].ProdUnit WHERE UnitType='O' AND ProductCode=@ProductCode AND OrderUnit=@UnitCode",
+                        new Blue.DAL.DbParameter[]
+                        {
+                            new Blue.DAL.DbParameter("@ProductCode",productCode),
+                            new Blue.DAL.DbParameter("@UnitCode",unitCode)
+                        },
+                        LoginInfo.ConnStr);
+
+                    if (dtCheckUnit != null && dtCheckUnit.Rows.Count > 0)
+                    {
+                        dr["Rate"] = Convert.ToDecimal(dtCheckUnit.Rows[0]["Rate"]);
+                    }
+                    else
+                    {
+                        lbl_WarningOth.Text = string.Format("Invalid unit rate of <b>'{0}'</b> of product <b>'{1}'</b>.", unitCode, productCode);
+                        pop_Warning.ShowOnPageLoad = true;
+
+                        return;
+                    }
+
+                }
+            }
+
             var recNo = _mode == "EDIT" ? txt_RecNo.Text : dsSave.Tables[rec.TableName].Rows[0]["RecNo"].ToString();
 
 
@@ -2799,7 +2833,7 @@ namespace BlueLedger.PL.IN.REC
             {
                 AllocateExtraCost();
 
-                var dtRecDt = dsRecEdit.Tables[recDt.TableName];
+                //var dtRecDt = dsRecEdit.Tables[recDt.TableName];
                 var dtSave = dsSave.Tables[recDt.TableName];
 
                 for (int i = 0; i < dtRecDt.Rows.Count; i++)
@@ -3472,15 +3506,6 @@ namespace BlueLedger.PL.IN.REC
             if (strStartDate != string.Empty & strEndDate != string.Empty)
             {
                 SaveAndCommit("Committed");
-                // string recNo = dsSave.Tables[rec.TableName].Rows[0]["RecNo"].ToString();
-                // string docStatus = dsSave.Tables[rec.TableName].Rows[0]["DocStatus"].ToString();
-
-                // if (docStatus == "Committed")
-                // Response.Redirect("Rec.aspx?ID=" + recNo + "&BuCode=" + Request.Params["BuCode"] + "&Vid=" + Request.Params["Vid"]);
-                // else
-                // {
-                // SaveAndCommit("Committed");
-                // }
             }
             else
             {

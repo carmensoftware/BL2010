@@ -2738,9 +2738,9 @@ as st where st.[rn] between @startIndex and @endIndex";
             }
             else
             {
-                pop_ConfirmSave.ShowOnPageLoad = false;
                 pop_WarningPeriod.ShowOnPageLoad = true;
             }
+            pop_ConfirmSave.ShowOnPageLoad = false;
         }
 
         protected void btn_CancelSave_Click(object sender, EventArgs e)
@@ -3432,6 +3432,41 @@ as st where st.[rn] between @startIndex and @endIndex";
                     }
                 }
                 #endregion
+
+                // Check Unit Rate
+                var dtRecDt = dsSave.Tables[RecDt.TableName];
+
+                foreach (DataRow dr in dtRecDt.Rows)
+                {
+                    var rate = string.IsNullOrEmpty(dr["Rate"].ToString()) ? 0m : Convert.ToDecimal(dr["Rate"]);
+
+                    if (rate <= 0)
+                    {
+                        var productCode = dr["ProductCode"].ToString();
+                        var unitCode = dr["RcvUnit"].ToString();
+
+                        var dtCheckUnit = Rec.DbExecuteQuery("SELECT Rate FROM [IN].ProdUnit WHERE UnitType='O' AND ProductCode=@ProductCode AND OrderUnit=@UnitCode",
+                            new Blue.DAL.DbParameter[]
+                        {
+                            new Blue.DAL.DbParameter("@ProductCode",productCode),
+                            new Blue.DAL.DbParameter("@UnitCode",unitCode)
+                        },
+                            LoginInfo.ConnStr);
+
+                        if (dtCheckUnit != null && dtCheckUnit.Rows.Count > 0)
+                        {
+                            dr["Rate"] = Convert.ToDecimal(dtCheckUnit.Rows[0]["Rate"]);
+                        }
+                        else
+                        {
+                            lbl_Warning.Text = string.Format("Invalid unit rate of <b>'{0}'</b> of product <b>'{1}'</b>.", unitCode, productCode);
+                            pop_Warning.ShowOnPageLoad = true;
+
+                            return;
+                        }
+
+                    }
+                }
 
 
                 var recNo = _mode == "EDIT" ? txt_RecNo.Text : dsSave.Tables[Rec.TableName].Rows[0]["RecNo"].ToString();
