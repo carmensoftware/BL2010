@@ -24,6 +24,7 @@ public class API
     {
         try
         {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             using (var client = new WebClient())
             {
                 client.BaseAddress = _host.TrimEnd('/') + "/";
@@ -49,6 +50,7 @@ public class API
 
         try
         {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             using (WebClient wc = new WebClient())
             {
                 wc.Headers[HttpRequestHeader.ContentType] = "application/json"; //application/x-www-form-urlencoded";

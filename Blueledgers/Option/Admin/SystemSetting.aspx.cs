@@ -691,9 +691,13 @@ namespace BlueLedger.PL.Option.Admin
             // Options
             var isAllItems = config.GetConfigValue("ADMIN", "AccountMap", "IsAll", LoginInfo.ConnStr).Trim().ToLower();
             var allowTransfer = config.GetConfigValue("ADMIN", "AccountMap", "AllowTransfer", LoginInfo.ConnStr).Trim().ToLower();
+            var trOut = config.GetConfigValue("ADMIN", "AccountMap", "TR_FROM", LoginInfo.ConnStr).Trim().ToLower();
+            var srOut = config.GetConfigValue("ADMIN", "AccountMap", "SR_FROM", LoginInfo.ConnStr).Trim().ToLower();
 
             chk_AccountMappAllItems.Checked = isAllItems == "true" || isAllItems == "1";
             chk_PostTranferToGl.Checked = allowTransfer == "true" || allowTransfer == "1";
+            chk_PostTrOut.Checked = trOut == "true" || allowTransfer == "1";
+            chk_PostSrOut.Checked = srOut == "true" || allowTransfer == "1";
 
 
             var host = config.GetConfigValue("APP", "IM", "WebServer", LoginInfo.ConnStr).Trim().TrimEnd('/');
@@ -760,9 +764,13 @@ namespace BlueLedger.PL.Option.Admin
 
             var isAllItems = chk_AccountMappAllItems.Checked;
             var allowTransfer = chk_PostTranferToGl.Checked;
+            var trOut = chk_PostTrOut.Checked;
+            var srOut = chk_PostSrOut.Checked;
 
             config.SetConfigValue("ADMIN", "AccountMap", "IsAll", isAllItems.ToString(), LoginInfo.ConnStr);
             config.SetConfigValue("ADMIN", "AccountMap", "AllowTransfer", allowTransfer.ToString(), LoginInfo.ConnStr);
+            config.SetConfigValue("ADMIN", "AccountMap", "TR_FROM", trOut.ToString(), LoginInfo.ConnStr);
+            config.SetConfigValue("ADMIN", "AccountMap", "SR_FROM", srOut.ToString(), LoginInfo.ConnStr);
 
 
             SetMode_Interface(false);

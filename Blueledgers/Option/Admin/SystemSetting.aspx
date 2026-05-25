@@ -506,6 +506,12 @@
                             <div>
                                 <asp:CheckBox ID="chk_PostTranferToGl" runat="server" Text="Allow posting the transfer to GL" />
                             </div>
+                            <div>
+                                <asp:CheckBox ID="chk_PostTrOut" runat="server" Text="Posting the transfer-Out" />
+                            </div>
+                            <div>
+                                <asp:CheckBox ID="chk_PostSrOut" runat="server" Text="Posting the Store Requisition-Out" />
+                            </div>
                         </asp:Panel>
                         <br />
                         <!-- Carmen -->
