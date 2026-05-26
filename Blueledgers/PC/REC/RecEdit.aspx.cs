@@ -2785,33 +2785,37 @@ namespace BlueLedger.PL.IN.REC
 
             foreach (DataRow dr in dtRecDt.Rows)
             {
-                var rate = string.IsNullOrEmpty(dr["Rate"].ToString()) ? 0m : Convert.ToDecimal(dr["Rate"]);
-
-                if (rate <= 0)
+                if (dr.RowState != DataRowState.Deleted)
                 {
-                    var productCode = dr["ProductCode"].ToString();
-                    var unitCode = dr["RcvUnit"].ToString();
 
-                    var dtCheckUnit = bu.DbExecuteQuery("SELECT Rate FROM [IN].ProdUnit WHERE UnitType='O' AND ProductCode=@ProductCode AND OrderUnit=@UnitCode",
-                        new Blue.DAL.DbParameter[]
+                    var rate = string.IsNullOrEmpty(dr["Rate"].ToString()) ? 0m : Convert.ToDecimal(dr["Rate"]);
+
+                    if (rate <= 0)
+                    {
+                        var productCode = dr["ProductCode"].ToString();
+                        var unitCode = dr["RcvUnit"].ToString();
+
+                        var dtCheckUnit = bu.DbExecuteQuery("SELECT Rate FROM [IN].ProdUnit WHERE UnitType='O' AND ProductCode=@ProductCode AND OrderUnit=@UnitCode",
+                            new Blue.DAL.DbParameter[]
                         {
                             new Blue.DAL.DbParameter("@ProductCode",productCode),
                             new Blue.DAL.DbParameter("@UnitCode",unitCode)
                         },
-                        LoginInfo.ConnStr);
+                            LoginInfo.ConnStr);
 
-                    if (dtCheckUnit != null && dtCheckUnit.Rows.Count > 0)
-                    {
-                        dr["Rate"] = Convert.ToDecimal(dtCheckUnit.Rows[0]["Rate"]);
+                        if (dtCheckUnit != null && dtCheckUnit.Rows.Count > 0)
+                        {
+                            dr["Rate"] = Convert.ToDecimal(dtCheckUnit.Rows[0]["Rate"]);
+                        }
+                        else
+                        {
+                            lbl_WarningOth.Text = string.Format("Invalid unit rate of <b>'{0}'</b> of product <b>'{1}'</b>.", unitCode, productCode);
+                            pop_Warning.ShowOnPageLoad = true;
+
+                            return;
+                        }
+
                     }
-                    else
-                    {
-                        lbl_WarningOth.Text = string.Format("Invalid unit rate of <b>'{0}'</b> of product <b>'{1}'</b>.", unitCode, productCode);
-                        pop_Warning.ShowOnPageLoad = true;
-
-                        return;
-                    }
-
                 }
             }
 
