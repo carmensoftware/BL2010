@@ -479,6 +479,7 @@ ORDER BY
 
                     gv_Detail.EditIndex = -1;
                     BindDetails();
+                    UpdateHeaderValues();
 
                     if (commandName == "SAVENEW")
                         CreateDetail();
@@ -1532,6 +1533,11 @@ WHERE
             se_PortionCost.Value = portionSize == 0 ? 0 : RoundAmt(totalCost / portionSize);
         }
 
+        private void UpdateHeaderValues()
+        {
+            se_TotalCost.Value = _dtRcpDt.AsEnumerable().Sum(x => x.Field<decimal>("TotalCost"));
+            TotalMixRateChange();
+        }
 
         private void UpdateCost(DateTime toDate)
         {
@@ -1567,8 +1573,9 @@ WHERE
             BindDetails();
 
             // Calculate Header
-            se_TotalCost.Value = _dtRcpDt.AsEnumerable().Sum(x => x.Field<decimal>("TotalCost"));
-            TotalMixRateChange();
+            UpdateHeaderValues();
+            //se_TotalCost.Value = _dtRcpDt.AsEnumerable().Sum(x => x.Field<decimal>("TotalCost"));
+            //TotalMixRateChange();
 
             //var totalCost = _dtRcpDt.AsEnumerable().Sum(x => x.Field<decimal>("TotalCost"));
             //var totalMixRate = se_TotalMixRate.Number;
