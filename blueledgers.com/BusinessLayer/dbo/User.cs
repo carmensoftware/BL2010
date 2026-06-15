@@ -111,6 +111,7 @@ namespace Blue.BL.dbo
             2026-08-31 = ramadakhaolak = 14
             2026-08-31 = metadeephuket = 25
             2026-08-31 = ratilannachiangmai = 5
+            2026-08-31 = almohotelbangkok = 7
          
             2026-07-31 = Nexen = 20
             2026-07-31 = uchijapanese-phuket = 2
@@ -135,13 +136,9 @@ namespace Blue.BL.dbo
 
 
 
-
-
-
-
-
-
-
+            ---------------------------------------------------------------
+            -- Expired ----------------------------------------------------
+            ---------------------------------------------------------------
             2026-04-30 = surestayplusramkhamheang = 5
 
 
@@ -159,9 +156,6 @@ namespace Blue.BL.dbo
           
             2026-01-31 = Zeavola = 28         
           
-            ---------------------------------------------------------------
-            -- Expired ----------------------------------------------------
-            ---------------------------------------------------------------
              
              
             2025-11-30 = tinbaron = 18
@@ -183,11 +177,11 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser =12;
+        private int licenseActiveUser =7;
 
         public DateTime GetLicenseExpiredDate()
         {
-            return new DateTime(2026, 6, 30);
+            return new DateTime(2026, 8, 31);
         }
 
         private DateTime licenseExpiredDate
