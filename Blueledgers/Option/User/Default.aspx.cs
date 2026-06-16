@@ -43,8 +43,8 @@ namespace BlueLedger.PL.Option.User
 
 
 
-            btn_ChangePassword.Visible = LoginInfo.LoginName.ToLower() == "support@carmen";
-            //btn_ChangePassword.Visible = LoginInfo.LoginName.ToLower() != "support@carmen";
+            //btn_ChangePassword.Visible = LoginInfo.LoginName.ToLower() == "support@carmen";
+            btn_ChangePassword.Visible = LoginInfo.LoginName.ToLower() != "support@carmen";
 
         }
 
