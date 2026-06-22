@@ -2699,7 +2699,7 @@ namespace BlueLedger.PL.IN.REC
                 if (grd_RecEdit.Rows.Count > 0)
                 {
                     foreach (DataRow drSelectedNew in dsRecEdit.Tables[recDt.TableName].Rows)
-                    {                        
+                    {
                         if (drSelectedNew.RowState != DataRowState.Deleted)
                         {
                             if ((Convert.ToDecimal(drSelectedNew["RecQty"]) > 0))
@@ -3181,30 +3181,36 @@ namespace BlueLedger.PL.IN.REC
                             drRecDt["Descen"] = drSelected["Descen"];
                             drRecDt["Descll"] = drSelected["Descll"];
                             drRecDt["UnitCode"] = drSelected["Unit"];
-                            drRecDt["RcvUnit"] = drSelected["Unit"];
+                            drRecDt["DiscAdj"] = false;
+                            drRecDt["TaxAdj"] = false;
                             drRecDt["Rate"] = prodUnit.GetConvRate(drSelected["Product"].ToString(), drSelected["Unit"].ToString(), LoginInfo.ConnStr);
+                                                       
                             drRecDt["OrderQty"] = Convert.ToDecimal(drSelected["OrderQty"] == DBNull.Value ? 0 : (decimal)drSelected["OrderQty"]);
                             drRecDt["FOCQty"] = Convert.ToDecimal(drSelected["FOCQty"] == DBNull.Value ? 0 : (decimal)drSelected["FOCQty"]);
                             drRecDt["RecQty"] = Convert.ToDecimal(drSelected["OrderQty"] == DBNull.Value ? 0 : (decimal)drSelected["OrderQty"]);
                             drRecDt["FOCQty"] = Convert.ToDecimal(drSelected["FOCQty"] == DBNull.Value ? 0 : (decimal)drSelected["FOCQty"]);
                             drRecDt["Price"] = Convert.ToDecimal(drSelected["Price"] == DBNull.Value ? 0 : (decimal)drSelected["Price"]);
-                            drRecDt["Discount"] = Convert.ToDecimal(drSelected["Discount"] == DBNull.Value ? 0 : (decimal)drSelected["Discount"]);
-                            drRecDt["TaxType"] = drSelected["TaxType"];
-                            drRecDt["TaxRate"] = drSelected["TaxRate"];
+                            
+                            var discRate = Convert.ToDecimal(drSelected["Discount"] == DBNull.Value ? 0 : (decimal)drSelected["Discount"]);
+                            var taxRate = Convert.ToDecimal(drSelected["TaxRate"] == DBNull.Value ? 0 : (decimal)drSelected["TaxRate"]);
+                            var taxType = drSelected["TaxType"].ToString();
+
+                            drRecDt["Discount"] = discRate;
+                            drRecDt["TaxType"] = taxType;
+                            drRecDt["TaxRate"] = taxRate;
                             drRecDt["TaxAdj"] = Convert.ToBoolean(drSelected["IsAdj"] == DBNull.Value ? false : (bool)drSelected["IsAdj"]);
 
                             qtyrec = (Convert.ToDecimal(drSelected["OrderQty"] == DBNull.Value ? 0 : (decimal)drSelected["OrderQty"]));
                             price = Convert.ToDecimal(drSelected["Price"] == DBNull.Value ? 0 : (decimal)drSelected["Price"]);
+
+                            /*
                             //Clear discount amount
                             discountAmt = 0;
 
                             // Discount percent
                             discountPercentage = Convert.ToDecimal(drSelected["Discount"] == DBNull.Value ? 0 : (decimal)drSelected["Discount"]);
-
-                            // if discountpercent is zero, skip to calculate for discount amount.
                             if (discountPercentage > 0)
                             {
-                                //discountAmt = (price * discountPercentage) / 100;
                                 discountAmt = ((price * recQty) * discountPercentage) / 100;
                             }
 
@@ -3215,9 +3221,6 @@ namespace BlueLedger.PL.IN.REC
                             calAmount = Blue.BL.GnxLib.CalAmt(price, discountAmt, qtyrec);
 
                             // Midified on: 06/02/2018, By: Fon
-                            //taxAmt = Blue.BL.GnxLib.TaxAmt(drSelected["TaxType"].ToString(), tax, price, discountAmt, qtyrec);
-                            //netAmt = Blue.BL.GnxLib.NetAmt(drSelected["TaxType"].ToString(), tax, price, discountAmt, qtyrec);
-                            //total = Blue.BL.GnxLib.Amount(drSelected["TaxType"].ToString(), tax, price, discountAmt, qtyrec);
 
                             currNetAmt = Blue.BL.GnxLib.NetAmt(drSelected["TaxType"].ToString(), tax, price, discountAmt, qtyrec);
                             currDiscAmt = discountAmt;
@@ -3228,21 +3231,64 @@ namespace BlueLedger.PL.IN.REC
                             taxAmt = currTaxAmt * currRate;
                             discountAmt = discountAmt * currRate;
                             total = currTotalAmt * currRate;
+                            */
+                            currDiscAmt = Convert.ToDecimal(drSelected["CurrDiscAmt"]);
+                            currNetAmt = Convert.ToDecimal(drSelected["CurrNetAmt"]);
+                            currTaxAmt = Convert.ToDecimal(drSelected["CurrTaxAmt"]);
+                            currTotalAmt = Convert.ToDecimal(drSelected["CurrTotalAmt"]);
 
-                            drRecDt["CurrNetAmt"] = currNetAmt; // Convert.ToDecimal(String.Format("{0:0.00}", currNetAmt));
-                            drRecDt["CurrDiscAmt"] = currDiscAmt; // Convert.ToDecimal(String.Format("{0:0.00}", currDiscAmt));
-                            drRecDt["CurrTaxAmt"] = currTaxAmt; //Convert.ToDecimal(String.Format("{0:0.00}", currTaxAmt));
-                            drRecDt["CurrTotalAmt"] = currTotalAmt; // Convert.ToDecimal(String.Format("{0:0.00}", currTotalAmt));
+                            discountAmt = Convert.ToDecimal(drSelected["DiscountAmt"]);
+                            netAmt = Convert.ToDecimal(drSelected["NetAmt"]);
+                            taxAmt = Convert.ToDecimal(drSelected["TaxAmt"]);
+                            total = Convert.ToDecimal(drSelected["TotalAmt"]);
+
+                            var focQty = Convert.ToDecimal(drSelected["FocQty"] == DBNull.Value ? 0 : drSelected["OrdQty"]);
+                            var ordQty = Convert.ToDecimal(drSelected["OrdQty"] == DBNull.Value ? 0 : drSelected["OrdQty"]);
+                            var orderQty = Convert.ToDecimal(drSelected["OrderQty"] == DBNull.Value ? 0 : drSelected["OrderQty"]);
+
+                            if (drSelected["OrdQty"].ToString() != drSelected["OrderQty"].ToString()) // Partial
+                            {
+                                drRecDt["OrderQty"] = orderQty;
+                                drRecDt["FOCQty"] = focQty;
+                                drRecDt["RecQty"] = recQty;
+
+
+                                decimal amount = RoundAmt(recQty * price);
+                                decimal discAmt = RoundAmt(discRate == 0 ? 0 : amount * discRate / 100);
+
+                                currDiscAmt = discAmt;
+
+                                // Calculation
+                                if (taxType == "I")
+                                {
+                                    currNetAmt = RoundAmt(taxRate == 0 ? 0 : ((amount - discAmt) * 100) / (100 + taxRate));
+                                    currTaxAmt = amount - currNetAmt;
+                                    currTotalAmt = currNetAmt + currTaxAmt;
+                                }
+                                else // "N", "A"
+                                {
+                                    currNetAmt = amount - discAmt;
+                                    currTaxAmt = RoundAmt(taxRate == 0 ? 0 : currNetAmt * taxRate / 100);
+                                    currTotalAmt = currNetAmt + currTaxAmt;
+                                }
+                            }
+
+
+                            drRecDt["CurrDiscAmt"] = currDiscAmt;
+                            drRecDt["CurrNetAmt"] = currNetAmt; 
+                            drRecDt["CurrTaxAmt"] = currTaxAmt; 
+                            drRecDt["CurrTotalAmt"] = currTotalAmt; 
                             // End Modified.
 
                             drRecDt["DiccountAmt"] = discountAmt;
-                            drRecDt["NetAmt"] = netAmt; // Convert.ToDecimal(String.Format("{0:0.00}", netAmt));
-                            drRecDt["TaxAmt"] = taxAmt; // Convert.ToDecimal(String.Format("{0:0.00}", taxAmt));
-                            drRecDt["TotalAmt"] = total; // Convert.ToDecimal(String.Format("{0:0.00}", total));
+                            drRecDt["NetAmt"] = netAmt; 
+                            drRecDt["TaxAmt"] = taxAmt; 
+                            drRecDt["TotalAmt"] = total; 
+                            
                             drRecDt["PoNo"] = drSelected["PoNo"];
                             drRecDt["PoDtNo"] = drSelected["PoDt"];
-                            drRecDt["NetDrAcc"] = accountMapp.GetA3Code(LoginInfo.BuInfo.BuCode, drSelected["Location"].ToString(), drSelected["Product"].ToString().Substring(0, 4), LoginInfo.ConnStr);
-                            drRecDt["TaxDrAcc"] = drSelected["TaxAccCode"];
+                            drRecDt["NetDrAcc"] = ""; //accountMapp.GetA3Code(LoginInfo.BuInfo.BuCode, drSelected["Location"].ToString(), drSelected["Product"].ToString().Substring(0, 4), LoginInfo.ConnStr);
+                            drRecDt["TaxDrAcc"] = ""; // drSelected["TaxAccCode"];
                             drRecDt["Status"] = System.DBNull.Value;
                             drRecDt["ExportStatus"] = false;
 
