@@ -4,6 +4,7 @@ using System.Data;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using BlueLedger.PL.BaseClass;
+using System.Linq;
 
 namespace BlueLedger.PL.IN.REC
 {
@@ -211,17 +212,21 @@ namespace BlueLedger.PL.IN.REC
                 //Update table PC.Rec
                 rec.GetListByRecNo(dsRecCommit, ref MsgError, recNo, hf_ConnStr.Value);
 
-
                 for (var i = 0; i < dsRecCommit.Tables[rec.TableName].Rows.Count; i++)
                 {
                     var drSave = dsRecCommit.Tables[rec.TableName].Rows[i];
 
                     if (drSave["RecNo"].ToString() == recNo)
                     {
+
+                        var recDate = Convert.ToDateTime(drSave["RecDate"]).ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+                        var dtCommittedDate = rec.DbExecuteQuery(string.Format("SELECT [IN].GetCommittedDate('{0}', null)", recDate), null, LoginInfo.ConnStr);
+
+
                         drSave["DocStatus"] = "Committed";
                         drSave["UpdatedDate"] = ServerDateTime.Date;
                         drSave["UpdatedBy"] = LoginInfo.LoginName;
-                        drSave["CommitDate"] = ServerDateTime.Date;
+                        drSave["CommitDate"] = dtCommittedDate != null && dtCommittedDate.Rows.Count > 0 ? Convert.ToDateTime(dtCommittedDate.Rows[0][0]) : ServerDateTime.Date;
                         drSave["BatchNo"] = rec.GetBatchNo(hf_ConnStr.Value);
                     }
                 }
