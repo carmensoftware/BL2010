@@ -3181,6 +3181,8 @@ namespace BlueLedger.PL.IN.REC
                             drRecDt["Descen"] = drSelected["Descen"];
                             drRecDt["Descll"] = drSelected["Descll"];
                             drRecDt["UnitCode"] = drSelected["Unit"];
+                            drRecDt["RcvUnit"] = drSelected["Unit"];
+
                             drRecDt["DiscAdj"] = false;
                             drRecDt["TaxAdj"] = false;
                             drRecDt["Rate"] = prodUnit.GetConvRate(drSelected["Product"].ToString(), drSelected["Unit"].ToString(), LoginInfo.ConnStr);
