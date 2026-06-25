@@ -875,6 +875,7 @@ WHERE
 
                 dtPrDt.Clear();
                 dtPrDt = prDt.GetByPONoPODt(poNo, poDtNo, hf_ConnStr.Value);
+
                 if (dtPrDt.Rows.Count > 0)
                 {
                     for (var j = 0; j < dtPrDt.Rows.Count; j++)
@@ -946,59 +947,68 @@ WHERE
                     }
                 }
 
-                //Binding display Rec Detail.
-                dsRecDt.Clear();
-                recDt.GetRecDtByPoNoAndPoDtNo(dsRecDt, poNo, poDtNo, strConnStr); //hf_ConnStr.Value
+                //if (e.Row.FindControl("lbl_Receive") != null)
+                //{
+                //    var lbl_Receive = e.Row.FindControl("lbl_Receive") as Label;
+                //    lbl_Receive.Text = String.Format(DefaultQtyFmt, drRecDt["RecQty"]) + " " + drRecDt["RcvUnit"];
+                //}
 
-                if (dsRecDt.Tables[recDt.TableName].Rows.Count > 0)
+                if (e.Row.FindControl("lbl_ConvRate") != null)
                 {
-                    var drRecDt = dsRecDt.Tables[recDt.TableName].Rows[0];
-
-                    if (e.Row.FindControl("lbl_Receive") != null)
-                    {
-                        var lbl_Receive = e.Row.FindControl("lbl_Receive") as Label;
-                        lbl_Receive.Text = String.Format(DefaultQtyFmt, drRecDt["RecQty"]) + " " + drRecDt["RcvUnit"];
-                    }
-
-                    if (e.Row.FindControl("lbl_ConvRate") != null)
-                    {
-                        var lbl_ConvRate = e.Row.FindControl("lbl_ConvRate") as Label;
-                        lbl_ConvRate.Text = String.Format("{0:N}", drRecDt["Rate"]);
-                    }
-
-                    if (e.Row.FindControl("lbl_BaseQty") != null)
-                    {
-                        var lbl_BaseQty = e.Row.FindControl("lbl_BaseQty") as Label;
-                        var strProd = DataBinder.Eval(e.Row.DataItem, "Product").ToString();
-                        var decBaseQty = prodUnit.GetQtyAfterChangeUnit(strProd, drRecDt["RcvUnit"].ToString(),
-                            drRecDt["UnitCode"].ToString(),
-                            decimal.Parse(drRecDt["OrderQty"].ToString()), hf_ConnStr.Value);
-                        var strBaseUnit = prodUnit.GetInvenUnit(strProd, hf_ConnStr.Value);
-                        lbl_BaseQty.Text = decBaseQty + " " + strBaseUnit;
-                    }
+                    var lbl_ConvRate = e.Row.FindControl("lbl_ConvRate") as Label;
+                    lbl_ConvRate.Text = string.Format(DefaultQtyFmt, DataBinder.Eval(e.Row.DataItem, "UnitRate").ToString());
                 }
+
+                if (e.Row.FindControl("lbl_BaseQty") != null)
+                {
+                    var lbl_BaseQty = e.Row.FindControl("lbl_BaseQty") as Label;
+                    
+                    var inventoryUnit = DataBinder.Eval(e.Row.DataItem, "InventoryUnit").ToString();
+                    var ordQty = Convert.ToDecimal(DataBinder.Eval(e.Row.DataItem, "OrdQty").ToString());
+                    var rate = Convert.ToDecimal(DataBinder.Eval(e.Row.DataItem, "UnitRate").ToString());
+                    var baseQty = 0m;
+
+                    baseQty = RoundQty(ordQty * rate);
+
+                    var baseQtyText = string.Format(DefaultQtyFmt, baseQty);
+
+                    lbl_BaseQty.Text = string.Format("{0} {1}", baseQtyText, inventoryUnit);
+                }
+
+                //Binding display Rec Detail.
+
+
+                //dsRecDt.Clear();
+                //recDt.GetRecDtByPoNoAndPoDtNo(dsRecDt, poNo, poDtNo, strConnStr); //hf_ConnStr.Value
+
+                //if (dsRecDt.Tables[recDt.TableName].Rows.Count > 0)
+                //{
+                //    var drRecDt = dsRecDt.Tables[recDt.TableName].Rows[0];
+
+                //    if (e.Row.FindControl("lbl_Receive") != null)
+                //    {
+                //        var lbl_Receive = e.Row.FindControl("lbl_Receive") as Label;
+                //        lbl_Receive.Text = String.Format(DefaultQtyFmt, drRecDt["RecQty"]) + " " + drRecDt["RcvUnit"];
+                //    }
+
+                //    if (e.Row.FindControl("lbl_ConvRate") != null)
+                //    {
+                //        var lbl_ConvRate = e.Row.FindControl("lbl_ConvRate") as Label;
+                //        lbl_ConvRate.Text = String.Format("{0:N}", drRecDt["Rate"]);
+                //    }
+
+                //    if (e.Row.FindControl("lbl_BaseQty") != null)
+                //    {
+                //        var lbl_BaseQty = e.Row.FindControl("lbl_BaseQty") as Label;
+                //        var strProd = DataBinder.Eval(e.Row.DataItem, "Product").ToString();
+                //        var decBaseQty = prodUnit.GetQtyAfterChangeUnit(strProd, drRecDt["RcvUnit"].ToString(),
+                //            drRecDt["UnitCode"].ToString(),
+                //            decimal.Parse(drRecDt["OrderQty"].ToString()), hf_ConnStr.Value);
+                //        var strBaseUnit = prodUnit.GetInvenUnit(strProd, hf_ConnStr.Value);
+                //        lbl_BaseQty.Text = decBaseQty + " " + strBaseUnit;
+                //    }
+                //}
             }
-
-            //if (e.Row.RowType == DataControlRowType.Footer)
-            //{
-            //    if (e.Row.FindControl("lbl_TNet") != null)
-            //    {
-            //        Label lbl_TNet = e.Row.FindControl("lbl_TNet") as Label;
-            //        lbl_TNet.Text = netamt.ToString();
-            //    }
-
-            //    if (e.Row.FindControl("lbl_TTax") != null)
-            //    {
-            //        Label lbl_TTax = e.Row.FindControl("lbl_TTax") as Label;
-            //        lbl_TTax.Text = taxamt.ToString();
-            //    }
-
-            //    if (e.Row.FindControl("lbl_TAmount") != null)
-            //    {
-            //        Label lbl_TAmount = e.Row.FindControl("lbl_TAmount") as Label;
-            //        lbl_TAmount.Text = totalamt.ToString();
-            //    }
-            //}
         }
 
         protected void grd_PoDt_RowEditing(object sender, GridViewEditEventArgs e)
