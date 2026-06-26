@@ -14,17 +14,23 @@ namespace Blue.BL.dbo
 
         /*  Customer's license
          
+            2027-06-30 = andalanta = 7+1+1=9
+            2027-06-30 = maraleina = 23+1+10 = 34
+            2027-06-30 = sunshine-residences = 10+5=15
+            2027-06-30 = theyamaphuket = 12+2 = 14-2 = 12
          
          
             2027-05-31 = chatriumniseko = 9
             2027-05-31 = ramadadmabangkok = 19
             2027-05-31 = HotelSensai (Chiang Mai) = 3+8 = 11 ปรับเป็น 10 
             2027-05-31 = chi = 2
+            2027-05-31 = ramadakhaolak = 14
          
          
             2027-04-30 = paresaresort = 23
             2027-04-30 = indochinephuket = 27
          
+            2027-04-30 = silqandsq = 9+5=14
          
          
             2027-03-31 = manor = 4
@@ -60,7 +66,6 @@ namespace Blue.BL.dbo
             2027-01-31 = ibis = 999
          
             2027-01-31 = TWIN_LOTUS (on permise) = 16
-            2027-01-31 = legacysuites = 15 + 7 = 22
             2027-01-31 = boulevardhotelbangkok = 10 + 17 = 27
             2027-01-31 = samuiparadisebeach = 10
             2027-01-31 = jazzotelbangkok = 7 + 5= 12
@@ -74,7 +79,11 @@ namespace Blue.BL.dbo
             2027-01-31 = theakyrabangkok11 = 5+5=10
             2027-01-31 = nh-asoke-bangkok = 15
          
+            2027-01-31 = rasahospitality = 73 + 17 = 90
+         
+         
             ---------------------------------------------------------------
+         
          
             2026-11-30 = chalongmarina = 8+2=10
             2026-11-30 = korabeachresort = 10 + 22 = 32
@@ -108,7 +117,6 @@ namespace Blue.BL.dbo
             2026-08-31 = bwsanctuary = 10
             2026-08-31 = thebangkokclub = 20
             2026-08-31 = wyndhamgardensamuiwing = 12
-            2026-08-31 = ramadakhaolak = 14
             2026-08-31 = metadeephuket = 25
             2026-08-31 = ratilannachiangmai = 5
             2026-08-31 = almohotelbangkok = 7
@@ -117,39 +125,37 @@ namespace Blue.BL.dbo
             2026-07-31 = uchijapanese-phuket = 2
             2026-07-31 = blumonkeybangsaen = 5
          
-            2026-06-30 = floralcourthotel = 5+6 = 11
-            2026-06-30 = maraleina = 23+1+10 = 34
-            2026-06-30 = granddiamondsuites = 6+4 = 10
-            2026-06-30 = theyamaphuket = 12+2 = 14-2 = 12
-            2026-06-30 = andalanta = 7+1+1=9
-            2026-06-30 = sunshine-residences = 10+5=15
+         
+            2026-07-31 = aidenhotels = 10
+            2026-07-31 = bestwesternratchada = 10        
+            2026-07-31 = parklanehotels = 16 + 8 = 24
+            2026-07-31 = maduzi = 20
+            2026-07-31 = granddiamondsuites = 6+4 = 10
+            2026-07-31 = floralcourthotel = 5+6 = 11
+            2026-07-31 = mavericks-management = 8
+            2026-07-31 = legacysuites = 15 + 7 = 22
+            2026-07-31 = kappasensesubud = 17
+            2026-07-31 = selinaserenityrawai = 8
+            2026-07-31 = wyndhamgardenmanilabay = 7+1 = 8
+         
+         
+         
+         
+         
             2026-06-30 = urbana-sathorn = 6 + 2 = 8 + 2 = 10
-            2026-06-30 = maduzi = 20
-            2026-06-30 = kappasensesubud = 17
-            2026-06-30 = mavericks-management = 8
-            2026-06-30 = wyndhamgardenmanilabay = 7+1 = 8
-            2026-06-30 = parklanehotels = 16 + 8 = 24
-            2026-06-30 = rasahospitality = 73 + 17 = 90
-            2026-06-30 = silqandsq = 9+5=14
-            2026-06-30 = bestwesternratchada = 10        
+
+        */
 
 
-
-
+        /*
             ---------------------------------------------------------------
             -- Expired ----------------------------------------------------
             ---------------------------------------------------------------
             2026-04-30 = surestayplusramkhamheang = 5
 
 
-            2026-03-31 = selinaserenityrawai = 8
             2026-03-31 = hotellotussukhumvit = 15+2 = 17 + 2 = 19
 
-
-
-
-
-          
             2026-02-28 = urbanalangsuanbkk = 7
           
           
@@ -177,12 +183,9 @@ namespace Blue.BL.dbo
         
         */
 
-        private int licenseActiveUser =7;
+        private readonly int _licenseActiveUser =12;
+        private readonly DateTime _expiryDate = new DateTime(2027, 6, 30);
 
-        public DateTime GetLicenseExpiredDate()
-        {
-            return new DateTime(2026, 8, 31);
-        }
 
         private DateTime licenseExpiredDate
         {
@@ -191,8 +194,11 @@ namespace Blue.BL.dbo
                 return GetLicenseExpiredDate();
             }
         }
-        //private DateTime licenseExpiredDate = new DateTime(2026, 1, 31);
 
+        public DateTime GetLicenseExpiredDate()
+        {
+            return _expiryDate;
+        }
 
         public int GetActiveUser()
         {
@@ -211,7 +217,7 @@ WHERE
 
         public int GetActiveUserLicense()
         {
-            return licenseActiveUser;
+            return _licenseActiveUser;
         }
 
 
@@ -281,10 +287,10 @@ WHERE
                         MsgError = "License has been expired since " + licenseExpiredDate.ToShortDateString();
                         return false;
                     }
-                    else if (activedUsers > licenseActiveUser)
+                    else if (activedUsers > _licenseActiveUser)
                     {
                         //MsgError = "You have more users than your license allows. Please contact administrator to purchase the license.";
-                        MsgError = string.Format("The number of users exceeds the available licenses.<br/>License: {0} purchased | {1} assigned.", licenseActiveUser, activedUsers);
+                        MsgError = string.Format("The number of users exceeds the available licenses.<br/>License: {0} purchased | {1} assigned.", _licenseActiveUser, activedUsers);
                         
                         return false;
                     }
