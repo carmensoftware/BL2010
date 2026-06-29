@@ -1045,7 +1045,8 @@ namespace BlueLedger.PL.PC.PO
             ddl_TIG.DataBind();
             ddl_TIG.SelectedIndex = ddl_TIG.Items.Count - 1;
 
-            DataTable dtProduct = _po.DbExecuteQuery("SELECT CategoryCode Code, CategoryCode + ' : ' + CategoryName as Item FROM [IN].ProductCategory WHERE LevelNo=3 ORDER BY CategoryCode", null, LoginInfo.ConnStr);
+            //DataTable dtProduct = _po.DbExecuteQuery("SELECT CategoryCode Code, CategoryCode + ' : ' + CategoryName as Item FROM [IN].ProductCategory WHERE LevelNo=3 ORDER BY CategoryCode", null, LoginInfo.ConnStr);
+            DataTable dtProduct = _po.DbExecuteQuery("SELECT ProductCode Code, ProductCode + ' : ' + ProductDesc1 as Item FROM [IN].Product ORDER BY ProductCode", null, LoginInfo.ConnStr);
             ddl_FProduct.DataSource = dtProduct;
             ddl_FProduct.ValueField = "Code";
             ddl_FProduct.TextField = "Item";
