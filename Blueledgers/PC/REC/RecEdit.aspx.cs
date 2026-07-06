@@ -2585,6 +2585,9 @@ namespace BlueLedger.PL.IN.REC
             var deliPoint = cmb_DeliPoint.Value.ToString().Split(':')[0];
             var currRate = Convert.ToDecimal(txt_ExRateAu.Text);
 
+            var newVendorCode = "";
+            var newInvoiceNo = "";
+
             //For Edit 
             if (_mode.ToUpper() == "EDIT")
             {
@@ -2645,6 +2648,9 @@ namespace BlueLedger.PL.IN.REC
                 rec.GetStructure(dsSave, hf_ConnStr.Value);
                 var drSaveNew = dsSave.Tables[rec.TableName].NewRow();
 
+                newVendorCode = lbl_VendorCode.Text.Trim();
+                newInvoiceNo = txt_InvNo.Text.Trim();
+                
                 #region
 
                 // For new
@@ -2847,6 +2853,27 @@ namespace BlueLedger.PL.IN.REC
                         dtSave.Rows[i]["ExtraCost"] = dtRecDt.Rows[i]["ExtraCost"];
                     }
                 }
+            }
+
+
+            // Check if vendor and invoice are duplicate
+            if (_action == "CREATE")
+            {
+
+                var query = "SELECT COUNT(RecNo) FROM PC.REC WHERE DocStatus <> 'Voided' AND VendorCode=@VendorCode AND InvoiceNo=@InvoiceNo";
+                var dt = rec.DbExecuteQuery(query, new Blue.DAL.DbParameter[] 
+                { 
+                    new Blue.DAL.DbParameter("@VendorCode", newVendorCode), 
+                    new Blue.DAL.DbParameter("@VendorCode", newInvoiceNo)
+                }, LoginInfo.ConnStr);
+
+                var count = dt != null ? Convert.ToInt32(dt.Rows[0][0]) : 0;
+
+                if (count > 0)
+                {
+                    return;
+                }
+
             }
 
 
@@ -3186,13 +3213,13 @@ namespace BlueLedger.PL.IN.REC
                             drRecDt["DiscAdj"] = false;
                             drRecDt["TaxAdj"] = false;
                             drRecDt["Rate"] = prodUnit.GetConvRate(drSelected["Product"].ToString(), drSelected["Unit"].ToString(), LoginInfo.ConnStr);
-                                                       
+
                             drRecDt["OrderQty"] = Convert.ToDecimal(drSelected["OrderQty"] == DBNull.Value ? 0 : (decimal)drSelected["OrderQty"]);
                             drRecDt["FOCQty"] = Convert.ToDecimal(drSelected["FOCQty"] == DBNull.Value ? 0 : (decimal)drSelected["FOCQty"]);
                             drRecDt["RecQty"] = Convert.ToDecimal(drSelected["OrderQty"] == DBNull.Value ? 0 : (decimal)drSelected["OrderQty"]);
                             drRecDt["FOCQty"] = Convert.ToDecimal(drSelected["FOCQty"] == DBNull.Value ? 0 : (decimal)drSelected["FOCQty"]);
                             drRecDt["Price"] = Convert.ToDecimal(drSelected["Price"] == DBNull.Value ? 0 : (decimal)drSelected["Price"]);
-                            
+
                             var discRate = Convert.ToDecimal(drSelected["Discount"] == DBNull.Value ? 0 : (decimal)drSelected["Discount"]);
                             var taxRate = Convert.ToDecimal(drSelected["TaxRate"] == DBNull.Value ? 0 : (decimal)drSelected["TaxRate"]);
                             var taxType = drSelected["TaxType"].ToString();
@@ -3277,16 +3304,16 @@ namespace BlueLedger.PL.IN.REC
 
 
                             drRecDt["CurrDiscAmt"] = currDiscAmt;
-                            drRecDt["CurrNetAmt"] = currNetAmt; 
-                            drRecDt["CurrTaxAmt"] = currTaxAmt; 
-                            drRecDt["CurrTotalAmt"] = currTotalAmt; 
+                            drRecDt["CurrNetAmt"] = currNetAmt;
+                            drRecDt["CurrTaxAmt"] = currTaxAmt;
+                            drRecDt["CurrTotalAmt"] = currTotalAmt;
                             // End Modified.
 
                             drRecDt["DiccountAmt"] = discountAmt;
-                            drRecDt["NetAmt"] = netAmt; 
-                            drRecDt["TaxAmt"] = taxAmt; 
-                            drRecDt["TotalAmt"] = total; 
-                            
+                            drRecDt["NetAmt"] = netAmt;
+                            drRecDt["TaxAmt"] = taxAmt;
+                            drRecDt["TotalAmt"] = total;
+
                             drRecDt["PoNo"] = drSelected["PoNo"];
                             drRecDt["PoDtNo"] = drSelected["PoDt"];
                             drRecDt["NetDrAcc"] = ""; //accountMapp.GetA3Code(LoginInfo.BuInfo.BuCode, drSelected["Location"].ToString(), drSelected["Product"].ToString().Substring(0, 4), LoginInfo.ConnStr);
