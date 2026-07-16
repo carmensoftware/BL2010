@@ -98,6 +98,8 @@ namespace Blue.BL.dbo
             2026-10-31 = sztowerthai = 13+4=17
             2026-10-31 = peachgroup = 13 
             2026-10-31 = waltonsuitessukhumvitbangkok = 5
+            2026-10-31 = aboveelementhotel = 4 + 16 = 20
+            2026-10-31 = bestwesternqkhonkaen = 10
          
          
             2026-09-30 = kckohchang = 17
@@ -183,8 +185,8 @@ namespace Blue.BL.dbo
         
         */
 
-        private readonly int _licenseActiveUser =12;
-        private readonly DateTime _expiryDate = new DateTime(2027, 6, 30);
+        private readonly int _licenseActiveUser =10;
+        private readonly DateTime _expiryDate = new DateTime(2026, 10, 31);
 
 
         private DateTime licenseExpiredDate
