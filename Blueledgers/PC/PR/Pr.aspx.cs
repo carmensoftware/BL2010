@@ -561,13 +561,21 @@ namespace BlueLedger.PL.PC.PR
                     // Check PrType of user (loginname)
 
                     DataTable dt = bu.DbExecuteQuery(string.Format("EXEC [IN].[ProdCateType_GetActivedListByLoginName] '{0}'", LoginInfo.LoginName), null, hf_ConnStr.Value);
-                    if (dt.Rows.Count > 0)
+                    if (dt != null && dt.Rows.Count > 0)
                     {
+                        try
+                        {
+                            Response.Redirect("PrEdit.aspx?BuCode=" + Request.Params["BuCode"].ToString() +
+                                              "&MODE=EDIT&ID=" + dsPR.Tables[pr.TableName].Rows[0]["PrNo"].ToString() +
+                                              "&VID=" + Request.Params["VID"].ToString() + "&Type=E");
+                        }
+                        catch (Exception ex)
+                        {
+                            lbl_PopupAlert.Text = ex.Message;
+                            pop_Alert.ShowOnPageLoad = true;
 
+                        }
 
-                        Response.Redirect("PrEdit.aspx?BuCode=" + Request.Params["BuCode"].ToString() +
-                                          "&MODE=EDIT&ID=" + dsPR.Tables[pr.TableName].Rows[0]["PrNo"].ToString() +
-                                          "&VID=" + Request.Params["VID"].ToString() + "&Type=E");
                     }
                     else
                     {

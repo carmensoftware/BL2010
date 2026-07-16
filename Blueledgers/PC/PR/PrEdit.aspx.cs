@@ -155,7 +155,7 @@ namespace BlueLedger.PL.PC.PR
             }
         }
 
-        private decimal _default_TaxRate { set { ViewState["_default_TaxRate"]=value; } get { return Convert.ToDecimal(ViewState["_default_TaxRate"]); } }
+        private decimal _default_TaxRate { set { ViewState["_default_TaxRate"] = value; } get { return Convert.ToDecimal(ViewState["_default_TaxRate"]); } }
         // End Aded.
 
         #endregion
@@ -251,30 +251,63 @@ namespace BlueLedger.PL.PC.PR
             #region Mode: Edit
             if (MODE.ToUpper() == "EDIT")
             {
-                var MsgError = string.Empty;
-
-                // Get invoice no from HTTP query string
-                var PrNo = Request.QueryString["ID"];
-
-                var result = pr.GetListByPrNo(dsPR, ref MsgError, PrNo, hf_ConnStr.Value);
-
-                if (!result)
+                try
                 {
-                    // Display Error Message
-                    return;
+                    var MsgError = string.Empty;
+
+                    // Get invoice no from HTTP query string
+                    var PrNo = Request.QueryString["ID"];
+
+                    var result = pr.GetListByPrNo(dsPR, ref MsgError, PrNo, hf_ConnStr.Value);
+
+                    if (!result)
+                    {
+                        // Display Error Message
+                        return;
+                    }
+
+                    var resultDt = prDt.GetListBy_PrNo(dsPR, PrNo, hf_ConnStr.Value);
+
+                    if (!resultDt)
+                    {
+                        // Display Error Message
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ShowAlert("001 : " + ex.Message);
                 }
 
-                var resultDt = prDt.GetListBy_PrNo(dsPR, PrNo, hf_ConnStr.Value);
-
-                if (!resultDt)
+                try
                 {
-                    // Display Error Message
-                    return;
+
+                    GetAppWFdt();
                 }
-                GetAppWFdt();
-                GetUserProdCateType();
-                Session["dsWF"] = dsWF;
-                Session["dsPr"] = dsPR;
+                catch (Exception ex)
+                {
+                    ShowAlert("002 : " + ex.Message);
+                }
+                try
+                {
+
+                    GetUserProdCateType();
+                }
+                catch (Exception ex)
+                {
+                    ShowAlert("003 : " + ex.Message);
+                }
+                try
+                {
+                    Session["dsWF"] = dsWF;
+                    Session["dsPr"] = dsPR;
+                }
+
+                catch (Exception ex)
+                {
+                    ShowAlert("004 : " + ex.Message);
+                }
+
             }
             #endregion
 
@@ -290,12 +323,26 @@ namespace BlueLedger.PL.PC.PR
             }
             #endregion
 
+            try
+            {
+                ddl_PrType.DataSource = dsWF.Tables["UserProdCateType"];
+                ddl_PrType.DataBind();
+            }
+            catch (Exception ex)
+            {
+                ShowAlert("101 : " + ex.Message);
+            }
 
-            ddl_PrType.DataSource = dsWF.Tables["UserProdCateType"];
-            ddl_PrType.DataBind();
+            try
+            {
 
+                Page_Setting();
+            }
+            catch (Exception ex)
+            {
+                ShowAlert("102 : " + ex.Message);
+            }
 
-            Page_Setting();
         }
 
         private void Page_Setting()
@@ -1797,7 +1844,7 @@ WHERE
                 {
                     var taxRate = Convert.ToDecimal(txt_TaxRate_Grd_Av.Text);
 
-                    if (taxRate==0)
+                    if (taxRate == 0)
                         txt_TaxRate_Grd_Av.Text = string.Format("{0:N}", _default_TaxRate);
                     txt_TaxRate_Grd_Av.Enabled = true;
                     txt_CurrTaxAmt_Grd_Av.Enabled = true;
