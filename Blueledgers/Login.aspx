@@ -1,5 +1,4 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="Login.aspx.cs" Inherits="Login" %>
-<%@ Register Src="~/UserControl/Password.ascx" TagName="PasswordDialog" TagPrefix="uc1" %>
 <!DOCTYPE html>
 <html>
 <head runat="server">
@@ -173,7 +172,7 @@
             </div>
             <br />
             <div style="color: #F0F0F0;">
-                <center>Welcome back! Login to access Blueledgers</center>
+                <center>Welcome back! Login to Blueledgers</center>
             </div>
             <br />
             <br />
@@ -190,16 +189,15 @@
                     <asp:Button ID="LoginButton" runat="server" CommandName="Login" Text="Log In" ValidationGroup="LoginControl" class="btn" Width="100%" Height="35" />
                 </div>
                 <br />
-                <div style="display:flex; justify-content:center;">
+                <%--<div style="display:flex; justify-content:center;">
                     <asp:CheckBox ID="RememberMe1" runat="server" Text="Remember me" />
-                </div>
+                </div>--%>
                 <br />
                 <div id="MessageBox" class="message" onclick="closeMessage('MessageBox'); return false;">
                     <asp:Literal ID="FailureText" runat="server" />
                 </div>
         </LayoutTemplate>
     </asp:Login>
-    <uc1:PasswordDialog ID="dlgPassword" runat="server" />
     </form>
     <div class="footer">
         <div style="padding: 15px;">

@@ -4,6 +4,7 @@ using System.Text;
 using System.Web;
 using System.Web.UI.WebControls;
 using BlueLedger.PL.BaseClass;
+using System.Configuration;
 
 
 public partial class Login : BasePage
@@ -17,17 +18,17 @@ public partial class Login : BasePage
     private readonly DataSet _dsUser = new DataSet();
     private readonly LoginInformation _loginInfo = new LoginInformation();
 
-    
+
     #endregion
 
     #region "Operations"
 
-    
+
     protected override void Page_PreInit(object sender, EventArgs e)
     {
     }
 
-    
+
     protected override void Page_Load(object sender, EventArgs e)
     {
         base.Page_Load(sender, e);
@@ -38,27 +39,44 @@ public partial class Login : BasePage
         }
     }
 
-    
+
     protected void LoginControl_Authenticate(object sender, AuthenticateEventArgs e)
     {
-        // check login
+        LoginControl.FailureText = string.Empty;
+        //var username = LoginControl.UserName;
+        //var password = LoginControl.Password;
 
-        var username = LoginControl.UserName;
-        var password = LoginControl.Password;
+        var txt_username = (TextBox)LoginControl.FindControl("Username");
+        var txt_password = (TextBox)LoginControl.FindControl("Password");
+
+        var username = txt_username.Text;
+        var password = txt_password.Text;
+
+
+        if (string.IsNullOrEmpty(username))
+        {
+            LoginControl.FailureText = "Username is required";
+            e.Authenticated = false;
+            return;
+        }
+        
+        
         var message = string.Empty;
 
         var validUser = _user.CheckLogin(_dsUser, username, password, ref message);
 
         if (validUser)
         {
-            bool isPasswordExpired = dlgPassword.IsPasswordExpired(LoginControl.UserName);
+            //bool isPasswordExpired = dlgPassword.IsPasswordExpired(LoginControl.UserName);
 
-            LoginControl.FailureText = string.Empty;
+            var refId = "";
+            var isPasswordExpired = IsPasswordExpired(username, ref refId);
 
             if (isPasswordExpired)
             {
-                dlgPassword.ChangePassword(LoginControl.UserName, "Password is expired. Please change password.");
+                //dlgPassword.ChangePassword(LoginControl.UserName, "Password is expired. Please change password.");
                 e.Authenticated = false;
+                Response.Redirect("~/Option/Admin/Security/ResetPassword.aspx?id="+refId);
             }
             else
             {
@@ -90,7 +108,7 @@ public partial class Login : BasePage
         }
     }
 
-    
+
     protected void LoginControl_LoggedIn(object sender, EventArgs e)
     {
         var drUser = _dsUser.Tables[_user.TableName].Rows[0];
@@ -147,7 +165,7 @@ public partial class Login : BasePage
             Response.Redirect((string)Session["PreviousPage"]);
         else
             Response.Redirect(string.IsNullOrEmpty(homepage) ? "~/Option/User/Default.aspx" : homepage);
-		
+
     }
 
     #endregion
@@ -280,35 +298,56 @@ public partial class Login : BasePage
         Session["LoginInfo"] = _loginInfo;
 
     }
-    
-    //private void LoginPassThrough()
-    //{
-    //    var paramsLogin = Blue.BL.GnxLib.EnDecryptString(Request.Params["ID"], Blue.BL.GnxLib.EnDeCryptor.DeCrypt);
 
-    //    var urlParams = paramsLogin.Split('&');
-    //    var bu = urlParams[0].Split('=');
-    //    var username = urlParams[1].Split('=');
-    //    var password = urlParams[2].Split('=');
+    public bool IsPasswordExpired(string loginName, ref string refId)
+    {
+        var isExpired = false;
+        var sysConnStr = ConfigurationManager.AppSettings["ConnStr"];
 
-    //    var xParam = Blue.BL.GnxLib.EnDecryptString(Request.Params["ID"], Blue.BL.GnxLib.EnDeCryptor.DeCrypt, Blue.BL.GnxLib.KEY_LOGIN_PASSWORD);
+        var query = @"
+DECLARE @Value nvarchar(100) = (SELECT Value FROM dbo.[Config] WHERE [Key] = 'Password.ExpireDays')
+DECLARE @ExpDays INT = CASE WHEN ISNULL(@value,'')='' THEN 0 ELSE CAST(@Value AS INT) END
+DECLARE @Overdue INT = 0
+DECLARE @LastUpdatedPassword DATE = (SELECT LastUpdatedPassword FROM [dbo].[User] WHERE LoginName=@LoginName)
 
-    //    var xID = xParam.Split('&');
-    //    password = xID[2].Split('=');
+IF @ExpDays > 0
+BEGIN
+	IF @LastUpdatedPassword IS NULL
+	BEGIN
+		UPDATE [dbo].[User] SET LastUpdatedPassword=GETDATE() WHERE LoginName=@LoginName
+		SET @LastUpdatedPassword=GETDATE()
+	END
+
+	SET @Overdue = DATEDIFF(Day, @LastUpdatedPassword, GETDATE())
+END
+
+SELECT ISNULL(@Overdue,0) as Overdue";
+        var dt = _bu.DbExecuteQuery(query, new Blue.DAL.DbParameter[] { new Blue.DAL.DbParameter("@LoginName", loginName) }, sysConnStr);
+
+        if (dt != null && dt.Rows.Count > 0)
+        {
+            var overdue = Convert.ToInt32(dt.Rows[0][0]);
+
+            isExpired = overdue > 0;
+        }
 
 
-    //    // Assign UserName and Password
-    //    _UserName = username[1];
-    //    _Password = password[1];
+        if (isExpired)
+        {
+            refId = Guid.NewGuid().ToString("N");
 
-    //     Fire Authenticate event
+            query = "UPDATE dbo.[User] SET [PasswordKey]=@id WHERE LoginName=@LoginName";
+            _bu.DbExecuteQuery(query, new Blue.DAL.DbParameter[] 
+            { 
+                new Blue.DAL.DbParameter("@id", refId), 
+                new Blue.DAL.DbParameter("@LoginName", loginName) 
+            }, sysConnStr);
+        }
 
-    //    LoginControl_Authenticate(this, new AuthenticateEventArgs());
-    //    LoginControl_LoggedIn(this, new EventArgs());
+        return isExpired;
+    }
 
-    //    Response.Redirect("BuList.aspx?BuCode=" + bu[1]);
-    //}
 
-    
 
 
 
