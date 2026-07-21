@@ -100,6 +100,7 @@ namespace Blue.BL.dbo
             2026-10-31 = waltonsuitessukhumvitbangkok = 5
             2026-10-31 = aboveelementhotel = 4 + 16 = 20
             2026-10-31 = bestwesternqkhonkaen = 10
+            2026-10-31 = thenaturephuket = 10
          
          
             2026-09-30 = kckohchang = 17
