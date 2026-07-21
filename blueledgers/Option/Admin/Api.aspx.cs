@@ -165,7 +165,8 @@ namespace BlueLedger.PL.Option.Admin
         {
             try
             {
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                //ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                ServicePointManager.SecurityProtocol = (SecurityProtocolType)(192 | 768 | 3072);
 
                 using (var client = new WebClient())
                 {

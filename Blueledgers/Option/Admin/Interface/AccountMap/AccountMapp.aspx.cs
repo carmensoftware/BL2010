@@ -1505,7 +1505,9 @@ ORDER BY
                     var endpoint_account = config.Value("accountcode").Trim().TrimStart('/').TrimEnd('/');
                     var endpoint_department = config.Value("department").Trim().TrimStart('/').TrimEnd('/');
 
-                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                    //ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                    ServicePointManager.SecurityProtocol = (SecurityProtocolType)(192 | 768 | 3072);
+
                     using (var client = new WebClient())
                     {
                         client.BaseAddress = host;
