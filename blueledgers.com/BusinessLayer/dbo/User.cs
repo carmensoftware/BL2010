@@ -14,149 +14,155 @@ namespace Blue.BL.dbo
 
         /*  Customer's license
          
-         
-            2027-07-31 = Nexen = 20
-            2027-07-31 = uchijapanese-phuket = 2
-         
-         
-         
-         
-            2027-06-30 = andalanta = 7+1+1=9
-            2027-06-30 = maraleina = 23+1+10 = 34
-            2027-06-30 = sunshine-residences = 10+5=15
-            2027-06-30 = theyamaphuket = 12+2 = 14-2 = 12
-         
-         
-            2027-05-31 = chatriumniseko = 9
-            2027-05-31 = ramadadmabangkok = 19
-            2027-05-31 = HotelSensai (Chiang Mai) = 3+8 = 11 ปรับเป็น 10 
-            2027-05-31 = chi = 2
-            2027-05-31 = ramadakhaolak = 14
-         
-         
-            2027-04-30 = paresaresort = 23
-            2027-04-30 = indochinephuket = 27
-         
-            2027-04-30 = silqandsq = 9+5=14
-            2026-04-30 = bestwesternratchada = 10
-         
-         
-            2027-03-31 = manor = 4
-            2027-03-31 = silavadeepoolsparesort = 28
-            2027-03-31 = DeevanaPhuket = 65=> 69
-            2027-03-31 = wyndhamjomtienpattaya = 20 + 2 = 22
-            2027-03-31 = aidenhotels = 10
-         
-         
-            2027-02-28 = mybeachphuket = 10+? = 13 + 1 = 14
-            2027-02-28 = firaphuketbeachclub = 5+3=8
-            2027-02-28 = gcmt = 1
-            2027-02-28 = sorahotels = 9
-            2027-02-28 = belairebangkok = 11
-            2027-02-28 = dewaphuketresort = 14+1=15
-            2027-02-28 = cafedelmarphuket =46
-            2027-02-28 = maitriahotels = 5+6 = 11
-            2027-02-28 = siamesehotelpattaya = 10
-            2027-02-28 = surestayplustpattaya = 10
-         
-         
-         
-            2027-01-31 = bayvillaskohphangan = 1+5+1 = 7
-            2027-01-31 = siamese = 24+2 = 26 + 20 + 10 = 56 (follow by Cassia Rama9)
-            2027-01-31 = surestaytheiconicari = 10        
-            2027-01-31 = teerapatgroup = 5 + 5 = 10
-            2027-01-31 = wyndhamgardenphuketkamala = 25+4 = 29 + 3 = 32
-            2027-01-31 = bwpluscarapace =17
-            2027-01-31 = Phuket Emerald = 15+5 = 20 
-            2027-01-31 = bestwesternchatuchak = 9
-            2027-01-31 = brownstarling = 18
-            2027-01-31 = verandaresortautograph = 3+10+1 = 14
-            2027-01-31 = OKM = 50
-            2027-01-31 = ibis = 999
-         
-            2027-01-31 = TWIN_LOTUS (on permise) = 16
-            2027-01-31 = boulevardhotelbangkok = 10 + 17 = 27
-            2027-01-31 = samuiparadisebeach = 10
-            2027-01-31 = jazzotelbangkok = 7 + 5= 12
-            2027-01-31 = MysKhaoyai = 12
-            2027-01-31 = absoluteresorts = 1
-            2027-01-31 = sotetsu-hotels = 1 + 6 = 7
-         
-            2027-01-31 = hopinnth = 27 + 23 = 50
-            2027-01-31 = hopinn (On-Permise) = 27
-            2027-01-31 = bellevillagroup = 10
-            2027-01-31 = theakyrabangkok11 = 5+5=10
-            2027-01-31 = nh-asoke-bangkok = 15
-         
-            2027-01-31 = rasahospitality = 73 + 17 = 90
-            2027-01-31 = maduzi = 20
-         
-         
-            ---------------------------------------------------------------
-         
-         
-            2026-11-30 = chalongmarina = 8+2=10
-            2026-11-30 = korabeachresort = 10 + 22 = 32
-         
-            2026-11-30 = skyviewresortphuket = 11 + 1 =12
-            2026-11-30 = wyndhamgardennaithon = 21
-            2026-11-30 = surestayplussukhumvit2 = 10
-         
-         
-            2026-10-31 = blumonkeybangtaophuket = 6
-            2026-10-31 = BlumonkeyKrabi = 6
-            2026-10-31 = sztowerthai = 13+4=17
-            2026-10-31 = peachgroup = 13 
-            2026-10-31 = waltonsuitessukhumvitbangkok = 5
-            2026-10-31 = aboveelementhotel = 4 + 16 = 20
-            2026-10-31 = bestwesternqkhonkaen = 10
-            2026-10-31 = thenaturephuket = 10
-            2026-10-31 = thetintartphuketown = 2
-         
-         
-            2026-09-30 = kckohchang = 17
-            2026-09-30 = varanahotel = 16
-            2026-09-30 = TheSarojin = 3
-            2026-09-30 = thekaset = 10
-            2026-09-30 = tuibluethepassage = 8 + 8 = 16
-            2026-09-30 = namakaresortkamala = 15
-            2026-09-30 = kappasensesubud = 17+5=22
-         
-            2026-08-31 = themarinphuket = 19
-            2026-08-31 = thenappathong = 8+5=13
-            2026-08-31 = celessamui = 25 + 2 = 27
-            2026-08-31 = surestaytheiconic = 4+7=11
-            2026-08-31 = DIAMOND COTTAGE(on permise) = 15+5=20
-            2026-08-31 = bestwesternclicksathorn11 = 10
-            2026-08-31 = palayanagroup = 2+20 = 22
-            2026-08-31 = bwsanctuary = 10
-            2026-08-31 = thebangkokclub = 20
-            2026-08-31 = wyndhamgardensamuiwing = 12
-            2026-08-31 = metadeephuket = 25
-            2026-08-31 = ratilannachiangmai = 5
-            2026-08-31 = almohotelbangkok = 7
-         
-            2026-08-31 = parklanehotels = 16 + 8 = 24
-            2026-08-31 = wyndhamgardenmanilabay = 7+1 = 8
-         
-         
-         
-         
-         
-            2026-07-31 = blumonkeybangsaen = 5
-         
-         
-            2026-07-31 = granddiamondsuites = 6+4 = 10
-            2026-07-31 = floralcourthotel = 5+6 = 11
-            2026-07-31 = mavericks-management = 8
-            2026-07-31 = legacysuites = 15 + 7 = 22
-            2026-07-31 = selinaserenityrawai = 8
-         
-         
-         
-         
-         
-            2026-06-30 = urbana-sathorn = 6 + 2 = 8 + 2 = 10
+        [2027-12]
+
+        [2027-11]
+
+        [2027-10]
+
+        [2027-09]
+
+        [2027-08]
+        bwsanctuary = 10
+
+        [2027-07]
+        nexen = 20
+        uchijapanese-phuket = 2
+
+        [2027-06]
+        andalanta = 7+1+1=9
+        maraleina = 23+1+10 = 34
+        sunshine-residences = 10+5=15
+        theyamaphuket = 12+2 = 14-2 = 12
+        granddiamondsuites = 6+4 = 10
+        floralcourthotel = 5+6 = 11
+        legacysuites = 15 + 7 = 22
+
+        [2027-05]
+        chatriumniseko = 9
+        ramadadmabangkok = 19
+        HotelSensai (Chiang Mai) = 3+8 = 11 ปรับเป็น 10
+        chi = 2
+        ramadakhaolak = 14
+
+        [2027-04]
+        paresaresort = 23
+        indochinephuket = 27
+        silqandsq = 9+5=14
+        bestwesternratchada = 10
+
+        [2027-03]
+        manor = 4
+        silavadeepoolsparesort = 28
+        DeevanaPhuket = 65=> 69
+        wyndhamjomtienpattaya = 20 + 2 = 22
+        aidenhotels = 10
+
+        [2027-02]
+        mybeachphuket = 10+? = 13 + 1 = 14
+        firaphuketbeachclub = 5+3=8
+        gcmt = 1
+        sorahotels = 9
+        belairebangkok = 11
+        dewaphuketresort = 14+1=15
+        cafedelmarphuket =46
+        maitriahotels = 5+6 = 11
+        siamesehotelpattaya = 10
+        surestayplustpattaya = 10
+
+        [2027-01]
+        bayvillaskohphangan = 1+5+1 = 7
+        siamese = 24+2 = 26 + 20 + 10 = 56 (follow by Cassia Rama9)
+        surestaytheiconicari = 10
+        teerapatgroup = 5 + 5 = 10
+        wyndhamgardenphuketkamala = 25+4 = 29 + 3 = 32
+        bwpluscarapace =17
+        Phuket Emerald = 15+5 = 20
+        bestwesternchatuchak = 9
+        brownstarling = 18
+        verandaresortautograph = 3+10+1 = 14
+        OKM = 50
+        ibis = 999
+
+        TWIN_LOTUS (on permise) = 16
+        boulevardhotelbangkok = 10 + 17 = 27
+        samuiparadisebeach = 10
+        jazzotelbangkok = 7 + 5= 12
+        MysKhaoyai = 12
+        absoluteresorts = 1
+        sotetsu-hotels = 1 + 6 = 7
+
+        hopinnth = 27 + 23 = 50
+        hopinn (On-Permise) = 27
+        bellevillagroup = 10
+        theakyrabangkok11 = 5+5=10
+        nh-asoke-bangkok = 15
+
+        rasahospitality = 73 + 17 = 90
+        maduzi = 20
+
+
+        [2026-12]
+
+        [2026-11]
+        chalongmarina = 8+2=10
+        korabeachresort = 10 + 22 = 32
+
+        skyviewresortphuket = 11 + 1 =12
+        wyndhamgardennaithon = 21
+        surestayplussukhumvit2 = 10
+
+        [2026-10]
+        blumonkeybangtaophuket = 6
+        BlumonkeyKrabi = 6
+        sztowerthai = 13+4=17
+        peachgroup = 13
+        waltonsuitessukhumvitbangkok = 5
+        aboveelementhotel = 4 + 16 = 20
+        bestwesternqkhonkaen = 10
+        thenaturephuket = 10
+        thetintartphuketown = 2
+
+
+        [2026-09]
+        kckohchang = 17
+        varanahotel = 16
+        TheSarojin = 3
+        thekaset = 10
+        tuibluethepassage = 8 + 8 = 16
+        namakaresortkamala = 15
+        kappasensesubud = 17+5=22
+
+        [2026-08]
+        2026-08-31 = themarinphuket = 19
+        thenappathong = 8+5=13
+        celessamui = 25 + 2 = 27
+        surestaytheiconic = 4+7=11
+        DIAMOND COTTAGE(on permise) = 15+5=20
+        bestwesternclicksathorn11 = 10
+        palayanagroup = 2+20 = 22
+        thebangkokclub = 20
+        wyndhamgardensamuiwing = 12
+        metadeephuket = 25
+        ratilannachiangmai = 5
+        almohotelbangkok = 7
+
+        parklanehotels = 16 + 8 = 24
+        wyndhamgardenmanilabay = 7+1 = 8
+
+        [2026-07]
+        blumonkeybangsaen = 5
+
+
+        mavericks-management = 8
+        selinaserenityrawai = 8
+
+        ---------------------------------------------------------------
+
+
+
+        2026-06-30 = urbana-sathorn = 6 + 2 = 8 + 2 = 10     
+
 
         */
 
@@ -197,9 +203,9 @@ namespace Blue.BL.dbo
         
         */
 
-        private readonly int _licenseActiveUser =10;
-        private readonly DateTime _expiryDate = new DateTime(2027, 04, 30);
-
+        //private readonly DateTime _expiryDate = new DateTime(2027, 04, 30);
+        private readonly int _licenseActiveUser = 10;
+        private readonly DateTime _expiryDate = new DateTime(2027, 8, 1).AddMonths(1).AddDays(-1);
 
         private DateTime licenseExpiredDate
         {
@@ -305,7 +311,7 @@ WHERE
                     {
                         //MsgError = "You have more users than your license allows. Please contact administrator to purchase the license.";
                         MsgError = string.Format("The number of users exceeds the available licenses.<br/>License: {0} purchased | {1} assigned.", _licenseActiveUser, activedUsers);
-                        
+
                         return false;
                     }
                     else if (DateTime.Now.Date >= licenseExpiredDate.AddDays(-30))
