@@ -14,6 +14,13 @@ namespace Blue.BL.dbo
 
         /*  Customer's license
          
+         
+            2027-07-31 = Nexen = 20
+            2027-07-31 = uchijapanese-phuket = 2
+         
+         
+         
+         
             2027-06-30 = andalanta = 7+1+1=9
             2027-06-30 = maraleina = 23+1+10 = 34
             2027-06-30 = sunshine-residences = 10+5=15
@@ -31,12 +38,14 @@ namespace Blue.BL.dbo
             2027-04-30 = indochinephuket = 27
          
             2027-04-30 = silqandsq = 9+5=14
+            2026-04-30 = bestwesternratchada = 10
          
          
             2027-03-31 = manor = 4
             2027-03-31 = silavadeepoolsparesort = 28
             2027-03-31 = DeevanaPhuket = 65=> 69
             2027-03-31 = wyndhamjomtienpattaya = 20 + 2 = 22
+            2027-03-31 = aidenhotels = 10
          
          
             2027-02-28 = mybeachphuket = 10+? = 13 + 1 = 14
@@ -80,6 +89,7 @@ namespace Blue.BL.dbo
             2027-01-31 = nh-asoke-bangkok = 15
          
             2027-01-31 = rasahospitality = 73 + 17 = 90
+            2027-01-31 = maduzi = 20
          
          
             ---------------------------------------------------------------
@@ -101,6 +111,7 @@ namespace Blue.BL.dbo
             2026-10-31 = aboveelementhotel = 4 + 16 = 20
             2026-10-31 = bestwesternqkhonkaen = 10
             2026-10-31 = thenaturephuket = 10
+            2026-10-31 = thetintartphuketown = 2
          
          
             2026-09-30 = kckohchang = 17
@@ -109,6 +120,7 @@ namespace Blue.BL.dbo
             2026-09-30 = thekaset = 10
             2026-09-30 = tuibluethepassage = 8 + 8 = 16
             2026-09-30 = namakaresortkamala = 15
+            2026-09-30 = kappasensesubud = 17+5=22
          
             2026-08-31 = themarinphuket = 19
             2026-08-31 = thenappathong = 8+5=13
@@ -124,22 +136,21 @@ namespace Blue.BL.dbo
             2026-08-31 = ratilannachiangmai = 5
             2026-08-31 = almohotelbangkok = 7
          
-            2026-07-31 = Nexen = 20
-            2026-07-31 = uchijapanese-phuket = 2
+            2026-08-31 = parklanehotels = 16 + 8 = 24
+            2026-08-31 = wyndhamgardenmanilabay = 7+1 = 8
+         
+         
+         
+         
+         
             2026-07-31 = blumonkeybangsaen = 5
          
          
-            2026-07-31 = aidenhotels = 10
-            2026-07-31 = bestwesternratchada = 10        
-            2026-07-31 = parklanehotels = 16 + 8 = 24
-            2026-07-31 = maduzi = 20
             2026-07-31 = granddiamondsuites = 6+4 = 10
             2026-07-31 = floralcourthotel = 5+6 = 11
             2026-07-31 = mavericks-management = 8
             2026-07-31 = legacysuites = 15 + 7 = 22
-            2026-07-31 = kappasensesubud = 17
             2026-07-31 = selinaserenityrawai = 8
-            2026-07-31 = wyndhamgardenmanilabay = 7+1 = 8
          
          
          
@@ -187,7 +198,7 @@ namespace Blue.BL.dbo
         */
 
         private readonly int _licenseActiveUser =10;
-        private readonly DateTime _expiryDate = new DateTime(2026, 10, 31);
+        private readonly DateTime _expiryDate = new DateTime(2027, 04, 30);
 
 
         private DateTime licenseExpiredDate
