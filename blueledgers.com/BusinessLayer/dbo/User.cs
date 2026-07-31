@@ -120,7 +120,7 @@ namespace Blue.BL.dbo
         waltonsuitessukhumvitbangkok = 5
         aboveelementhotel = 4 + 16 = 20
         bestwesternqkhonkaen = 10
-        thenaturephuket = 10
+        thenaturephuket = 10+1=11
         thetintartphuketown = 2
 
 
@@ -204,8 +204,8 @@ namespace Blue.BL.dbo
         */
 
         //private readonly DateTime _expiryDate = new DateTime(2027, 04, 30);
-        private readonly int _licenseActiveUser = 10;
-        private readonly DateTime _expiryDate = new DateTime(2027, 8, 1).AddMonths(1).AddDays(-1);
+        private readonly int _licenseActiveUser = 11;
+        private readonly DateTime _expiryDate = new DateTime(2026, 10, 1).AddMonths(1).AddDays(-1);
 
         private DateTime licenseExpiredDate
         {
