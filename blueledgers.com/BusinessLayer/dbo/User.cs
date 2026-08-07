@@ -28,6 +28,7 @@ namespace Blue.BL.dbo
         [2027-07]
         nexen = 20
         uchijapanese-phuket = 2
+        themarinphuket = 19
 
         [2027-06]
         andalanta = 7+1+1=9
@@ -72,7 +73,7 @@ namespace Blue.BL.dbo
 
         [2027-01]
         bayvillaskohphangan = 1+5+1 = 7
-        siamese = 24+2 = 26 + 20 + 10 = 56 (follow by Cassia Rama9)
+        siamese = 24+2 = 26 + 20 + 10 = 56 (follow by Cassia Rama9) + 4 = 60
         surestaytheiconicari = 10
         teerapatgroup = 5 + 5 = 10
         wyndhamgardenphuketkamala = 25+4 = 29 + 3 = 32
@@ -87,7 +88,7 @@ namespace Blue.BL.dbo
         TWIN_LOTUS (on permise) = 16
         boulevardhotelbangkok = 10 + 17 = 27
         samuiparadisebeach = 10
-        jazzotelbangkok = 7 + 5= 12
+        jazzotelbangkok = 7 + 5 + 3= 15
         MysKhaoyai = 12
         absoluteresorts = 1
         sotetsu-hotels = 1 + 6 = 7
@@ -134,7 +135,6 @@ namespace Blue.BL.dbo
         kappasensesubud = 17+5=22
 
         [2026-08]
-        2026-08-31 = themarinphuket = 19
         thenappathong = 8+5=13
         celessamui = 25 + 2 = 27
         surestaytheiconic = 4+7=11
@@ -209,8 +209,8 @@ namespace Blue.BL.dbo
         */
 
         //private readonly DateTime _expiryDate = new DateTime(2027, 04, 30);
-        private readonly int _licenseActiveUser = 8;
-        private readonly DateTime _expiryDate = new DateTime(2026, 8, 1).AddMonths(1).AddDays(-1);
+        private readonly int _licenseActiveUser = 60;
+        private readonly DateTime _expiryDate = new DateTime(2027, 1, 1).AddMonths(1).AddDays(-1);
 
         private DateTime licenseExpiredDate
         {
