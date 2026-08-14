@@ -81,7 +81,7 @@ namespace Blue.BL.dbo
         Phuket Emerald = 15+5 = 20
         bestwesternchatuchak = 9
         brownstarling = 18
-        verandaresortautograph = 3+10+1 = 14
+        verandaresortgroup = 3+10+1 = 14 + 14 = 28
         OKM = 50
         ibis = 999
 
@@ -121,7 +121,7 @@ namespace Blue.BL.dbo
         waltonsuitessukhumvitbangkok = 5
         aboveelementhotel = 4 + 16 = 20
         bestwesternqkhonkaen = 10
-        thenaturephuket = 10+1=11
+        thenaturephuket = 10+1 = 11 + 16 = 27
         thetintartphuketown = 2
 
 
@@ -144,7 +144,7 @@ namespace Blue.BL.dbo
         thebangkokclub = 20
         wyndhamgardensamuiwing = 12
         metadeephuket = 25
-        ratilannachiangmai = 5
+        ratilannanimman = 5 + 5 = 10
         almohotelbangkok = 7
 
         parklanehotels = 16 + 8 = 24
@@ -209,8 +209,8 @@ namespace Blue.BL.dbo
         */
 
         //private readonly DateTime _expiryDate = new DateTime(2027, 04, 30);
-        private readonly int _licenseActiveUser = 60;
-        private readonly DateTime _expiryDate = new DateTime(2027, 1, 1).AddMonths(1).AddDays(-1);
+        private readonly int _licenseActiveUser = 10;
+        private readonly DateTime _expiryDate = new DateTime(2026, 8, 1).AddMonths(1).AddDays(-1);
 
         private DateTime licenseExpiredDate
         {
