@@ -136,7 +136,7 @@ namespace Blue.BL.dbo
 
         [2026-08]
         thenappathong = 8+5=13
-        celessamui = 25 + 2 = 27
+        celessamui = 25 + 2 = 27 + 3 = 30
         surestaytheiconic = 4+7=11
         DIAMOND COTTAGE(on permise) = 15+5=20
         bestwesternclicksathorn11 = 10
@@ -209,7 +209,7 @@ namespace Blue.BL.dbo
         */
 
         //private readonly DateTime _expiryDate = new DateTime(2027, 04, 30);
-        private readonly int _licenseActiveUser = 10;
+        private readonly int _licenseActiveUser = 30;
         private readonly DateTime _expiryDate = new DateTime(2026, 8, 1).AddMonths(1).AddDays(-1);
 
         private DateTime licenseExpiredDate
