@@ -24,6 +24,12 @@ namespace Blue.BL.dbo
 
         [2027-08]
         bwsanctuary = 10
+        celessamui = 25 + 2 = 27 + 3 = 30
+        surestaytheiconic = 4+7=11
+        thebangkokclub = 20
+        thenappatong = 8+5=13
+
+
 
         [2027-07]
         nexen = 20
@@ -38,6 +44,7 @@ namespace Blue.BL.dbo
         granddiamondsuites = 6+4 = 10
         floralcourthotel = 5+6 = 11
         legacysuites = 15 + 7 = 22
+        vikasaphuket = 15
 
         [2027-05]
         chatriumniseko = 9
@@ -101,6 +108,7 @@ namespace Blue.BL.dbo
 
         rasahospitality = 73 + 17 = 90
         maduzi = 20
+        metadeephuket = 25
 
 
         [2026-12]
@@ -112,6 +120,7 @@ namespace Blue.BL.dbo
         skyviewresortphuket = 11 + 1 =12
         wyndhamgardennaithon = 21
         surestayplussukhumvit2 = 10
+        themercersukhumvit = 5
 
         [2026-10]
         blumonkeybangtaophuket = 6
@@ -133,39 +142,30 @@ namespace Blue.BL.dbo
         tuibluethepassage = 8 + 8 = 16
         namakaresortkamala = 15
         kappasensesubud = 17+5=22
+        palayanagroup = 2+20 = 22
+        bestwesternclicksathorn11 = 10
+        parklanehotels = 16 + 8 = 24
+        selinaserenityrawai = 8
+        wyndhamgardenmanilabay = 7+1 = 8
+        wyndhamgardensamuiwing = 12
+
+
+
+
+
 
         [2026-08]
-        thenappathong = 8+5=13
-        celessamui = 25 + 2 = 27 + 3 = 30
-        surestaytheiconic = 4+7=11
         DIAMOND COTTAGE(on permise) = 15+5=20
-        bestwesternclicksathorn11 = 10
-        palayanagroup = 2+20 = 22
-        thebangkokclub = 20
-        wyndhamgardensamuiwing = 12
-        metadeephuket = 25
-        ratilannanimman = 5 + 5 = 10
         almohotelbangkok = 7
 
-        parklanehotels = 16 + 8 = 24
-        wyndhamgardenmanilabay = 7+1 = 8
-
-        selinaserenityrawai = 8
 
 
-
-
+        ratilannanimman = 5 + 5 = 10
 
         [2026-07]
         blumonkeybangsaen = 5
-
-
         mavericks-management = 8
-
         ---------------------------------------------------------------
-
-
-
         2026-06-30 = urbana-sathorn = 6 + 2 = 8 + 2 = 10     
 
 
@@ -209,8 +209,8 @@ namespace Blue.BL.dbo
         */
 
         //private readonly DateTime _expiryDate = new DateTime(2027, 04, 30);
-        private readonly int _licenseActiveUser = 30;
-        private readonly DateTime _expiryDate = new DateTime(2026, 8, 1).AddMonths(1).AddDays(-1);
+        private readonly int _licenseActiveUser = 13;
+        private readonly DateTime _expiryDate = new DateTime(2027, 8, 1).AddMonths(1).AddDays(-1);
 
         private DateTime licenseExpiredDate
         {

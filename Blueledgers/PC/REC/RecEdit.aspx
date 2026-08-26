@@ -1166,6 +1166,7 @@
                     </asp:TemplateField>
                 </Columns>
             </asp:GridView>
+
             <dx:ASPxPopupControl ID="pop_Warning" ClientInstanceName="pop_Warning" runat="server" Width="300px" CloseAction="CloseButton" HeaderText="<%$ Resources:PC_REC_RecEdit, Warning %>"
                 Modal="True" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" ShowCloseButton="False" ShowPageScrollbarWhenModal="True">
                 <ContentStyle VerticalAlign="Top">

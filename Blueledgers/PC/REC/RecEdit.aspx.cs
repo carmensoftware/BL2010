@@ -3217,7 +3217,7 @@ namespace BlueLedger.PL.IN.REC
                             drRecDt["OrderQty"] = Convert.ToDecimal(drSelected["OrderQty"] == DBNull.Value ? 0 : (decimal)drSelected["OrderQty"]);
                             drRecDt["FOCQty"] = Convert.ToDecimal(drSelected["FOCQty"] == DBNull.Value ? 0 : (decimal)drSelected["FOCQty"]);
                             drRecDt["RecQty"] = Convert.ToDecimal(drSelected["OrderQty"] == DBNull.Value ? 0 : (decimal)drSelected["OrderQty"]);
-                            drRecDt["FOCQty"] = Convert.ToDecimal(drSelected["FOCQty"] == DBNull.Value ? 0 : (decimal)drSelected["FOCQty"]);
+                            //drRecDt["FOCQty"] = Convert.ToDecimal(drSelected["FOCQty"] == DBNull.Value ? 0 : (decimal)drSelected["FOCQty"]);
                             drRecDt["Price"] = Convert.ToDecimal(drSelected["Price"] == DBNull.Value ? 0 : (decimal)drSelected["Price"]);
 
                             var discRate = Convert.ToDecimal(drSelected["Discount"] == DBNull.Value ? 0 : (decimal)drSelected["Discount"]);
