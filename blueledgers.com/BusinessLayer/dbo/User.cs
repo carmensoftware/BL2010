@@ -148,19 +148,12 @@ namespace Blue.BL.dbo
         selinaserenityrawai = 8
         wyndhamgardenmanilabay = 7+1 = 8
         wyndhamgardensamuiwing = 12
-
-
-
-
+        ratilannanimman = 5 + 5 = 10
 
 
         [2026-08]
         DIAMOND COTTAGE(on permise) = 15+5=20
         almohotelbangkok = 7
-
-
-
-        ratilannanimman = 5 + 5 = 10
 
         [2026-07]
         blumonkeybangsaen = 5
@@ -209,8 +202,8 @@ namespace Blue.BL.dbo
         */
 
         //private readonly DateTime _expiryDate = new DateTime(2027, 04, 30);
-        private readonly int _licenseActiveUser = 13;
-        private readonly DateTime _expiryDate = new DateTime(2027, 8, 1).AddMonths(1).AddDays(-1);
+        private readonly int _licenseActiveUser = 10;
+        private readonly DateTime _expiryDate = new DateTime(2026, 9, 1).AddMonths(1).AddDays(-1);
 
         private DateTime licenseExpiredDate
         {
