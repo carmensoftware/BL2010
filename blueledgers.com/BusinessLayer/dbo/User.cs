@@ -150,9 +150,9 @@ namespace Blue.BL.dbo
         wyndhamgardensamuiwing = 12
         ratilannanimman = 5 + 5 = 10
 
+        DIAMOND COTTAGE(on permise) = 15+5=20
 
         [2026-08]
-        DIAMOND COTTAGE(on permise) = 15+5=20
         almohotelbangkok = 7
 
         [2026-07]
@@ -202,7 +202,7 @@ namespace Blue.BL.dbo
         */
 
         //private readonly DateTime _expiryDate = new DateTime(2027, 04, 30);
-        private readonly int _licenseActiveUser = 10;
+        private readonly int _licenseActiveUser = 12;
         private readonly DateTime _expiryDate = new DateTime(2026, 9, 1).AddMonths(1).AddDays(-1);
 
         private DateTime licenseExpiredDate

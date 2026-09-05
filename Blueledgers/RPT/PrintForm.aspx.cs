@@ -27,8 +27,20 @@ public partial class RPT_PrintForm : BasePage
             case "PurchaseOrderForm":
                 rptID = "9002";
                 break;
+            case "ReceivingForm":
+                rptID = "9003";
+                break;
+            case "CreditNoteForm":
+                rptID = "9004";
+                break;
             case "StoreRequisitionForm":
                 rptID = "9011";
+                break;
+            case "StockInForm":
+                rptID = "9012";
+                break;
+            case "StockOutForm":
+                rptID = "9013";
                 break;
             default:
                 reportName = reportName + ".frx";

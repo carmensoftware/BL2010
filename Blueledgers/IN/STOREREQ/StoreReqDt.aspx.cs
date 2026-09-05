@@ -160,7 +160,7 @@ namespace BlueLedger.PL.IN.STOREREQ
 
             if (WfStep == WfStepCount) // last step
             {
-				lbl_ApproveMessage.Text = string.Empty;
+                lbl_ApproveMessage.Text = string.Empty;
                 panel_WFControl.Enabled = true;
 
             }
@@ -252,10 +252,10 @@ namespace BlueLedger.PL.IN.STOREREQ
             // End Modified.
 
             var ii = WfStep < 1 ? 1 : WfStep;
-             if (drStoreReq["ApprStatus"].ToString().Substring(ii-1, 1) != "_")
-             {
-                 btn_Edit.Visible = false;
-             }
+            if (drStoreReq["ApprStatus"].ToString().Substring(ii - 1, 1) != "_")
+            {
+                btn_Edit.Visible = false;
+            }
 
             // Set User Authorize for Step 1
 
@@ -393,23 +393,11 @@ namespace BlueLedger.PL.IN.STOREREQ
                     onOrder = dr["OnOrder"].ToString() == string.Empty ? 0 : Convert.ToDecimal(dr["OnOrder"]);
                     reOrder = dr["ReOrder"].ToString() == string.Empty ? 0 : Convert.ToDecimal(dr["ReOrder"]);
                     lastPrice = dr["LastPrice"].ToString() == string.Empty ? 0 : Convert.ToDecimal(dr["LastPrice"]);
-                    //lastCost = dr["LastCost"].ToString() == string.Empty ? 0 : Convert.ToDecimal(dr["LastCost"]);
                     reStock = dr["ReStock"].ToString() == string.Empty ? 0 : Convert.ToDecimal(dr["ReStock"]);
                     lastVendor = dr["LastVendor"].ToString();
                 }
 
-
-                //var status = lbl_Status.Text.Trim();
-
-                //if (status.StartsWith("C"))
-                //{
-                //    var dtno = DataBinder.Eval(e.Row.DataItem, "RefId").ToString();
-                //    var query = string.Format("SELECT TOP(1) Amount FROM [IN].Inventory WHERE DtNo={0} AND [Type] IN ('SR','TR')", dtno );
-                //    var dtCost = bu.DbExecuteQuery(query, null, LoginInfo.ConnStr);
-
-                //    lastCost = dtCost.Rows.Count == 0 ? lastCost : Convert.ToDecimal(dtCost.Rows[0][0]);
-                //}
-
+              
 
                 // Check Box
                 var chkItem = e.Row.FindControl("chk_Item") as CheckBox;
@@ -424,12 +412,9 @@ namespace BlueLedger.PL.IN.STOREREQ
                      {
                          chkItem.Visible = true;
                      }
-                     else if (!apprStatus.ToString().Substring((j - 1) * 10, 10).Contains('_')
-                         /*current status ที่เปลี่ยนสถานะไปแล้ว*/
-                             // || apprStatus.ToString().Substring(0, (j - 1) * 10).Contains('_')
-                         /*previous status ที่ยังทำไม่เสร็จ*/)
+                     else if (!apprStatus.ToString().Substring((j - 1) * 10, 10).Contains('_'))
                      {
-                     chkItem.Visible = false;
+                        chkItem.Visible = false;
                      }
 
                 }
@@ -688,103 +673,7 @@ namespace BlueLedger.PL.IN.STOREREQ
 
         protected void grd_StoreReqDt_RowCommand(object sender, GridViewCommandEventArgs e)
         {
-            //if (e.CommandName == "ShowDetail")
-            //{
-            //    var imgBtn = grd_StoreReqDt.Rows[int.Parse(e.CommandArgument.ToString())].Cells[0].FindControl("Img_Btn") as ImageButton;
-
-            //    if (imgBtn != null
-            //        && imgBtn.ImageUrl == "~/App_Themes/Default/Images/master/in/Default/Plus.jpg")
-            //    {
-            //        var pDetailRows = grd_StoreReqDt.Rows[int.Parse(e.CommandArgument.ToString())].FindControl("p_DetailRows") as Panel;
-            //        if (pDetailRows != null) pDetailRows.Visible = true;
-            //        imgBtn.ImageUrl = "~/App_Themes/Default/Images/master/in/Default/Minus.jpg";
-
-            //        var drExpand =
-            //            dsStoreReq.Tables[storeReqDt.TableName].Rows[
-            //                grd_StoreReqDt.Rows[int.Parse(e.CommandArgument.ToString())].DataItemIndex];
-
-
-            //        var lblComment = grd_StoreReqDt.Rows[int.Parse(e.CommandArgument.ToString())].FindControl("lbl_Comment") as Label;
-            //        if (lblComment != null)
-            //        {
-            //            lblComment.Text = drExpand["Comment"].ToString();
-            //            lblComment.ToolTip = lblComment.Text;
-            //        }
-
-            //        var lblItemGroup = grd_StoreReqDt.Rows[int.Parse(e.CommandArgument.ToString())].FindControl("lbl_ItemGroup") as
-            //                Label;
-            //        if (lblItemGroup != null)
-            //        {
-            //            lblItemGroup.Text = prodCat.GetName(product.GetProductCategory(drExpand["ProductCode"].ToString(), LoginInfo.ConnStr), LoginInfo.ConnStr);
-            //            lblItemGroup.ToolTip = lblItemGroup.Text;
-            //        }
-
-            //        var lblSubCate = grd_StoreReqDt.Rows[int.Parse(e.CommandArgument.ToString())].FindControl("lbl_SubCate") as Label;
-            //        if (lblSubCate != null)
-            //        {
-            //            lblSubCate.Text = prodCat.GetName(product.GetParentNoByCategoryCode(product.GetProductCategory(drExpand["ProductCode"].ToString(), LoginInfo.ConnStr),
-            //                        LoginInfo.ConnStr), LoginInfo.ConnStr);
-            //            lblSubCate.ToolTip = lblSubCate.Text;
-            //        }
-
-            //        var lblCategory = grd_StoreReqDt.Rows[int.Parse(e.CommandArgument.ToString())].FindControl("lbl_Category") as
-            //                Label;
-            //        if (lblCategory != null)
-            //        {
-            //            lblCategory.Text = prodCat.GetName(
-            //                product.GetParentNoByCategoryCode(
-            //                product.GetParentNoByCategoryCode(
-            //                product.GetProductCategory(drExpand["ProductCode"].ToString(), LoginInfo.ConnStr),
-            //                LoginInfo.ConnStr), LoginInfo.ConnStr), LoginInfo.ConnStr);
-            //            lblCategory.ToolTip = lblCategory.Text;
-            //        }
-
-            //        var lblProductCode = grd_StoreReqDt.Rows[int.Parse(e.CommandArgument.ToString())].FindControl("lbl_ProductCode") as
-            //                Label;
-            //        if (lblProductCode != null)
-            //        {
-            //            lblProductCode.Text = drExpand["ProductCode"].ToString();
-            //            lblProductCode.ToolTip = lblProductCode.Text;
-            //        }
-
-            //        var lblEnglishName =
-            //            grd_StoreReqDt.Rows[int.Parse(e.CommandArgument.ToString())].FindControl("lbl_EnglishName") as
-            //                Label;
-            //        if (lblEnglishName != null)
-            //        {
-            //            lblEnglishName.Text = product.GetName(drExpand["ProductCode"].ToString(), LoginInfo.ConnStr);
-            //            lblEnglishName.ToolTip = lblEnglishName.Text;
-            //        }
-
-            //        var lblLocalName =
-            //            grd_StoreReqDt.Rows[int.Parse(e.CommandArgument.ToString())].FindControl("lbl_LocalName") as
-            //                Label;
-            //        if (lblLocalName != null)
-            //        {
-            //            lblLocalName.Text = product.GetName2(drExpand["ProductCode"].ToString(), LoginInfo.ConnStr);
-            //            lblLocalName.ToolTip = lblLocalName.Text;
-            //        }
-
-            //        // Display Stock Summary --------------------------------------------------------------  
-
-            //        //****************** Display Stock Summary ******************
-            //        if (grd_StoreReqDt.Rows[int.Parse(e.CommandArgument.ToString())].FindControl("uc_StockSummary") ==
-            //            null) return;
-            //        var ucStockSummary = grd_StoreReqDt.Rows[int.Parse(e.CommandArgument.ToString())].FindControl("uc_StockSummary") as PL.PC.StockSummary;
-            //        if (ucStockSummary == null) return;
-            //        ucStockSummary.ProductCode = drExpand["ProductCode"].ToString();
-            //        ucStockSummary.LocationCode = drExpand["ToLocationCode"].ToString();
-            //        ucStockSummary.ConnStr = LoginInfo.ConnStr;
-            //        ucStockSummary.DataBind();
-            //    }
-            //    else
-            //    {
-            //        var pDetailRows = grd_StoreReqDt.Rows[int.Parse(e.CommandArgument.ToString())].FindControl("p_DetailRows") as Panel;
-
-            //        if (pDetailRows != null) pDetailRows.Visible = false;
-            //        if (imgBtn != null) imgBtn.ImageUrl = "~/App_Themes/Default/Images/master/in/Default/Plus.jpg";
-            //    }
-            //}
+            
         }
 
         protected void btn_Print_Click(object sender, EventArgs e)
