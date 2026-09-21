@@ -88,7 +88,7 @@ namespace Blue.BL.dbo
         Phuket Emerald = 15+5 = 20
         bestwesternchatuchak = 9
         brownstarling = 18
-        verandaresortgroup = 3+10+1 = 14 + 14 = 28
+        verandaresortgroup = 3+10+1 = 14 + 14 = 28 + 10 = 38
         OKM = 50
         ibis = 999
 
@@ -201,9 +201,13 @@ namespace Blue.BL.dbo
         
         */
 
-        //private readonly DateTime _expiryDate = new DateTime(2027, 04, 30);
-        private readonly int _licenseActiveUser = 12;
-        private readonly DateTime _expiryDate = new DateTime(2026, 9, 1).AddMonths(1).AddDays(-1);
+
+        #region -- License --
+        //private readonly int _licenseActiveUser = 38;
+        //private readonly DateTime _expiryDate = new DateTime(2027, 1, 1).AddMonths(1).AddDays(-1);
+        private int _licenseActiveUser = 0;
+        private DateTime _expiryDate = DateTime.Today;
+
 
         private DateTime licenseExpiredDate
         {
@@ -215,9 +219,19 @@ namespace Blue.BL.dbo
 
         public DateTime GetLicenseExpiredDate()
         {
+            GetLicense();
+
             return _expiryDate;
         }
 
+        public int GetActiveUserLicense()
+        {
+            GetLicense();
+
+            return _licenseActiveUser;
+        }
+
+        
         public int GetActiveUser()
         {
             string query = @"
@@ -227,16 +241,43 @@ FROM
 	[dbo].[User] 
 WHERE 
 	IsActived = 1 
-	AND LoginName NOT IN (SELECT LoginName FROM [dbo].[User] WHERE LoginName IN ('support@carmen','support@genex') OR [SectionCode] = 'SUPPORT')
+	AND LoginName NOT IN (SELECT LoginName FROM [dbo].[User] WHERE [SectionCode] = 'SUPPORT')
 ";
 
             return (int)DbExecuteQuery(query, null).Rows[0][0];
         }
 
-        public int GetActiveUserLicense()
+
+        private void GetLicense()
         {
-            return _licenseActiveUser;
+            string query = @"
+SELECT
+	TOP(1)
+	l.MaxUser,
+	l.CurrUser,
+	l.EndDate
+FROM
+	dbo.Bu b
+	JOIN dbo.BuLicense l ON l.BuCode=b.BuCode
+WHERE
+	b.IsActived=1
+";
+
+            var dt = DbExecuteQuery(query, null);
+
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                var dr = dt.Rows[0];
+
+                _licenseActiveUser = Convert.ToInt32(dr["MaxUser"]);
+                _expiryDate = Convert.ToDateTime(dr["EndDate"]);
+            }
+
         }
+
+        
+        #endregion -- License --
+
 
 
 
